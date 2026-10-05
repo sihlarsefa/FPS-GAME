@@ -133,16 +133,14 @@ public static class DependencyInjection
 
         if (IsSqlServerProvider(provider))
         {
-            // SQL Server: migration'ları uygula (yoksa EnsureCreated yedeği).
-            var pending = await db.Database.GetPendingMigrationsAsync();
-            if (pending.Any() || (await db.Database.GetAppliedMigrationsAsync()).Any())
-            {
+            // EnsureCreated ile açılmış DB'lerde __EFMigrationsHistory boş kalır.
+            // Pending migration varken MigrateAsync CREATE TABLE dener → 2714 (object exists).
+            // History yoksa EnsureCreated (mevcut şemaya dokunmaz); history varsa Migrate.
+            var applied = await db.Database.GetAppliedMigrationsAsync();
+            if (applied.Any())
                 await db.Database.MigrateAsync();
-            }
             else
-            {
                 await db.Database.EnsureCreatedAsync();
-            }
         }
         else
         {
