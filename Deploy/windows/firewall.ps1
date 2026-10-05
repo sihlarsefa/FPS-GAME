@@ -7,6 +7,7 @@
   Açılan portlar:
     TCP 80, 443     — Web (IIS)
     TCP 3208        — Backend API
+    TCP 3210        — Wiki (oyuncu kılavuzu)
     TCP/UDP 7777-7900 — Oyun sunucuları (ServerManager port havuzu)
     TCP 9183        — ServerManager /metrics (opsiyonel, yerel scrape)
 .EXAMPLE
@@ -25,6 +26,7 @@ $rules = @(
     @{ Name = "$prefix-Web-80";     Proto = 'TCP'; Port = '80' },
     @{ Name = "$prefix-Web-443";    Proto = 'TCP'; Port = '443' },
     @{ Name = "$prefix-API-3208";   Proto = 'TCP'; Port = '3208' },
+    @{ Name = "$prefix-Wiki-3210";  Proto = 'TCP'; Port = '3210' },
     @{ Name = "$prefix-Game-UDP";   Proto = 'UDP'; Port = '7777-7900' },
     @{ Name = "$prefix-Game-TCP";   Proto = 'TCP'; Port = '7777-7900' }
 )

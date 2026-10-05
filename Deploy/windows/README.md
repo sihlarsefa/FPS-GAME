@@ -6,6 +6,7 @@ Linux sunucu yok; canlı hedef: `134.149.201.54` (APP2025).
 | Servis | Port | Not |
 |--------|------|-----|
 | Web portal (`harekat-web`) | 80 / 443 | IIS → `Web/dist` |
+| Wiki (`harekat-wiki`) | **3210** | IIS → `Wiki/dist` (oyuncu saha kılavuzu) |
 | Backend API (`harekat-api`) | 3208 | IIS + ASP.NET Core Module V2 |
 | Oyun sunucuları | UDP/TCP **7777–7900** | `Harekat.ServerManager` spawn |
 | ServerManager metrics | 9183 | `/metrics` |
@@ -54,6 +55,7 @@ sc.exe start Harekat.ServerManager
 Kontrol:
 
 - http://134.149.201.54/
+- http://134.149.201.54:3210/   (Wiki)
 - http://134.149.201.54:3208/health
 - http://134.149.201.54:3208/swagger
 - http://127.0.0.1:9183/metrics

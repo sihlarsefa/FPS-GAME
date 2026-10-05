@@ -13,6 +13,7 @@ param(
     [string]$Root = 'C:\harekat',
     [string]$WebPort = '80',
     [string]$ApiPort = '3208',
+    [string]$WikiPort = '3210',
     [string]$PublicHost = '134.149.201.54',
     [string]$SqlConnectionString = '',
     [string]$JwtSecret = ''
@@ -31,7 +32,9 @@ Write-Host '==> HAREKAT Windows + SQL Server deploy' -ForegroundColor Cyan
 $Repo = Join-Path $Root 'repo'
 $ApiOut = Join-Path $Root 'api'
 $WebOut = Join-Path $Root 'web'
-$WebStage = Join-Path $Root ('web_' + [DateTime]::UtcNow.ToString('yyyyMMddHHmmss'))
+$stamp = [DateTime]::UtcNow.ToString('yyyyMMddHHmmss')
+$WebStage = Join-Path $Root ('web_' + $stamp)
+$WikiStage = Join-Path $Root ('wiki_' + $stamp)
 New-Item -ItemType Directory -Force -Path $Root, $ApiOut | Out-Null
 
 if (-not $SqlConnectionString) {
@@ -110,12 +113,31 @@ Set-Content $cfgPath -Value $cfg -Encoding UTF8
 New-Item -ItemType Directory -Force -Path $WebStage | Out-Null
 Copy-Item (Join-Path $dist '*') $WebStage -Recurse -Force
 
+# Wiki (oyuncu saha kılavuzu)
+Write-Host 'Wiki build...' -ForegroundColor Yellow
+Push-Location (Join-Path $Repo 'Wiki')
+if (Test-Path package-lock.json) { npm ci } else { npm install }
+npm run build
+if ($LASTEXITCODE -ne 0) { throw 'Wiki build failed' }
+Pop-Location
+
+$wikiDist = Join-Path $Repo 'Wiki\dist'
+if (-not (Test-Path $wikiDist)) { throw "Wiki dist yok: $wikiDist" }
+# Repo'daki web.config'i koru; yoksa minimal yaz
+$wikiCfgSrc = Join-Path $Repo 'Wiki\web.config'
+if ((Test-Path $wikiCfgSrc) -and -not (Test-Path (Join-Path $wikiDist 'web.config'))) {
+    Copy-Item $wikiCfgSrc (Join-Path $wikiDist 'web.config') -Force
+}
+New-Item -ItemType Directory -Force -Path $WikiStage | Out-Null
+Copy-Item (Join-Path $wikiDist '*') $WikiStage -Recurse -Force
+
 # API
 Write-Host 'API publish...' -ForegroundColor Yellow
 $apiProj = Join-Path $Repo 'Backend\Harekat.Api\Harekat.Api.csproj'
 Import-Module WebAdministration -ErrorAction SilentlyContinue
 $apiSite = 'harekat-api'
 $webSite = 'harekat-web'
+$wikiSite = 'harekat-wiki'
 try { if (Get-Website -Name $apiSite -ErrorAction SilentlyContinue) { Stop-Website $apiSite } } catch {}
 try { if (Test-Path "IIS:\AppPools\$apiSite") { Stop-WebAppPool $apiSite } } catch {}
 Start-Sleep -Seconds 2
@@ -172,9 +194,10 @@ New-Item -ItemType Directory -Force -Path (Join-Path $ApiOut 'logs') | Out-Null
 icacls $Root /grant 'IIS_IUSRS:(OI)(CI)M' /T | Out-Null
 icacls $ApiOut /grant 'IIS_IUSRS:(OI)(CI)M' /T | Out-Null
 icacls $WebStage /grant 'IIS_IUSRS:(OI)(CI)RX' /T | Out-Null
+icacls $WikiStage /grant 'IIS_IUSRS:(OI)(CI)RX' /T | Out-Null
 
-# IIS
-foreach ($pool in @($apiSite, $webSite)) {
+# IIS — yalnızca harekat-* siteleri
+foreach ($pool in @($apiSite, $webSite, $wikiSite)) {
     if (-not (Test-Path "IIS:\AppPools\$pool")) { New-WebAppPool -Name $pool | Out-Null }
     Set-ItemProperty "IIS:\AppPools\$pool" -Name managedRuntimeVersion -Value ''
     Set-ItemProperty "IIS:\AppPools\$pool" -Name startMode -Value 'AlwaysRunning'
@@ -190,14 +213,22 @@ if (-not (Get-Website -Name $webSite -ErrorAction SilentlyContinue)) {
 } else {
     Set-ItemProperty "IIS:\Sites\$webSite" -Name physicalPath -Value $WebStage
 }
+if (-not (Get-Website -Name $wikiSite -ErrorAction SilentlyContinue)) {
+    New-Website -Name $wikiSite -PhysicalPath $WikiStage -ApplicationPool $wikiSite -Port ([int]$WikiPort) -Force | Out-Null
+} else {
+    Set-ItemProperty "IIS:\Sites\$wikiSite" -Name physicalPath -Value $WikiStage
+}
 
 New-NetFirewallRule -DisplayName "Harekat Web $WebPort" -Direction Inbound -Protocol TCP -LocalPort $WebPort -Action Allow -ErrorAction SilentlyContinue | Out-Null
 New-NetFirewallRule -DisplayName "Harekat API $ApiPort" -Direction Inbound -Protocol TCP -LocalPort $ApiPort -Action Allow -ErrorAction SilentlyContinue | Out-Null
+New-NetFirewallRule -DisplayName "Harekat Wiki $WikiPort" -Direction Inbound -Protocol TCP -LocalPort $WikiPort -Action Allow -ErrorAction SilentlyContinue | Out-Null
 
 Start-WebAppPool $apiSite
 Start-WebAppPool $webSite
+Start-WebAppPool $wikiSite
 Start-Website $apiSite
 Start-Website $webSite
+Start-Website $wikiSite
 Start-Sleep -Seconds 5
 
 try {
@@ -213,8 +244,15 @@ try {
 } catch {
     Write-Host ("Web FAIL: " + $_.Exception.Message) -ForegroundColor Yellow
 }
+try {
+    $wk = Invoke-WebRequest "http://127.0.0.1:$WikiPort/" -UseBasicParsing -TimeoutSec 15
+    Write-Host ("Wiki: " + $wk.StatusCode) -ForegroundColor Green
+} catch {
+    Write-Host ("Wiki FAIL: " + $_.Exception.Message) -ForegroundColor Yellow
+}
 
 Write-Host "Portal  http://${PublicHost}:${WebPort}/"
+Write-Host "Wiki    http://${PublicHost}:${WikiPort}/"
 Write-Host "API     http://${PublicHost}:${ApiPort}/health"
 Write-Host "Swagger http://${PublicHost}:${ApiPort}/swagger"
 Write-Host 'DONE' -ForegroundColor Green

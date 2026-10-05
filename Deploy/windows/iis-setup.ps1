@@ -15,6 +15,7 @@ param(
     [string]$Root = 'C:\harekat',
     [string]$WebPort = '80',
     [string]$ApiPort = '3208',
+    [string]$WikiPort = '3210',
     [switch]$EnableApiReverseProxy,
     [switch]$SkipHostingBundleCheck
 )
@@ -24,8 +25,10 @@ Import-Module WebAdministration -ErrorAction Stop
 
 $ApiOut = Join-Path $Root 'api'
 $WebOut = Join-Path $Root 'web'
+$WikiOut = Join-Path $Root 'wiki'
 $apiSite = 'harekat-api'
 $webSite = 'harekat-web'
+$wikiSite = 'harekat-wiki'
 
 Write-Host '==> HAREKÂT IIS kurulumu' -ForegroundColor Cyan
 
@@ -50,9 +53,9 @@ try {
     Write-Host "WebSocket özelliği atlandı: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 
-New-Item -ItemType Directory -Force -Path $ApiOut, $WebOut | Out-Null
+New-Item -ItemType Directory -Force -Path $ApiOut, $WebOut, $WikiOut | Out-Null
 
-foreach ($pool in @($apiSite, $webSite)) {
+foreach ($pool in @($apiSite, $webSite, $wikiSite)) {
     if (-not (Test-Path "IIS:\AppPools\$pool")) {
         New-WebAppPool -Name $pool | Out-Null
         Write-Host "App pool oluşturuldu: $pool"
@@ -76,6 +79,14 @@ if (-not (Get-Website -Name $webSite -ErrorAction SilentlyContinue)) {
 } else {
     Set-ItemProperty "IIS:\Sites\$webSite" -Name physicalPath -Value $WebOut
     Write-Host "Site güncellendi: $webSite"
+}
+
+if (-not (Get-Website -Name $wikiSite -ErrorAction SilentlyContinue)) {
+    New-Website -Name $wikiSite -PhysicalPath $WikiOut -ApplicationPool $wikiSite -Port ([int]$WikiPort) -Force | Out-Null
+    Write-Host "Site oluşturuldu: $wikiSite :$WikiPort"
+} else {
+    Set-ItemProperty "IIS:\Sites\$wikiSite" -Name physicalPath -Value $WikiOut
+    Write-Host "Site güncellendi: $wikiSite"
 }
 
 # WebSocket protokolü (SignalR)
@@ -136,10 +147,13 @@ Write-Host "  Site: $webSite, binding :443"
 
 Start-WebAppPool $apiSite
 Start-WebAppPool $webSite
+Start-WebAppPool $wikiSite
 Start-Website $apiSite
 Start-Website $webSite
+Start-Website $wikiSite
 
 Write-Host ''
 Write-Host "Web  http://127.0.0.1:$WebPort/" -ForegroundColor Green
+Write-Host "Wiki http://127.0.0.1:$WikiPort/" -ForegroundColor Green
 Write-Host "API  http://127.0.0.1:$ApiPort/health" -ForegroundColor Green
 Write-Host 'DONE' -ForegroundColor Green
