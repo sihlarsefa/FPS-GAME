@@ -127,7 +127,7 @@ jobs:
           tar -czf backend-${{ needs.changelog.outputs.tag }}.tar.gz backend/
 
       - name: Upload backend artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-backend
           path: artifacts/backend-*.tar.gz
@@ -161,7 +161,7 @@ jobs:
           tar -czf artifacts/web-${{ needs.changelog.outputs.tag }}.tar.gz -C Web dist
 
       - name: Upload web artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-web
           path: artifacts/web-*.tar.gz
