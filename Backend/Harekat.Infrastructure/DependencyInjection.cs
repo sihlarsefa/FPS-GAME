@@ -7,6 +7,8 @@ using Harekat.Infrastructure.Repositories;
 using Harekat.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -23,9 +25,7 @@ public static class DependencyInjection
 
         var provider = config["Storage:Provider"] ?? "Memory";
 
-        if (string.Equals(provider, "Sqlite", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(provider, "PostgreSQL", StringComparison.OrdinalIgnoreCase))
+        if (IsEfProvider(provider))
         {
             services.AddDbContext<HarekatDbContext>(opt =>
             {
@@ -33,6 +33,13 @@ public static class DependencyInjection
                 {
                     var cs = config.GetConnectionString("Sqlite") ?? "Data Source=harekat.db";
                     opt.UseSqlite(cs);
+                }
+                else if (IsSqlServerProvider(provider))
+                {
+                    var cs = config.GetConnectionString("SqlServer")
+                             ?? config.GetConnectionString("Default")
+                             ?? "Server=localhost;Database=Harekat;Trusted_Connection=True;TrustServerCertificate=True";
+                    opt.UseSqlServer(cs);
                 }
                 else
                 {
@@ -112,22 +119,45 @@ public static class DependencyInjection
     public static async Task EnsureStorageAsync(this IServiceProvider sp, IConfiguration config)
     {
         var provider = config["Storage:Provider"] ?? "Memory";
-        if (provider is "Sqlite" or "Postgres" or "PostgreSQL")
+        if (!IsEfProvider(provider))
+            return;
+
+        using var scope = sp.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<HarekatDbContext>();
+
+        // EnsureCreated is a no-op when the catalog already exists (even if empty).
+        await db.Database.EnsureCreatedAsync();
+        try
         {
-            using var scope = sp.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<HarekatDbContext>();
-            await db.Database.EnsureCreatedAsync();
-            if (!await db.Seasons.AnyAsync())
+            _ = await db.Seasons.AnyAsync();
+        }
+        catch
+        {
+            var creator = (RelationalDatabaseCreator)db.GetService<IDatabaseCreator>()!;
+            await creator.CreateTablesAsync();
+        }
+
+        if (!await db.Seasons.AnyAsync())
+        {
+            db.Seasons.Add(new Season
             {
-                db.Seasons.Add(new Season
-                {
-                    Number = 1,
-                    Name = "Sezon 1 — Kuzgun Vadisi",
-                    StartsAt = DateTimeOffset.UtcNow.AddDays(-7),
-                    EndsAt = DateTimeOffset.UtcNow.AddDays(83)
-                });
-                await db.SaveChangesAsync();
-            }
+                Number = 1,
+                Name = "Sezon 1 — Kuzgun Vadisi",
+                StartsAt = DateTimeOffset.UtcNow.AddDays(-7),
+                EndsAt = DateTimeOffset.UtcNow.AddDays(83)
+            });
+            await db.SaveChangesAsync();
         }
     }
+
+    private static bool IsSqlServerProvider(string provider) =>
+        string.Equals(provider, "SqlServer", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(provider, "SQLServer", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(provider, "MSSQL", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsEfProvider(string provider) =>
+        string.Equals(provider, "Sqlite", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(provider, "PostgreSQL", StringComparison.OrdinalIgnoreCase) ||
+        IsSqlServerProvider(provider);
 }

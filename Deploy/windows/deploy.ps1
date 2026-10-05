@@ -1,0 +1,207 @@
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+  HAREKÂT — Windows Server (IIS) + SQL Server deploy
+.DESCRIPTION
+  Repo'yu çeker, Web'i build eder, API'yi publish eder, IIS sitelerini günceller.
+  Veritabanı: Microsoft SQL Server (Storage__Provider=SqlServer).
+.EXAMPLE
+  .\deploy.ps1 -SqlConnectionString "Server=SQL;Database=Harekat;User Id=harekat;Password=***;TrustServerCertificate=True"
+#>
+param(
+    [string]$RepoUrl = 'https://github.com/sihlarsefa/FPS-GAME.git',
+    [string]$Root = 'C:\harekat',
+    [string]$WebPort = '80',
+    [string]$ApiPort = '3208',
+    [string]$PublicHost = '134.149.201.54',
+    [string]$SqlConnectionString = '',
+    [string]$JwtSecret = ''
+)
+
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+$env:Path = 'C:\Program Files\Git\cmd;C:\Program Files\dotnet;C:\Program Files\nodejs;' +
+    [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
+    [Environment]::GetEnvironmentVariable('Path', 'User')
+
+Write-Host '==> HAREKAT Windows + SQL Server deploy' -ForegroundColor Cyan
+
+$Repo = Join-Path $Root 'repo'
+$ApiOut = Join-Path $Root 'api'
+$WebOut = Join-Path $Root 'web'
+$WebStage = Join-Path $Root ('web_' + [DateTime]::UtcNow.ToString('yyyyMMddHHmmss'))
+New-Item -ItemType Directory -Force -Path $Root, $ApiOut | Out-Null
+
+if (-not $SqlConnectionString) {
+    $envFile = Join-Path $PSScriptRoot '.env.ps1'
+    if (Test-Path $envFile) { . $envFile }
+}
+if (-not $SqlConnectionString) {
+    $SqlConnectionString = $env:HAREKAT_SQL_CONNECTION
+}
+if (-not $SqlConnectionString) {
+    throw 'SQL connection string gerekli. -SqlConnectionString veya Deploy/windows/.env.ps1 veya HAREKAT_SQL_CONNECTION kullanın.'
+}
+if (-not $JwtSecret) {
+    $JwtSecret = $env:HAREKAT_JWT_SECRET
+}
+if (-not $JwtSecret -or $JwtSecret.Length -lt 32) {
+    $JwtSecret = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 48 | ForEach-Object { [char]$_ })
+    Write-Host 'JWT secret üretildi (Production appsettings içine yazıldı).' -ForegroundColor Yellow
+}
+
+# .NET 10 SDK
+if (-not ((& dotnet --list-sdks 2>$null) -match '^10\.')) {
+    Write-Host '.NET 10 SDK kuruluyor...' -ForegroundColor Yellow
+    $install = Join-Path $env:TEMP 'dotnet-install.ps1'
+    Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -OutFile $install
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $install -Channel 10.0 -InstallDir 'C:\Program Files\dotnet'
+    $env:Path = 'C:\Program Files\dotnet;' + $env:Path
+}
+
+if (-not (Test-Path (Join-Path $Repo '.git'))) {
+    git clone --depth 1 $RepoUrl $Repo
+} else {
+    git -C $Repo fetch --depth 1 origin main
+    git -C $Repo reset --hard origin/main
+}
+
+# Web
+Write-Host 'Web build...' -ForegroundColor Yellow
+Push-Location (Join-Path $Repo 'Web')
+if (Test-Path package-lock.json) { npm ci } else { npm install }
+npm run build
+if ($LASTEXITCODE -ne 0) { throw 'Web build failed' }
+Pop-Location
+
+$dist = Join-Path $Repo 'Web\dist'
+$cfgPath = Join-Path $dist 'js\config.js'
+$cfg = Get-Content $cfgPath -Raw
+$cfg = [regex]::Replace($cfg, "return '';.*", "return 'http://${PublicHost}:${ApiPort}';")
+Set-Content $cfgPath -Value $cfg -Encoding UTF8
+
+@'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <defaultDocument>
+      <files>
+        <clear />
+        <add value="index.html" />
+      </files>
+    </defaultDocument>
+    <httpErrors existingResponse="PassThrough" />
+    <staticContent>
+      <remove fileExtension=".json" />
+      <mimeMap fileExtension=".json" mimeType="application/json" />
+      <remove fileExtension=".webmanifest" />
+      <mimeMap fileExtension=".webmanifest" mimeType="application/manifest+json" />
+      <remove fileExtension=".mjs" />
+      <mimeMap fileExtension=".mjs" mimeType="text/javascript" />
+    </staticContent>
+  </system.webServer>
+</configuration>
+'@ | Set-Content (Join-Path $dist 'web.config') -Encoding UTF8
+
+New-Item -ItemType Directory -Force -Path $WebStage | Out-Null
+Copy-Item (Join-Path $dist '*') $WebStage -Recurse -Force
+
+# API
+Write-Host 'API publish...' -ForegroundColor Yellow
+$apiProj = Join-Path $Repo 'Backend\Harekat.Api\Harekat.Api.csproj'
+Import-Module WebAdministration -ErrorAction SilentlyContinue
+$apiSite = 'harekat-api'
+$webSite = 'harekat-web'
+if (Get-Website -Name $apiSite -ErrorAction SilentlyContinue) { Stop-Website $apiSite -ErrorAction SilentlyContinue }
+if (Get-WebAppPool -Name $apiSite -ErrorAction SilentlyContinue) { Stop-WebAppPool $apiSite -ErrorAction SilentlyContinue }
+Start-Sleep -Seconds 2
+
+dotnet publish $apiProj -c Release -o $ApiOut --self-contained false
+if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
+
+$prod = @{
+    Logging            = @{ LogLevel = @{ Default = 'Information'; 'Microsoft.AspNetCore' = 'Warning' } }
+    AllowedHosts       = '*'
+    Storage            = @{ Provider = 'SqlServer' }
+    ConnectionStrings  = @{ SqlServer = $SqlConnectionString }
+    Jwt                = @{
+        Secret        = $JwtSecret
+        Issuer        = 'harekat'
+        Audience      = 'harekat-clients'
+        AccessMinutes = '60'
+    }
+    Swagger            = @{ Enabled = $true }
+} | ConvertTo-Json -Depth 6
+Set-Content (Join-Path $ApiOut 'appsettings.Production.json') -Value $prod -Encoding UTF8
+
+@'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <location path="." inheritInChildApplications="false">
+    <system.webServer>
+      <handlers>
+        <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
+      </handlers>
+      <aspNetCore processPath="dotnet" arguments=".\Harekat.Api.dll" stdoutLogEnabled="true" stdoutLogFile=".\logs\stdout" hostingModel="inprocess">
+        <environmentVariables>
+          <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
+          <environmentVariable name="Storage__Provider" value="SqlServer" />
+          <environmentVariable name="Swagger__Enabled" value="true" />
+        </environmentVariables>
+      </aspNetCore>
+    </system.webServer>
+  </location>
+</configuration>
+'@ | Set-Content (Join-Path $ApiOut 'web.config') -Encoding UTF8
+New-Item -ItemType Directory -Force -Path (Join-Path $ApiOut 'logs') | Out-Null
+icacls $Root /grant 'IIS_IUSRS:(OI)(CI)M' /T | Out-Null
+icacls $ApiOut /grant 'IIS_IUSRS:(OI)(CI)M' /T | Out-Null
+icacls $WebStage /grant 'IIS_IUSRS:(OI)(CI)RX' /T | Out-Null
+
+# IIS
+foreach ($pool in @($apiSite, $webSite)) {
+    if (-not (Test-Path "IIS:\AppPools\$pool")) { New-WebAppPool -Name $pool | Out-Null }
+    Set-ItemProperty "IIS:\AppPools\$pool" -Name managedRuntimeVersion -Value ''
+    Set-ItemProperty "IIS:\AppPools\$pool" -Name startMode -Value 'AlwaysRunning'
+}
+
+if (-not (Get-Website -Name $apiSite -ErrorAction SilentlyContinue)) {
+    New-Website -Name $apiSite -PhysicalPath $ApiOut -ApplicationPool $apiSite -Port ([int]$ApiPort) -Force | Out-Null
+} else {
+    Set-ItemProperty "IIS:\Sites\$apiSite" -Name physicalPath -Value $ApiOut
+}
+if (-not (Get-Website -Name $webSite -ErrorAction SilentlyContinue)) {
+    New-Website -Name $webSite -PhysicalPath $WebStage -ApplicationPool $webSite -Port ([int]$WebPort) -Force | Out-Null
+} else {
+    Set-ItemProperty "IIS:\Sites\$webSite" -Name physicalPath -Value $WebStage
+}
+
+New-NetFirewallRule -DisplayName "Harekat Web $WebPort" -Direction Inbound -Protocol TCP -LocalPort $WebPort -Action Allow -ErrorAction SilentlyContinue | Out-Null
+New-NetFirewallRule -DisplayName "Harekat API $ApiPort" -Direction Inbound -Protocol TCP -LocalPort $ApiPort -Action Allow -ErrorAction SilentlyContinue | Out-Null
+
+Start-WebAppPool $apiSite
+Start-WebAppPool $webSite
+Start-Website $apiSite
+Start-Website $webSite
+Start-Sleep -Seconds 5
+
+try {
+    $h = Invoke-WebRequest "http://127.0.0.1:$ApiPort/health" -UseBasicParsing -TimeoutSec 30
+    Write-Host ("API health: " + $h.StatusCode + ' ' + $h.Content) -ForegroundColor Green
+} catch {
+    Write-Host ("API health FAIL: " + $_.Exception.Message) -ForegroundColor Red
+    throw
+}
+try {
+    $w = Invoke-WebRequest "http://127.0.0.1:$WebPort/" -UseBasicParsing -TimeoutSec 15
+    Write-Host ("Web: " + $w.StatusCode) -ForegroundColor Green
+} catch {
+    Write-Host ("Web FAIL: " + $_.Exception.Message) -ForegroundColor Yellow
+}
+
+Write-Host "Portal  http://${PublicHost}:${WebPort}/"
+Write-Host "API     http://${PublicHost}:${ApiPort}/health"
+Write-Host "Swagger http://${PublicHost}:${ApiPort}/swagger"
+Write-Host 'DONE' -ForegroundColor Green

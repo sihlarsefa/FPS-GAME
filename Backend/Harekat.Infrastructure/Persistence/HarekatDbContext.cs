@@ -99,6 +99,8 @@ public sealed class HarekatDbContext : DbContext
         modelBuilder.Entity<Season>(e =>
         {
             e.HasKey(x => x.Number);
+            // Season number is domain-assigned (1, 2, …), not SQL IDENTITY.
+            e.Property(x => x.Number).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<SeasonArchiveEntry>(e => e.HasKey(x => x.Id));
