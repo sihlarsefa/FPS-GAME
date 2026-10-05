@@ -37,7 +37,7 @@ jobs:
           lfs: true
 
       - name: Cache Library (tests)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: Library
           key: Library-EditMode-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
@@ -82,7 +82,7 @@ jobs:
           lfs: true
 
       - name: Cache Library (macOS)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: Library
           key: Library-StandaloneOSX-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
@@ -125,7 +125,7 @@ jobs:
           lfs: true
 
       - name: Cache Library (Linux Server)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: Library
           key: Library-StandaloneLinux64-Server-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
