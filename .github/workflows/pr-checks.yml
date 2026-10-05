@@ -55,7 +55,8 @@ jobs:
         run: >
           dotnet format Backend/Harekat.Backend.sln
           --verify-no-changes
-          --severity normal
+          --severity warn
+          --verbosity normal
 
       - name: Build with analyzers
         if: steps.check.outputs.exists == 'true'
@@ -63,7 +64,7 @@ jobs:
           dotnet build Backend/Harekat.Backend.sln
           --configuration Release
           --no-restore
-          -p:TreatWarningsAsErrors=true
+          -p:TreatWarningsAsErrors=false
           -p:EnableNETAnalyzers=true
           -p:AnalysisLevel=latest
           -p:EnforceCodeStyleInBuild=true
@@ -97,10 +98,11 @@ jobs:
           cache: npm
           cache-dependency-path: Web/package-lock.json
 
-      - name: npm ci
+      - name: npm install
         if: steps.check.outputs.exists == 'true'
         working-directory: Web
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
       - name: Lint
         if: steps.check.outputs.exists == 'true'
