@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900" role="img" aria-label="HAREKÂT library capsule">
+  <defs>
+    <linearGradient id="lbg" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#1f0a0c"/>
+      <stop offset="50%" stop-color="#0b0b0b"/>
+      <stop offset="100%" stop-color="#120810"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="900" fill="url(#lbg)"/>
+  <path d="M0 560 L100 480 L200 540 L320 400 L420 520 L520 420 L600 500 L600 900 L0 900 Z" fill="#161616"/>
+  <rect x="0" y="0" width="12" height="900" fill="#E30A17"/>
+  <g transform="translate(172,140) scale(1.0)">
+    <path d="M128 18 L218 48 L218 130 C218 178 178 214 128 238 C78 214 38 178 38 130 L38 48 Z" fill="#141414" stroke="#E30A17" stroke-width="8"/>
+    <path d="M148 72 C118 74 96 100 96 132 C96 164 118 190 148 192 C128 186 114 162 114 132 C114 102 128 78 148 72 Z" fill="#E30A17"/>
+    <polygon points="168,108 174,124 192,124 178,136 183,154 168,143 153,154 158,136 144,124 162,124" fill="#F5F5F5"/>
+  </g>
+  <text x="300" y="520" text-anchor="middle" font-family="Impact, Haettenschweiler, sans-serif" font-size="84" letter-spacing="8" fill="#F5F5F5">HAREKÂT</text>
+  <rect x="200" y="545" width="200" height="6" fill="#E30A17"/>
+  <text x="300" y="600" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" letter-spacing="3" fill="#cccccc">10 K0^0L0K T0M</text>
+  <text x="300" y="640" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#E30A17">KUZGUN VAD0S0</text>
+  <text x="300" y="820" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#666">MAV0 / KIRMIZI TATB0KAT</text>
+</svg>

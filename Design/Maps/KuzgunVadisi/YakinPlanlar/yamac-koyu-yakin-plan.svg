@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 780" width="720" height="780">
+  <title>Yamaç Köyü — Yakın Plan</title>
+  <rect width="100%" height="100%" fill="#d8d2b8"/>
+  <text x="60" y="28" font-family="sans-serif" font-size="18" font-weight="700">Yamaç Köyü — YAKIN PLAN</text>
+  <text x="60" y="48" font-family="sans-serif" font-size="11" fill="#333">Grid H4 · Merkez (208, 178) · Yarıçap 70 m · Ölçek yerel</text>
+  <rect x="60" y="60" width="600" height="600" fill="#c5c09a" stroke="#3d3a2a" stroke-width="2"/>
+
+  <circle cx="360.0" cy="360.0" r="222.2" fill="none" stroke="#8B0000" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <path d="M294.9,376.3 L302.9,356.3 L310.9,376.3 Z" fill="#c45c12"/>
+  <text x="312.9" y="366.3" font-size="10" font-family="sans-serif" fill="#8a3a00">Yamaç yolu</text>
+  <path d="M406.0,490.6 L414.0,470.6 L422.0,490.6 Z" fill="#c45c12"/>
+  <text x="424.0" y="480.6" font-size="10" font-family="sans-serif" fill="#8a3a00">Doğu yol G</text>
+  <path d="M263.1,300.2 L271.1,280.2 L279.1,300.2 Z" fill="#c45c12"/>
+  <text x="281.1" y="290.2" font-size="10" font-family="sans-serif" fill="#8a3a00">Kuzey patika</text>
+  <rect x="302.9" y="325.1" width="31.7" height="25.4" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(15 318.7 337.8)"/>
+  <text x="318.7" y="322.1" text-anchor="middle" font-size="9" font-family="sans-serif">Ev</text>
+  <rect x="366.3" y="309.2" width="31.7" height="25.4" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(-10 382.2 321.9)"/>
+  <text x="382.2" y="306.2" text-anchor="middle" font-size="9" font-family="sans-serif">Ev</text>
+  <rect x="379.0" y="387.0" width="38.1" height="28.6" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(5 398.1 401.3)"/>
+  <text x="398.1" y="384.0" text-anchor="middle" font-size="9" font-family="sans-serif">İki kat</text>
+  <rect x="321.9" y="406.0" width="25.4" height="22.2" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(30 334.6 417.1)"/>
+  <text x="334.6" y="403.0" text-anchor="middle" font-size="9" font-family="sans-serif">Dükkân</text>
+  <rect x="415.6" y="358.4" width="28.6" height="22.2" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 429.8 369.5)"/>
+  <text x="429.8" y="355.4" text-anchor="middle" font-size="9" font-family="sans-serif">Ev</text>
+  <circle cx="461.6" cy="306.0" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="461.6" cy="306.0" r="2" fill="#8B0000"/>
+  <text x="469.6" y="300.0" font-size="10" font-family="sans-serif" fill="#8B0000">KN: Doğu sırt</text>
+  <circle cx="302.9" cy="433.0" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="302.9" cy="433.0" r="2" fill="#8B0000"/>
+  <text x="310.9" y="427.0" font-size="10" font-family="sans-serif" fill="#8B0000">KN: Güney çatı</text>
+  <text x="60" y="684" font-family="sans-serif" font-size="11" font-weight="600">Mevzi / giriş notları</text>
+  <text x="60" y="702" font-family="sans-serif" font-size="10" fill="#222">1. Yamaç avantajı doğu/kuzeyden saldırana karşı.</text>
+  <text x="60" y="718" font-family="sans-serif" font-size="10" fill="#222">2. Doğu yolu FOB bağlantısı — trafik yoğun.</text>
+  <text x="60" y="734" font-family="sans-serif" font-size="10" fill="#222">3. Batıdan dere köprüsü yaklaşımı dar boğaz.</text>
+</svg>

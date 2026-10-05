@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Harekat.Telemetry.Application\Harekat.Telemetry.Application.csproj" />
+    <ProjectReference Include="..\Harekat.Telemetry.Infrastructure\Harekat.Telemetry.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="rules\detection-rules.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\rules\detection-rules.json" Link="rules\root-detection-rules.json" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\rules\detection-rules.json')" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: harekat
+resources:
+  - namespaces/namespace.yaml
+  - secrets/secrets.dev.yaml
+  - postgres/statefulset.yaml
+  - redis/deployment.yaml
+  - backend/deployment.yaml
+  - backend/service.yaml
+  - backend/hpa.yaml
+  - ingress/ingress.yaml
+  - multi-region/regions.yaml
+  - overlays/blue/deployment.yaml
+  - overlays/green/deployment.yaml
+  - cost/cost-policy.yaml

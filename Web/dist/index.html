@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0B0F14" />
+  <meta name="description" content="HAREKÂT — 10 kişilik timlerle FPP tatbikat battle royale. Kuzgun Vadisi." />
+  <title>HAREKÂT — Online Portal</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">İçeriğe geç</a>
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/icons/emblem.svg" alt="" width="36" height="36" />
+      <div>
+        <strong>HAREKÂT</strong>
+        <span data-i18n="tagline">Tim Tatbikatı</span>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Ana menü">
+      <a href="#/" data-route="/">Ana Sayfa</a>
+      <a href="#/leaderboards" data-route="/leaderboards">Sıralamalar</a>
+      <a href="#/profile" data-route="/profile">Profil</a>
+      <a href="#/squad" data-route="/squad">Tim</a>
+      <a href="#/arsenal" data-route="/arsenal">Silahlar</a>
+      <a href="#/map" data-route="/map">Harita</a>
+      <a href="#/patches" data-route="/patches">Yamalar</a>
+      <a href="#/news" data-route="/news">Haberler</a>
+      <a href="#/season" data-route="/season">Sezon</a>
+      <a href="#/admin" data-route="/admin">Yönetim</a>
+    </nav>
+    <div class="topbar-actions">
+      <button type="button" id="langToggle" class="btn ghost" aria-label="Dil değiştir">EN</button>
+      <span id="mockBadge" class="badge" hidden>MOCK</span>
+    </div>
+  </header>
+
+  <main id="main" class="main" tabindex="-1"></main>
+
+  <footer class="footer">
+    <p>HAREKÂT © Tatbikat — Mavi / Kırmızı kuvvetler. Kazanmak için ödeme yok; yalnızca kozmetik.</p>
+    <p><span id="apiStatus">API: —</span></p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

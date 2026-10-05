@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harekat-backend-green
+  namespace: harekat
+  labels:
+    app: harekat-backend
+    version: green
+    slot: green
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: harekat-backend
+      version: green
+  template:
+    metadata:
+      labels:
+        app: harekat-backend
+        version: green
+        slot: green
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/harekat/backend:green
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: harekat-backend-config
+            - secretRef:
+                name: harekat-backend-secrets
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"

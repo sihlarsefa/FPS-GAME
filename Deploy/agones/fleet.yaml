@@ -1,0 +1,115 @@
+# Agones Fleet — hazır GameServer havuzu (maç başına bir sunucu)
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: harekat-gameserver
+  namespace: harekat-games
+  labels:
+    app: harekat-gameserver
+    game: harekat
+spec:
+  replicas: 10
+  scheduling: Packed
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: "25%"
+      maxUnavailable: "10%"
+  template:
+    metadata:
+      labels:
+        app: harekat-gameserver
+        game: harekat
+        mode: team-br
+    spec:
+      ports:
+        - name: game
+          portPolicy: Dynamic
+          containerPort: 7777
+          protocol: UDP
+        - name: query
+          portPolicy: Dynamic
+          containerPort: 7778
+          protocol: TCP
+      health:
+        disabled: false
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        failureThreshold: 5
+      sdkServer:
+        logLevel: Info
+        grpcPort: 9357
+        httpPort: 9358
+      template:
+        metadata:
+          labels:
+            app: harekat-gameserver
+        spec:
+          # Spot/preemptible node affinity (maliyet)
+          affinity:
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 80
+                  preference:
+                    matchExpressions:
+                      - key: cloud.google.com/gke-spot
+                        operator: In
+                        values: ["true"]
+                - weight: 80
+                  preference:
+                    matchExpressions:
+                      - key: karpenter.sh/capacity-type
+                        operator: In
+                        values: ["spot"]
+          tolerations:
+            - key: cloud.google.com/gke-spot
+              operator: Equal
+              value: "true"
+              effect: NoSchedule
+          containers:
+            - name: harekat
+              image: ghcr.io/harekat/dedicated-server:latest
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: GAME_PORT
+                  value: "7777"
+                - name: QUERY_PORT
+                  value: "7778"
+                - name: REGION
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['harekat/region']
+                - name: REGION_FALLBACK
+                  value: "eu-istanbul"
+                - name: MAX_PLAYERS
+                  value: "60"
+                - name: MIN_PLAYERS
+                  value: "40"
+                - name: MATCH_DURATION_SEC
+                  value: "1800"
+                - name: BACKEND_URL
+                  value: "http://harekat-backend.harekat.svc.cluster.local"
+                - name: SERVER_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: harekat-gameserver-secrets
+                      key: ServerKey
+              resources:
+                requests:
+                  cpu: "1000m"
+                  memory: "2Gi"
+                limits:
+                  cpu: "2000m"
+                  memory: "4Gi"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: harekat-gameserver-secrets
+  namespace: harekat-games
+  labels:
+    app: harekat-gameserver
+    environment: dev
+type: Opaque
+stringData:
+  ServerKey: "DEV_ONLY_SERVER_KEY_harekat"

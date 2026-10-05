@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: harekat-backend
+  namespace: harekat
+  labels:
+    app: harekat-backend
+    app.kubernetes.io/name: harekat-backend
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+spec:
+  type: ClusterIP
+  selector:
+    app: harekat-backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+---
+# Blue-green aktif trafik Servisi (scriptler selector'ı değiştirir)
+apiVersion: v1
+kind: Service
+metadata:
+  name: harekat-backend-active
+  namespace: harekat
+  labels:
+    app: harekat-backend
+    role: active
+spec:
+  type: ClusterIP
+  selector:
+    app: harekat-backend
+    version: blue
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: harekat-backend-preview
+  namespace: harekat
+  labels:
+    app: harekat-backend
+    role: preview
+spec:
+  type: ClusterIP
+  selector:
+    app: harekat-backend
+    version: green
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

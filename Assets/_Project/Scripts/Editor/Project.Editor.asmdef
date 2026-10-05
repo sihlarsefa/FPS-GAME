@@ -1,0 +1,25 @@
+{
+    "name": "Project.Editor",
+    "rootNamespace": "Project.Editor",
+    "references": [
+        "Project.Core",
+        "Project.Application",
+        "Project.Infrastructure",
+        "Project.Presentation",
+        "Unity.InputSystem",
+        "UnityEngine.UI",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

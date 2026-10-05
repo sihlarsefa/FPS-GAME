@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="184" height="184" viewBox="0 0 184 184" role="img" aria-label="HAREKÂT community icon">
+  <rect width="184" height="184" fill="#0b0b0b"/>
+  <rect x="6" y="6" width="172" height="172" fill="none" stroke="#E30A17" stroke-width="4"/>
+  <g transform="translate(-36,-28) scale(1.0)">
+    <path d="M128 18 L218 48 L218 130 C218 178 178 214 128 238 C78 214 38 178 38 130 L38 48 Z" fill="#141414" stroke="#E30A17" stroke-width="7"/>
+    <path d="M148 72 C118 74 96 100 96 132 C96 164 118 190 148 192 C128 186 114 162 114 132 C114 102 128 78 148 72 Z" fill="#E30A17"/>
+    <polygon points="168,108 174,124 192,124 178,136 183,154 168,143 153,154 158,136 144,124 162,124" fill="#F5F5F5"/>
+  </g>
+</svg>

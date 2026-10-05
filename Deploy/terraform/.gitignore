@@ -1,0 +1,10 @@
+# Terraform local state / plan artefacts
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+.terraform.lock.hcl

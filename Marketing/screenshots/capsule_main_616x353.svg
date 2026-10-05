@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="616" height="353" viewBox="0 0 616 353" role="img" aria-label="HAREKÂT main capsule">
+  <defs>
+    <linearGradient id="mbg" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#221010"/>
+      <stop offset="40%" stop-color="#0b0b0b"/>
+      <stop offset="100%" stop-color="#120608"/>
+    </linearGradient>
+  </defs>
+  <rect width="616" height="353" fill="url(#mbg)"/>
+  <path d="M0 240 L90 170 L160 210 L250 120 L340 200 L430 100 L520 180 L616 130 L616 353 L0 353 Z" fill="#161616"/>
+  <path d="M0 280 L120 220 L220 260 L330 190 L450 250 L560 200 L616 230 L616 353 L0 353 Z" fill="#101010"/>
+  <rect x="0" y="0" width="10" height="353" fill="#E30A17"/>
+  <g transform="translate(40,60) scale(0.7)">
+    <path d="M128 18 L218 48 L218 130 C218 178 178 214 128 238 C78 214 38 178 38 130 L38 48 Z" fill="#141414" stroke="#E30A17" stroke-width="8"/>
+    <path d="M148 72 C118 74 96 100 96 132 C96 164 118 190 148 192 C128 186 114 162 114 132 C114 102 128 78 148 72 Z" fill="#E30A17"/>
+    <polygon points="168,108 174,124 192,124 178,136 183,154 168,143 153,154 158,136 144,124 162,124" fill="#F5F5F5"/>
+  </g>
+  <text x="250" y="140" font-family="Impact, Haettenschweiler, sans-serif" font-size="72" letter-spacing="8" fill="#F5F5F5">HAREKÂT</text>
+  <rect x="252" y="156" width="160" height="5" fill="#E30A17"/>
+  <text x="252" y="190" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" letter-spacing="2" fill="#cccccc">10-SOLDIER FPP SQUAD BATTLE ROYALE</text>
+  <text x="252" y="220" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#E30A17">MAV0 / KIRMIZI · KUZGUN VAD0S0</text>
+  <text x="252" y="250" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#888">T-70 · K0RP0 · KOMUTA Z0NC0R0</text>
+</svg>

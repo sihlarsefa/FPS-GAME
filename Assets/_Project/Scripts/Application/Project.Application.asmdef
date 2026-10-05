@@ -1,0 +1,16 @@
+{
+    "name": "Project.Application",
+    "rootNamespace": "Project.Application",
+    "references": [
+        "Project.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

@@ -1,0 +1,296 @@
+﻿key,tr,en,de,az,ar,source_file
+brand.title,HAREKÂT,HAREKÂT,HAREKÂT,HƏRƏKAT,حَرَكَات,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.footer,Kuzgun Vadisi · Tim Battle Royale,Raven Valley · Squad Battle Royale,Rabental · Trupp-Battle-Royale,Qarğa Vadisi · Tim Battle Royale,وادي الغراب · باتل رويال للفرق,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.01,"İpucu: F1 takip, F2 mevzi tut, F3 nişan noktasına taarruz, F4 toplan emirlerini verir.","Tip: F1 follow, F2 hold position, F3 assault aim point, F4 rally.","Tipp: F1 folgen, F2 Stellung halten, F3 Angriff auf Zielpunkt, F4 sammeln.","İpucu: F1 izlə, F2 mövqe tut, F3 nişan nöqtəsinə hücum, F4 toplan.",تلميح: F1 تابع، F2 ثبّت الموقع، F3 هاجم نقطة التصويب، F4 تجمع.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.02,İpucu: Telsizci ya da tim komutanıysan V tuşuyla nişan noktasına topçu atışı isteyebilirsin.,"Tip: As radioman or squad leader, press V to call artillery on your aim point.",Tipp: Als Funker oder Truppführer mit V Artillerie auf den Zielpunkt anfordern.,İpucu: Rabitəçi və ya tim komandiri olsan V ilə nişan nöqtəsinə artilleriya istəyə bilərsən.,تلميح: إن كنت رجل اللاسلكي أو قائد الفريق، اضغط V لطلب قصف المدفعية على نقطة التصويب.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.03,İpucu: Harekât alanı daralır — mavi bölgenin dışında kalan asker sürekli hasar alır.,Tip: The AO shrinks — soldiers outside the blue safe zone take continuous damage.,Tipp: Der Einsatzraum schrumpft — außerhalb der blauen Zone nimmt man Dauerschaden.,İpucu: Əməliyyat sahəsi kiçilir — mavi zonadan kənarda qalan əsgər daimi ziyan alır.,تلميح: منطقة العملية تتقلص — الجندي خارج المنطقة الزرقاء يتلقى ضرراً مستمراً.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.04,İpucu: Komutan şehit düşerse komuta en kıdemli askere geçer; tim harekâta devam eder.,"Tip: If the commander falls, command passes to the most senior soldier; the squad continues.","Tipp: Fällt der Kommandant, geht das Kommando an den dienstältesten Soldaten; der Trupp kämpft weiter.",İpucu: Komandir şəhid olarsa komanda ən böyük rütbəli əsgərə keçir; tim əməliyyata davam edir.,تلميح: إذا سقط القائد، تنتقل القيادة إلى أعلى جندي رتبة؛ الفريق يواصل العملية.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.05,İpucu: Q ve E ile siperin arkasından yana eğilerek ateş edebilirsin.,Tip: Use Q and E to lean and fire from cover.,Tipp: Mit Q und E aus der Deckung lehnen und feuern.,İpucu: Q və E ilə sipərdən yana əyilib atəş aça bilərsən.,تلميح: استخدم Q و E للانحناء وإطلاق النار من خلف الغطاء.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.06,"İpucu: H ile yaralarını sar, J ile takviye kullan. İyileşirken hareket yavaşlar.","Tip: H to bandage, J for boost. Movement slows while healing.","Tipp: H verbinden, J Stärkung. Beim Heilen wird man langsamer.","İpucu: H ilə yaralarını sarı, J ilə gücləndirici istifadə et. Sağalarkən hərəkət yavaşlayır.",تلميح: H لتضميد الجروح، J للتعزيز. الحركة تتباطأ أثناء العلاج.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.07,İpucu: Kafadan isabetler kask seviyesine göre çok daha ölümcüldür.,Tip: Headshots are far more lethal depending on helmet level.,Tipp: Kopfschüsse sind je nach Helmstufe deutlich tödlicher.,İpucu: Başdan vuruşlar dəbilqə səviyyəsinə görə daha ölümcüldür.,تلميح: إصابات الرأس أشد فتكاً حسب مستوى الخوذة.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.08,"İpucu: Kirpi zırhlı aracına F ile binebilir, haritada hızla yer değiştirebilirsin.",Tip: Press F to board a Kirpi APC and relocate quickly on the map.,Tipp: Mit F in den Kirpi-Panzerwagen einsteigen und schnell umgruppieren.,İpucu: F ilə Kirpi zirehli maşınına minib xəritədə sürətlə yer dəyişə bilərsən.,تلميح: اضغط F لركوب مدرعة كيربي والتنقل بسرعة على الخريطة.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.09,İpucu: M ile tam haritayı aç; işaretlediğin nokta tim emirlerinde hedef olur.,Tip: Press M for the full map; your marker becomes the squad order target.,Tipp: Mit M die Großkarte öffnen; deine Markierung wird zum Truppziel.,İpucu: M ilə tam xəritəni aç; işarələdiyin nöqtə tim əmrlərində hədəf olur.,تلميح: اضغط M لفتح الخريطة الكاملة؛ نقطتك المحددة تصبح هدف أوامر الفريق.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.tip.10,İpucu: Z ile yüzüstü yatmak seni uzak mesafeden görünmez kılar.,Tip: Going prone with Z makes you harder to spot at long range.,Tipp: Mit Z in Bauchlage bist du auf Distanz schwerer zu sehen.,İpucu: Z ilə üzüüstü uzanmaq səni uzaq məsafədən görünməz edir.,تلميح: الاستلقاء على البطن بـ Z يجعلك أصعب رصداً من مسافة بعيدة.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
+loading.default,Yükleniyor,Loading,Laden,Yüklənir,جارٍ التحميل,Assets/_Project/Scripts/Presentation/UI/LoadingScreen.cs
+loading.scene.match,Harekât bölgesi hazırlanıyor — Kuzgun Vadisi,Preparing the AO — Raven Valley,Einsatzraum wird vorbereitet — Rabental,Əməliyyat sahəsi hazırlanır — Qarğa Vadisi,جارٍ تجهيز منطقة العملية — وادي الغراب,Assets/_Project/Scripts/Presentation/Bootstrap/SceneNames.cs
+loading.scene.training,Atış poligonu hazırlanıyor,Preparing the firing range,Schießstand wird vorbereitet,Atış poliqonu hazırlanır,جارٍ تجهيز ميدان الرماية,Assets/_Project/Scripts/Presentation/Bootstrap/SceneNames.cs
+loading.scene.menu,Karargâha dönülüyor,Returning to HQ,Rückkehr zum Hauptquartier,Qərargaha qayıdılır,العودة إلى المقر,Assets/_Project/Scripts/Presentation/Bootstrap/SceneNames.cs
+pause.title,DURAKLATILDI,PAUSED,PAUSE,DAYANDIRILDI,متوقف,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.subtitle.training,Atış Poligonu — eğitim,Firing Range — training,Schießstand — Training,Atış Poliqonu — təlim,ميدان الرماية — تدريب,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.subtitle.match,Harekât sürüyor — Kuzgun Vadisi,Operation ongoing — Raven Valley,Einsatz läuft — Rabental,Əməliyyat davam edir — Qarğa Vadisi,العملية جارية — وادي الغراب,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.btn.resume,DEVAM ET,RESUME,FORTSETZEN,DAVAM ET,متابعة,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.btn.settings,AYARLAR,SETTINGS,EINSTELLUNGEN,AYARLAR,الإعدادات,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.btn.main_menu,ANA MENÜ,MAIN MENU,HAUPTMENÜ,ƏSAS MENYU,القائمة الرئيسية,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.hint.esc,ESC — devam et,ESC — resume,ESC — fortsetzen,ESC — davam et,ESC — متابعة,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.controls.header,KONTROLLER,CONTROLS,STEUERUNG,İDARƏETMƏ,التحكم,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.dialog.title,Ana menüye dön,Return to main menu,Zum Hauptmenü,Əsas menyuya qayıt,العودة للقائمة الرئيسية,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.dialog.training,Atış poligonundan ayrılıp karargâha dönülecek.,You will leave the firing range and return to HQ.,Du verlässt den Schießstand und kehrst zum HQ zurück.,Atış poliqonundan çıxıb qərargaha dönüləcək.,ستغادر ميدان الرماية وتعود إلى المقر.,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.dialog.match,Harekâttan çekilirsen bu maçtaki ilerlemen kaydedilmez. Karargâha dönmek istediğine emin misin?,Leaving the operation discards this match's progress. Return to HQ?,Beim Abbruch geht der Matchfortschritt verloren. Zum HQ zurückkehren?,Əməliyyatdan çıxsan bu matçın irəliləyişi saxlanılmayacaq. Qərargaha qayıtmaq istədiyinə əminsən?,مغادرة العملية تلغي تقدم هذه المباراة. هل تريد العودة إلى المقر؟,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.dialog.cancel,VAZGEÇ,CANCEL,ABBRECHEN,LƏĞV ET,إلغاء,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.move,Hareket,Move,Bewegen,Hərəkət,تحريك,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.sprint,Koş,Sprint,Sprinten,Qaç,عدو,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.jump,Zıpla,Jump,Springen,Tullan,قفز,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.crouch,Çömel,Crouch,Ducken,Çömbəl,انحناء,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.prone,Yüzüstü yat,Go prone,Hinlegen,Üzüüstü uzan,استلقاء,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.lean,Yana eğil,Lean,Lehnen,Yan əyil,ميل جانبي,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.fire,Ateş,Fire,Schießen,Atəş,إطلاق,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.aim,Nişan al,Aim,Zielen,Nişan al,تصويب,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.reload,Şarjör değiştir,Reload,Nachladen,Darağı dəyiş,إعادة تعبئة,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.fire_mode,Atış modu,Fire mode,Feuermodus,Atış rejimi,وضع الإطلاق,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.interact,Etkileşim / araca bin,Interact / board vehicle,Interagieren / einsteigen,Əlaqə / maşına min,تفاعل / ركوب المركبة,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.weapon_select,Silah seç,Select weapon,Waffe wählen,Silah seç,اختر السلاح,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.heal_boost,İyileş / takviye,Heal / boost,Heilen / Stärkung,Sağal / gücləndir,علاج / تعزيز,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.grenade,El bombası / sis,Frag / smoke,Splitter / Rauch,Əl bombası / tüstü,قنبلة / دخان,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.inventory,Envanter,Inventory,Inventar,İnventar,المخزون,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.map,Harita,Map,Karte,Xəritə,الخريطة,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.squad_orders,Tim emirleri,Squad orders,Truppbefehle,Tim əmrləri,أوامر الفريق,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+pause.control.artillery,Topçu desteği,Artillery support,Artillerieunterstützung,Artilleriya dəstəyi,دعم المدفعية,Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs
+settings.title,AYARLAR,SETTINGS,EINSTELLUNGEN,AYARLAR,الإعدادات,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.section.control,KONTROL,CONTROLS,STEUERUNG,İDARƏETMƏ,التحكم,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.section.video,GÖRÜNTÜ,VIDEO,GRAFIK,GÖRÜNTÜ,العرض,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.section.audio,SES,AUDIO,AUDIO,SƏS,الصوت,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.mouse_sensitivity,Fare hassasiyeti,Mouse sensitivity,Mausempfindlichkeit,Siçan həssaslığı,حساسية الفأرة,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.ads_multiplier,Nişan (ADS) çarpanı,ADS multiplier,ADS-Multiplikator,Nişan (ADS) əmsalı,مضاعف التصويب (ADS),Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.invert_y,Y eksenini ters çevir,Invert Y axis,Y-Achse umkehren,Y oxunu tərs çevir,عكس محور Y,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.fov,Görüş alanı (FOV),Field of view (FOV),Sichtfeld (FOV),Baxış bucağı (FOV),مجال الرؤية (FOV),Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.quality,Grafik kalitesi,Graphics quality,Grafikqualität,Qrafika keyfiyyəti,جودة الرسوم,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.fullscreen,Tam ekran,Fullscreen,Vollbild,Tam ekran,ملء الشاشة,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.show_fps,FPS göster,Show FPS,FPS anzeigen,FPS göstər,إظهار FPS,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.master_volume,Ana ses,Master volume,Hauptlautstärke,Əsas səs,الصوت الرئيسي,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.ambient_volume,Ortam sesi ve müzik,Ambient & music,Umgebung & Musik,Mühit səsi və musiqi,صوت البيئة والموسيقى,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.btn.defaults,VARSAYILAN,DEFAULTS,STANDARD,STANDART,افتراضي,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.btn.back,GERİ,BACK,ZURÜCK,GERİ,رجوع,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.btn.apply,UYGULA,APPLY,ÜBERNEHMEN,TƏTBİQ ET,تطبيق,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.status.saved,Ayarlar kaydedildi.,Settings saved.,Einstellungen gespeichert.,Ayarlar saxlandı.,تم حفظ الإعدادات.,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.status.defaults_loaded,Varsayılan değerler yüklendi — kaydetmek için UYGULA.,Defaults loaded — press APPLY to save.,Standards geladen — mit ÜBERNEHMEN speichern.,Standart dəyərlər yükləndi — saxlamaq üçün TƏTBİQ ET.,تم تحميل الافتراضيات — اضغط تطبيق للحفظ.,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.status.no_service,Ayar servisi bulunamadı — değişiklikler yalnızca bu oturumda geçerli.,Settings service missing — changes apply this session only.,Einstellungsdienst fehlt — nur diese Sitzung.,Ayar xidməti tapılmadı — dəyişikliklər yalnız bu sessiyada keçərlidir.,خدمة الإعدادات غير متاحة — التغييرات لهذه الجلسة فقط.,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+settings.status.unsaved,Kaydedilmemiş değişiklikler var.,You have unsaved changes.,Ungespeicherte Änderungen vorhanden.,Saxlanmamış dəyişikliklər var.,هناك تغييرات غير محفوظة.,Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs
+menu.difficulty.er,Er,Recruit,Rekrut,Əsgər,مجند,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.difficulty.uzman,Uzman,Specialist,Spezialist,Mütəxəssis,أخصائي,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.difficulty.komando,Komando,Commando,Kommando,Komando,كوماندوز,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.difficulty.desc.easy,"Düşman timleri geç tepki verir, isabetleri düşüktür. Harekâta yeni başlayanlar için.",Enemy squads react slowly with low accuracy. Best for newcomers.,Feindtrupps reagieren langsam und ungenau. Für Einsteiger.,"Düşmən timləri gec reaksiya verir, isabetləri aşağıdır. Yeni başlayanlar üçün.",فرق العدو تتفاعل ببطء ودقة منخفضة. للمبتدئين.,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.difficulty.desc.normal,"Dengeli tatbikat: eğitimli düşman timleri siper alır, kanattan dolanır.",Balanced drill: trained enemies take cover and flank.,Ausgewogene Übung: ausgebildete Feinde decken und flanken.,"Balanslı təlim: təlimli düşmən timləri sipər alır, cinahdan dolanır.",تدريب متوازن: أعداء مدربون يتحصنون ويلتفون من الأجنحة.,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.difficulty.desc.hard,"Hızlı tepki, yüksek isabet ve saldırgan taarruz. Komando timleri hata affetmez.","Fast reactions, high accuracy, aggressive assault. Commando squads don't forgive mistakes.","Schnelle Reaktion, hohe Trefferquote, aggressiver Angriff. Kommandotrupps verzeihen keine Fehler.","Sürətli reaksiya, yüksək isabet və aqressiv hücum. Komando timləri səhv bağışlamır.",رد فعل سريع ودقة عالية وهجوم عدواني. فرق الكوماندوز لا تسامح الأخطاء.,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.insertion.heli,Helikopter (T-70),Helicopter (T-70),Hubschrauber (T-70),Helikopter (T-70),مروحية (T-70),Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.insertion.apc,Zırhlı Araç (Kirpi),Armored Vehicle (Kirpi),Gepanzertes Fahrzeug (Kirpi),Zirehli Maşın (Kirpi),مركبة مدرعة (كيربي),Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.insertion.desc.heli,T-70 helikopteriyle hızlı hava intikali. Tim iniş bölgesine helikopterden atlar.,Fast air insertion by T-70 helicopter. The squad jumps at the LZ.,Schnelle Lufteinweisung per T-70. Der Trupp springt in der Landezone ab.,T-70 helikopteri ilə sürətli hava intiqalı. Tim eniş zonasına helikoptdan atlanır.,إنزال جوي سريع بمروحية T-70. الفريق يقفز في منطقة الهبوط.,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.insertion.desc.apc,Kirpi zırhlı aracıyla karadan intikal. Daha korunaklı ama yavaş; tim indirme noktasında araçtan iner.,Ground insertion by Kirpi APC. Safer but slower; squad disembarks at the drop point.,"Bodeneinweisung per Kirpi. Sicherer, aber langsamer; Aussteigen am Absetzpunkt.",Kirpi zirehli maşını ilə quru intiqalı. Daha qorunmuş amma yavaş; tim eniş nöqtəsində düşür.,إنزال بري بمدرعة كيربي. أكثر أماناً لكن أبطأ؛ الفريق ينزل عند نقطة الإنزال.,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.quality.low,Düşük,Low,Niedrig,Aşağı,منخفض,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.quality.medium,Orta,Medium,Mittel,Orta,متوسط,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.quality.high,Yüksek,High,Hoch,Yüksək,مرتفع,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.quality.ultra,Ultra,Ultra,Ultra,Ultra,فائق,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.team_summary,{0} Tim = {1} Asker,{0} Squads = {1} Soldiers,{0} Trupps = {1} Soldaten,{0} Tim = {1} Əsgər,{0} فرق = {1} جنود,Assets/_Project/Scripts/Presentation/UI/MenuText.cs
+menu.dialog.confirm,ONAYLA,CONFIRM,BESTÄTIGEN,TƏSDİQ ET,تأكيد,Assets/_Project/Scripts/Presentation/UI/MenuDialog.cs
+menu.dialog.cancel,VAZGEÇ,CANCEL,ABBRECHEN,LƏĞV ET,إلغاء,Assets/_Project/Scripts/Presentation/UI/MenuDialog.cs
+hud.minimap.to_zone,BÖLGEYE {0},TO ZONE {0},ZUR ZONE {0},ZONAYA {0},إلى المنطقة {0},Assets/_Project/Scripts/Presentation/UI/MinimapView.cs
+hud.minimap.to_marker,İŞARET {0},MARKER {0},MARKIERUNG {0},İŞARƏ {0},العلامة {0},Assets/_Project/Scripts/Presentation/UI/MinimapView.cs
+hud.minimap.north,K,N,N,Ş,ش,Assets/_Project/Scripts/Presentation/UI/MinimapView.cs
+hud.debug.controls,F — Loot al | R — Reload | LMB — Ateş,F — Pick up | R — Reload | LMB — Fire,F — Aufnehmen | R — Nachladen | LMB — Schießen,F — Götür | R — Doldur | LMB — Atəş,F — التقاط | R — تعبئة | LMB — إطلاق,Assets/_Project/Scripts/Presentation/UI/MatchHudPresenter.cs
+match.msg.kia,ŞEHİT DÜŞTÜN,YOU WERE KILLED IN ACTION,GEFALLEN,ŞƏHİD OLDUN,سقطت شهيداً,Assets/_Project/Scripts/Presentation/Bootstrap/MatchBootstrap.cs
+match.msg.victory,ZAFER! {0} HAREKÂTI KAZANDI,VICTORY! {0} WON THE OPERATION,SIEG! {0} HAT DEN EINSATZ GEWONNEN,QƏLƏBƏ! {0} ƏMƏLİYYATI QAZANDI,انتصار! {0} فاز بالعملية,Assets/_Project/Scripts/Presentation/Bootstrap/MatchBootstrap.cs
+match.msg.defeat,HAREKÂT SONA ERDİ — {0} KAZANDI,OPERATION OVER — {0} WON,EINSATZ BEENDET — {0} GEWINNT,ƏMƏLİYYAT BİTDİ — {0} QAZANDI,انتهت العملية — فاز {0},Assets/_Project/Scripts/Presentation/Bootstrap/MatchBootstrap.cs
+match.msg.ended,HAREKÂT SONA ERDİ,OPERATION ENDED,EINSATZ BEENDET,ƏMƏLİYYAT BİTDİ,انتهت العملية,Assets/_Project/Scripts/Presentation/Bootstrap/MatchBootstrap.cs
+training.map_name,Atış Poligonu,Firing Range,Schießstand,Atış Poliqonu,ميدان الرماية,Assets/_Project/Scripts/Presentation/Bootstrap/TrainingBootstrap.cs
+training.msg.welcome,ATIŞ POLİGONU — Mermi sınırsız. Raflardan silah alabilirsin.,FIRING RANGE — Unlimited ammo. Grab weapons from the racks.,SCHIESSSTAND — Unbegrenzte Munition. Waffen vom Gestell nehmen.,ATIŞ POLİQONU — Güllə limitsiz. Rəflərdən silah götürə bilərsən.,ميدان الرماية — ذخيرة غير محدودة. خذ الأسلحة من الرفوف.,Assets/_Project/Scripts/Presentation/Bootstrap/TrainingBootstrap.cs
+training.msg.death,VURULDUN — başlangıç noktasında yeniden doğacaksın,YOU WERE HIT — respawning at start point,GETROFFEN — Respawn am Startpunkt,VURULDUN — başlanğıc nöqtəsində yenidən doğulacaqsan,أصبت — ستُعاد عند نقطة البداية,Assets/_Project/Scripts/Presentation/Bootstrap/TrainingBootstrap.cs
+training.msg.ready,ATIŞ POLİGONU — yeniden hazırsın,FIRING RANGE — ready again,SCHIESSSTAND — wieder bereit,ATIŞ POLİQONU — yenidən hazırsan,ميدان الرماية — أنت جاهز مجدداً,Assets/_Project/Scripts/Presentation/Bootstrap/TrainingBootstrap.cs
+notify.disembark_arrival,İniş bölgesine varıldı — [F] araçtan in,Reached LZ — [F] disembark,Landezone erreicht — [F] aussteigen,Eniş zonasına çatıldı — [F] maşından düş,وصلت منطقة الهبوط — [F] انزل,Assets/_Project/Scripts/Presentation/Player/PlayerController.cs
+prompt.disembark,[F] Araçtan in,[F] Disembark,[F] Aussteigen,[F] Maşından düş,[F] انزل من المركبة,Assets/_Project/Scripts/Presentation/Player/PlayerInteraction.cs
+notify.vehicle_fail,Araca binilemiyor,Cannot board vehicle,Einstieg nicht möglich,Maşına minmək olmur,تعذر ركوب المركبة,Assets/_Project/Scripts/Presentation/Player/PlayerInteraction.cs
+notify.inventory_partial,Envanterde yer kalmadı (bir kısmı alındı),Inventory full (partial pickup),Inventar voll (teilweise aufgenommen),İnventarda yer qalmadı (bir hissəsi götürüldü),المخزون ممتلئ (التقاط جزئي),Assets/_Project/Scripts/Presentation/Player/PlayerInteraction.cs
+notify.inventory_full,Envanterde yer yok,No inventory space,Kein Inventarplatz,İnventarda yer yoxdur,لا مساحة في المخزون,Assets/_Project/Scripts/Presentation/Player/PlayerInteraction.cs
+notify.no_weapon_slot,Bu yuvada silah yok,No weapon in this slot,Keine Waffe in diesem Slot,Bu yuvada silah yoxdur,لا سلاح في هذه الخانة,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.single_fire_only,Tek ateş modu,Single-fire only,Nur Einzelfeuer,Tək atış rejimi,وضع الإطلاق الفردي فقط,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.no_reserve_ammo,Yedek mermi yok,No reserve ammo,Keine Reservemunition,Ehtiyat güllə yoxdur,لا ذخيرة احتياطية,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.no_ammo,Mermi yok,Out of ammo,Keine Munition,Güllə yoxdur,لا ذخيرة,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.no_frag,El bombası yok,No frag grenade,Keine Splittergranate,Əl bombası yoxdur,لا قنبلة يدوية,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.no_smoke,Sis bombası yok,No smoke grenade,Keine Rauchgranate,Tüstü bombası yoxdur,لا قنبلة دخان,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.health_full,Can zaten yeterli,Health already sufficient,Leben bereits ausreichend,Can artıq kifayətdir,الصحة كافية بالفعل,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.no_meds,İlk yardım malzemesi yok,No medical supplies,Keine Sanitätsmittel,İlk yardım ləvazimatı yoxdur,لا مستلزمات إسعاف,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.boost_full,Takviye zaten dolu,Boost already full,Stärkung bereits voll,Gücləndirici artıq doludur,التعزيز ممتلئ بالفعل,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.no_boost,Takviye eşyası yok,No boost item,Kein Stärkungsmittel,Gücləndirici əşya yoxdur,لا عنصر تعزيز,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+weapon.firemode.auto,Otomatik atış,Automatic fire,Dauerfeuer,Avtomatik atış,إطلاق آلي,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+weapon.firemode.burst3,Seri atış (3),Burst fire (3),Salve (3),Seriya atış (3),إطلاق متتابع (3),Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+weapon.firemode.burst,Seri atış,Burst fire,Salve,Seriya atış,إطلاق متتابع,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+weapon.firemode.single,Tek atış,Single shot,Einzelschuss,Tək atış,طلقة واحدة,Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs
+notify.need_leader,Emir vermek için tim komutanı olmalısınız,You must be squad leader to give orders,Nur der Truppführer darf Befehle geben,Əmr vermək üçün tim komandiri olmalısan,يجب أن تكون قائد الفريق لإصدار الأوامر,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.no_order_system,Tim emir sistemi yok,Squad order system unavailable,Truppbefehlssystem fehlt,Tim əmr sistemi yoxdur,نظام أوامر الفريق غير متاح,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.no_assault_target,Taarruz hedefi görülmüyor,No assault target in sight,Kein Angriffsziel sichtbar,Hücum hədəfi görünmür,لا هدف هجوم في الأفق,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.hold,"Emir: Mevzi alın, bekleyin!","Order: Hold position, wait!","Befehl: Stellung halten, warten!","Əmr: Mövqe tutun, gözləyin!",أمر: ثبّتوا الموقع وانتظروا!,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.assault,Emir: Hedefe taarruz!,Order: Assault the target!,Befehl: Ziel angreifen!,Əmr: Hədəfə hücum!,أمر: هاجموا الهدف!,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.rally,Emir: Toplanın!,Order: Rally up!,Befehl: Sammeln!,Əmr: Toplanın!,أمر: تجمعوا!,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.follow,Emir: Beni takip edin!,Order: Follow me!,Befehl: Folgt mir!,Əmr: Məni izləyin!,أمر: اتبعوني!,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.name.hold,Mevzi Al,Hold,Stellung halten,Mövqe Tut,ثبّت الموقع,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.name.assault,Taarruz,Assault,Angriff,Hücum,هجوم,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.name.rally,Toplan,Rally,Sammeln,Toplan,تجمع,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+order.name.follow,Takip,Follow,Folgen,İzlə,تابع,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.no_radioman,Telsizci yok — topçu desteği istenemez,No radioman — cannot call artillery,Kein Funker — keine Artillerie,Rabitəçi yoxdur — artilleriya istənilə bilməz,لا يوجد لاسلكي — لا يمكن طلب المدفعية,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.arty_unavailable,Topçu desteği kullanılamıyor,Artillery support unavailable,Artillerie nicht verfügbar,Artilleriya dəstəyi istifadə edilə bilməz,دعم المدفعية غير متاح,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.arty_out_of_range,Hedef menzil dışında (en fazla 600 m),Target out of range (max 600 m),Ziel außer Reichweite (max. 600 m),Hədəf məsafədən kənardır (ən çox 600 m),الهدف خارج المدى (بحد أقصى 600 م),Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.arty_denied,Topçu desteği reddedildi,Artillery support denied,Artillerie abgelehnt,Artilleriya dəstəyi rədd edildi,رُفض دعم المدفعية,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.arty_danger_close,"Topçu ateşi istendi — DİKKAT, yakın atış!","Artillery requested — WARNING, danger close!","Artillerie angefordert — ACHTUNG, Nahschuss!","Artilleriya atəşi istəndi — DİQQƏT, yaxın atış!",طُلب قصف مدفعي — تحذير، قصف قريب!,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.arty_inbound,Topçu ateşi istendi — atışlar yolda,Artillery requested — rounds inbound,Artillerie angefordert — Geschosse unterwegs,Artilleriya atəşi istəndi — atışlar yoldadır,طُلب قصف مدفعي — القذائف في الطريق,Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+notify.arty_cooldown,Topçu hazır değil ({0} sn),Artillery not ready ({0} s),Artillerie nicht bereit ({0} s),Artilleriya hazır deyil ({0} sn),المدفعية غير جاهزة ({0} ث),Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs
+role.leader,Tim Komutanı,Squad Leader,Truppführer,Tim Komandiri,قائد الفريق,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.leader.abbr,KMT,SL,TF,TK,ق.ف,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.rifleman,Piyade,Rifleman,Schütze,Piyada,مشاة,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.rifleman.abbr,PYD,RFL,SCH,PYD,مش,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.marksman,Keskin Nişancı,Marksman,Scharfschütze,Kəskin Nişançı,قناص,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.marksman.abbr,KN,MRK,SS,KN,قن,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.mg,Makineli Tüfekçi,Machine Gunner,Maschinengewehrschütze,Pulemyotçu,مدفعي رشاش,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.mg.abbr,MAK,MG,MG,PLM,رش,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.medic,Sıhhiyeci,Medic,Sanitäter,Sanitar,ممرض عسكري,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.medic.abbr,SHH,MED,SAN,SAN,مسع,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.radioman,Telsizci,Radioman,Funker,Rabitəçi,رجل اللاسلكي,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.radioman.abbr,TEL,RAD,FUN,RAB,لاس,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.grenadier,Bombacı,Grenadier,Grenadier,Bombacı,رامي قنابل,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.grenadier.abbr,BMB,GRN,GRN,BMB,قن.ي,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.default,Asker,Soldier,Soldat,Əsgər,جندي,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+role.default.abbr,AS,SOL,SOLD,ƏS,جن,Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs
+rank.er,Er,Private,Soldat,Əsgər,جندي,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.onbasi,Onbaşı,Corporal,Gefreiter,Onbaşı,عريف,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.cavus,Çavuş,Sergeant,Unteroffizier,Çavuş,رقيب,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.sozlesmeli_er,Sözleşmeli Er,Contract Private,Vertrags-Soldat,Müqaviləli Əsgər,جندي متعاقد,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.uzman_onbasi,Uzman Onbaşı,Specialist Corporal,Spezial-Gefreiter,Mütəxəssis Onbaşı,عريف أخصائي,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.uzman_cavus,Uzman Çavuş,Specialist Sergeant,Spezial-Unteroffizier,Mütəxəssis Çavuş,رقيب أخصائي,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_cavus,Astsubay Çavuş,NCO Sergeant,Stabsunteroffizier,Gizir Çavuş,رقيب صف ضباط,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_kidemli_cavus,Astsubay Kıdemli Çavuş,Senior NCO Sergeant,Oberstabsunteroffizier,Gizir Böyük Çavuş,رقيب صف أول,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_ustcavus,Astsubay Üstçavuş,Staff Sergeant,Feldwebel,Gizir Başçavuş,رقيب أول,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_kidemli_ustcavus,Astsubay Kıdemli Üstçavuş,Senior Staff Sergeant,Oberfeldwebel,Gizir Böyük Başçavuş,رقيب أول أقدم,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_bascavus,Astsubay Başçavuş,Master Sergeant,Hauptfeldwebel,Gizir Başçavuş,رقيب أول كبير,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_kidemli_bascavus,Astsubay Kıdemli Başçavuş,Senior Master Sergeant,Stabsfeldwebel,Gizir Böyük Başçavuş,رقيب أول كبير أقدم,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astegmen,Asteğmen,Second Lieutenant,Leutnant,Asteğmen,ملازم ثانٍ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.tegmen,Teğmen,Lieutenant,Oberleutnant,Leytenant,ملازم,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.ustegmen,Üsteğmen,First Lieutenant,Oberleutnant,Baş leytenant,ملازم أول,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.yuzbasi,Yüzbaşı,Captain,Hauptmann,Kapitan,نقيب,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.binbasi,Binbaşı,Major,Major,Mayor,رائد,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.yarbay,Yarbay,Lieutenant Colonel,Oberstleutnant,Podpolkovnik,مقدم,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.albay,Albay,Colonel,Oberst,Polkovnik,عقيد,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.er.abbr,Er,Pvt,Sdt,Ər,جند,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.onbasi.abbr,Onb.,Cpl,Gfr,Onb.,عر,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.cavus.abbr,Çvş.,Sgt,Uffz,Çvş.,رق,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.sozlesmeli_er.abbr,Sözl.Er,Ctr.Pvt,Vertr.,Müq.Ər,ج.مت,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.uzman_onbasi.abbr,Uzm.Onb.,Spc.Cpl,Sp.Gfr,Müt.Onb.,عر.أخ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.uzman_cavus.abbr,Uzm.Çvş.,Spc.Sgt,Sp.Uffz,Müt.Çvş.,رق.أخ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_cavus.abbr,Astsb.Çvş.,NCO.Sgt,StUffz,Giz.Çvş.,رق.ص,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_kidemli_cavus.abbr,Astsb.Kd.Çvş.,Sr.NCO.Sgt,OStUffz,Giz.B.Çvş.,رق.ص.أ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_ustcavus.abbr,Astsb.Üçvş.,SSgt,Fw,Giz.Bşç.,رق.أ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_kidemli_ustcavus.abbr,Astsb.Kd.Üçvş.,Sr.SSgt,OFw,Giz.B.Bşç.,رق.أ.أ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_bascavus.abbr,Astsb.Bçvş.,MSgt,HFw,Giz.Baş.,رق.ك,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astsubay_kidemli_bascavus.abbr,Astsb.Kd.Bçvş.,Sr.MSgt,StFw,Giz.B.Baş.,رق.ك.أ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.astegmen.abbr,Asteğmen,2Lt,Lt,Asteğ.,مل.ث,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.tegmen.abbr,Teğmen,Lt,OLt,Lt.,مل,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.ustegmen.abbr,Üsteğmen,1Lt,OLt,Baş Lt.,مل.أ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.yuzbasi.abbr,Yzb.,Capt,Hptm,Kpt.,نق,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.binbasi.abbr,Bnb.,Maj,Maj,Maj.,رائ,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.yarbay.abbr,Yb.,LtCol,OLtCol,Pp.,مقد,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.albay.abbr,Alb.,Col,Oberst,Polk.,عق,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.category.enlisted,Er/Erbaş,Enlisted,Mannschaften,Əsgər/Kiçik rütbə,رتب مجندين,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.category.specialist,Uzman Erbaş,Specialist Enlisted,Spezialisten,Mütəxəssis əsgər,مجند أخصائي,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.category.nco,Astsubay,Non-Commissioned Officer,Unteroffiziere,Gizir,صف ضباط,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+rank.category.officer,Subay,Officer,Offiziere,Zabit,ضابط,Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs
+item.ammo_9mm,9mm Mermi,9mm Ammo,9-mm-Munition,9mm Güclə,ذخيرة 9 مم,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.ammo_556,5.56 Mermi,5.56 Ammo,"5,56-mm-Munition",5.56 Güclə,ذخيرة 5.56 مم,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.ammo_762,7.62 Mermi,7.62 Ammo,"7,62-mm-Munition",7.62 Güclə,ذخيرة 7.62 مم,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.ammo_12,12 Kalibre Fişek,12 Gauge Shell,12-Gauge-Patrone,12 Kalibr Patron,خرطوشة عيار 12,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.bandage,Sargı Bezi,Bandage,Verband,Sargı,ضمادة,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.first_aid,İlk Yardım Çantası,First Aid Kit,Verbandskasten,İlk Yardım Çantası,حقيبة إسعاف أولي,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.medkit,Sıhhiye Çantası,Med Kit,Sanitätstasche,Sanitar Çantası,حقيبة طبية,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.energy_drink,Enerji İçeceği,Energy Drink,Energy-Drink,Enerji İçkisi,مشروب طاقة,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.painkiller,Ağrı Kesici,Painkiller,Schmerzmittel,Ağrıkəsən,مسكن ألم,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.frag,El Bombası,Frag Grenade,Splittergranate,Əl Bombası,قنبلة يدوية,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.smoke,Sis Bombası,Smoke Grenade,Rauchgranate,Tüstü Bombası,قنبلة دخان,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.vest1,Çelik Yelek (Sv.1),Steel Vest (Lv.1),Stahlweste (St.1),Polad Jilet (Sv.1),سترة فولاذية (م.1),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.vest2,Çelik Yelek (Sv.2),Steel Vest (Lv.2),Stahlweste (St.2),Polad Jilet (Sv.2),سترة فولاذية (م.2),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.vest3,Çelik Yelek (Sv.3),Steel Vest (Lv.3),Stahlweste (St.3),Polad Jilet (Sv.3),سترة فولاذية (م.3),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.helmet1,Kask (Sv.1),Helmet (Lv.1),Helm (St.1),Dəbilqə (Sv.1),خوذة (م.1),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.helmet2,Kask (Sv.2),Helmet (Lv.2),Helm (St.2),Dəbilqə (Sv.2),خوذة (م.2),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.helmet3,Kask (Sv.3),Helmet (Lv.3),Helm (St.3),Dəbilqə (Sv.3),خوذة (م.3),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.backpack1,Sırt Çantası (Sv.1),Backpack (Lv.1),Rucksack (St.1),Bel çantası (Sv.1),حقيبة ظهر (م.1),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.backpack2,Sırt Çantası (Sv.2),Backpack (Lv.2),Rucksack (St.2),Bel çantası (Sv.2),حقيبة ظهر (م.2),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.backpack3,Sırt Çantası (Sv.3),Backpack (Lv.3),Rucksack (St.3),Bel çantası (Sv.3),حقيبة ظهر (م.3),Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.weapon,Silah,Weapon,Waffe,Silah,سلاح,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.ammo,Mühimmat,Ammunition,Munition,Sursat,ذخيرة,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.armor,Çelik Yelek,Armor Vest,Panzerweste,Polad Jilet,سترة واقية,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.medical,Tıbbi Malzeme,Medical,Sanitätsmaterial,Tibbi Ləvazimat,مستلزمات طبية,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.throwable,Bomba,Throwable,Wurfwaffe,Bomba,قذيفة يدوية,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.attachment,Eklenti,Attachment,Aufsatz,Əlavə,ملحق,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.helmet,Kask,Helmet,Helm,Dəbilqə,خوذة,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.backpack,Sırt Çantası,Backpack,Rucksack,Bel çantası,حقيبة ظهر,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.boost,Takviye,Boost,Stärkung,Gücləndirici,تعزيز,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+item.category.default,Eşya,Item,Gegenstand,Əşya,عنصر,Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs
+weapon.sar9,SAR 9,SAR 9,SAR 9,SAR 9,SAR 9,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.tp9,Canik TP9,Canik TP9,Canik TP9,Canik TP9,Canik TP9,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.sar109t,SAR 109T,SAR 109T,SAR 109T,SAR 109T,SAR 109T,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.mpt55,MPT-55,MPT-55,MPT-55,MPT-55,MPT-55,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.mpt76,MPT-76,MPT-76,MPT-76,MPT-76,MPT-76,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.g3a7,G3A7,G3A7,G3A7,G3A7,G3A7,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.knt76,KNT-76,KNT-76,KNT-76,KNT-76,KNT-76,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.jng90,JNG-90,JNG-90,JNG-90,JNG-90,JNG-90,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.pmt76,PMT-76,PMT-76,PMT-76,PMT-76,PMT-76,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.escort,Escort,Escort,Escort,Escort,Escort,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.pistol,Tabanca,Pistol,Pistole,Tapança,مسدس,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.smg,Hafif Makineli,SMG,MP,Yüngül pulemyot,رشاش خفيف,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.ar,Piyade Tüfeği,Assault Rifle,Sturmgewehr,Piyada tüfəngi,بندقية هجومية,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.sniper,Keskin Nişancı,Sniper,Scharfschützengewehr,Kəskin nişançı,قناصة,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.shotgun,Pompalı,Shotgun,Schrotflinte,Ov tüfəngi,بندقية خرطوش,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.melee,Yakın Dövüş,Melee,Nahkampf,Yaxın döyüş,قتال قريب,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.dmr,Nişancı Tüfeği,DMR,DMR,Nişançı tüfəngi,بندقية قناص مميزة,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.lmg,Makineli Tüfek,LMG,lMG,Pulemyot,رشاش خفيف ثقيل,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+weapon.category.default,Silah,Weapon,Waffe,Silah,سلاح,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+damage.unknown,Bilinmeyen,Unknown,Unbekannt,Naməlum,غير معروف,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+damage.zone,Harekât Sınırı,AO Boundary,Einsatzgrenze,Əməliyyat sərhədi,حدود منطقة العملية,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+damage.fall,Düşme,Fall,Sturz,Düşmə,سقوط,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+damage.frag,El Bombası,Frag Grenade,Splittergranate,Əl Bombası,قنبلة يدوية,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+damage.fists,Yumruk,Fists,Fäuste,Yumruq,قبضة,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+damage.arty,Topçu Ateşi,Artillery Fire,Artilleriefeuer,Artilleriya atəşi,قصف مدفعي,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+damage.vehicle,Araç,Vehicle,Fahrzeug,Nəqliyyat,مركبة,Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs
+team.kartal,Kartal Timi,Eagle Squad,Adler-Trupp,Qartal Timi,فريق النسر,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.bozkurt,Bozkurt Timi,Grey Wolf Squad,Grauwolf-Trupp,Bozqurd Timi,فريق الذئب الرمادي,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.simsek,Şimşek Timi,Thunderbolt Squad,Blitz-Trupp,Şimşək Timi,فريق الصاعقة,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.yildirim,Yıldırım Timi,Lightning Squad,Donner-Trupp,İldırım Timi,فريق البرق,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.kilic,Kılıç Timi,Sword Squad,Schwert-Trupp,Qılınc Timi,فريق السيف,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.kaplan,Kaplan Timi,Tiger Squad,Tiger-Trupp,Kaplan Timi,فريق النمر,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.pars,Pars Timi,Leopard Squad,Leoparden-Trupp,Pars Timi,فريق الفهد,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.atmaca,Atmaca Timi,Hawk Squad,Habicht-Trupp,Qırğı Timi,فريق الصقر,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.unknown,Bilinmeyen Tim,Unknown Squad,Unbekannter Trupp,Naməlum Tim,فريق غير معروف,Assets/_Project/Scripts/Application/Services/MatchService.cs
+team.numbered,{0}. Tim,Squad {0},Trupp {0},{0}. Tim,الفريق {0},Assets/_Project/Scripts/Application/Services/MatchService.cs
+player.soldier_id,Asker {0},Soldier {0},Soldat {0},Əsgər {0},جندي {0},Assets/_Project/Scripts/Application/Services/MatchService.cs
+player.unknown,Bilinmeyen,Unknown,Unbekannt,Naməlum,غير معروف,Assets/_Project/Scripts/Application/Services/MatchService.cs
+bot.state.idle,Beklemede,Idle,Bereit,Gözləmədə,في الانتظار,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.loot,Malzeme topluyor,Looting,Plündert,Ləvazimat toplayır,يجمع الغنائم,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.roam,Keşifte,Recon,Aufklärung,Kəşfiyyatda,استطلاع,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.move_to_zone,Bölgeye intikal,Moving to zone,Zur Zone,Zonaya intiqal,الانتقال للمنطقة,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.engage,Çatışmada,Engaging,Gefecht,Döyüşdə,في اشتباك,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.investigate,Araştırıyor,Investigating,Untersucht,Araşdırır,يتحقق,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.heal,Tedavi,Healing,Versorgt,Müalicə,علاج,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.flee,Geri çekiliyor,Retreating,Rückzug,Geri çəkilir,ينسحب,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.follow,Takipte,Following,Folgt,İzləmədə,يتبع,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.hold,Mevzide,Holding,In Stellung,Mövqedə,في الموقع,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+bot.state.assault,Taarruzda,Assaulting,Im Angriff,Hücumda,في هجوم,Assets/_Project/Scripts/Application/Services/BotDecisionService.cs
+killfeed.environment,Çevre,Environment,Umgebung,Ətraf,البيئة,Assets/_Project/Scripts/Application/Services/KillFeedService.cs
+location.map,Kuzgun Vadisi,Raven Valley,Rabental,Qarğa Vadisi,وادي الغراب,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.kuzgun_koyu,Kuzgun Köyü,Raven Village,Rabendorf,Qarğa Kəndi,قرية الغراب,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.yamac_koyu,Yamaç Köyü,Slope Village,Hangdorf,Yamac Kəndi,قرية المنحدر,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.sinir_karakolu,Sınır Karakolu,Border Outpost,Grenzposten,Sərhəd Karakolu,مركز حدودي,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.ileri_us,İleri Üs Bölgesi,Forward Operating Base,Vorgeschobene Basis,İrəli Baza Bölgəsi,قاعدة أمامية,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.tas_ocagi,Taş Ocağı,Quarry,Steinbruch,Daş Karyeri,مقلع حجارة,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.baraj,Kuzgun Barajı,Raven Dam,Rabendamm,Qarğa Bəndi,سد الغراب,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.role_tepesi,Röle Tepesi,Relay Hill,Relais-Hügel,Rele Təpəsi,تل الترحيل,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.cam_sirti,Çam Sırtı,Pine Ridge,Kiefernrücken,Şam Sırtı,سلسلة الصنوبر,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.agil,Ağıl,Pen,Gehöft,Ağıl,حظيرة,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.yikik_koy,Yıkık Köy,Ruined Village,Ruinendorf,Dağılmış Kənd,قرية مهدمة,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.goz_kuzey,Kuzey Gözetleme Noktası,North Observation Post,Nord-Beobachtungsposten,Şimal Müşahidə Nöqtəsi,نقطة مراقبة شمالية,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.goz_dogu,Doğu Gözetleme Noktası,East Observation Post,Ost-Beobachtungsposten,Şərq Müşahidə Nöqtəsi,نقطة مراقبة شرقية,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.goz_bati,Batı Gözetleme Noktası,West Observation Post,West-Beobachtungsposten,Qərb Müşahidə Nöqtəsi,نقطة مراقبة غربية,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+location.goz_guney,Güney Gözetleme Noktası,South Observation Post,Süd-Beobachtungsposten,Cənub Müşahidə Nöqtəsi,نقطة مراقبة جنوبية,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.kuzgun_yolu,Kuzgun Köyü Yolu,Raven Village Road,Rabendorf-Straße,Qarğa Kəndi Yolu,طريق قرية الغراب,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.yamac_yolu,Yamaç Yolu,Slope Road,Hangstraße,Yamac Yolu,طريق المنحدر,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.us_yolu,Üs Yolu,Base Road,Basisstraße,Baza Yolu,طريق القاعدة,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.dogu_yolu,Doğu Yolu,East Road,Oststraße,Şərq Yolu,الطريق الشرقي,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.agil_yolu,Ağıl Yolu,Pen Road,Gehöftstraße,Ağıl Yolu,طريق الحظيرة,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.role_yolu,Röle Yolu,Relay Road,Relaisstraße,Rele Yolu,طريق الترحيل,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.dogu_patika,Doğu Patika,East Trail,Ostpfad,Şərq Cığırı,درب شرقي,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.bati_patika,Batı Patika,West Trail,Westpfad,Qərb Cığırı,درب غربي,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.guney_patika,Güney Patika,South Trail,Südpfad,Cənub Cığırı,درب جنوبي,Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs
+road.bridge_suffix,{0} Köprüsü,{0} Bridge,{0}-Brücke,{0} Körpüsü,جسر {0},Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs

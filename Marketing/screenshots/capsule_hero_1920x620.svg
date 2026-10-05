@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="620" viewBox="0 0 1920 620" role="img" aria-label="HAREKÂT hero capsule">
+  <defs>
+    <linearGradient id="hbg" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0%" stop-color="#2a0c10"/>
+      <stop offset="35%" stop-color="#0b0b0b"/>
+      <stop offset="100%" stop-color="#0e1418"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="620" fill="url(#hbg)"/>
+  <path d="M0 420 L220 300 L400 380 L700 220 L980 360 L1280 180 L1560 320 L1920 240 L1920 620 L0 620 Z" fill="#171717"/>
+  <path d="M0 500 L300 400 L600 480 L900 360 L1200 460 L1600 380 L1920 440 L1920 620 L0 620 Z" fill="#101010"/>
+  <rect x="0" y="0" width="20" height="620" fill="#E30A17"/>
+  <g transform="translate(120,120) scale(1.2)">
+    <path d="M128 18 L218 48 L218 130 C218 178 178 214 128 238 C78 214 38 178 38 130 L38 48 Z" fill="#141414" stroke="#E30A17" stroke-width="8"/>
+    <path d="M148 72 C118 74 96 100 96 132 C96 164 118 190 148 192 C128 186 114 162 114 132 C114 102 128 78 148 72 Z" fill="#E30A17"/>
+    <polygon points="168,108 174,124 192,124 178,136 183,154 168,143 153,154 158,136 144,124 162,124" fill="#F5F5F5"/>
+  </g>
+  <text x="480" y="280" font-family="Impact, Haettenschweiler, sans-serif" font-size="140" letter-spacing="14" fill="#F5F5F5">HAREKÂT</text>
+  <rect x="488" y="310" width="280" height="8" fill="#E30A17"/>
+  <text x="488" y="370" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="32" letter-spacing="4" fill="#cccccc">B0R EM0R · ON ASKER · B0R VAD0</text>
+  <text x="488" y="420" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" fill="#E30A17">FPP TIM BATTLE ROYALE · MAV0 / KIRMIZI</text>
+</svg>

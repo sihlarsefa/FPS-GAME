@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 780" width="720" height="780">
+  <title>İleri Üs Bölgesi — Yakın Plan</title>
+  <rect width="100%" height="100%" fill="#d8d2b8"/>
+  <text x="60" y="28" font-family="sans-serif" font-size="18" font-weight="700">İleri Üs Bölgesi — YAKIN PLAN</text>
+  <text x="60" y="48" font-family="sans-serif" font-size="11" fill="#333">Grid H6 · Merkez (262, -92) · Yarıçap 85 m · Ölçek yerel</text>
+  <rect x="60" y="60" width="600" height="600" fill="#c5c09a" stroke="#3d3a2a" stroke-width="2"/>
+
+  <circle cx="360.0" cy="360.0" r="222.2" fill="none" stroke="#8B0000" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <path d="M273.6,390.9 L281.6,370.9 L289.6,390.9 Z" fill="#c45c12"/>
+  <text x="291.6" y="380.9" font-size="10" font-family="sans-serif" fill="#8a3a00">Üs yolu</text>
+  <path d="M357.2,291.6 L365.2,271.6 L373.2,291.6 Z" fill="#c45c12"/>
+  <text x="375.2" y="281.6" font-size="10" font-family="sans-serif" fill="#8a3a00">Doğu yol</text>
+  <path d="M451.3,443.2 L459.3,423.2 L467.3,443.2 Z" fill="#c45c12"/>
+  <text x="469.3" y="433.2" font-size="10" font-family="sans-serif" fill="#8a3a00">GD açık</text>
+  <rect x="307.7" y="312.9" width="41.8" height="31.4" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 328.6 328.6)"/>
+  <text x="328.6" y="309.9" text-anchor="middle" font-size="9" font-family="sans-serif">Hangar</text>
+  <rect x="367.8" y="367.8" width="52.3" height="26.1" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(10 394.0 380.9)"/>
+  <text x="394.0" y="364.8" text-anchor="middle" font-size="9" font-family="sans-serif">Konteyner sıra</text>
+  <rect x="365.2" y="286.8" width="31.4" height="31.4" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 380.9 302.5)"/>
+  <text x="380.9" y="283.8" text-anchor="middle" font-size="9" font-family="sans-serif">Helipad</text>
+  <rect x="289.4" y="396.6" width="26.1" height="20.9" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(-20 302.5 407.1)"/>
+  <text x="302.5" y="393.6" text-anchor="middle" font-size="9" font-family="sans-serif">Çadır HQ</text>
+  <rect x="409.7" y="331.2" width="20.9" height="20.9" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 420.1 341.7)"/>
+  <text x="420.1" y="328.2" text-anchor="middle" font-size="9" font-family="sans-serif">Depo</text>
+  <circle cx="433.2" cy="276.3" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="433.2" cy="276.3" r="2" fill="#8B0000"/>
+  <text x="441.2" y="270.3" font-size="10" font-family="sans-serif" fill="#8B0000">KN: KD kule</text>
+  <circle cx="302.5" cy="302.5" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="302.5" cy="302.5" r="2" fill="#8B0000"/>
+  <text x="310.5" y="296.5" font-size="10" font-family="sans-serif" fill="#8B0000">KN: Batı Hesco</text>
+  <text x="60" y="684" font-family="sans-serif" font-size="11" font-weight="600">Mevzi / giriş notları</text>
+  <text x="60" y="702" font-family="sans-serif" font-size="10" fill="#222">1. Askeri ganimet; geç oyun kalesi.</text>
+  <text x="60" y="718" font-family="sans-serif" font-size="10" fill="#222">2. Helipad açık — havadan görünür.</text>
+  <text x="60" y="734" font-family="sans-serif" font-size="10" fill="#222">3. Hesco halkası iç savunma halkası oluşturur.</text>
+</svg>

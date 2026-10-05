@@ -1,0 +1,8 @@
+bin/
+obj/
+reports/*.csv
+reports/*.json
+reports/*.html
+!reports/.gitkeep
+*.user
+.vs/

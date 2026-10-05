@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: harekat-redis
+  namespace: harekat
+  labels:
+    app: harekat-redis
+spec:
+  type: ClusterIP
+  selector:
+    app: harekat-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harekat-redis
+  namespace: harekat
+  labels:
+    app: harekat-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: harekat-redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: harekat-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - name: redis
+              containerPort: 6379
+          command:
+            - redis-server
+            - /etc/redis/redis.conf
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /etc/redis
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: harekat-redis-data
+        - name: config
+          configMap:
+            name: harekat-redis-config
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harekat-redis-data
+  namespace: harekat
+  labels:
+    app: harekat-redis
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-redis-config
+  namespace: harekat
+  labels:
+    app: harekat-redis
+data:
+  redis.conf: |
+    # HAREKÂT Redis — AOF + RDB kalıcılık
+    bind 0.0.0.0
+    protected-mode no
+    port 6379
+    tcp-backlog 511
+    timeout 0
+    tcp-keepalive 300
+
+    # RDB snapshot
+    save 900 1
+    save 300 10
+    save 60 10000
+    stop-writes-on-bgsave-error yes
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+
+    # AOF (append-only file)
+    appendonly yes
+    appendfilename "appendonly.aof"
+    appendfsync everysec
+    no-appendfsync-on-rewrite no
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+    aof-load-truncateded yes
+    aof-use-rdb-preamble yes
+
+    # Bellek
+    maxmemory 768mb
+    maxmemory-policy allkeys-lru
+
+    # Maç kuyruğu / presence için
+    notify-keyspace-events Ex

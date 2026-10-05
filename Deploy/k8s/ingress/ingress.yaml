@@ -1,0 +1,78 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: harekat-api
+  namespace: harekat
+  labels:
+    app: harekat-backend
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "4m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    # Blue-green: varsayılan aktif servis
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.harekat.gg
+        - api-eu-istanbul.harekat.gg
+        - api-eu-frankfurt.harekat.gg
+        - api-eu-amsterdam.harekat.gg
+      secretName: harekat-api-tls
+  rules:
+    - host: api.harekat.gg
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: harekat-backend-active
+                port:
+                  number: 80
+    - host: api-eu-istanbul.harekat.gg
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: harekat-backend-active
+                port:
+                  number: 80
+---
+# Preview (green) Ingress — blue-green doğrulama
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: harekat-api-preview
+  namespace: harekat
+  labels:
+    app: harekat-backend
+    role: preview
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - preview-api.harekat.gg
+      secretName: harekat-api-preview-tls
+  rules:
+    - host: preview-api.harekat.gg
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: harekat-backend-preview
+                port:
+                  number: 80

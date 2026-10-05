@@ -1,0 +1,228 @@
+# Çok bölgeli HAREKÂT — ping tabanlı yönlendirme
+# İstemci /regions endpoint'inden en düşük RTT bölgesini seçer;
+# DNS geo / latency routing ile global hostname bölgesel API'ye düşer.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-regions
+  namespace: harekat
+  labels:
+    app.kubernetes.io/part-of: harekat
+data:
+  regions.json: |
+    {
+      "version": 1,
+      "defaultRegion": "eu-istanbul",
+      "regions": [
+        {
+          "id": "eu-istanbul",
+          "displayName": "İstanbul",
+          "apiHost": "api-eu-istanbul.harekat.gg",
+          "gameserverNamespace": "harekat-games",
+          "cloudRegion": "europe-west-istanbul",
+          "geo": { "lat": 41.0082, "lon": 28.9784 },
+          "priority": 1,
+          "maxPingMs": 80
+        },
+        {
+          "id": "eu-frankfurt",
+          "displayName": "Frankfurt",
+          "apiHost": "api-eu-frankfurt.harekat.gg",
+          "gameserverNamespace": "harekat-games",
+          "cloudRegion": "europe-west3",
+          "geo": { "lat": 50.1109, "lon": 8.6821 },
+          "priority": 2,
+          "maxPingMs": 100
+        },
+        {
+          "id": "eu-amsterdam",
+          "displayName": "Amsterdam",
+          "apiHost": "api-eu-amsterdam.harekat.gg",
+          "gameserverNamespace": "harekat-games",
+          "cloudRegion": "europe-west4",
+          "geo": { "lat": 52.3676, "lon": 4.9041 },
+          "priority": 3,
+          "maxPingMs": 100
+        }
+      ],
+      "routing": {
+        "strategy": "lowest-ping",
+        "fallbackOrder": ["eu-istanbul", "eu-frankfurt", "eu-amsterdam"],
+        "pingSampleCount": 5,
+        "pingTimeoutMs": 500,
+        "reprobeIntervalSec": 60,
+        "stickyRegionTtlSec": 300
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-ping-router
+  namespace: harekat
+  labels:
+    app: harekat-ping-router
+data:
+  nginx.conf: |
+    worker_processes auto;
+    events { worker_connections 4096; }
+    http {
+      # Bölgesel upstream'ler (çok küme / çok Ingress senaryosu)
+      upstream istanbul {
+        server api-eu-istanbul.harekat.gg:443;
+        keepalive 32;
+      }
+      upstream frankfurt {
+        server api-eu-frankfurt.harekat.gg:443;
+        keepalive 32;
+      }
+      upstream amsterdam {
+        server api-eu-amsterdam.harekat.gg:443;
+        keepalive 32;
+      }
+
+      # Global giriş: X-Harekat-Region veya cookie ile yönlendir
+      map $http_x_harekat_region $backend_pool {
+        default     istanbul;
+        eu-istanbul istanbul;
+        eu-frankfurt frankfurt;
+        eu-amsterdam amsterdam;
+      }
+
+      map $cookie_harekat_region $cookie_pool {
+        default     "";
+        eu-istanbul istanbul;
+        eu-frankfurt frankfurt;
+        eu-amsterdam amsterdam;
+      }
+
+      map $cookie_pool $final_pool {
+        ""      $backend_pool;
+        default $cookie_pool;
+      }
+
+      server {
+        listen 8080;
+        location /regions {
+          default_type application/json;
+          alias /etc/harekat/regions.json;
+        }
+        location /health {
+          return 200 '{"status":"ok"}';
+          default_type application/json;
+        }
+        location / {
+          proxy_http_version 1.1;
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Harekat-Routed-Region $http_x_harekat_region;
+          # Not: üretimde bölgesel kümeler arası TLS + health check gerekir
+          proxy_pass https://$final_pool;
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: harekat-ping-router
+  namespace: harekat
+  labels:
+    app: harekat-ping-router
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: harekat-ping-router
+  template:
+    metadata:
+      labels:
+        app: harekat-ping-router
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: regions
+              mountPath: /etc/harekat
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+      volumes:
+        - name: conf
+          configMap:
+            name: harekat-ping-router
+        - name: regions
+          configMap:
+            name: harekat-regions
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: harekat-ping-router
+  namespace: harekat
+  labels:
+    app: harekat-ping-router
+spec:
+  type: ClusterIP
+  selector:
+    app: harekat-ping-router
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# Bölgesel backend overlay örnekleri (her bulut bölgesinde ayrı küme)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-backend-config-istanbul
+  namespace: harekat
+  labels:
+    region: eu-istanbul
+data:
+  REGION: "eu-istanbul"
+  AGONES_FLEET: "harekat-gameserver"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-backend-config-frankfurt
+  namespace: harekat
+  labels:
+    region: eu-frankfurt
+data:
+  REGION: "eu-frankfurt"
+  AGONES_FLEET: "harekat-gameserver"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-backend-config-amsterdam
+  namespace: harekat
+  labels:
+    region: eu-amsterdam
+data:
+  REGION: "eu-amsterdam"
+  AGONES_FLEET: "harekat-gameserver"

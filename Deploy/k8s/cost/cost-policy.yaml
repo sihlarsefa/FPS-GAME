@@ -1,0 +1,24 @@
+# Spot + gece ölçek özeti (manifest referansları)
+#
+# Spot:
+#   terraform/modules/node-pool  → spot = true, taint cloud.google.com/gke-spot
+#   agones/fleet.yaml            → preferred nodeAffinity + toleration
+#
+# Gece ölçek (Europe/Istanbul):
+#   k8s/backend/hpa.yaml         → CronJob 02:00 minReplicas=2, 10:00 min=3
+#   agones/fleet-autoscaler.yaml → CronJob buffer 5→2 / geri
+#
+# Simülasyon: make cost-sim → docs/cost-simulation.csv
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-cost-policy
+  namespace: harekat
+  labels:
+    cost-optimization: "true"
+data:
+  spot_target_ratio: "0.70"
+  night_scale_cron: "0 2 * * *"
+  day_scale_cron: "0 10 * * *"
+  night_ccu_factor: "0.35"
+  timezone: "Europe/Istanbul"

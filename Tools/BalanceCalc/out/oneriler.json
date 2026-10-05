@@ -1,0 +1,162 @@
+[
+  {
+    "severity": "uyarı",
+    "weapon": "JNG-90",
+    "category": "Keskin Nişancı",
+    "title": "Gövde TTK’da DMR’dan yavaş",
+    "rationale": "JNG-90 gövde TTK 1.400s vs KNT-76 0.840s (bolt-action aralığı 1.4s).",
+    "suggestion": "Kasıtlıysa sorun yok (kafa odaklı). Gövde rekabeti isteniyorsa hasarı 95–100’e çıkarıp 2-shot’ı Sv.2’de koruyun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "Canik TP9",
+    "category": "Tabanca",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 3 vuruş → Sv.3 kask 6 vuruş (TTK 0.30s → 0.75s, hasar 38 → 17).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "Escort",
+    "category": "Pompalı",
+    "title": "50 m’de pompalı yavaş (beklenen)",
+    "rationale": "Escort TTK=3.400s — falloff 8–40 m tasarımı nedeniyle 50 m’de zayıf.",
+    "suggestion": "Yakın dövüş rolü korunuyor; CQB mesafesinde (≤15 m) kontrol edin."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "Escort",
+    "category": "Pompalı",
+    "title": "Pompalı mesafe düşüşü sağlıklı",
+    "rationale": "10 m: 1 vuruş / 0.00s → 300 m: 3 vuruş / 1.70s (ilk hasar 171 → 36).",
+    "suggestion": "Yakın muharebe rolü korunuyor; değişiklik gerekmez."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "Escort",
+    "category": "Pompalı",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 2 vuruş → Sv.3 kask 5 vuruş (TTK 0.85s → 3.40s, hasar 54 → 24).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "G3A7",
+    "category": "Piyade Tüfeği",
+    "title": "Menzil düşüşü makul",
+    "rationale": "10 m 3v/0.22s → 300 m 4v/0.33s (hasar 38.0 → 30.3).",
+    "suggestion": "Mevcut falloff eğrisi orta menzil rolüyle uyumlu."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "G3A7",
+    "category": "Piyade Tüfeği",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 2 vuruş → Sv.3 kask 3 vuruş (TTK 0.11s → 0.22s, hasar 76 → 34).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "JNG-90",
+    "category": "Keskin Nişancı",
+    "title": "Tek kafa — keskin nişancı rolü",
+    "rationale": "Zırhsız kafa tek vuruş (225 hasar). Gövde 2 vuruş / 1.40s.",
+    "suggestion": "Bolt-action temposu (1.4 s) ile dengelenmiş; Sv.3 kaskta 2. vuruşa çıkıyor mu kontrol edin."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "KNT-76",
+    "category": "Nişancı Tüfeği",
+    "title": "Menzil düşüşü makul",
+    "rationale": "10 m 2v/0.28s → 300 m 3v/0.56s (hasar 52.0 → 47.7).",
+    "suggestion": "Mevcut falloff eğrisi orta menzil rolüyle uyumlu."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "KNT-76",
+    "category": "Nişancı Tüfeği",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 1 vuruş → Sv.3 kask 2 vuruş (TTK 0.00s → 0.28s, hasar 114 → 51).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "MPT-55",
+    "category": "Piyade Tüfeği",
+    "title": "AR ailesi TTK ayrışması",
+    "rationale": "En hızlı AR MPT-76 (0.400s) vs MPT-55 (0.480s). 7.62’ler daha az vuruş, 5.56 daha yüksek RPM ile telafi ediyor.",
+    "suggestion": "MPT-55’in vuruş sayısını 1 düşürmek için hasarı ~18–20 bandına yaklaştırmayın; mevcut ayrım rol farkını koruyor. İsterseniz MPT-55 MinDamageFactor’ü 0.70 yaparak uzak mesafeyi güçlendirin."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "MPT-55",
+    "category": "Piyade Tüfeği",
+    "title": "Menzil düşüşü makul",
+    "rationale": "10 m 4v/0.24s → 300 m 6v/0.40s (hasar 26.0 → 16.9).",
+    "suggestion": "Mevcut falloff eğrisi orta menzil rolüyle uyumlu."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "MPT-55",
+    "category": "Piyade Tüfeği",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 2 vuruş → Sv.3 kask 5 vuruş (TTK 0.08s → 0.32s, hasar 52 → 23).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "MPT-76",
+    "category": "Piyade Tüfeği",
+    "title": "Menzil düşüşü makul",
+    "rationale": "10 m 3v/0.20s → 300 m 4v/0.30s (hasar 36.0 → 28.7).",
+    "suggestion": "Mevcut falloff eğrisi orta menzil rolüyle uyumlu."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "MPT-76",
+    "category": "Piyade Tüfeği",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 2 vuruş → Sv.3 kask 4 vuruş (TTK 0.10s → 0.30s, hasar 72 → 32).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "PMT-76",
+    "category": "Makineli Tüfek",
+    "title": "Menzil düşüşü makul",
+    "rationale": "10 m 3v/0.18s → 300 m 4v/0.28s (hasar 34.0 → 27.1).",
+    "suggestion": "Mevcut falloff eğrisi orta menzil rolüyle uyumlu."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "PMT-76",
+    "category": "Makineli Tüfek",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 2 vuruş → Sv.3 kask 4 vuruş (TTK 0.09s → 0.28s, hasar 61 → 28).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "SAR 109T",
+    "category": "Hafif Makineli",
+    "title": "SMG tabancadan hızlı (beklenen)",
+    "rationale": "SAR 109T TTK 0.675s < Canik TP9 1.200s (50 m Sv.2).",
+    "suggestion": "Tabancayı yan silah olarak tutun; SMG CQB birincil kalmalı."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "SAR 109T",
+    "category": "Hafif Makineli",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 4 vuruş → Sv.3 kask 7 vuruş (TTK 0.23s → 0.45s, hasar 33 → 15).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  },
+  {
+    "severity": "bilgi",
+    "weapon": "SAR 9",
+    "category": "Tabanca",
+    "title": "Sv.3 kask vuruş ekliyor",
+    "rationale": "Zırhsız kafa 3 vuruş → Sv.3 kask 6 vuruş (TTK 0.32s → 0.80s, hasar 41 → 18).",
+    "suggestion": "Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun."
+  }
+]

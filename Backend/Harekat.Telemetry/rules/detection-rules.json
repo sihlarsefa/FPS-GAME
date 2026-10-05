@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "rules": [
+    {
+      "id": "impossible_hit_rate",
+      "enabled": true,
+      "kind": "ImpossibleHitRate",
+      "scoreWeight": 35,
+      "parameters": {
+        "minShots": 20,
+        "maxHitRate": 0.85
+      }
+    },
+    {
+      "id": "high_headshot_rate",
+      "enabled": true,
+      "kind": "HighHeadshotRate",
+      "scoreWeight": 30,
+      "parameters": {
+        "minHits": 10,
+        "maxHeadshotRate": 0.70
+      }
+    },
+    {
+      "id": "impossible_speed",
+      "enabled": true,
+      "kind": "ImpossibleSpeed",
+      "scoreWeight": 40,
+      "parameters": {
+        "maxSpeedMps": 18
+      }
+    },
+    {
+      "id": "wallbang_consistency",
+      "enabled": true,
+      "kind": "WallbangConsistency",
+      "scoreWeight": 35,
+      "parameters": {
+        "minWallHits": 5,
+        "minWallHitRatio": 0.40
+      }
+    }
+  ]
+}

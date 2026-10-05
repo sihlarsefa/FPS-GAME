@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Harekat.DiscordBot/Harekat.DiscordBot.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Harekat.DiscordBot.Tests/Harekat.DiscordBot.Tests.csproj" />
+  </Folder>
+</Solution>

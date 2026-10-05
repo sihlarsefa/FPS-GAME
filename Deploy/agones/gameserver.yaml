@@ -1,0 +1,60 @@
+# Agones GameServer şablonu — maç başına bir sunucu, 40–60 oyuncu
+apiVersion: agones.dev/v1
+kind: GameServer
+metadata:
+  name: harekat-gameserver-template
+  namespace: harekat-games
+  labels:
+    app: harekat-gameserver
+    game: harekat
+    mode: team-br
+spec:
+  ports:
+    - name: game
+      portPolicy: Dynamic
+      containerPort: 7777
+      protocol: UDP
+    - name: query
+      portPolicy: Dynamic
+      containerPort: 7778
+      protocol: TCP
+  health:
+    disabled: false
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 5
+  scheduling: Packed
+  template:
+    metadata:
+      labels:
+        app: harekat-gameserver
+    spec:
+      containers:
+        - name: harekat
+          image: ghcr.io/harekat/dedicated-server:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: GAME_PORT
+              value: "7777"
+            - name: QUERY_PORT
+              value: "7778"
+            - name: REGION
+              value: "eu-istanbul"
+            - name: MAX_PLAYERS
+              value: "60"
+            - name: MIN_PLAYERS
+              value: "40"
+            - name: BACKEND_URL
+              value: "http://harekat-backend.harekat.svc.cluster.local"
+            - name: SERVER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: harekat-gameserver-secrets
+                  key: ServerKey
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"

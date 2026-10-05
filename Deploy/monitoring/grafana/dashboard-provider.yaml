@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harekat-grafana-dashboards
+  namespace: harekat-monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  # Dashboard JSON dosyaları sidecar ile yüklenir; ConfigMap referansı
+  dashboard-provider.yaml: |
+    apiVersion: 1
+    providers:
+      - name: harekat
+        orgId: 1
+        folder: HAREKÂT
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards/harekat

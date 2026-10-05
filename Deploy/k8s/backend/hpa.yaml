@@ -1,0 +1,137 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: harekat-backend
+  namespace: harekat
+  labels:
+    app: harekat-backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: harekat-backend
+  minReplicas: 3
+  maxReplicas: 40
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 65
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 120
+        - type: Percent
+          value: 25
+          periodSeconds: 120
+      selectPolicy: Min
+---
+# Gece saatleri ölçek kuralı (CronJob ile minReplicas düşürülür)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: harekat-backend-night-scale-down
+  namespace: harekat
+  labels:
+    app: harekat-backend
+    cost-optimization: "true"
+spec:
+  # Europe/Istanbul 02:00
+  schedule: "0 2 * * *"
+  timeZone: "Europe/Istanbul"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: harekat-scaler
+          restartPolicy: OnFailure
+          containers:
+            - name: scale
+              image: bitnami/kubectl:1.29
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  kubectl patch hpa harekat-backend -n harekat --type merge \
+                    -p '{"spec":{"minReplicas":2,"maxReplicas":10}}'
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: harekat-backend-day-scale-up
+  namespace: harekat
+  labels:
+    app: harekat-backend
+    cost-optimization: "true"
+spec:
+  # Europe/Istanbul 10:00
+  schedule: "0 10 * * *"
+  timeZone: "Europe/Istanbul"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: harekat-scaler
+          restartPolicy: OnFailure
+          containers:
+            - name: scale
+              image: bitnami/kubectl:1.29
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  kubectl patch hpa harekat-backend -n harekat --type merge \
+                    -p '{"spec":{"minReplicas":3,"maxReplicas":40}}'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: harekat-scaler
+  namespace: harekat
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: harekat-scaler
+  namespace: harekat
+rules:
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: harekat-scaler
+  namespace: harekat
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: harekat-scaler
+subjects:
+  - kind: ServiceAccount
+    name: harekat-scaler
+    namespace: harekat

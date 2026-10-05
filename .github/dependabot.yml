@@ -1,0 +1,107 @@
+version: 2
+
+updates:
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: chore
+      include: scope
+
+  # Backend (.NET / NuGet)
+  - package-ecosystem: nuget
+    directory: /Backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 15
+    labels:
+      - dependencies
+      - backend
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      aspnet-core:
+        patterns:
+          - "Microsoft.AspNetCore.*"
+          - "Microsoft.Extensions.*"
+          - "Microsoft.EntityFrameworkCore*"
+      test-packages:
+        patterns:
+          - "xunit*"
+          - "Moq*"
+          - "FluentAssertions*"
+          - "coverlet*"
+          - "Microsoft.NET.Test.Sdk"
+
+  # Telemetry (ayrı solution olabilir)
+  - package-ecosystem: nuget
+    directory: /Backend/Harekat.Telemetry
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - telemetry
+    commit-message:
+      prefix: chore
+      include: scope
+
+  # Web portal (npm)
+  - package-ecosystem: npm
+    directory: /Web
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 15
+    labels:
+      - dependencies
+      - web
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      eslint:
+        patterns:
+          - "eslint*"
+          - "@typescript-eslint/*"
+      vite:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+
+  # Docker base images (Backend)
+  - package-ecosystem: docker
+    directory: /Backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
+      include: scope
+
+  # Docker (Unity dedicated server imajı)
+  - package-ecosystem: docker
+    directory: /Deploy/server
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - docker
+    commit-message:
+      prefix: chore
+      include: scope

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 780" width="720" height="780">
+  <title>Sınır Karakolu — Yakın Plan</title>
+  <rect width="100%" height="100%" fill="#d8d2b8"/>
+  <text x="60" y="28" font-family="sans-serif" font-size="18" font-weight="700">Sınır Karakolu — YAKIN PLAN</text>
+  <text x="60" y="48" font-family="sans-serif" font-size="11" fill="#333">Grid G2 · Merkez (140, 392) · Yarıçap 55 m · Ölçek yerel</text>
+  <rect x="60" y="60" width="600" height="600" fill="#c5c09a" stroke="#3d3a2a" stroke-width="2"/>
+
+  <circle cx="360.0" cy="360.0" r="222.2" fill="none" stroke="#8B0000" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <path d="M432.8,366.0 L440.8,346.0 L448.8,366.0 Z" fill="#c45c12"/>
+  <text x="450.8" y="356.0" font-size="10" font-family="sans-serif" fill="#8a3a00">Karakol yolu</text>
+  <path d="M271.2,297.3 L279.2,277.3 L287.2,297.3 Z" fill="#c45c12"/>
+  <text x="289.2" y="287.3" font-size="10" font-family="sans-serif" fill="#8a3a00">KB sırt</text>
+  <path d="M473.2,458.9 L481.2,438.9 L489.2,458.9 Z" fill="#c45c12"/>
+  <text x="491.2" y="448.9" font-size="10" font-family="sans-serif" fill="#8a3a00">GD yol</text>
+  <rect x="323.6" y="299.4" width="72.7" height="56.6" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 360.0 327.7)"/>
+  <text x="360.0" y="296.4" text-anchor="middle" font-size="9" font-family="sans-serif">Karakol</text>
+  <rect x="408.5" y="376.2" width="24.2" height="24.2" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 420.6 388.3)"/>
+  <text x="420.6" y="373.2" text-anchor="middle" font-size="9" font-family="sans-serif">Nöbet kulesi</text>
+  <rect x="279.2" y="372.1" width="40.4" height="32.3" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(90 299.4 388.3)"/>
+  <text x="299.4" y="369.1" text-anchor="middle" font-size="9" font-family="sans-serif">Kışla</text>
+  <rect x="323.6" y="416.6" width="32.3" height="24.2" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 339.8 428.7)"/>
+  <text x="339.8" y="413.6" text-anchor="middle" font-size="9" font-family="sans-serif">Depo</text>
+  <circle cx="420.6" cy="388.3" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="420.6" cy="388.3" r="2" fill="#8B0000"/>
+  <text x="428.6" y="382.3" font-size="10" font-family="sans-serif" fill="#8B0000">KN: Kule</text>
+  <circle cx="440.8" cy="287.3" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="440.8" cy="287.3" r="2" fill="#8B0000"/>
+  <text x="448.8" y="281.3" font-size="10" font-family="sans-serif" fill="#8B0000">KN: Kuzey duvar</text>
+  <text x="60" y="684" font-family="sans-serif" font-size="11" font-weight="600">Mevzi / giriş notları</text>
+  <text x="60" y="702" font-family="sans-serif" font-size="10" fill="#222">1. Yüksek ganimet; erken oyun sıcak noktası.</text>
+  <text x="60" y="718" font-family="sans-serif" font-size="10" fill="#222">2. Duvar çevresi Hesco benzeri örtü.</text>
+  <text x="60" y="734" font-family="sans-serif" font-size="10" fill="#222">3. Kuzeyden T-70 inişi (S2) ile baskın mümkün.</text>
+</svg>

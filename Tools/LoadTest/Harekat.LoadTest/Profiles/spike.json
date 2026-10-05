@@ -1,0 +1,23 @@
+{
+  "baseUrl": "http://localhost:5080",
+  "serverKey": "dev-server-key",
+  "region": "tr-ist",
+  "scenario": "spike",
+  "squadSize": 10,
+  "maxConcurrency": 800,
+  "thinkTimeMs": 5,
+  "spikeBaselinePlayers": 500,
+  "spikePeakPlayers": 10000,
+  "spikePeakSeconds": 60,
+  "spikeBaselineSeconds": 120,
+  "dryRun": false,
+  "generateHtml": true,
+  "outputDirectory": "reports",
+  "slo": {
+    "p50MaxMs": 200,
+    "p95MaxMs": 600,
+    "p99MaxMs": 1200,
+    "errorRateMax": 0.05,
+    "minRps": 50
+  }
+}

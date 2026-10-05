@@ -1,0 +1,81 @@
+services:
+  api:
+    build:
+      context: ../../Backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      Storage__Provider: Postgres
+      ConnectionStrings__Postgres: Host=postgres;Database=harekat;Username=harekat;Password=${POSTGRES_PASSWORD:-harekat}
+      Jwt__Secret: ${JWT_SECRET:?JWT_SECRET required}
+      Swagger__Enabled: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    expose:
+      - "8080"
+    networks:
+      - harekat
+
+  telemetry:
+    build:
+      context: ../../Backend/Harekat.Telemetry
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8090
+    expose:
+      - "8090"
+    networks:
+      - harekat
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: harekat
+      POSTGRES_USER: harekat
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-harekat}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U harekat -d harekat"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - harekat
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    networks:
+      - harekat
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ../../Web/dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+    networks:
+      - harekat
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  harekat:

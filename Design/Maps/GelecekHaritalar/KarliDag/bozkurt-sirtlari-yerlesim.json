@@ -1,0 +1,348 @@
+{
+  "schema": "Project.Infrastructure.World.MapLayout",
+  "Name": "Bozkurt Sırtları",
+  "HalfSize": 512,
+  "MaxHeight": 220,
+  "WaterLevel": 12,
+  "Seed": 0,
+  "Locations": [
+    {
+      "Name": "Kartal Üssü",
+      "Kind": "ForwardBase",
+      "Center": {
+        "x": 40,
+        "z": 380
+      },
+      "Radius": 70,
+      "FlattenRadius": 55,
+      "Tier": "Military",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Buz Geçidi",
+      "Kind": "Outpost",
+      "Center": {
+        "x": -20,
+        "z": 80
+      },
+      "Radius": 50,
+      "FlattenRadius": 30,
+      "Tier": "High",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Çığ Köyü",
+      "Kind": "Village",
+      "Center": {
+        "x": -220,
+        "z": 160
+      },
+      "Radius": 65,
+      "FlattenRadius": 48,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Maden Ocağı",
+      "Kind": "Quarry",
+      "Center": {
+        "x": 260,
+        "z": -40
+      },
+      "Radius": 70,
+      "FlattenRadius": 50,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Radar Zirvesi",
+      "Kind": "RelayHill",
+      "Center": {
+        "x": -340,
+        "z": 300
+      },
+      "Radius": 50,
+      "FlattenRadius": 32,
+      "Tier": "High",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Kayak Tesisi",
+      "Kind": "Farm",
+      "Center": {
+        "x": 200,
+        "z": 220
+      },
+      "Radius": 60,
+      "FlattenRadius": 45,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Tünel Girişi",
+      "Kind": "Ruins",
+      "Center": {
+        "x": 80,
+        "z": -200
+      },
+      "Radius": 45,
+      "FlattenRadius": 35,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Güney Karakolu",
+      "Kind": "Karakol",
+      "Center": {
+        "x": -100,
+        "z": -360
+      },
+      "Radius": 55,
+      "FlattenRadius": 40,
+      "Tier": "High",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Orman Kulübesi",
+      "Kind": "Forest",
+      "Center": {
+        "x": 320,
+        "z": 120
+      },
+      "Radius": 40,
+      "FlattenRadius": 18,
+      "Tier": "Low",
+      "IsMajor": false,
+      "ClearRadius": 20,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Buzul Gölü",
+      "Kind": "Dam",
+      "Center": {
+        "x": -60,
+        "z": -80
+      },
+      "Radius": 55,
+      "FlattenRadius": 28,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "KB Gözetleme",
+      "Kind": "Outpost",
+      "Center": {
+        "x": -380,
+        "z": 420
+      },
+      "Radius": 28,
+      "FlattenRadius": 17,
+      "Tier": "High",
+      "IsMajor": false,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "GD Gözetleme",
+      "Kind": "Outpost",
+      "Center": {
+        "x": 380,
+        "z": -300
+      },
+      "Radius": 28,
+      "FlattenRadius": 17,
+      "Tier": "High",
+      "IsMajor": false,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    }
+  ],
+  "Roads": [
+    {
+      "Name": "Ana Yol",
+      "Kind": "Asphalt",
+      "Width": 8,
+      "Points": [
+        {
+          "x": -30,
+          "z": 520
+        },
+        {
+          "x": -40,
+          "z": 300
+        },
+        {
+          "x": -20,
+          "z": 80
+        },
+        {
+          "x": 40,
+          "z": -100
+        },
+        {
+          "x": 60,
+          "z": -300
+        },
+        {
+          "x": 40,
+          "z": -520
+        }
+      ]
+    },
+    {
+      "Name": "Üs Yolu",
+      "Kind": "Dirt",
+      "Width": 6,
+      "Points": [
+        {
+          "x": 40,
+          "z": 380
+        },
+        {
+          "x": 20,
+          "z": 300
+        },
+        {
+          "x": -20,
+          "z": 200
+        }
+      ]
+    },
+    {
+      "Name": "Maden Yolu",
+      "Kind": "Dirt",
+      "Width": 6,
+      "Points": [
+        {
+          "x": 60,
+          "z": -40
+        },
+        {
+          "x": 160,
+          "z": -40
+        },
+        {
+          "x": 250,
+          "z": -40
+        }
+      ]
+    },
+    {
+      "Name": "Geçit Yolu",
+      "Kind": "Dirt",
+      "Width": 5.5,
+      "Points": [
+        {
+          "x": -20,
+          "z": 80
+        },
+        {
+          "x": 100,
+          "z": 40
+        },
+        {
+          "x": 200,
+          "z": 100
+        },
+        {
+          "x": 200,
+          "z": 220
+        }
+      ]
+    }
+  ],
+  "Rivers": [
+    {
+      "Width": 10,
+      "Depth": 1.2,
+      "Points": [
+        {
+          "x": -80,
+          "z": 200
+        },
+        {
+          "x": -40,
+          "z": 100
+        },
+        {
+          "x": -20,
+          "z": 0
+        },
+        {
+          "x": -40,
+          "z": -100
+        },
+        {
+          "x": -60,
+          "z": -200
+        },
+        {
+          "x": 0,
+          "z": -300
+        }
+      ]
+    }
+  ],
+  "Lakes": [
+    {
+      "Center": {
+        "x": -60,
+        "z": -80
+      },
+      "Radius": 48,
+      "Depth": 3.0
+    }
+  ],
+  "InsertionSectors": [
+    {
+      "id": "S1",
+      "name": "Kuzey Üs Yaklaşımı",
+      "center": {
+        "x": 40,
+        "z": 450
+      }
+    },
+    {
+      "id": "S2",
+      "name": "Radar Helikopter",
+      "center": {
+        "x": -300,
+        "z": 350
+      }
+    },
+    {
+      "id": "S3",
+      "name": "Maden İniş",
+      "center": {
+        "x": 280,
+        "z": -80
+      }
+    },
+    {
+      "id": "S4",
+      "name": "Güney Boğaz",
+      "center": {
+        "x": 0,
+        "z": -450
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "editable": true,
+  "panels": [
+    {
+      "title": "Backend CPU",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"harekat\",pod=~\"harekat-backend.*\"}[5m])) by (pod)",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Backend bellek",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "avg(container_memory_working_set_bytes{namespace=\"harekat\",pod=~\"harekat-backend.*\"}) by (pod)",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "title": "HPA hedef replica",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"harekat\",horizontalpodautoscaler=\"harekat-backend\"}",
+          "legendFormat": "desired",
+          "refId": "A"
+        },
+        {
+          "expr": "kube_horizontalpodautoscaler_status_current_replicas{namespace=\"harekat\",horizontalpodautoscaler=\"harekat-backend\"}",
+          "legendFormat": "current",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "title": "Spot node sayısı",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "targets": [
+        {
+          "expr": "count(kube_node_labels{label_cloud_google_com_gke_spot=\"true\"}) or vector(0)",
+          "legendFormat": "spot",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["harekat", "capacity"],
+  "time": { "from": "now-24h", "to": "now" },
+  "timezone": "Europe/Istanbul",
+  "title": "HAREKÂT — Kapasite & Maliyet",
+  "uid": "harekat-capacity",
+  "version": 1
+}

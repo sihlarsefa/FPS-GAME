@@ -1,0 +1,22 @@
+{
+  "baseUrl": "http://localhost:5080",
+  "serverKey": "dev-server-key",
+  "region": "tr-ist",
+  "scenario": "ramp",
+  "squadSize": 10,
+  "maxConcurrency": 500,
+  "thinkTimeMs": 10,
+  "rampTargetPlayers": 10000,
+  "rampSteps": 10,
+  "rampStepDurationSeconds": 30,
+  "dryRun": false,
+  "generateHtml": true,
+  "outputDirectory": "reports",
+  "slo": {
+    "p50MaxMs": 150,
+    "p95MaxMs": 400,
+    "p99MaxMs": 800,
+    "errorRateMax": 0.02,
+    "minRps": 100
+  }
+}

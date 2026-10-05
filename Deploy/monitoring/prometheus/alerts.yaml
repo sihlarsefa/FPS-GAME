@@ -1,0 +1,123 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: harekat-alerts
+  namespace: harekat-monitoring
+  labels:
+    app: harekat
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+    - name: harekat-backend
+      rules:
+        - alert: HarekatBackendHighErrorRate
+          expr: |
+            sum(rate(http_requests_total{namespace="harekat",job="harekat-backend",code=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{namespace="harekat",job="harekat-backend"}[5m])) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+            service: harekat-backend
+          annotations:
+            summary: "HAREKÂT backend hata oranı %5 üzeri"
+            description: "5xx oranı 5 dakikadır yüksek. Blue-green rollback değerlendirin."
+
+        - alert: HarekatBackendHighLatency
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(http_request_duration_seconds_bucket{namespace="harekat",job="harekat-backend"}[5m])) by (le)
+            ) > 0.5
+          for: 10m
+          labels:
+            severity: warning
+            service: harekat-backend
+          annotations:
+            summary: "HAREKÂT API p95 > 500ms"
+
+        - alert: HarekatBackendPodCrashLoop
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="harekat",container="api"}[15m]) > 3
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Backend pod sık yeniden başlıyor"
+
+    - name: harekat-matchmaking
+      rules:
+        - alert: HarekatMatchmakingQueueDelay
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(harekat_matchmaking_wait_seconds_bucket[5m])) by (le)
+            ) > 120
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Eşleşme bekleme p95 > 120s"
+            description: "Fleet buffer artırın veya bölge kapasitesini kontrol edin."
+
+        - alert: HarekatActivePlayersDrop
+          expr: |
+            (harekat_active_players < 10)
+            and (harekat_active_players offset 1h > 100)
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Aktif oyuncu ani düşüş"
+
+    - name: harekat-gameservers
+      rules:
+        - alert: HarekatFleetLowReadyBuffer
+          expr: |
+            agones_fleets_replicas_count{name="harekat-gameserver",type="ready"} < 2
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Agones Ready buffer kritik düşük"
+
+        - alert: HarekatGameServerHighAlloc
+          expr: |
+            (
+              agones_fleets_replicas_count{name="harekat-gameserver",type="allocated"}
+              /
+              agones_fleets_replicas_count{name="harekat-gameserver",type="total"}
+            ) > 0.9
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GameServer doluluk > %90"
+
+    - name: harekat-data
+      rules:
+        - alert: HarekatPostgresDown
+          expr: |
+            up{job="harekat-postgres"} == 0
+            or kube_pod_status_ready{namespace="harekat",pod=~"harekat-postgres-.*"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Postgres ayakta değil — DR runbook'u açın"
+
+        - alert: HarekatRedisDown
+          expr: up{job="harekat-redis"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Redis ayakta değil — kuyruk/presence etkilenir"
+
+        - alert: HarekatPostgresWalArchiveLag
+          expr: |
+            (pg_stat_archiver_last_archive_age_seconds > 600)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Postgres WAL arşiv gecikmesi — PITR riski"

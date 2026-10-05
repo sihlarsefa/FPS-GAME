@@ -1,0 +1,7 @@
+**/*.mdb
+**/*.pdb
+**/DoNotShip/**
+**/*_BurstDebugInformation_DoNotShip/**
+*.md
+.git
+.gitignore

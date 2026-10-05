@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: harekat
+  labels:
+    app.kubernetes.io/part-of: harekat
+    app.kubernetes.io/name: harekat
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: harekat-games
+  labels:
+    app.kubernetes.io/part-of: harekat
+    app.kubernetes.io/component: gameservers
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: harekat-monitoring
+  labels:
+    app.kubernetes.io/part-of: harekat
+    app.kubernetes.io/component: monitoring

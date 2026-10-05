@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Harekat.Telemetry.Api/Harekat.Telemetry.Api.csproj" />
+    <Project Path="src/Harekat.Telemetry.Application/Harekat.Telemetry.Application.csproj" />
+    <Project Path="src/Harekat.Telemetry.Domain/Harekat.Telemetry.Domain.csproj" />
+    <Project Path="src/Harekat.Telemetry.Infrastructure/Harekat.Telemetry.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Harekat.Telemetry.Tests/Harekat.Telemetry.Tests.csproj" />
+  </Folder>
+</Solution>

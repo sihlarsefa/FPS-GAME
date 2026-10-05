@@ -1,0 +1,43 @@
+name: VPS Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vps-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.VPS_SSH_PRIVATE_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Web static
+        run: |
+          cd Web
+          npm run build
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            INSTALL_DIR="${{ secrets.VPS_INSTALL_DIR || '/opt/harekat' }}"
+            if [ ! -d "$INSTALL_DIR/.git" ]; then
+              git clone https://github.com/${{ github.repository }}.git "$INSTALL_DIR"
+            fi
+            cd "$INSTALL_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+            cd Web && npm ci && npm run build
+            cd "$INSTALL_DIR/Deploy/vps"
+            docker compose --env-file .env pull || true
+            docker compose --env-file .env up -d --build
+            docker compose ps

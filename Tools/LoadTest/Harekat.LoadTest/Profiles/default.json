@@ -1,0 +1,21 @@
+{
+  "baseUrl": "http://localhost:5080",
+  "serverKey": "dev-server-key",
+  "region": "tr-ist",
+  "scenario": "player",
+  "virtualPlayers": 100,
+  "squadSize": 10,
+  "maxConcurrency": 50,
+  "thinkTimeMs": 20,
+  "timeoutSeconds": 30,
+  "dryRun": true,
+  "generateHtml": true,
+  "outputDirectory": "reports",
+  "slo": {
+    "p50MaxMs": 100,
+    "p95MaxMs": 250,
+    "p99MaxMs": 500,
+    "errorRateMax": 0.01,
+    "minRps": 10
+  }
+}

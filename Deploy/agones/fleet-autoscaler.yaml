@@ -1,0 +1,131 @@
+# Agones FleetAutoscaler — eşzamanlı maç yüküne göre ölçek
+apiVersion: autoscaling.agones.dev/v1
+kind: FleetAutoscaler
+metadata:
+  name: harekat-gameserver
+  namespace: harekat-games
+  labels:
+    app: harekat-gameserver
+spec:
+  fleetName: harekat-gameserver
+  policy:
+    # Buffer: her zaman en az N Ready sunucu beklet
+    type: Buffer
+    buffer:
+      bufferSize: 5
+      minReplicas: 5
+      maxReplicas: 200
+  sync:
+    type: FixedInterval
+    fixedInterval:
+      seconds: 10
+---
+# Yoğun saatler için webhook tabanlı ölçek (opsiyonel)
+apiVersion: autoscaling.agones.dev/v1
+kind: FleetAutoscaler
+metadata:
+  name: harekat-gameserver-webhook
+  namespace: harekat-games
+  labels:
+    app: harekat-gameserver
+    policy: webhook
+spec:
+  fleetName: harekat-gameserver
+  policy:
+    type: Webhook
+    webhook:
+      service:
+        name: harekat-backend
+        namespace: harekat
+        path: /internal/agones/fleet-scale
+        port: 80
+      # Webhook yanıtı: { "replicas": N }
+  sync:
+    type: FixedInterval
+    fixedInterval:
+      seconds: 15
+---
+# Gece buffer küçültme
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: harekat-fleet-night-scale
+  namespace: harekat-games
+  labels:
+    cost-optimization: "true"
+spec:
+  schedule: "0 2 * * *"
+  timeZone: "Europe/Istanbul"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: harekat-fleet-scaler
+          restartPolicy: OnFailure
+          containers:
+            - name: scale
+              image: bitnami/kubectl:1.29
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  kubectl patch fleetautoscaler harekat-gameserver -n harekat-games --type merge \
+                    -p '{"spec":{"policy":{"buffer":{"bufferSize":2,"minReplicas":2,"maxReplicas":40}}}}'
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: harekat-fleet-day-scale
+  namespace: harekat-games
+  labels:
+    cost-optimization: "true"
+spec:
+  schedule: "0 10 * * *"
+  timeZone: "Europe/Istanbul"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: harekat-fleet-scaler
+          restartPolicy: OnFailure
+          containers:
+            - name: scale
+              image: bitnami/kubectl:1.29
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  kubectl patch fleetautoscaler harekat-gameserver -n harekat-games --type merge \
+                    -p '{"spec":{"policy":{"buffer":{"bufferSize":5,"minReplicas":5,"maxReplicas":200}}}}'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: harekat-fleet-scaler
+  namespace: harekat-games
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: harekat-fleet-scaler
+  namespace: harekat-games
+rules:
+  - apiGroups: ["autoscaling.agones.dev"]
+    resources: ["fleetautoscalers"]
+    verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: harekat-fleet-scaler
+  namespace: harekat-games
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: harekat-fleet-scaler
+subjects:
+  - kind: ServiceAccount
+    name: harekat-fleet-scaler
+    namespace: harekat-games

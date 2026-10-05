@@ -1,0 +1,21 @@
+{
+  "baseUrl": "http://localhost:5080",
+  "serverKey": "dev-server-key",
+  "region": "tr-ist",
+  "scenario": "soak",
+  "squadSize": 10,
+  "maxConcurrency": 400,
+  "thinkTimeMs": 50,
+  "soakDurationMinutes": 120,
+  "soakPlayers": 2000,
+  "dryRun": false,
+  "generateHtml": true,
+  "outputDirectory": "reports",
+  "slo": {
+    "p50MaxMs": 120,
+    "p95MaxMs": 300,
+    "p99MaxMs": 600,
+    "errorRateMax": 0.005,
+    "minRps": 80
+  }
+}

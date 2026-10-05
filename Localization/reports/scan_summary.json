@@ -1,0 +1,39 @@
+{
+  "string_count": 295,
+  "placeholder_keys": [
+    "menu.team_summary",
+    "hud.minimap.to_zone",
+    "hud.minimap.to_marker",
+    "match.msg.victory",
+    "match.msg.defeat",
+    "notify.arty_cooldown",
+    "team.numbered",
+    "player.soldier_id",
+    "road.bridge_suffix"
+  ],
+  "source_files": [
+    "Assets/_Project/Scripts/Application/Catalogs/ItemCatalog.cs",
+    "Assets/_Project/Scripts/Application/Catalogs/LoadoutCatalog.cs",
+    "Assets/_Project/Scripts/Application/Catalogs/RankCatalog.cs",
+    "Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs",
+    "Assets/_Project/Scripts/Application/Services/BotDecisionService.cs",
+    "Assets/_Project/Scripts/Application/Services/KillFeedService.cs",
+    "Assets/_Project/Scripts/Application/Services/MatchService.cs",
+    "Assets/_Project/Scripts/Infrastructure/World/MapLayoutKuzgunVadisi.cs",
+    "Assets/_Project/Scripts/Presentation/Bootstrap/MatchBootstrap.cs",
+    "Assets/_Project/Scripts/Presentation/Bootstrap/SceneNames.cs",
+    "Assets/_Project/Scripts/Presentation/Bootstrap/TrainingBootstrap.cs",
+    "Assets/_Project/Scripts/Presentation/Player/PlayerController.cs",
+    "Assets/_Project/Scripts/Presentation/Player/PlayerInteraction.cs",
+    "Assets/_Project/Scripts/Presentation/Player/PlayerWeaponHandler.cs",
+    "Assets/_Project/Scripts/Presentation/Player/SquadCommandInput.cs",
+    "Assets/_Project/Scripts/Presentation/UI/LoadingScreen.cs",
+    "Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs",
+    "Assets/_Project/Scripts/Presentation/UI/MatchHudPresenter.cs",
+    "Assets/_Project/Scripts/Presentation/UI/MenuDialog.cs",
+    "Assets/_Project/Scripts/Presentation/UI/MenuText.cs",
+    "Assets/_Project/Scripts/Presentation/UI/MinimapView.cs",
+    "Assets/_Project/Scripts/Presentation/UI/PauseMenu.cs",
+    "Assets/_Project/Scripts/Presentation/UI/SettingsPanel.cs"
+  ]
+}

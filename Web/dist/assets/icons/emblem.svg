@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="HAREKÂT">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E30A17"/>
+      <stop offset="100%" stop-color="#8F0710"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="#0B0F14" stroke="url(#g)" stroke-width="3"/>
+  <!-- stylized crescent + star (fictional emblem, not official) -->
+  <path d="M38 16a16 16 0 1 0 0 32 12 12 0 1 1 0-32z" fill="#E30A17"/>
+  <polygon points="44,22 46,28 52,28 47,32 49,38 44,34 39,38 41,32 36,28 42,28" fill="#F0B429"/>
+  <text x="32" y="58" text-anchor="middle" fill="#8FA3B8" font-size="6" font-family="Oswald,sans-serif">HAREKÂT</text>
+</svg>

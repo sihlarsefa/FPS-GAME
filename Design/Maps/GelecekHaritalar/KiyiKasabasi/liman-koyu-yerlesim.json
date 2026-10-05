@@ -1,0 +1,317 @@
+{
+  "schema": "Project.Infrastructure.World.MapLayout",
+  "Name": "Liman Koyu",
+  "HalfSize": 512,
+  "MaxHeight": 90,
+  "WaterLevel": 16,
+  "Seed": 0,
+  "Locations": [
+    {
+      "Name": "Merkez Çarşı",
+      "Kind": "Village",
+      "Center": {
+        "x": -40,
+        "z": 40
+      },
+      "Radius": 80,
+      "FlattenRadius": 60,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Liman",
+      "Kind": "ForwardBase",
+      "Center": {
+        "x": 120,
+        "z": -220
+      },
+      "Radius": 75,
+      "FlattenRadius": 58,
+      "Tier": "Military",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Tersane",
+      "Kind": "Quarry",
+      "Center": {
+        "x": 280,
+        "z": -180
+      },
+      "Radius": 65,
+      "FlattenRadius": 50,
+      "Tier": "High",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Fener Burnu",
+      "Kind": "Outpost",
+      "Center": {
+        "x": 380,
+        "z": -320
+      },
+      "Radius": 40,
+      "FlattenRadius": 25,
+      "Tier": "High",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Balıkçı Mahallesi",
+      "Kind": "Village",
+      "Center": {
+        "x": -160,
+        "z": -120
+      },
+      "Radius": 70,
+      "FlattenRadius": 52,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Üst Mahalle",
+      "Kind": "Village",
+      "Center": {
+        "x": -200,
+        "z": 200
+      },
+      "Radius": 65,
+      "FlattenRadius": 48,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Kışla",
+      "Kind": "Karakol",
+      "Center": {
+        "x": 200,
+        "z": 180
+      },
+      "Radius": 60,
+      "FlattenRadius": 45,
+      "Tier": "High",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Depo Sahası",
+      "Kind": "Farm",
+      "Center": {
+        "x": 40,
+        "z": -80
+      },
+      "Radius": 55,
+      "FlattenRadius": 42,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Zeytin Sırtı",
+      "Kind": "Forest",
+      "Center": {
+        "x": -340,
+        "z": 80
+      },
+      "Radius": 70,
+      "FlattenRadius": 22,
+      "Tier": "Low",
+      "IsMajor": true,
+      "ClearRadius": 24,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "İskele Oteli",
+      "Kind": "Ruins",
+      "Center": {
+        "x": 60,
+        "z": -300
+      },
+      "Radius": 45,
+      "FlattenRadius": 35,
+      "Tier": "Medium",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Kuzey Karakol",
+      "Kind": "Karakol",
+      "Center": {
+        "x": 20,
+        "z": 360
+      },
+      "Radius": 50,
+      "FlattenRadius": 38,
+      "Tier": "High",
+      "IsMajor": true,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    },
+    {
+      "Name": "Doğu Tersane Giriş",
+      "Kind": "Outpost",
+      "Center": {
+        "x": 360,
+        "z": -40
+      },
+      "Radius": 40,
+      "FlattenRadius": 25,
+      "Tier": "High",
+      "IsMajor": false,
+      "ClearRadius": -1,
+      "TargetHeight": -1
+    }
+  ],
+  "Roads": [
+    {
+      "Name": "Sahil Yolu",
+      "Kind": "Asphalt",
+      "Width": 8,
+      "Points": [
+        {
+          "x": -400,
+          "z": -100
+        },
+        {
+          "x": -200,
+          "z": -140
+        },
+        {
+          "x": 0,
+          "z": -180
+        },
+        {
+          "x": 120,
+          "z": -220
+        },
+        {
+          "x": 280,
+          "z": -200
+        },
+        {
+          "x": 400,
+          "z": -160
+        }
+      ]
+    },
+    {
+      "Name": "Çarşı Yolu",
+      "Kind": "Asphalt",
+      "Width": 7,
+      "Points": [
+        {
+          "x": -40,
+          "z": 200
+        },
+        {
+          "x": -40,
+          "z": 40
+        },
+        {
+          "x": -20,
+          "z": -80
+        },
+        {
+          "x": 40,
+          "z": -180
+        }
+      ]
+    },
+    {
+      "Name": "Kışla Yolu",
+      "Kind": "Dirt",
+      "Width": 5.5,
+      "Points": [
+        {
+          "x": 200,
+          "z": 180
+        },
+        {
+          "x": 120,
+          "z": 80
+        },
+        {
+          "x": 40,
+          "z": 40
+        }
+      ]
+    },
+    {
+      "Name": "Zeytin Yolu",
+      "Kind": "Dirt",
+      "Width": 5,
+      "Points": [
+        {
+          "x": -340,
+          "z": 80
+        },
+        {
+          "x": -250,
+          "z": 40
+        },
+        {
+          "x": -160,
+          "z": -40
+        }
+      ]
+    }
+  ],
+  "Rivers": [],
+  "Lakes": [
+    {
+      "Center": {
+        "x": 200,
+        "z": -400
+      },
+      "Radius": 120,
+      "Depth": 6.0
+    }
+  ],
+  "InsertionSectors": [
+    {
+      "id": "S1",
+      "name": "Kuzey Karayolu",
+      "center": {
+        "x": 20,
+        "z": 400
+      }
+    },
+    {
+      "id": "S2",
+      "name": "Zeytin Helikopter",
+      "center": {
+        "x": -300,
+        "z": 150
+      }
+    },
+    {
+      "id": "S3",
+      "name": "Tersane İniş",
+      "center": {
+        "x": 300,
+        "z": -50
+      }
+    },
+    {
+      "id": "S4",
+      "name": "Liman Helipad",
+      "center": {
+        "x": 120,
+        "z": -280
+      }
+    }
+  ]
+}

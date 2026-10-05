@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 1130">
+<title>BOZKURT SIRTLARI — Taslak Pafta</title>
+<rect width="100%" height="100%" fill="#e8eef5"/>
+<text x="70" y="32" font-family="sans-serif" font-size="20" font-weight="700">BOZKURT SIRTLARI — Taslak Pafta</text>
+<text x="70" y="52" font-family="sans-serif" font-size="11" fill="#333">Karlı dağlık harekât alanı · HalfSize 512 · MaxHeight 220</text>
+<rect x="70" y="70" width="900" height="900" fill="#d0d8e0" stroke="#2a2a2a" stroke-width="2"/>
+
+<path d="M124.5,168.4 L168.4,432.1 L150.9,695.8" fill="none" stroke="#7a6a4a" stroke-width="1" stroke-dasharray="5 3" opacity="0.6"/>
+<path d="M871.6,168.4 L889.1,520.0 L854.0,783.7" fill="none" stroke="#7a6a4a" stroke-width="1" stroke-dasharray="5 3" opacity="0.6"/>
+<path d="M344.2,124.5 L520.0,98.1 L695.8,124.5" fill="none" stroke="#7a6a4a" stroke-width="1" stroke-dasharray="5 3" opacity="0.6"/>
+<path d="M256.3,344.2 L300.3,520.0 L273.9,695.8" fill="none" stroke="#7a6a4a" stroke-width="1" stroke-dasharray="5 3" opacity="0.6"/>
+<path d="M449.7,344.2 L484.8,432.1 L502.4,520.0 L484.8,607.9 L467.3,695.8 L520.0,783.7" fill="none" stroke="#2a6f9e" stroke-width="4"/>
+<path d="M493.6,63.0 L484.8,256.3 L502.4,449.7 L555.2,607.9 L572.7,783.7 L555.2,977.0" fill="none" stroke="#222" stroke-width="3"/>
+<path d="M555.2,186.0 L537.6,256.3 L502.4,344.2" fill="none" stroke="#6b4e2e" stroke-width="2" stroke-dasharray="6 3"/>
+<path d="M572.7,555.2 L660.6,555.2 L739.7,555.2" fill="none" stroke="#6b4e2e" stroke-width="2" stroke-dasharray="6 3"/>
+<path d="M502.4,449.7 L607.9,484.8 L695.8,432.1 L695.8,344.2" fill="none" stroke="#6b4e2e" stroke-width="2" stroke-dasharray="6 3"/>
+<circle cx="555.2" cy="124.5" r="52.7" fill="#c45c12" opacity="0.08" stroke="#c45c12" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="555.2" y="67.8" font-size="10" fill="#8a3a00" font-family="sans-serif">S1</text>
+<circle cx="256.3" cy="212.4" r="43.9" fill="#c45c12" opacity="0.08" stroke="#c45c12" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="256.3" y="164.4" font-size="10" fill="#8a3a00" font-family="sans-serif">S2</text>
+<circle cx="766.1" cy="590.3" r="48.3" fill="#c45c12" opacity="0.08" stroke="#c45c12" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="766.1" y="538.0" font-size="10" fill="#8a3a00" font-family="sans-serif">S3</text>
+<circle cx="520.0" cy="915.5" r="52.7" fill="#c45c12" opacity="0.08" stroke="#c45c12" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="520.0" y="858.8" font-size="10" fill="#8a3a00" font-family="sans-serif">S4</text>
+<circle cx="555.2" cy="186.0" r="61.5" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="555.2" cy="186.0" r="3" fill="#224466"/>
+<text x="561.2" y="180.0" font-size="12" font-weight="600" font-family="sans-serif">Kartal Üssü</text>
+<circle cx="502.4" cy="449.7" r="43.9" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="502.4" cy="449.7" r="3" fill="#224466"/>
+<text x="508.4" y="443.7" font-size="12" font-weight="600" font-family="sans-serif">Buz Geçidi</text>
+<circle cx="326.6" cy="379.4" r="57.1" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="326.6" cy="379.4" r="3" fill="#224466"/>
+<text x="332.6" y="373.4" font-size="12" font-weight="600" font-family="sans-serif">Çığ Köyü</text>
+<circle cx="748.5" cy="555.2" r="61.5" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="748.5" cy="555.2" r="3" fill="#224466"/>
+<text x="754.5" y="549.2" font-size="12" font-weight="600" font-family="sans-serif">Maden Ocağı</text>
+<circle cx="221.2" cy="256.3" r="43.9" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="221.2" cy="256.3" r="3" fill="#224466"/>
+<text x="227.2" y="250.3" font-size="12" font-weight="600" font-family="sans-serif">Radar Zirvesi</text>
+<circle cx="695.8" cy="326.6" r="52.7" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="695.8" cy="326.6" r="3" fill="#224466"/>
+<text x="701.8" y="320.6" font-size="12" font-weight="600" font-family="sans-serif">Kayak Tesisi</text>
+<circle cx="590.3" cy="695.8" r="39.6" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="590.3" cy="695.8" r="3" fill="#224466"/>
+<text x="596.3" y="689.8" font-size="12" font-weight="600" font-family="sans-serif">Tünel Girişi</text>
+<circle cx="432.1" cy="836.4" r="48.3" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="432.1" cy="836.4" r="3" fill="#224466"/>
+<text x="438.1" y="830.4" font-size="12" font-weight="600" font-family="sans-serif">Güney Karakolu</text>
+<circle cx="801.2" cy="414.5" r="35.2" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="801.2" cy="414.5" r="3" fill="#224466"/>
+<text x="807.2" y="408.5" font-size="12" font-weight="600" font-family="sans-serif">Orman Kulübesi</text>
+<circle cx="467.3" cy="590.3" r="48.3" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="467.3" cy="590.3" r="3" fill="#224466"/>
+<text x="473.3" y="584.3" font-size="12" font-weight="600" font-family="sans-serif">Buzul Gölü</text>
+<circle cx="186.0" cy="150.9" r="24.6" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="186.0" cy="150.9" r="3" fill="#224466"/>
+<text x="192.0" y="144.9" font-size="12" font-weight="600" font-family="sans-serif">KB Gözetleme</text>
+<circle cx="854.0" cy="783.7" r="24.6" fill="#336699" opacity="0.2" stroke="#224466" stroke-width="1.5"/>
+<circle cx="854.0" cy="783.7" r="3" fill="#224466"/>
+<text x="860.0" y="777.7" font-size="12" font-weight="600" font-family="sans-serif">GD Gözetleme</text>
+<line x1="70.0" y1="70" x2="70.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="70.0" x2="970" y2="70.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="160.0" y1="70" x2="160.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="160.0" x2="970" y2="160.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="250.0" y1="70" x2="250.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="250.0" x2="970" y2="250.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="340.0" y1="70" x2="340.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="340.0" x2="970" y2="340.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="430.0" y1="70" x2="430.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="430.0" x2="970" y2="430.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="520.0" y1="70" x2="520.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="520.0" x2="970" y2="520.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="610.0" y1="70" x2="610.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="610.0" x2="970" y2="610.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="700.0" y1="70" x2="700.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="700.0" x2="970" y2="700.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="790.0" y1="70" x2="790.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="790.0" x2="970" y2="790.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="880.0" y1="70" x2="880.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="880.0" x2="970" y2="880.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="970.0" y1="70" x2="970.0" y2="970" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<line x1="70" y1="970.0" x2="970" y2="970.0" stroke="#2f4f2f" stroke-width="0.5" opacity="0.4"/>
+<text x="115.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">A</text>
+<text x="205.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">B</text>
+<text x="295.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">C</text>
+<text x="385.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">D</text>
+<text x="475.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">E</text>
+<text x="565.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">F</text>
+<text x="655.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">G</text>
+<text x="745.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">H</text>
+<text x="835.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">I</text>
+<text x="925.0" y="62" text-anchor="middle" font-size="11" font-weight="700" fill="#1a2f1a">J</text>
+<text x="62" y="119.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">1</text>
+<text x="62" y="209.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">2</text>
+<text x="62" y="299.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">3</text>
+<text x="62" y="389.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">4</text>
+<text x="62" y="479.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">5</text>
+<text x="62" y="569.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">6</text>
+<text x="62" y="659.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">7</text>
+<text x="62" y="749.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">8</text>
+<text x="62" y="839.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">9</text>
+<text x="62" y="929.0" text-anchor="end" font-size="11" font-weight="700" fill="#1a2f1a">10</text>
+<text x="70" y="998" font-size="11" font-family="sans-serif">Taslak pafta · 1024×1024 m · A–J/1–10 · Kurgusal Türk coğrafyası</text>
+</svg>

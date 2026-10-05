@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HAREKÂT Denge Hesaplayıcısı</title>
+<style>
+:root {
+  --bg0: #0c100e;
+  --bg1: #141a16;
+  --panel: #1b241e;
+  --line: #2f3d33;
+  --text: #ecf2e9;
+  --muted: #8b9c88;
+  --accent: #d4562a;
+  --accent2: #3f8f5a;
+  --warn: #c9a227;
+  --danger: #c0392b;
+  --ok: #2e8b57;
+  --radius: 10px;
+  --font: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #243328 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #3a2218 0%, transparent 45%),
+    var(--bg0);
+  line-height: 1.45;
+}
+header {
+  padding: 1.5rem 1.5rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #1a221c88, transparent);
+}
+header h1 {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+header p { margin: 0.4rem 0 0; color: var(--muted); max-width: 60ch; }
+nav.tabs {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 20;
+  background: #0e1410ee; backdrop-filter: blur(8px);
+}
+nav.tabs button {
+  background: transparent; border: 1px solid var(--line);
+  color: var(--muted); border-radius: 999px;
+  padding: 0.45rem 0.9rem; cursor: pointer; font: inherit;
+}
+nav.tabs button.active, nav.tabs button:hover {
+  color: var(--text); border-color: var(--accent); background: #2a1c16;
+}
+main { padding: 1.25rem 1.5rem 3rem; max-width: 1200px; margin: 0 auto; }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.panel h2 { margin: 0 0 0.75rem; font-size: 1.1rem; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+@media (max-width: 860px) {
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+}
+label.field { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; color: var(--muted); }
+select, input[type="number"], input[type="range"] {
+  width: 100%; accent-color: var(--accent);
+}
+select, input[type="number"] {
+  background: var(--bg1); border: 1px solid var(--line);
+  color: var(--text); border-radius: 6px; padding: 0.5rem 0.6rem; font: inherit;
+}
+.stat-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-top: 1rem;
+}
+@media (max-width: 700px) { .stat-row { grid-template-columns: 1fr 1fr; } }
+.stat {
+  background: var(--bg1); border: 1px solid var(--line);
+  border-radius: 8px; padding: 0.75rem;
+}
+.stat .k { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.stat .v { font-family: var(--mono); font-size: 1.35rem; margin-top: 0.2rem; color: var(--accent); }
+.chart-box { position: relative; height: 280px; margin-top: 0.5rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th, td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+.heat td {
+  text-align: center; font-family: var(--mono); font-size: 0.8rem;
+  min-width: 3.2rem;
+}
+btn, button.action {
+  background: var(--accent); color: #1a0e08; border: none;
+  border-radius: 6px; padding: 0.55rem 1rem; font: inherit; font-weight: 650;
+  cursor: pointer;
+}
+button.action.secondary { background: var(--accent2); color: #06140c; }
+button.action.ghost {
+  background: transparent; color: var(--text); border: 1px solid var(--line);
+}
+.rec {
+  border-left: 4px solid var(--warn); background: var(--bg1);
+  padding: 0.8rem 1rem; margin: 0.6rem 0; border-radius: 0 6px 6px 0;
+}
+.rec.kritik { border-color: var(--danger); }
+.rec.uyarı { border-color: var(--warn); }
+.rec.bilgi { border-color: #2980b9; }
+.hidden { display: none !important; }
+.range-val { font-family: var(--mono); color: var(--text); float: right; }
+.hint { color: var(--muted); font-size: 0.85rem; }
+.bar {
+  height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 0.35rem;
+}
+.bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+.whatif-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.6rem; }
+footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 1rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>HAREKÂT · Denge Hesaplayıcısı</h1>
+  <p>WeaponCatalog / ItemCatalog / DamageCalculator ile uyumlu anlık TTK, Monte Carlo, 1v1 ısı haritası ve ne-olur? analizi.</p>
+</header>
+<nav class="tabs" role="tablist">
+  <button type="button" class="active" data-tab="ttk">Anlık TTK</button>
+  <button type="button" data-tab="compare">Karşılaştır</button>
+  <button type="button" data-tab="mc">Monte Carlo</button>
+  <button type="button" data-tab="duel">1v1 Düello</button>
+  <button type="button" data-tab="whatif">Ne Olur?</button>
+  <button type="button" data-tab="recs">Öneriler</button>
+</nav>
+<main>
+  <!-- TTK -->
+  <section id="tab-ttk" class="tab">
+    <div class="panel">
+      <h2>Parametreler</h2>
+      <div class="grid3">
+        <label class="field">Silah
+          <select id="weapon"></select>
+        </label>
+        <label class="field">Vuruş bölgesi
+          <select id="zone">
+            <option value="body">Gövde</option>
+            <option value="head">Kafa</option>
+          </select>
+        </label>
+        <label class="field">Nişan
+          <select id="aiming">
+            <option value="ads">ADS</option>
+            <option value="hip">Kalça</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid3" style="margin-top:0.75rem">
+        <label class="field">Mesafe <span class="range-val" id="distVal">50 m</span>
+          <input type="range" id="distance" min="5" max="400" step="5" value="50"/>
+        </label>
+        <label class="field">Zırh Sv. <span class="range-val" id="armorVal">2</span>
+          <input type="range" id="armor" min="0" max="3" step="1" value="2"/>
+        </label>
+        <label class="field">Kask Sv. <span class="range-val" id="helmetVal">2</span>
+          <input type="range" id="helmet" min="0" max="3" step="1" value="2"/>
+        </label>
+      </div>
+      <div class="stat-row" id="ttkStats"></div>
+      <p class="hint" id="ttkNote" style="margin-top:0.8rem"></p>
+    </div>
+    <div class="panel">
+      <h2>Mesafeye göre TTK eğrisi</h2>
+      <div class="chart-box"><canvas id="curveChart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- Compare -->
+  <section id="tab-compare" class="tab hidden">
+    <div class="panel">
+      <h2>Tüm silahlar — aynı koşullar</h2>
+      <div class="grid3">
+        <label class="field">Mesafe (m)<input type="number" id="cmpDist" value="50" min="5" max="500"/></label>
+        <label class="field">Zırh<input type="number" id="cmpArmor" value="2" min="0" max="3"/></label>
+        <label class="field">Bölge
+          <select id="cmpZone"><option value="body">Gövde</option><option value="head">Kafa</option></select>
+        </label>
+      </div>
+      <p style="margin:0.75rem 0"><button class="action" type="button" id="btnCompare">Yenile</button></p>
+      <div style="overflow-x:auto"><table id="cmpTable"><thead></thead><tbody></tbody></table></div>
+      <div class="chart-box"><canvas id="cmpChart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- Monte Carlo -->
+  <section id="tab-mc" class="tab hidden">
+    <div class="panel">
+      <h2>Sekme / sapma dahil simülasyon</h2>
+      <p class="hint">ADS + bloom; saçmalı silahlarda her pellet bağımsız. Deneme sayısı artırılabilir.</p>
+      <div class="grid3">
+        <label class="field">Deneme<input type="number" id="mcTrials" value="400" min="50" max="5000" step="50"/></label>
+        <label class="field">Mesafe<input type="number" id="mcDist" value="100" min="5" max="500"/></label>
+        <label class="field">&nbsp;<button class="action" type="button" id="btnMc" style="margin-top:1.2rem">Çalıştır</button></label>
+      </div>
+      <div class="stat-row" id="mcStats"></div>
+      <div style="overflow-x:auto;margin-top:1rem"><table id="mcTable"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- Duel -->
+  <section id="tab-duel" class="tab hidden">
+    <div class="panel">
+      <h2>1v1 düello ısı haritası</h2>
+      <div class="grid3">
+        <label class="field">Silah A<select id="duelA"></select></label>
+        <label class="field">Zırh Sv.<input type="number" id="duelArmor" value="2" min="0" max="3"/></label>
+        <label class="field">Deneme / hücre<input type="number" id="duelTrials" value="150" min="40" max="800"/></label>
+      </div>
+      <p><button class="action" type="button" id="btnDuel">Isı haritası üret</button></p>
+      <div style="overflow-x:auto"><table class="heat" id="heatTable"><thead></thead><tbody></tbody></table></div>
+      <p class="hint">Hücre = Silah A’nın rakibe karşı kazanma oranı. Kırmızı = A üstün, mavi = rakip üstün.</p>
+    </div>
+  </section>
+
+  <!-- What-if -->
+  <section id="tab-whatif" class="tab hidden">
+    <div class="panel">
+      <h2>Ne olur? — değer değiştir, etkiyi gör</h2>
+      <label class="field">Silah<select id="wiWeapon"></select></label>
+      <div class="whatif-grid" style="margin-top:0.75rem" id="wiFields"></div>
+      <p style="margin-top:0.9rem">
+        <button class="action" type="button" id="btnWhatIf">Hesapla</button>
+        <button class="action ghost" type="button" id="btnWiReset">Sıfırla</button>
+      </p>
+      <div class="stat-row" id="wiStats"></div>
+      <p class="hint" id="wiDelta"></p>
+    </div>
+  </section>
+
+  <!-- Recs -->
+  <section id="tab-recs" class="tab hidden">
+    <div class="panel">
+      <h2>Otomatik denge önerileri</h2>
+      <p><button class="action secondary" type="button" id="btnRecs">Analizi çalıştır</button></p>
+      <div id="recsOut"></div>
+    </div>
+  </section>
+</main>
+<footer>Tek dosya HTML+CSS+JS · katalog verisi generate.py ile gömülür · HAREKÂT BalanceCalc</footer>
+
+<!-- __CATALOG_JSON__ -->
+<script id="catalog-data" type="application/json">{"maxHealth": 100, "weapons": [{"weapon_id": "Sar9", "category": "Pistol", "display_name": "SAR 9", "damage": 28.0, "magazine_size": 15, "fire_interval_seconds": 0.16, "reload_duration_seconds": 1.5, "range_m": 120.0, "headshot_multiplier": 2.0, "ammo_type": "Mm9", "limb_multiplier": 0.8, "muzzle_velocity": 360.0, "recoil_vertical": 1.1, "recoil_horizontal": 0.45, "hip_spread": 2.2, "ads_spread": 0.55, "bloom_per_shot": 0.55, "max_bloom": 3.0, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 1.15, "has_scope": false, "falloff_start": 20.0, "falloff_end": 70.0, "min_damage_factor": 0.55, "weight": 1.0, "equip_seconds": 0.35, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single"], "rpm": 375.0}, {"weapon_id": "Tp9", "category": "Pistol", "display_name": "Canik TP9", "damage": 26.0, "magazine_size": 18, "fire_interval_seconds": 0.15, "reload_duration_seconds": 1.6, "range_m": 120.0, "headshot_multiplier": 2.0, "ammo_type": "Mm9", "limb_multiplier": 0.8, "muzzle_velocity": 365.0, "recoil_vertical": 1.0, "recoil_horizontal": 0.4, "hip_spread": 2.1, "ads_spread": 0.5, "bloom_per_shot": 0.5, "max_bloom": 3.0, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 1.15, "has_scope": false, "falloff_start": 20.0, "falloff_end": 70.0, "min_damage_factor": 0.55, "weight": 0.9, "equip_seconds": 0.35, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single"], "rpm": 400.0}, {"weapon_id": "Sar109", "category": "Smg", "display_name": "SAR 109T", "damage": 22.0, "magazine_size": 30, "fire_interval_seconds": 0.075, "reload_duration_seconds": 2.0, "range_m": 180.0, "headshot_multiplier": 1.8, "ammo_type": "Mm9", "limb_multiplier": 0.85, "muzzle_velocity": 400.0, "recoil_vertical": 0.45, "recoil_horizontal": 0.32, "hip_spread": 2.4, "ads_spread": 0.6, "bloom_per_shot": 0.22, "max_bloom": 2.4, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 1.2, "has_scope": false, "falloff_start": 25.0, "falloff_end": 100.0, "min_damage_factor": 0.5, "weight": 3.0, "equip_seconds": 0.45, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single", "Burst", "Auto"], "rpm": 800.0}, {"weapon_id": "Mpt55", "category": "AssaultRifle", "display_name": "MPT-55", "damage": 26.0, "magazine_size": 30, "fire_interval_seconds": 0.08, "reload_duration_seconds": 2.3, "range_m": 450.0, "headshot_multiplier": 2.0, "ammo_type": "Mm556", "limb_multiplier": 0.8, "muzzle_velocity": 880.0, "recoil_vertical": 0.55, "recoil_horizontal": 0.3, "hip_spread": 2.8, "ads_spread": 0.35, "bloom_per_shot": 0.25, "max_bloom": 2.6, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 1.35, "has_scope": false, "falloff_start": 70.0, "falloff_end": 300.0, "min_damage_factor": 0.65, "weight": 3.4, "equip_seconds": 0.55, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single", "Burst", "Auto"], "rpm": 750.0}, {"weapon_id": "Mpt76", "category": "AssaultRifle", "display_name": "MPT-76", "damage": 36.0, "magazine_size": 20, "fire_interval_seconds": 0.1, "reload_duration_seconds": 2.5, "range_m": 600.0, "headshot_multiplier": 2.0, "ammo_type": "Mm762", "limb_multiplier": 0.8, "muzzle_velocity": 820.0, "recoil_vertical": 0.85, "recoil_horizontal": 0.4, "hip_spread": 3.0, "ads_spread": 0.3, "bloom_per_shot": 0.32, "max_bloom": 3.0, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 1.35, "has_scope": false, "falloff_start": 90.0, "falloff_end": 400.0, "min_damage_factor": 0.7, "weight": 4.1, "equip_seconds": 0.6, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single", "Auto"], "rpm": 600.0}, {"weapon_id": "G3", "category": "AssaultRifle", "display_name": "G3A7", "damage": 38.0, "magazine_size": 20, "fire_interval_seconds": 0.10909090909090909, "reload_duration_seconds": 2.6, "range_m": 600.0, "headshot_multiplier": 2.0, "ammo_type": "Mm762", "limb_multiplier": 0.8, "muzzle_velocity": 800.0, "recoil_vertical": 0.95, "recoil_horizontal": 0.45, "hip_spread": 3.2, "ads_spread": 0.32, "bloom_per_shot": 0.36, "max_bloom": 3.2, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 1.35, "has_scope": false, "falloff_start": 90.0, "falloff_end": 400.0, "min_damage_factor": 0.7, "weight": 4.4, "equip_seconds": 0.65, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single", "Auto"], "rpm": 550.0}, {"weapon_id": "Knt76", "category": "Dmr", "display_name": "KNT-76", "damage": 52.0, "magazine_size": 10, "fire_interval_seconds": 0.28, "reload_duration_seconds": 2.8, "range_m": 800.0, "headshot_multiplier": 2.2, "ammo_type": "Mm762", "limb_multiplier": 0.8, "muzzle_velocity": 840.0, "recoil_vertical": 1.5, "recoil_horizontal": 0.35, "hip_spread": 4.0, "ads_spread": 0.12, "bloom_per_shot": 0.6, "max_bloom": 3.0, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 3.0, "has_scope": true, "falloff_start": 150.0, "falloff_end": 600.0, "min_damage_factor": 0.75, "weight": 5.2, "equip_seconds": 0.75, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single"], "rpm": 214.29}, {"weapon_id": "Jng90", "category": "Sniper", "display_name": "JNG-90", "damage": 90.0, "magazine_size": 5, "fire_interval_seconds": 1.4, "reload_duration_seconds": 3.4, "range_m": 1000.0, "headshot_multiplier": 2.5, "ammo_type": "Mm762", "limb_multiplier": 0.75, "muzzle_velocity": 850.0, "recoil_vertical": 2.6, "recoil_horizontal": 0.3, "hip_spread": 6.0, "ads_spread": 0.03, "bloom_per_shot": 1.5, "max_bloom": 3.0, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 6.0, "has_scope": true, "falloff_start": 200.0, "falloff_end": 800.0, "min_damage_factor": 0.8, "weight": 6.5, "equip_seconds": 0.9, "is_bolt_action": true, "burst_count": 3, "fire_modes": ["Single"], "rpm": 42.86}, {"weapon_id": "Pmt76", "category": "Lmg", "display_name": "PMT-76", "damage": 34.0, "magazine_size": 100, "fire_interval_seconds": 0.09230769230769231, "reload_duration_seconds": 6.0, "range_m": 600.0, "headshot_multiplier": 1.8, "ammo_type": "Mm762", "limb_multiplier": 0.8, "muzzle_velocity": 830.0, "recoil_vertical": 0.7, "recoil_horizontal": 0.55, "hip_spread": 4.2, "ads_spread": 0.6, "bloom_per_shot": 0.28, "max_bloom": 3.6, "pellet_count": 1, "pellet_spread": 0.0, "ads_zoom": 1.3, "has_scope": false, "falloff_start": 90.0, "falloff_end": 400.0, "min_damage_factor": 0.7, "weight": 11.0, "equip_seconds": 1.1, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Auto"], "rpm": 650.0}, {"weapon_id": "Escort", "category": "Shotgun", "display_name": "Escort", "damage": 20.0, "magazine_size": 7, "fire_interval_seconds": 0.85, "reload_duration_seconds": 4.2, "range_m": 70.0, "headshot_multiplier": 1.5, "ammo_type": "Gauge12", "limb_multiplier": 0.85, "muzzle_velocity": 400.0, "recoil_vertical": 2.4, "recoil_horizontal": 0.6, "hip_spread": 1.5, "ads_spread": 1.0, "bloom_per_shot": 0.8, "max_bloom": 2.5, "pellet_count": 9, "pellet_spread": 4.5, "ads_zoom": 1.15, "has_scope": false, "falloff_start": 8.0, "falloff_end": 40.0, "min_damage_factor": 0.2, "weight": 3.6, "equip_seconds": 0.6, "is_bolt_action": false, "burst_count": 3, "fire_modes": ["Single"], "rpm": 70.59}], "vests": [{"item_id": "Vest1", "display_name": "Çelik Yelek (Sv.1)", "category": "Armor", "level": 1, "durability": 200.0, "damage_reduction": 0.3}, {"item_id": "Vest2", "display_name": "Çelik Yelek (Sv.2)", "category": "Armor", "level": 2, "durability": 220.0, "damage_reduction": 0.4}, {"item_id": "Vest3", "display_name": "Çelik Yelek (Sv.3)", "category": "Armor", "level": 3, "durability": 250.0, "damage_reduction": 0.55}], "helmets": [{"item_id": "Helmet1", "display_name": "Kask (Sv.1)", "category": "Helmet", "level": 1, "durability": 80.0, "damage_reduction": 0.3}, {"item_id": "Helmet2", "display_name": "Kask (Sv.2)", "category": "Helmet", "level": 2, "durability": 150.0, "damage_reduction": 0.4}, {"item_id": "Helmet3", "display_name": "Kask (Sv.3)", "category": "Helmet", "level": 3, "durability": 230.0, "damage_reduction": 0.55}], "distances": [10, 50, 100, 200, 300]}</script>
+
+<script>
+/* ========== Motor (DamageCalculator uyumlu) ========== */
+const CATALOG = JSON.parse(document.getElementById('catalog-data').textContent);
+
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+
+function getWeapon(id){
+  return CATALOG.weapons.find(w => w.weapon_id === id || w.display_name === id);
+}
+function armorByLevel(list, level){
+  if(level <= 0) return null;
+  const d = list.find(a => a.level === level);
+  if(!d) return null;
+  return { level:d.level, damage_reduction:d.damage_reduction, durability:d.durability, max:d.durability };
+}
+function copyArmor(a){ return a ? {...a} : null; }
+
+function bodyMult(w, zone){
+  if(zone === 'head') return w.headshot_multiplier;
+  return 1;
+}
+function distFactor(w, distance){
+  const start = w.falloff_start, end = w.falloff_end, min = clamp01(w.min_damage_factor);
+  if(distance <= start) return 1;
+  if(end <= start || distance >= end) return min;
+  const t = (distance - start)/(end - start);
+  return 1 + (min - 1)*t;
+}
+function applyArmor(raw, armor){
+  if(!(raw > 0)) return [0,0];
+  if(!armor || armor.durability <= 0) return [raw, 0];
+  const red = clamp01(armor.damage_reduction);
+  const absorbed = raw * red;
+  armor.durability = Math.max(0, armor.durability - absorbed);
+  return [raw - absorbed, absorbed];
+}
+function rawPellet(w, zone, distance){
+  return w.damage * bodyMult(w, zone) * distFactor(w, distance);
+}
+function applyShot(w, zone, distance, armor, pelletsHit){
+  const n = pelletsHit == null ? w.pellet_count : pelletsHit;
+  let dmg=0, abs=0;
+  const raw = rawPellet(w, zone, distance);
+  for(let i=0;i<n;i++){
+    const [d,a] = applyArmor(raw, armor);
+    dmg += d; abs += a;
+  }
+  return {damage:dmg, absorbed:abs, pellets:n};
+}
+function simulateTtk(w, zone, distance, vestLvl, helmLvl){
+  let armor = zone === 'head'
+    ? copyArmor(armorByLevel(CATALOG.helmets, helmLvl))
+    : copyArmor(armorByLevel(CATALOG.vests, vestLvl));
+  let hp = CATALOG.maxHealth;
+  let shots = 0, first = 0, last = 0;
+  while(hp > 0 && shots < 200){
+    if(armor && armor.durability <= 0) armor = null;
+    const hit = applyShot(w, zone, distance, armor, null);
+    if(shots===0) first = hit.damage;
+    last = hit.damage;
+    hp -= hit.damage;
+    shots++;
+    if(hit.damage <= 0) break;
+  }
+  const ttk = shots > 0 ? Math.max(0, (shots-1)*w.fire_interval_seconds) : Infinity;
+  const dps = ttk > 0 ? CATALOG.maxHealth/ttk : first / Math.max(w.fire_interval_seconds, 1e-6);
+  return {shots, ttk, first, last, dps, rpm: w.rpm};
+}
+
+/* Hit chance model */
+function angHalf(halfM, dist){
+  return Math.atan(halfM / Math.max(dist, 0.5)) * 180 / Math.PI;
+}
+function hitProb(w, distance, zone, aiming, bloom){
+  let spread = (aiming ? w.ads_spread : w.hip_spread) + bloom * (aiming ? 0.5 : 1);
+  if(w.pellet_count > 1) spread = Math.hypot(spread, w.pellet_spread * 0.5);
+  let ang;
+  if(zone === 'head') ang = Math.min(angHalf(0.10, distance), angHalf(0.12, distance));
+  else ang = Math.sqrt(angHalf(0.25, distance) * angHalf(0.30, distance));
+  if(spread <= 1e-6) return 1;
+  const r = ang/spread;
+  return Math.max(0, Math.min(1, r*r));
+}
+function samplePellets(w, p, rng){
+  if(w.pellet_count <= 1) return rng() < p ? 1 : 0;
+  const pp = w.pellet_spread > 0 ? p * 0.85 : p;
+  let n=0; for(let i=0;i<w.pellet_count;i++) if(rng()<pp) n++;
+  return n;
+}
+function mulberry32(a){
+  return function(){
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function monteCarlo(w, zone, distance, vestLvl, helmLvl, trials){
+  const rng = mulberry32(42 + Math.floor(distance) + w.weapon_id.length);
+  const ttks=[], shotsArr=[], hitRates=[];
+  for(let t=0;t<trials;t++){
+    let armor = zone==='head'
+      ? copyArmor(armorByLevel(CATALOG.helmets, helmLvl))
+      : copyArmor(armorByLevel(CATALOG.vests, vestLvl));
+    let hp = CATALOG.maxHealth, bloom=0, time=0, shots=0, hits=0;
+    while(hp>0 && shots<120){
+      const p = hitProb(w, distance, zone, true, bloom);
+      const pellets = samplePellets(w, p, rng);
+      if(pellets>0){
+        if(armor && armor.durability<=0) armor=null;
+        const hit = applyShot(w, zone, distance, armor, pellets);
+        hp -= hit.damage; hits++;
+      }
+      shots++;
+      bloom = Math.min(w.max_bloom, bloom + w.bloom_per_shot);
+      bloom = Math.max(0, bloom - 4 * w.fire_interval_seconds * 0.5);
+      if(hp>0) time += w.fire_interval_seconds;
+      if(shots % Math.max(1,w.magazine_size)===0 && hp>0){
+        time += w.reload_duration_seconds; bloom=0;
+      }
+    }
+    if(hp<=0) ttks.push(time);
+    shotsArr.push(shots);
+    hitRates.push(shots? hits/shots : 0);
+  }
+  ttks.sort((a,b)=>a-b);
+  const mean = xs => xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : Infinity;
+  const pct = (xs,p) => xs.length ? xs[Math.min(xs.length-1, Math.round(p/100*(xs.length-1)))] : Infinity;
+  return {
+    hit: mean(hitRates),
+    meanTtk: mean(ttks),
+    p50: pct(ttks,50),
+    p90: pct(ttks,90),
+    shots: mean(shotsArr)
+  };
+}
+
+function duelOnce(wa, wb, distance, armorLvl, zone, rng){
+  let armA = zone==='head' ? copyArmor(armorByLevel(CATALOG.helmets, armorLvl))
+                           : copyArmor(armorByLevel(CATALOG.vests, armorLvl));
+  let armB = zone==='head' ? copyArmor(armorByLevel(CATALOG.helmets, armorLvl))
+                           : copyArmor(armorByLevel(CATALOG.vests, armorLvl));
+  let hpA=100, hpB=100, nextA=0, nextB=0, bloomA=0, bloomB=0;
+  let ammoA=wa.magazine_size, ammoB=wb.magazine_size;
+  let reloadA=-1, reloadB=-1, time=0;
+  const fire = (w, bloom, armor) => {
+    const p = hitProb(w, distance, zone, true, bloom);
+    const pellets = samplePellets(w, p, rng);
+    let dmg=0;
+    if(pellets>0){
+      if(armor && armor.durability<=0) armor=null;
+      dmg = applyShot(w, zone, distance, armor, pellets).damage;
+    }
+    bloom = Math.min(w.max_bloom, bloom + w.bloom_per_shot);
+    return {dmg, bloom, armor};
+  };
+  while(time < 30 && hpA>0 && hpB>0){
+    const cands=[];
+    if(reloadA<0 && ammoA>0) cands.push(['a', nextA]);
+    else if(reloadA>=0) cands.push(['ra', reloadA]);
+    if(reloadB<0 && ammoB>0) cands.push(['b', nextB]);
+    else if(reloadB>=0) cands.push(['rb', reloadB]);
+    if(!cands.length) break;
+    cands.sort((x,y)=>x[1]-y[1]);
+    const [kind, te] = cands[0];
+    time = te;
+    if(kind==='ra'){ ammoA=wa.magazine_size; reloadA=-1; nextA=time; bloomA=0; continue; }
+    if(kind==='rb'){ ammoB=wb.magazine_size; reloadB=-1; nextB=time; bloomB=0; continue; }
+    if(kind==='a'){
+      const r = fire(wa, bloomA, armB); bloomA=r.bloom; armB=r.armor; hpB-=r.dmg; ammoA--;
+      if(ammoA<=0) reloadA = time + wa.reload_duration_seconds;
+      else nextA = time + wa.fire_interval_seconds;
+    } else {
+      const r = fire(wb, bloomB, armA); bloomB=r.bloom; armA=r.armor; hpA-=r.dmg; ammoB--;
+      if(ammoB<=0) reloadB = time + wb.reload_duration_seconds;
+      else nextB = time + wb.fire_interval_seconds;
+    }
+  }
+  if(hpB<=0 && hpA>0) return 1;
+  if(hpA<=0 && hpB>0) return 0;
+  if(hpA<=0 && hpB<=0) return 0.5;
+  return 0.5;
+}
+
+function recommendations(){
+  const rows = CATALOG.weapons.map(w => ({
+    w, r: simulateTtk(w, 'body', 50, 2, 2)
+  }));
+  const byCat = {};
+  rows.forEach(x => { (byCat[x.w.category] ||= []).push(x); });
+  const out=[];
+  const median = arr => {
+    const s=[...arr].sort((a,b)=>a-b);
+    const m=Math.floor(s.length/2);
+    return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+  };
+  const ranked = [...rows].sort((a,b)=>a.r.ttk-b.r.ttk);
+  const medAll = median(ranked.map(x=>x.r.ttk));
+  if(ranked[0].r.ttk < medAll*0.55)
+    out.push({sev:'uyarı', weapon:ranked[0].w.display_name, cat:ranked[0].w.category,
+      title:'Genel listede en düşük TTK',
+      rationale:`${ranked[0].w.display_name} TTK=${ranked[0].r.ttk.toFixed(3)}s; medyan ${medAll.toFixed(3)}s.`,
+      suggestion:'Rolüne göre kabul edilebilir; fark %30+ ise hasar/RPM kısın.'});
+  Object.entries(byCat).forEach(([cat, items])=>{
+    if(items.length<2) return;
+    const med = median(items.map(i=>i.r.ttk));
+    items.forEach(({w,r})=>{
+      const ratio = r.ttk / med;
+      if(ratio < 0.85) out.push({sev: ratio<0.7?'kritik':'uyarı', weapon:w.display_name, cat,
+        title:'Kategori içinde güçlü',
+        rationale:`${w.display_name} TTK=${r.ttk.toFixed(3)}s; medyan ${med.toFixed(3)}s (oran ${ratio.toFixed(2)}).`,
+        suggestion:'Hasarı %5–10 düşürün veya RPM azaltın.'});
+      else if(ratio > 1.2) out.push({sev:'uyarı', weapon:w.display_name, cat,
+        title:'Kategori içinde zayıf',
+        rationale:`${w.display_name} TTK=${r.ttk.toFixed(3)}s; medyan ${med.toFixed(3)}s (oran ${ratio.toFixed(2)}).`,
+        suggestion:'Hasarı %5–10 artırın veya MinDamageFactor yükseltin.'});
+    });
+  });
+  CATALOG.weapons.forEach(w=>{
+    const h = simulateTtk(w, 'head', 50, 0, 0);
+    const h3 = simulateTtk(w, 'head', 50, 0, 3);
+    if(h.shots===1 && !['Sniper','Dmr','Shotgun'].includes(w.category))
+      out.push({sev:'uyarı', weapon:w.display_name, cat:w.category,
+        title:'50 m zırhsız tek kafa',
+        rationale:`İlk kafa hasarı ${h.first.toFixed(1)} ≥ 100.`,
+        suggestion:'HeadshotMultiplier veya taban hasarı düşürün.'});
+    if(h3.shots > h.shots)
+      out.push({sev:'bilgi', weapon:w.display_name, cat:w.category,
+        title:'Sv.3 kask vuruş ekliyor',
+        rationale:`Kafa ${h.shots} → Sv.3 ${h3.shots} vuruş.`,
+        suggestion:'Kask ilerleme ödülü çalışıyor.'});
+    const c = simulateTtk(w,'body',10,0,0), f=simulateTtk(w,'body',300,0,0);
+    if(w.category==='Shotgun' && f.shots >= Math.max(3, c.shots*2))
+      out.push({sev:'bilgi', weapon:w.display_name, cat:w.category,
+        title:'Pompalı mesafe düşüşü sağlıklı',
+        rationale:`10m ${c.shots}v → 300m ${f.shots}v.`,
+        suggestion:'Yakın muharebe rolü korunuyor.'});
+  });
+  const order={kritik:0,uyarı:1,bilgi:2};
+  out.sort((a,b)=>(order[a.sev]-order[b.sev]) || a.weapon.localeCompare(b.weapon,'tr'));
+  return out;
+}
+
+/* ========== UI ========== */
+function el(id){ return document.getElementById(id); }
+function fillWeaponSelects(){
+  const opts = CATALOG.weapons.map(w =>
+    `<option value="${w.weapon_id}">${w.display_name} (${w.category})</option>`).join('');
+  ['weapon','duelA','wiWeapon'].forEach(id => { el(id).innerHTML = opts; });
+}
+
+function renderStats(target, stats){
+  target.innerHTML = stats.map(s =>
+    `<div class="stat"><div class="k">${s.k}</div><div class="v">${s.v}</div>
+     ${s.bar!=null?`<div class="bar"><i style="width:${s.bar}%"></i></div>`:''}</div>`
+  ).join('');
+}
+
+/* Minimal canvas bar chart (no CDN dependency for interactive UI) */
+function drawBars(canvas, labels, values, color){
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.parentElement.clientWidth;
+  const cssH = canvas.parentElement.clientHeight;
+  canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+  const padL=110, padR=16, padT=12, padB=28;
+  const max = Math.max(...values, 0.001);
+  const n = values.length;
+  const rowH = (cssH - padT - padB) / n;
+  ctx.font = '12px IBM Plex Sans, system-ui, sans-serif';
+  values.forEach((v,i)=>{
+    const y = padT + i*rowH + rowH*0.15;
+    const h = rowH*0.7;
+    const w = (cssW - padL - padR) * (v/max);
+    ctx.fillStyle = '#8b9c88';
+    ctx.textAlign='right';
+    ctx.fillText(labels[i], padL-8, y+h*0.7);
+    ctx.fillStyle = color || '#d4562a';
+    ctx.fillRect(padL, y, w, h);
+    ctx.fillStyle = '#ecf2e9';
+    ctx.textAlign='left';
+    ctx.fillText(v.toFixed(2)+'s', padL + w + 6, y+h*0.7);
+  });
+}
+
+function updateTtk(){
+  const w = getWeapon(el('weapon').value);
+  const zone = el('zone').value;
+  const dist = +el('distance').value;
+  const armor = +el('armor').value;
+  const helm = +el('helmet').value;
+  el('distVal').textContent = dist + ' m';
+  el('armorVal').textContent = armor;
+  el('helmetVal').textContent = helm;
+  const r = simulateTtk(w, zone, dist, armor, helm);
+  const pHit = hitProb(w, dist, zone, el('aiming').value==='ads', 0);
+  renderStats(el('ttkStats'), [
+    {k:'TTK', v: r.ttk.toFixed(3)+' s', bar: Math.min(100, (1/Math.max(r.ttk,0.05))*20)},
+    {k:'Vuruş', v: String(r.shots)},
+    {k:'İlk hasar', v: r.first.toFixed(1)},
+    {k:'İsabet≈', v: (pHit*100).toFixed(0)+'%'},
+  ]);
+  let note = `RPM ${w.rpm.toFixed(0)} · Falloff ${w.falloff_start}–${w.falloff_end} m · HS×${w.headshot_multiplier}`;
+  if(w.pellet_count>1) note += ` · ${w.pellet_count} saçma (tam isabet TTK)`;
+  el('ttkNote').textContent = note;
+
+  const xs=[], ys=[];
+  for(let d=10; d<=300; d+=10){
+    xs.push(d+'m');
+    ys.push(simulateTtk(w, zone, d, armor, helm).ttk);
+  }
+  drawBars(el('curveChart'), xs.filter((_,i)=>i%3===0), ys.filter((_,i)=>i%3===0), '#3f8f5a');
+}
+
+function runCompare(){
+  const dist=+el('cmpDist').value, armor=+el('cmpArmor').value, zone=el('cmpZone').value;
+  const helm = zone==='head' ? armor : 0;
+  const rows = CATALOG.weapons.map(w => {
+    const r = simulateTtk(w, zone, dist, zone==='body'?armor:0, zone==='head'?armor:0);
+    return {name:w.display_name, ...r};
+  }).sort((a,b)=>a.ttk-b.ttk);
+  const thead = el('cmpTable').querySelector('thead');
+  const tbody = el('cmpTable').querySelector('tbody');
+  thead.innerHTML = '<tr><th>Silah</th><th>Vuruş</th><th>TTK</th><th>İlk hasar</th><th>DPS</th></tr>';
+  tbody.innerHTML = rows.map(r=>
+    `<tr><td>${r.name}</td><td>${r.shots}</td><td>${r.ttk.toFixed(3)}</td><td>${r.first.toFixed(1)}</td><td>${r.dps.toFixed(1)}</td></tr>`
+  ).join('');
+  drawBars(el('cmpChart'), rows.map(r=>r.name), rows.map(r=>r.ttk), '#d4562a');
+}
+
+function runMc(){
+  const trials=+el('mcTrials').value;
+  const dist=+el('mcDist').value;
+  const armor=+el('armor').value, helm=+el('helmet').value;
+  const w = getWeapon(el('weapon').value);
+  const zone = el('zone').value;
+  const r = monteCarlo(w, zone, dist, armor, helm, trials);
+  renderStats(el('mcStats'), [
+    {k:'E[TTK]', v: r.meanTtk.toFixed(3)+'s'},
+    {k:'P50', v: r.p50.toFixed(3)+'s'},
+    {k:'P90', v: r.p90.toFixed(3)+'s'},
+    {k:'İsabet', v: (r.hit*100).toFixed(0)+'%'},
+  ]);
+  const rows = CATALOG.weapons.map(ww => {
+    const m = monteCarlo(ww, 'body', dist, 2, 2, Math.min(trials, 250));
+    return {name:ww.display_name, ...m};
+  }).sort((a,b)=>a.meanTtk-b.meanTtk);
+  el('mcTable').querySelector('thead').innerHTML =
+    '<tr><th>Silah</th><th>E[TTK]</th><th>P50</th><th>P90</th><th>İsabet</th></tr>';
+  el('mcTable').querySelector('tbody').innerHTML = rows.map(r=>
+    `<tr><td>${r.name}</td><td>${r.meanTtk.toFixed(3)}</td><td>${r.p50.toFixed(3)}</td><td>${r.p90.toFixed(3)}</td><td>${(r.hit*100).toFixed(0)}%</td></tr>`
+  ).join('');
+}
+
+function runDuel(){
+  const wa = getWeapon(el('duelA').value);
+  const armor = +el('duelArmor').value;
+  const trials = +el('duelTrials').value;
+  const distances = [10,50,100,200,300];
+  const rivals = CATALOG.weapons.filter(w => w.weapon_id !== wa.weapon_id);
+  const thead = el('heatTable').querySelector('thead');
+  const tbody = el('heatTable').querySelector('tbody');
+  thead.innerHTML = '<tr><th>Rakip</th>'+distances.map(d=>`<th>${d}m</th>`).join('')+'</tr>';
+  tbody.innerHTML = rivals.map((wb, idx) => {
+    const cells = distances.map(d => {
+      const rng = mulberry32(1000 + idx*17 + d);
+      let wins=0;
+      for(let t=0;t<trials;t++) wins += duelOnce(wa, wb, d, armor, 'body', rng);
+      const wr = wins/trials;
+      const R = Math.round(220*wr), B = Math.round(220*(1-wr));
+      return `<td style="background:rgb(${R},40,${B});color:#fff">${(wr*100).toFixed(0)}%</td>`;
+    }).join('');
+    return `<tr><th>${wb.display_name}</th>${cells}</tr>`;
+  }).join('');
+}
+
+const WI_KEYS = [
+  ['damage','Hasar'],['fire_interval_seconds','Atış aralığı (s)'],
+  ['headshot_multiplier','Kafa çarpanı'],['falloff_start','Falloff başlangıç'],
+  ['falloff_end','Falloff bitiş'],['min_damage_factor','Min hasar faktörü'],
+  ['ads_spread','ADS sapma'],['magazine_size','Şarjör'],
+  ['reload_duration_seconds','Reload (s)'],['pellet_count','Saçma']
+];
+
+function buildWiFields(){
+  const w = getWeapon(el('wiWeapon').value);
+  el('wiFields').innerHTML = WI_KEYS.map(([k,label]) =>
+    `<label class="field">${label}<input type="number" step="any" data-k="${k}" value="${w[k]}"/></label>`
+  ).join('');
+}
+function runWhatIf(){
+  const base = getWeapon(el('wiWeapon').value);
+  const mod = {...base};
+  el('wiFields').querySelectorAll('input').forEach(inp => {
+    const k = inp.dataset.k;
+    let v = +inp.value;
+    if(['magazine_size','pellet_count'].includes(k)) v = Math.round(v);
+    mod[k]=v;
+  });
+  mod.rpm = mod.fire_interval_seconds>0 ? 60/mod.fire_interval_seconds : 0;
+  const dist=+el('distance').value, armor=+el('armor').value, helm=+el('helmet').value, zone=el('zone').value;
+  const a = simulateTtk(base, zone, dist, armor, helm);
+  const b = simulateTtk(mod, zone, dist, armor, helm);
+  renderStats(el('wiStats'), [
+    {k:'TTK önceki', v:a.ttk.toFixed(3)+'s'},
+    {k:'TTK yeni', v:b.ttk.toFixed(3)+'s'},
+    {k:'Δ TTK', v:(b.ttk-a.ttk>=0?'+':'')+(b.ttk-a.ttk).toFixed(3)+'s'},
+    {k:'Δ Vuruş', v:(b.shots-a.shots>=0?'+':'')+(b.shots-a.shots)},
+  ]);
+  const stronger = b.ttk < a.ttk;
+  el('wiDelta').textContent = stronger
+    ? `Değişiklik silahı güçlendirdi (TTK ${(a.ttk-b.ttk).toFixed(3)}s kısaldı). Öneri çıktısı için farkı küçük tutun.`
+    : `Değişiklik silahı zayıflattı (TTK ${(b.ttk-a.ttk).toFixed(3)}s uzadı).`;
+}
+
+function runRecs(){
+  const recs = recommendations();
+  el('recsOut').innerHTML = recs.map(r =>
+    `<article class="rec ${r.sev}"><h3>${r.title} — ${r.weapon}</h3>
+     <p class="hint">${r.cat} · ${r.sev}</p>
+     <p><strong>Gerekçe:</strong> ${r.rationale}</p>
+     <p><strong>Öneri:</strong> ${r.suggestion}</p></article>`
+  ).join('') || '<p>Anomali yok.</p>';
+}
+
+/* Tabs */
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('main .tab').forEach(t=>t.classList.add('hidden'));
+    el('tab-'+btn.dataset.tab).classList.remove('hidden');
+    if(btn.dataset.tab==='compare') runCompare();
+    if(btn.dataset.tab==='whatif') buildWiFields();
+  });
+});
+
+['weapon','zone','aiming','distance','armor','helmet'].forEach(id => {
+  el(id).addEventListener('input', updateTtk);
+});
+el('btnCompare').addEventListener('click', runCompare);
+el('btnMc').addEventListener('click', runMc);
+el('btnDuel').addEventListener('click', runDuel);
+el('btnWhatIf').addEventListener('click', runWhatIf);
+el('btnWiReset').addEventListener('click', buildWiFields);
+el('wiWeapon').addEventListener('change', buildWiFields);
+el('btnRecs').addEventListener('click', runRecs);
+
+fillWeaponSelects();
+updateTtk();
+window.addEventListener('resize', () => updateTtk());
+</script>
+</body>
+</html>

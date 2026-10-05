@@ -1,0 +1,13 @@
+{
+  "name": "harekat-web",
+  "private": true,
+  "type": "module",
+  "version": "0.3.0",
+  "description": "HAREKÂT web portalı — vanilla HTML/CSS/JS",
+  "scripts": {
+    "start": "npx --yes serve -l 5173 .",
+    "lint": "node scripts/lint.mjs",
+    "test": "node scripts/test.mjs",
+    "build": "node scripts/build.mjs"
+  }
+}

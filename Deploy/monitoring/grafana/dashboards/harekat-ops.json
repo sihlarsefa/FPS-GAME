@@ -1,0 +1,140 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Aktif oyuncu",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "sum(harekat_active_players) by (region)",
+          "legendFormat": "{{region}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "lineWidth": 2, "fillOpacity": 15 }
+        }
+      }
+    },
+    {
+      "title": "Eşleşme bekleme süresi (p50 / p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(harekat_matchmaking_wait_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(harekat_matchmaking_wait_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      }
+    },
+    {
+      "title": "Sunucu doluluğu (Allocated / Ready / Total)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "agones_fleets_replicas_count{name=\"harekat-gameserver\",type=\"allocated\"}",
+          "legendFormat": "allocated",
+          "refId": "A"
+        },
+        {
+          "expr": "agones_fleets_replicas_count{name=\"harekat-gameserver\",type=\"ready\"}",
+          "legendFormat": "ready",
+          "refId": "B"
+        },
+        {
+          "expr": "agones_fleets_replicas_count{name=\"harekat-gameserver\",type=\"total\"}",
+          "legendFormat": "total",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "title": "API hata oranı (5xx)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{namespace=\"harekat\",job=\"harekat-backend\",code=~\"5..\"}[5m])) / sum(rate(http_requests_total{namespace=\"harekat\",job=\"harekat-backend\"}[5m]))",
+          "legendFormat": "error_rate",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.02 },
+              { "color": "red", "value": 0.05 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Bölgesel CCU (İstanbul / Frankfurt / Amsterdam)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 16 },
+      "id": 5,
+      "targets": [
+        {
+          "expr": "harekat_active_players{region=\"eu-istanbul\"}",
+          "legendFormat": "İstanbul",
+          "refId": "A"
+        },
+        {
+          "expr": "harekat_active_players{region=\"eu-frankfurt\"}",
+          "legendFormat": "Frankfurt",
+          "refId": "B"
+        },
+        {
+          "expr": "harekat_active_players{region=\"eu-amsterdam\"}",
+          "legendFormat": "Amsterdam",
+          "refId": "C"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["harekat", "production"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "Europe/Istanbul",
+  "title": "HAREKÂT — Operasyon Panosu",
+  "uid": "harekat-ops",
+  "version": 1
+}

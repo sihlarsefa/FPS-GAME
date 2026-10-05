@@ -1,0 +1,124 @@
+# Postgres PITR — sürekli WAL arşiv + zaman noktasından geri dönüş
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: harekat-postgres-basebackup
+  namespace: harekat
+  labels:
+    app: harekat-postgres
+    backup: pitr
+spec:
+  schedule: "0 3 * * *"
+  timeZone: "Europe/Istanbul"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: basebackup
+              image: postgres:16-alpine
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: harekat-postgres-secrets
+                      key: password
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: harekat-postgres-secrets
+                      key: username
+                - name: PGHOST
+                  value: harekat-postgres
+                - name: BACKUP_DIR
+                  value: /backups
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -euo pipefail
+                  STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+                  DEST="${BACKUP_DIR}/base/${STAMP}"
+                  mkdir -p "${DEST}"
+                  pg_basebackup -D "${DEST}" -F tar -z -X fetch -v
+                  # 7 günden eski taban yedekleri sil
+                  find "${BACKUP_DIR}/base" -mindepth 1 -maxdepth 1 -mtime +7 -exec rm -rf {} \;
+                  echo "basebackup OK ${STAMP}"
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: harekat-postgres-backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harekat-postgres-backups
+  namespace: harekat
+  labels:
+    app: harekat-postgres
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 200Gi
+---
+# Redis RDB offsite kopya
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: harekat-redis-snapshot
+  namespace: harekat
+  labels:
+    app: harekat-redis
+    backup: rdb
+spec:
+  schedule: "0 */6 * * *"
+  timeZone: "Europe/Istanbul"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: snapshot
+              image: redis:7-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -euo pipefail
+                  redis-cli -h harekat-redis BGSAVE
+                  sleep 5
+                  STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+                  mkdir -p /backups/redis
+                  # PVC paylaşımı yoksa: redis-cli --rdb
+                  redis-cli -h harekat-redis --rdb "/backups/redis/dump-${STAMP}.rdb"
+                  find /backups/redis -name 'dump-*.rdb' -mtime +3 -delete
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: harekat-redis-backups
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: harekat-redis-backups
+  namespace: harekat
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 20Gi

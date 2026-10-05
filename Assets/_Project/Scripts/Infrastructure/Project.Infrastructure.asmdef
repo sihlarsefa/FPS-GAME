@@ -1,0 +1,20 @@
+{
+    "name": "Project.Infrastructure",
+    "rootNamespace": "Project.Infrastructure",
+    "references": [
+        "Project.Core",
+        "Project.Application",
+        "Unity.InputSystem",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

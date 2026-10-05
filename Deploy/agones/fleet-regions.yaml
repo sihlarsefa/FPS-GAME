@@ -1,0 +1,189 @@
+# Bölgesel Fleet varyantları (İstanbul / Frankfurt / Amsterdam)
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: harekat-gameserver-istanbul
+  namespace: harekat-games
+  labels:
+    region: eu-istanbul
+spec:
+  replicas: 8
+  scheduling: Packed
+  template:
+    metadata:
+      labels:
+        app: harekat-gameserver
+        region: eu-istanbul
+      annotations:
+        harekat/region: eu-istanbul
+    spec:
+      ports:
+        - name: game
+          portPolicy: Dynamic
+          containerPort: 7777
+          protocol: UDP
+        - name: query
+          portPolicy: Dynamic
+          containerPort: 7778
+          protocol: TCP
+      health:
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        failureThreshold: 5
+      template:
+        metadata:
+          labels:
+            region: eu-istanbul
+          annotations:
+            harekat/region: eu-istanbul
+        spec:
+          nodeSelector:
+            topology.kubernetes.io/region: europe-west-istanbul
+          containers:
+            - name: harekat
+              image: ghcr.io/harekat/dedicated-server:latest
+              env:
+                - name: REGION
+                  value: eu-istanbul
+                - name: MAX_PLAYERS
+                  value: "60"
+                - name: MIN_PLAYERS
+                  value: "40"
+                - name: SERVER_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: harekat-gameserver-secrets
+                      key: ServerKey
+              resources:
+                requests:
+                  cpu: "1000m"
+                  memory: "2Gi"
+                limits:
+                  cpu: "2000m"
+                  memory: "4Gi"
+---
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: harekat-gameserver-frankfurt
+  namespace: harekat-games
+  labels:
+    region: eu-frankfurt
+spec:
+  replicas: 5
+  scheduling: Packed
+  template:
+    metadata:
+      labels:
+        app: harekat-gameserver
+        region: eu-frankfurt
+      annotations:
+        harekat/region: eu-frankfurt
+    spec:
+      ports:
+        - name: game
+          portPolicy: Dynamic
+          containerPort: 7777
+          protocol: UDP
+        - name: query
+          portPolicy: Dynamic
+          containerPort: 7778
+          protocol: TCP
+      health:
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        failureThreshold: 5
+      template:
+        metadata:
+          labels:
+            region: eu-frankfurt
+          annotations:
+            harekat/region: eu-frankfurt
+        spec:
+          nodeSelector:
+            topology.kubernetes.io/region: europe-west3
+          containers:
+            - name: harekat
+              image: ghcr.io/harekat/dedicated-server:latest
+              env:
+                - name: REGION
+                  value: eu-frankfurt
+                - name: MAX_PLAYERS
+                  value: "60"
+                - name: MIN_PLAYERS
+                  value: "40"
+                - name: SERVER_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: harekat-gameserver-secrets
+                      key: ServerKey
+              resources:
+                requests:
+                  cpu: "1000m"
+                  memory: "2Gi"
+                limits:
+                  cpu: "2000m"
+                  memory: "4Gi"
+---
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: harekat-gameserver-amsterdam
+  namespace: harekat-games
+  labels:
+    region: eu-amsterdam
+spec:
+  replicas: 5
+  scheduling: Packed
+  template:
+    metadata:
+      labels:
+        app: harekat-gameserver
+        region: eu-amsterdam
+      annotations:
+        harekat/region: eu-amsterdam
+    spec:
+      ports:
+        - name: game
+          portPolicy: Dynamic
+          containerPort: 7777
+          protocol: UDP
+        - name: query
+          portPolicy: Dynamic
+          containerPort: 7778
+          protocol: TCP
+      health:
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        failureThreshold: 5
+      template:
+        metadata:
+          labels:
+            region: eu-amsterdam
+          annotations:
+            harekat/region: eu-amsterdam
+        spec:
+          nodeSelector:
+            topology.kubernetes.io/region: europe-west4
+          containers:
+            - name: harekat
+              image: ghcr.io/harekat/dedicated-server:latest
+              env:
+                - name: REGION
+                  value: eu-amsterdam
+                - name: MAX_PLAYERS
+                  value: "60"
+                - name: MIN_PLAYERS
+                  value: "40"
+                - name: SERVER_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: harekat-gameserver-secrets
+                      key: ServerKey
+              resources:
+                requests:
+                  cpu: "1000m"
+                  memory: "2Gi"
+                limits:
+                  cpu: "2000m"
+                  memory: "4Gi"

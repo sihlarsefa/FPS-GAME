@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HAREKÂT Denge Raporu</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0f1410; --panel: #1a221c; --text: #e8efe6; --muted: #8a9a88;
+  --accent: #c45c26; --line: #2c3a30;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+  background: radial-gradient(ellipse at top, #1a2a1e, var(--bg));
+  color: var(--text); line-height: 1.5; padding: 2rem;
+}
+h1,h2,h3 { font-weight: 650; letter-spacing: 0.02em; }
+h1 { color: var(--accent); margin-top: 0; }
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 1.25rem; margin: 1.25rem 0;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.4rem 0.55rem; border-bottom: 1px solid var(--line); }
+th { text-align: left; color: var(--muted); font-weight: 600; }
+.rec { background: #141c16; padding: 0.9rem 1rem; margin: 0.75rem 0; border-radius: 4px; }
+.rec .meta { color: var(--muted); font-size: 0.85rem; }
+.chart-wrap { position: relative; height: 360px; }
+.note { color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<h1>HAREKÂT — Silah Denge Raporu</h1>
+<p class="note">Deterministik TTK + Monte Carlo + 1v1 düello. Can=100 · DamageCalculator formülleri.</p>
+
+<div class="grid">
+  <section class="panel">
+    <h2>50 m gövde TTK (Zırh Sv.2)</h2>
+    <div class="chart-wrap"><canvas id="ttkChart"></canvas></div>
+  </section>
+  <section class="panel">
+    <h2>Monte Carlo beklenen TTK (gövde)</h2>
+    <div class="chart-wrap"><canvas id="mcChart"></canvas></div>
+  </section>
+</div>
+
+<section class="panel">
+  <h2>1v1 ısı haritası — MPT-55 kazanma oranı (Sv.2 gövde)</h2>
+  <p class="note">Kırmızı: MPT-55 üstün · Mavi: rakip üstün</p>
+  <div style="overflow-x:auto">
+  <table>
+    <thead><tr><th>Rakip</th><th>10 m</th><th>50 m</th><th>100 m</th><th>200 m</th></tr></thead>
+    <tbody><tr><th>Canik TP9</th><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(217,40,2);color:#fff;text-align:center;font-variant-numeric:tabular-nums">99%</td><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td></tr><tr><th>Escort</th><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(48,40,171);color:#fff;text-align:center;font-variant-numeric:tabular-nums">22%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td></tr><tr><th>G3A7</th><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td><td style="background:rgb(72,40,147);color:#fff;text-align:center;font-variant-numeric:tabular-nums">33%</td><td style="background:rgb(44,40,176);color:#fff;text-align:center;font-variant-numeric:tabular-nums">20%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td></tr><tr><th>JNG-90</th><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(41,40,178);color:#fff;text-align:center;font-variant-numeric:tabular-nums">19%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td></tr><tr><th>KNT-76</th><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(79,40,140);color:#fff;text-align:center;font-variant-numeric:tabular-nums">36%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td></tr><tr><th>MPT-76</th><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td><td style="background:rgb(30,40,189);color:#fff;text-align:center;font-variant-numeric:tabular-nums">14%</td><td style="background:rgb(37,40,182);color:#fff;text-align:center;font-variant-numeric:tabular-nums">17%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td></tr><tr><th>PMT-76</th><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td><td style="background:rgb(198,40,21);color:#fff;text-align:center;font-variant-numeric:tabular-nums">90%</td><td style="background:rgb(41,40,178);color:#fff;text-align:center;font-variant-numeric:tabular-nums">19%</td><td style="background:rgb(0,40,220);color:#fff;text-align:center;font-variant-numeric:tabular-nums">0%</td></tr><tr><th>SAR 109T</th><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(213,40,6);color:#fff;text-align:center;font-variant-numeric:tabular-nums">97%</td><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td></tr><tr><th>SAR 9</th><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(217,40,2);color:#fff;text-align:center;font-variant-numeric:tabular-nums">99%</td><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td><td style="background:rgb(220,40,0);color:#fff;text-align:center;font-variant-numeric:tabular-nums">100%</td></tr></tbody>
+  </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Denge önerileri</h2>
+  <article class="rec" style="border-left:4px solid #d68910"><h3>Gövde TTK’da DMR’dan yavaş — JNG-90</h3><p class='meta'>Keskin Nişancı · uyarı</p><p><strong>Gerekçe:</strong> JNG-90 gövde TTK 1.400s vs KNT-76 0.840s (bolt-action aralığı 1.4s).</p><p><strong>Öneri:</strong> Kasıtlıysa sorun yok (kafa odaklı). Gövde rekabeti isteniyorsa hasarı 95–100’e çıkarıp 2-shot’ı Sv.2’de koruyun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — Canik TP9</h3><p class='meta'>Tabanca · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 3 vuruş → Sv.3 kask 6 vuruş (TTK 0.30s → 0.75s, hasar 38 → 17).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>50 m’de pompalı yavaş (beklenen) — Escort</h3><p class='meta'>Pompalı · bilgi</p><p><strong>Gerekçe:</strong> Escort TTK=3.400s — falloff 8–40 m tasarımı nedeniyle 50 m’de zayıf.</p><p><strong>Öneri:</strong> Yakın dövüş rolü korunuyor; CQB mesafesinde (≤15 m) kontrol edin.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Pompalı mesafe düşüşü sağlıklı — Escort</h3><p class='meta'>Pompalı · bilgi</p><p><strong>Gerekçe:</strong> 10 m: 1 vuruş / 0.00s → 300 m: 3 vuruş / 1.70s (ilk hasar 171 → 36).</p><p><strong>Öneri:</strong> Yakın muharebe rolü korunuyor; değişiklik gerekmez.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — Escort</h3><p class='meta'>Pompalı · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 2 vuruş → Sv.3 kask 5 vuruş (TTK 0.85s → 3.40s, hasar 54 → 24).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Menzil düşüşü makul — G3A7</h3><p class='meta'>Piyade Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> 10 m 3v/0.22s → 300 m 4v/0.33s (hasar 38.0 → 30.3).</p><p><strong>Öneri:</strong> Mevcut falloff eğrisi orta menzil rolüyle uyumlu.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — G3A7</h3><p class='meta'>Piyade Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 2 vuruş → Sv.3 kask 3 vuruş (TTK 0.11s → 0.22s, hasar 76 → 34).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Tek kafa — keskin nişancı rolü — JNG-90</h3><p class='meta'>Keskin Nişancı · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa tek vuruş (225 hasar). Gövde 2 vuruş / 1.40s.</p><p><strong>Öneri:</strong> Bolt-action temposu (1.4 s) ile dengelenmiş; Sv.3 kaskta 2. vuruşa çıkıyor mu kontrol edin.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Menzil düşüşü makul — KNT-76</h3><p class='meta'>Nişancı Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> 10 m 2v/0.28s → 300 m 3v/0.56s (hasar 52.0 → 47.7).</p><p><strong>Öneri:</strong> Mevcut falloff eğrisi orta menzil rolüyle uyumlu.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — KNT-76</h3><p class='meta'>Nişancı Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 1 vuruş → Sv.3 kask 2 vuruş (TTK 0.00s → 0.28s, hasar 114 → 51).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>AR ailesi TTK ayrışması — MPT-55</h3><p class='meta'>Piyade Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> En hızlı AR MPT-76 (0.400s) vs MPT-55 (0.480s). 7.62’ler daha az vuruş, 5.56 daha yüksek RPM ile telafi ediyor.</p><p><strong>Öneri:</strong> MPT-55’in vuruş sayısını 1 düşürmek için hasarı ~18–20 bandına yaklaştırmayın; mevcut ayrım rol farkını koruyor. İsterseniz MPT-55 MinDamageFactor’ü 0.70 yaparak uzak mesafeyi güçlendirin.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Menzil düşüşü makul — MPT-55</h3><p class='meta'>Piyade Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> 10 m 4v/0.24s → 300 m 6v/0.40s (hasar 26.0 → 16.9).</p><p><strong>Öneri:</strong> Mevcut falloff eğrisi orta menzil rolüyle uyumlu.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — MPT-55</h3><p class='meta'>Piyade Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 2 vuruş → Sv.3 kask 5 vuruş (TTK 0.08s → 0.32s, hasar 52 → 23).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Menzil düşüşü makul — MPT-76</h3><p class='meta'>Piyade Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> 10 m 3v/0.20s → 300 m 4v/0.30s (hasar 36.0 → 28.7).</p><p><strong>Öneri:</strong> Mevcut falloff eğrisi orta menzil rolüyle uyumlu.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — MPT-76</h3><p class='meta'>Piyade Tüfeği · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 2 vuruş → Sv.3 kask 4 vuruş (TTK 0.10s → 0.30s, hasar 72 → 32).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Menzil düşüşü makul — PMT-76</h3><p class='meta'>Makineli Tüfek · bilgi</p><p><strong>Gerekçe:</strong> 10 m 3v/0.18s → 300 m 4v/0.28s (hasar 34.0 → 27.1).</p><p><strong>Öneri:</strong> Mevcut falloff eğrisi orta menzil rolüyle uyumlu.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — PMT-76</h3><p class='meta'>Makineli Tüfek · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 2 vuruş → Sv.3 kask 4 vuruş (TTK 0.09s → 0.28s, hasar 61 → 28).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>SMG tabancadan hızlı (beklenen) — SAR 109T</h3><p class='meta'>Hafif Makineli · bilgi</p><p><strong>Gerekçe:</strong> SAR 109T TTK 0.675s < Canik TP9 1.200s (50 m Sv.2).</p><p><strong>Öneri:</strong> Tabancayı yan silah olarak tutun; SMG CQB birincil kalmalı.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — SAR 109T</h3><p class='meta'>Hafif Makineli · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 4 vuruş → Sv.3 kask 7 vuruş (TTK 0.23s → 0.45s, hasar 33 → 15).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article><article class="rec" style="border-left:4px solid #2980b9"><h3>Sv.3 kask vuruş ekliyor — SAR 9</h3><p class='meta'>Tabanca · bilgi</p><p><strong>Gerekçe:</strong> Zırhsız kafa 3 vuruş → Sv.3 kask 6 vuruş (TTK 0.32s → 0.80s, hasar 41 → 18).</p><p><strong>Öneri:</strong> Kask ilerleme ödülü çalışıyor; Sv.3’ü end-game hedefi olarak tutun.</p></article>
+</section>
+
+<script>
+const ttkLabels = ["PMT-76", "MPT-76", "G3A7", "MPT-55", "SAR 109T", "KNT-76", "Canik TP9", "SAR 9", "JNG-90", "Escort"];
+const ttkValues = [0.3692, 0.4, 0.4364, 0.48, 0.675, 0.84, 1.2, 1.28, 1.4, 3.4];
+const mcLabels = ["SAR 9@50", "SAR 9@100", "SAR 9@200", "Canik TP9@50", "Canik TP9@100", "Canik TP9@200", "SAR 109T@50", "SAR 109T@100", "SAR 109T@200", "MPT-55@50", "MPT-55@100", "MPT-55@200", "MPT-76@50", "MPT-76@100", "MPT-76@200", "G3A7@50", "G3A7@100", "G3A7@200", "KNT-76@50", "KNT-76@100", "KNT-76@200", "JNG-90@50", "JNG-90@100", "JNG-90@200", "PMT-76@50", "PMT-76@100", "PMT-76@200", "Escort@50", "Escort@100", "Escort@200"];
+const mcValues = [21.2823, 0, 0, 18.176, 0, 0, 10.7355, 0, 0, 4.2536, 13.2277, 0, 2.568, 14.5548, 24.0, 3.6214, 16.6404, 21.9545, 0.84, 1.0483, 10.3768, 1.4, 1.4, 1.4, 11.281, 16.0, 0, 0, 0, 0];
+
+new Chart(document.getElementById('ttkChart'), {
+  type: 'bar',
+  data: {
+    labels: ttkLabels,
+    datasets: [{
+      label: 'TTK (s)',
+      data: ttkValues,
+      backgroundColor: '#c45c26aa',
+      borderColor: '#c45c26',
+      borderWidth: 1
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#8a9a88' }, grid: { color: '#2c3a30' } },
+      y: { ticks: { color: '#e8efe6' }, grid: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('mcChart'), {
+  type: 'bar',
+  data: {
+    labels: mcLabels,
+    datasets: [{
+      label: 'E[TTK] (s)',
+      data: mcValues,
+      backgroundColor: '#3d7a55aa',
+      borderColor: '#3d7a55',
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#8a9a88', maxRotation: 60, minRotation: 40 }, grid: { display: false } },
+      y: { ticks: { color: '#8a9a88' }, grid: { color: '#2c3a30' } }
+    }
+  }
+});
+</script>
+</body>
+</html>
