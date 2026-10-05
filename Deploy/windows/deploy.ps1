@@ -123,11 +123,29 @@ Pop-Location
 
 $wikiDist = Join-Path $Repo 'Wiki\dist'
 if (-not (Test-Path $wikiDist)) { throw "Wiki dist yok: $wikiDist" }
-# Repo'daki web.config'i koru; yoksa minimal yaz
-$wikiCfgSrc = Join-Path $Repo 'Wiki\web.config'
-if ((Test-Path $wikiCfgSrc) -and -not (Test-Path (Join-Path $wikiDist 'web.config'))) {
-    Copy-Item $wikiCfgSrc (Join-Path $wikiDist 'web.config') -Force
-}
+# IIS-friendly minimal web.config (CSP/HSTS'li config 500.19 verebiliyor)
+@'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <defaultDocument>
+      <files>
+        <clear />
+        <add value="index.html" />
+      </files>
+    </defaultDocument>
+    <httpErrors existingResponse="PassThrough" />
+    <staticContent>
+      <remove fileExtension=".json" />
+      <mimeMap fileExtension=".json" mimeType="application/json" />
+      <remove fileExtension=".svg" />
+      <mimeMap fileExtension=".svg" mimeType="image/svg+xml" />
+      <remove fileExtension=".mjs" />
+      <mimeMap fileExtension=".mjs" mimeType="text/javascript" />
+    </staticContent>
+  </system.webServer>
+</configuration>
+'@ | Set-Content (Join-Path $wikiDist 'web.config') -Encoding UTF8
 New-Item -ItemType Directory -Force -Path $WikiStage | Out-Null
 Copy-Item (Join-Path $wikiDist '*') $WikiStage -Recurse -Force
 
