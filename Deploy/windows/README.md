@@ -72,3 +72,25 @@ Environment: `windows` (veya `vps`)
 | `HAREKAT_JWT_SECRET` | ≥32 karakter |
 
 `main` push veya `workflow_dispatch` → sunucuda `Deploy/windows/deploy.ps1` çalışır.
+
+
+## Docker + Redis (aynı Windows Server)
+
+Linux sunucu alınmaz. Bu makinede:
+
+```powershell
+cd C:\harekat\repo\Deploy\windows
+powershell -ExecutionPolicy Bypass -File .\install-docker-redis.ps1
+```
+
+- **Docker CE**: Windows containers (Microsoft install script)
+- **Redis**: Windows port, servis adı `HarekatRedis`, dinleme `127.0.0.1:6379`
+- Linux alpine Redis imajı Server 2019’da güvenilir olmadığı için Redis servis olarak çalışır; Docker ayrı hazır kalır.
+
+Kontrol:
+
+```powershell
+docker version
+Get-Service HarekatRedis
+C:\harekat\runtime\redis\redis-cli.exe ping
+```
