@@ -24,7 +24,7 @@ env:
   NODE_VERSION: "22"
   UNITY_VERSION: "6000.6.0f1"
   REGISTRY: ghcr.io
-  IMAGE_NAME: harekat/backend
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   changelog:
@@ -257,7 +257,7 @@ jobs:
             echo "- Unity macOS istemci (\`BatchEntry.BuildMac\`)"
             echo "- Unity Linux dedicated server"
             echo
-            echo "Docker: \`ghcr.io/harekat/backend:${TAG}\`"
+            echo "Docker: \`ghcr.io/${{ github.repository }}:${TAG}\`"
           } > RELEASE_NOTES.md
 
       - name: Create GitHub Release

@@ -21,7 +21,7 @@ env:
   DOTNET_VERSION: "10.0.x"
   SOLUTION: Backend/Harekat.Backend.sln
   REGISTRY: ghcr.io
-  IMAGE_NAME: harekat/backend
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-test:
