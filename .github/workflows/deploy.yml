@@ -30,12 +30,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: deploy-${{ inputs.environment || 'staging' }}
+  group: deploy-${{ github.event.inputs.environment || github.event.workflow_run.head_branch || 'staging' }}
   cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
   KUBE_NAMESPACE: harekat
 
 jobs:
@@ -81,9 +80,13 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
+      - name: Image name (lowercase)
+        id: image
+        run: echo "name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
       - name: Deploy backend (staging)
         env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          IMAGE: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ steps.tag.outputs.tag }}
         run: |
           set -euo pipefail
           kubectl set image deployment/harekat-backend \
@@ -128,9 +131,13 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
+      - name: Image name (lowercase)
+        id: image
+        run: echo "name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
       - name: Blue-green image update
         env:
-          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image_tag }}
+          IMAGE: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:${{ inputs.image_tag }}
         run: |
           set -euo pipefail
           ACTIVE=$(kubectl get svc harekat-backend -n "${KUBE_NAMESPACE}" \

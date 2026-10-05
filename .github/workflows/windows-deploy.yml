@@ -1,0 +1,59 @@
+name: Windows Deploy
+
+on:
+  workflow_dispatch:
+  # Enable after WIN_HOST / WIN_USER / WIN_SSH_* secrets exist:
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - "Backend/**"
+  #     - "Web/**"
+  #     - "Deploy/windows/**"
+  #     - ".github/workflows/windows-deploy.yml"
+
+concurrency:
+  group: windows-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Windows IIS
+    runs-on: ubuntu-latest
+    environment: windows
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.WIN_HOST }}
+          username: ${{ secrets.WIN_USER }}
+          key: ${{ secrets.WIN_SSH_PRIVATE_KEY }}
+          password: ${{ secrets.WIN_SSH_PASSWORD }}
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            powershell -NoProfile -ExecutionPolicy Bypass -Command "
+              $ErrorActionPreference = 'Stop'
+              $env:GIT_TERMINAL_PROMPT = '0'
+              $env:GCM_INTERACTIVE = 'never'
+              $env:Path = 'C:\Program Files\Git\cmd;C:\Program Files\dotnet;C:\Program Files\nodejs;' + $env:Path
+              $root = 'C:\harekat\repo'
+              if (-not (Test-Path \"$root\.git\")) {
+                New-Item -ItemType Directory -Force -Path 'C:\harekat' | Out-Null
+                git -c credential.helper= clone --depth 1 https://github.com/${{ github.repository }}.git $root
+              } else {
+                git -C $root -c credential.helper= fetch --depth 1 origin main
+                git -C $root -c credential.helper= reset --hard origin/main
+              }
+              $sql = $env:HAREKAT_SQL_CONNECTION
+              if (-not $sql) { $sql = '${{ secrets.HAREKAT_SQL_CONNECTION }}' }
+              $jwt = '${{ secrets.HAREKAT_JWT_SECRET }}'
+              if (-not $jwt) { $jwt = 'HarekatProdJwt_ChangeMe_Platform_Min32Chars_OK' }
+              & \"$root\Deploy\windows\deploy.ps1\" `
+                -SqlConnectionString $sql `
+                -JwtSecret $jwt `
+                -PublicHost '${{ secrets.WIN_HOST }}' `
+                -ApiPort '3208' `
+                -WebPort '80'
+            "
+        env:
+          HAREKAT_SQL_CONNECTION: ${{ secrets.HAREKAT_SQL_CONNECTION }}
