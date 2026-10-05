@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" role="img" aria-label="HAREK�T logo">
-  <title>HAREK�T Logo Horizontal</title>
-  <desc>Yatay logo: stilize amblem + HAREK�T yaz1s1. Resmi arma kopyas1 deildir.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" role="img" aria-label="HAREKÂT logo">
+  <title>HAREKÂT Logo Horizontal</title>
+  <desc>Yatay logo: stilize amblem + HAREKÂT yazısı. Resmi arma kopyası değildir.</desc>
   <rect width="720" height="160" fill="#0b0b0b"/>
   <!-- Mini emblem -->
   <g transform="translate(24,20) scale(0.47)">
@@ -15,9 +15,9 @@
   <text x="168" y="102"
         font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
         font-size="72" font-weight="700" letter-spacing="8"
-        fill="#F5F5F5">HAREK�T</text>
+        fill="#F5F5F5">HAREKÂT</text>
   <rect x="172" y="118" width="120" height="4" fill="#E30A17"/>
   <text x="300" y="132"
         font-family="Segoe UI, Helvetica, Arial, sans-serif"
-        font-size="14" letter-spacing="4" fill="#888888">MAV0 / KIRMIZI � KUZGUN VAD0S0</text>
+        font-size="14" letter-spacing="4" fill="#888888">MAVİ / KIRMIZI · KUZGUN VADİSİ</text>
 </svg>

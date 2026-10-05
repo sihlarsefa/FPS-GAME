@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="HAREK�T uygulama ikonu">
-  <title>HAREK�T App Icon</title>
-  <desc>Kare uygulama ikonu. Stilize hilal-y1ld1z esinli; resmi arma deildir.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="HAREKÂT uygulama ikonu">
+  <title>HAREKÂT App Icon</title>
+  <desc>Kare uygulama ikonu. Stilize hilal-yıldız esinli; resmi arma değildir.</desc>
   <rect width="512" height="512" rx="64" fill="#0b0b0b"/>
   <rect x="24" y="24" width="464" height="464" rx="48" fill="none" stroke="#E30A17" stroke-width="8"/>
   <g transform="translate(128,96) scale(1.0)">
@@ -14,5 +14,5 @@
   <text x="256" y="430"
         text-anchor="middle"
         font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
-        font-size="48" letter-spacing="6" fill="#F5F5F5">HAREK�T</text>
+        font-size="48" letter-spacing="6" fill="#F5F5F5">HAREKÂT</text>
 </svg>

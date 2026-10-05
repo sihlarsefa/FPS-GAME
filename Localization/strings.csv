@@ -1,4 +1,4 @@
-﻿key,tr,en,de,az,ar,source_file
+key,tr,en,de,az,ar,source_file
 brand.title,HAREKÂT,HAREKÂT,HAREKÂT,HƏRƏKAT,حَرَكَات,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
 loading.footer,Kuzgun Vadisi · Tim Battle Royale,Raven Valley · Squad Battle Royale,Rabental · Trupp-Battle-Royale,Qarğa Vadisi · Tim Battle Royale,وادي الغراب · باتل رويال للفرق,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs
 loading.tip.01,"İpucu: F1 takip, F2 mevzi tut, F3 nişan noktasına taarruz, F4 toplan emirlerini verir.","Tip: F1 follow, F2 hold position, F3 assault aim point, F4 rally.","Tipp: F1 folgen, F2 Stellung halten, F3 Angriff auf Zielpunkt, F4 sammeln.","İpucu: F1 izlə, F2 mövqe tut, F3 nişan nöqtəsinə hücum, F4 toplan.",تلميح: F1 تابع، F2 ثبّت الموقع، F3 هاجم نقطة التصويب، F4 تجمع.,Assets/_Project/Scripts/Presentation/UI/LoadingScreenView.cs

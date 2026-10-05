@@ -1,4 +1,4 @@
-﻿using Harekat.LoadTest.Distributed;
+using Harekat.LoadTest.Distributed;
 using Harekat.LoadTest.Metrics;
 using Harekat.LoadTest.Options;
 using Harekat.LoadTest.Reporting;

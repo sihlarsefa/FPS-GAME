@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="460" height="215" viewBox="0 0 460 215" role="img" aria-label="HAREK�T header capsule">
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="215" viewBox="0 0 460 215" role="img" aria-label="HAREKÂT header capsule">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#1a1212"/>
@@ -17,7 +17,7 @@
     <path d="M148 72 C118 74 96 100 96 132 C96 164 118 190 148 192 C128 186 114 162 114 132 C114 102 128 78 148 72 Z" fill="#E30A17"/>
     <polygon points="168,108 174,124 192,124 178,136 183,154 168,143 153,154 158,136 144,124 162,124" fill="#F5F5F5"/>
   </g>
-  <text x="160" y="100" font-family="Impact, Haettenschweiler, sans-serif" font-size="56" letter-spacing="6" fill="#F5F5F5">HAREK�T</text>
-  <text x="162" y="130" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" letter-spacing="3" fill="#E30A17">10 K0^0L0K T0M � FPP BR</text>
-  <text x="162" y="155" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#888">KUZGUN VAD0S0</text>
+  <text x="160" y="100" font-family="Impact, Haettenschweiler, sans-serif" font-size="56" letter-spacing="6" fill="#F5F5F5">HAREKÂT</text>
+  <text x="162" y="130" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" letter-spacing="3" fill="#E30A17">10 KİŞİLİK TİM · FPP BR</text>
+  <text x="162" y="155" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#888">KUZGUN VADİSİ</text>
 </svg>
