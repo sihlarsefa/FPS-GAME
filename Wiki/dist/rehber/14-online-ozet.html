@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14. Online Mimari Özeti · HAREKÂT Kılavuz</title>
+<meta name="description" content="14. Online Mimari Özeti">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">14. Online Mimari Özeti</span></li></ol></nav>
+<h1>14. Online Mimari Özeti</h1><div class="prose"><h2>14. Online Mimari Özeti</h2>
+<p>Kaynak: <code>Docs/CONTRACTS.md</code> otorite modeli. Backend ayrı ekip (<code>Docs/CURSOR_GOREVI.md</code>).</p>
+<h3>14.1 İlke</h3>
+<p><strong>Sunucu otoriteli:</strong> hasar, envanter, AI kararları, zone yalnızca <code>HasAuthority</code> tarafında mutasyona uğrar. İstemci öngörü + uzlaştırma.</p>
+<h3>14.2 Katmanlar (oyuncu perspektifi)</h3>
+<pre><code>İstemci (Unity) ←→ Match Instance (oyun sunucusu)
+                 ←→ Lobby / Matchmaking API
+                 ←→ Profil / Kariyer / Kozmetik servisi</code></pre>
+<h3>14.3 Maç örneği</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Kavram</th><th scope="col">Offline bugün</th><th scope="col">Online hedef</th></tr></thead><tbody><tr><td>Oyuncu</td><td>1 insan + 9 AI tim</td><td>10 insan veya karışık doldurma</td></tr><tr><td>Rakip</td><td>N AI tim</td><td>Diğer insan timleri</td></tr><tr><td>Instance</td><td>Yerel</td><td>Binlerce eşzamanlı maç</td></tr></tbody></table></div>
+<h3>14.4 Senkron öncelikleri</h3>
+<ol>
+<li>Pozisyon / niyet (yüksek frekans, sıkıştırılmış)  </li>
+<li>Atış / isabet olayları (güvenilir)  </li>
+<li>Envanter delta  </li>
+<li>Zone / topçu / emir olayları  </li>
+<li>Kozmetik görünüm (düşük öncelik)</li>
+</ol>
+<h3>14.5 Güvenlik (özet)</h3>
+<ul>
+<li>İstemci hasar uygulamaz.  </li>
+<li>Topçu cooldown sunucuda.  </li>
+<li>Hile: hız, duvar arkası, aimbots → sunucu doğrulama + telemetri.</li>
+</ul></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

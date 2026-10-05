@@ -17,6 +17,10 @@ namespace Project.Infrastructure.Audio
     /// sesleri sessizce atlar (asla istisna fırlatmaz); döngüler ve ortam sesi dinleyici olmadan da başlatılabilir.
     /// Yalnızca ana iş parçacığından çağrılmalıdır.
     /// </para>
+    /// <para>
+    /// Adanmış sunucu (ör. Windows Server'da başsız maç süreci): <see cref="Enabled"/> varsayılan olarak false olur ve
+    /// tüm API sessizce hiçbir şey yapmaz (ses üretimi/havuz yok) — çağıranların sunucu kontrolü yapması gerekmez.
+    /// </para>
     /// </summary>
     public static class GameAudio
     {
@@ -56,6 +60,30 @@ namespace Project.Infrastructure.Audio
 
         /// <summary>Sesler üretilmiş ve havuz kurulmuşsa true.</summary>
         public static bool IsInitialized { get; private set; }
+
+        private static bool? _enabled;
+
+        /// <summary>
+        /// Ses sistemi etkin mi? Adanmış/başsız sunucu süreçlerinde (UNITY_SERVER build'i, <c>-batchmode</c>, grafik
+        /// aygıtı yok ya da <c>-server</c> argümanı — ör. Windows Server üzerinde koşan maç süreçleri) varsayılan olarak
+        /// false'tur: hiçbir ses üretilmez, havuz kurulmaz, tüm çağrılar sessizce yok sayılır (süreç başına ~100 ms CPU ve
+        /// ~16 MB bellek tasarrufu). Editörde her zaman true başlar. Elle atanabilir; false yapmak kurulu havuzu kapatır.
+        /// </summary>
+        public static bool Enabled
+        {
+            get
+            {
+                if (!_enabled.HasValue)
+                    _enabled = DetectEnabledByDefault();
+                return _enabled.Value;
+            }
+            set
+            {
+                _enabled = value;
+                if (!value)
+                    ShutdownHost();
+            }
+        }
 
         /// <summary>Ana ses (0..1) — AudioListener.volume üzerinden tüm sese uygulanır.</summary>
         public static float MasterVolume
@@ -105,6 +133,12 @@ namespace Project.Infrastructure.Audio
             if (_initializing)
                 return;
 
+            if (!Enabled)
+            {
+                IsInitialized = false;
+                return;
+            }
+
             // Kapanış sırasında (OnDestroy'lardan gelen çağrılar) yeni nesne oluşturma.
             if (_quitting && UnityEngine.Application.isPlaying)
                 return;
@@ -144,7 +178,7 @@ namespace Project.Infrastructure.Audio
         public static AudioClip GetClip(SoundId id)
         {
             var index = (int)id;
-            if (id == SoundId.None || index < 0)
+            if (id == SoundId.None || index < 0 || !Enabled)
                 return null;
 
             if (_clips == null || index >= _clips.Length)
@@ -400,7 +434,7 @@ namespace Project.Infrastructure.Audio
             if (IsInitialized && HostAlive)
                 return true;
 
-            if (_quitting)
+            if (_quitting || !Enabled)
                 return false;
 
             if (!UnityEngine.Application.isPlaying)
@@ -553,6 +587,67 @@ namespace Project.Infrastructure.Audio
             }
         }
 
+        /// <summary>Havuzu hemen durdurur ve "[GameAudio]" nesnesini yok eder (üretilmiş klipler önbellekte kalır).</summary>
+        private static void ShutdownHost()
+        {
+            var host = _host;
+            _host = null;
+            IsInitialized = false;
+            if (ReferenceEquals(host, null) || host == null)
+                return;
+
+            try
+            {
+                host.Spatial?.StopAll();
+                host.Flat?.StopAll();
+                host.Loops?.StopAll();
+                host.StopAmbienceImmediately();
+
+                if (UnityEngine.Application.isPlaying)
+                    UnityEngine.Object.Destroy(host.gameObject);
+                else
+                    UnityEngine.Object.DestroyImmediate(host.gameObject);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        /// <summary>
+        /// Varsayılan etkinlik: editörde her zaman açık; oyuncu/sunucu yapısında başsız süreç (UNITY_SERVER,
+        /// -batchmode, Null grafik aygıtı) ya da <c>-server</c> argümanı varsa kapalı (Presentation'daki ServerRuntime
+        /// ile aynı ölçüt — Infrastructure, Presentation'a başvuramadığı için burada yinelenir).
+        /// </summary>
+        private static bool DetectEnabledByDefault()
+        {
+#if UNITY_EDITOR
+            return true; // Editörde Play Mode hiçbir zaman sunucu sayılmaz (Dedicated Server hedefi seçiliyken bile).
+#elif UNITY_SERVER
+            return false;
+#else
+            try
+            {
+                if (UnityEngine.Application.isBatchMode
+                    || SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+                    return false;
+
+                var args = Environment.GetCommandLineArgs();
+                for (var i = 0; i < args.Length; i++)
+                {
+                    if (string.Equals(args[i], "-server", StringComparison.OrdinalIgnoreCase))
+                        return false;
+                }
+            }
+            catch (Exception)
+            {
+                // Algılanamadıysa sesi açık bırak.
+            }
+
+            return true;
+#endif
+        }
+
         private static bool IsAmbientCategory(SoundId id) =>
             id == SoundId.Wind || id == SoundId.Ambience || id == SoundId.DistantBattle || id == SoundId.MenuMusic;
 
@@ -603,7 +698,7 @@ namespace Project.Infrastructure.Audio
                     order[k++] = values[i];
             }
 
-            // En pahalı sesler önce: kritik yol (16 s müzik) en baştan başlar.
+            // En pahalı sesler önce: kritik yol (uzun döngüler) en baştan başlar.
             Array.Sort(order, (a, b) => EstimatedCost(b).CompareTo(EstimatedCost(a)));
 
             var job = new RenderJob(order);
@@ -638,13 +733,14 @@ namespace Project.Infrastructure.Audio
                 Debug.LogWarning("[GameAudio] Paralel ses üretiminde hata, sıralı üretimle tamamlandı: " + job.Error.Message);
         }
 
+        /// <summary>Göreli üretim maliyeti (Mono'da ölçülmüş sıralama) — pahalılar önce dağıtılır.</summary>
         private static int EstimatedCost(SoundId id)
         {
             switch (id)
             {
-                case SoundId.MenuMusic: return 1000;
-                case SoundId.DistantBattle: return 900;
-                case SoundId.Ambience: return 850;
+                case SoundId.DistantBattle: return 1000;
+                case SoundId.Ambience: return 900;
+                case SoundId.MenuMusic: return 850;
                 case SoundId.Wind: return 600;
                 case SoundId.HelicopterRotor: return 400;
                 case SoundId.VehicleEngine: return 380;
@@ -812,6 +908,7 @@ namespace Project.Infrastructure.Audio
             _initializing = false;
             _warnedNoPlayMode = false;
             _quitting = false;
+            _enabled = null; // ilk erişimde yeniden algılanır
             _recentCursor = 0;
             Array.Clear(Recent, 0, Recent.Length);
             // Klipler varlıktır; hâlâ geçerli olanlar korunur, yok edilenler GetClip/EnsureClips ile yeniden üretilir.

@@ -1,0 +1,701 @@
+{
+  "font": "LegacyRuntime.ttf (Unity built-in; binary not shipped in Hub install)",
+  "status": "heuristic-legacy-runtime",
+  "checked": 145,
+  "missing": [
+    "Ə",
+    "ə",
+    "،",
+    "؛",
+    "؟",
+    "ء",
+    "آ",
+    "أ",
+    "ؤ",
+    "إ",
+    "ئ",
+    "ا",
+    "ب",
+    "ة",
+    "ت",
+    "ث",
+    "ج",
+    "ح",
+    "خ",
+    "د",
+    "ذ",
+    "ر",
+    "ز",
+    "س",
+    "ش",
+    "ص",
+    "ض",
+    "ط",
+    "ظ",
+    "ع",
+    "غ",
+    "ـ",
+    "ف",
+    "ق",
+    "ك",
+    "ل",
+    "م",
+    "ن",
+    "ه",
+    "و",
+    "ى",
+    "ي",
+    "ً",
+    "ٍ",
+    "َ",
+    "ُ",
+    "ّ",
+    "—"
+  ],
+  "covered": 97,
+  "legacyRuntimeHeuristic": {
+    "assumption": "LegacyRuntime ≈ Latin/Turkish UI font; Arabic and AZ Ə/ə need a dedicated face (e.g. Noto).",
+    "byScript": {
+      "basic-latin-and-latin1": 85,
+      "turkish-latin": 12,
+      "azerbaijani-ext": 2,
+      "arabic": 45,
+      "other": 1
+    },
+    "likelyMissing": [
+      "Ə",
+      "ə",
+      "،",
+      "؛",
+      "؟",
+      "ء",
+      "آ",
+      "أ",
+      "ؤ",
+      "إ",
+      "ئ",
+      "ا",
+      "ب",
+      "ة",
+      "ت",
+      "ث",
+      "ج",
+      "ح",
+      "خ",
+      "د",
+      "ذ",
+      "ر",
+      "ز",
+      "س",
+      "ش",
+      "ص",
+      "ض",
+      "ط",
+      "ظ",
+      "ع",
+      "غ",
+      "ـ",
+      "ف",
+      "ق",
+      "ك",
+      "ل",
+      "م",
+      "ن",
+      "ه",
+      "و",
+      "ى",
+      "ي",
+      "ً",
+      "ٍ",
+      "َ",
+      "ُ",
+      "ّ",
+      "—"
+    ],
+    "likelyMissingCount": 48,
+    "recommendation": "Use TextMeshPro + Noto Sans (LAT/AZ) + Noto Naskh Arabic (AR). Do not ship HUD on LegacyRuntime for ar locale."
+  },
+  "proxyNote": "Pass --font path/to.ttf for exact cmap. Unity 6 Hub install does not expose LegacyRuntime.ttf as a standalone file.",
+  "required": [
+    {
+      "char": "!",
+      "codepoint": "U+0021"
+    },
+    {
+      "char": "&",
+      "codepoint": "U+0026"
+    },
+    {
+      "char": "'",
+      "codepoint": "U+0027"
+    },
+    {
+      "char": "(",
+      "codepoint": "U+0028"
+    },
+    {
+      "char": ")",
+      "codepoint": "U+0029"
+    },
+    {
+      "char": ",",
+      "codepoint": "U+002C"
+    },
+    {
+      "char": "-",
+      "codepoint": "U+002D"
+    },
+    {
+      "char": ".",
+      "codepoint": "U+002E"
+    },
+    {
+      "char": "/",
+      "codepoint": "U+002F"
+    },
+    {
+      "char": "0",
+      "codepoint": "U+0030"
+    },
+    {
+      "char": "1",
+      "codepoint": "U+0031"
+    },
+    {
+      "char": "2",
+      "codepoint": "U+0032"
+    },
+    {
+      "char": "3",
+      "codepoint": "U+0033"
+    },
+    {
+      "char": "4",
+      "codepoint": "U+0034"
+    },
+    {
+      "char": "5",
+      "codepoint": "U+0035"
+    },
+    {
+      "char": "6",
+      "codepoint": "U+0036"
+    },
+    {
+      "char": "7",
+      "codepoint": "U+0037"
+    },
+    {
+      "char": "9",
+      "codepoint": "U+0039"
+    },
+    {
+      "char": ":",
+      "codepoint": "U+003A"
+    },
+    {
+      "char": ";",
+      "codepoint": "U+003B"
+    },
+    {
+      "char": "=",
+      "codepoint": "U+003D"
+    },
+    {
+      "char": "?",
+      "codepoint": "U+003F"
+    },
+    {
+      "char": "A",
+      "codepoint": "U+0041"
+    },
+    {
+      "char": "B",
+      "codepoint": "U+0042"
+    },
+    {
+      "char": "C",
+      "codepoint": "U+0043"
+    },
+    {
+      "char": "D",
+      "codepoint": "U+0044"
+    },
+    {
+      "char": "E",
+      "codepoint": "U+0045"
+    },
+    {
+      "char": "F",
+      "codepoint": "U+0046"
+    },
+    {
+      "char": "G",
+      "codepoint": "U+0047"
+    },
+    {
+      "char": "H",
+      "codepoint": "U+0048"
+    },
+    {
+      "char": "I",
+      "codepoint": "U+0049"
+    },
+    {
+      "char": "J",
+      "codepoint": "U+004A"
+    },
+    {
+      "char": "K",
+      "codepoint": "U+004B"
+    },
+    {
+      "char": "L",
+      "codepoint": "U+004C"
+    },
+    {
+      "char": "M",
+      "codepoint": "U+004D"
+    },
+    {
+      "char": "N",
+      "codepoint": "U+004E"
+    },
+    {
+      "char": "O",
+      "codepoint": "U+004F"
+    },
+    {
+      "char": "P",
+      "codepoint": "U+0050"
+    },
+    {
+      "char": "Q",
+      "codepoint": "U+0051"
+    },
+    {
+      "char": "R",
+      "codepoint": "U+0052"
+    },
+    {
+      "char": "S",
+      "codepoint": "U+0053"
+    },
+    {
+      "char": "T",
+      "codepoint": "U+0054"
+    },
+    {
+      "char": "U",
+      "codepoint": "U+0055"
+    },
+    {
+      "char": "V",
+      "codepoint": "U+0056"
+    },
+    {
+      "char": "W",
+      "codepoint": "U+0057"
+    },
+    {
+      "char": "X",
+      "codepoint": "U+0058"
+    },
+    {
+      "char": "Y",
+      "codepoint": "U+0059"
+    },
+    {
+      "char": "Z",
+      "codepoint": "U+005A"
+    },
+    {
+      "char": "[",
+      "codepoint": "U+005B"
+    },
+    {
+      "char": "]",
+      "codepoint": "U+005D"
+    },
+    {
+      "char": "a",
+      "codepoint": "U+0061"
+    },
+    {
+      "char": "b",
+      "codepoint": "U+0062"
+    },
+    {
+      "char": "c",
+      "codepoint": "U+0063"
+    },
+    {
+      "char": "d",
+      "codepoint": "U+0064"
+    },
+    {
+      "char": "e",
+      "codepoint": "U+0065"
+    },
+    {
+      "char": "f",
+      "codepoint": "U+0066"
+    },
+    {
+      "char": "g",
+      "codepoint": "U+0067"
+    },
+    {
+      "char": "h",
+      "codepoint": "U+0068"
+    },
+    {
+      "char": "i",
+      "codepoint": "U+0069"
+    },
+    {
+      "char": "j",
+      "codepoint": "U+006A"
+    },
+    {
+      "char": "k",
+      "codepoint": "U+006B"
+    },
+    {
+      "char": "l",
+      "codepoint": "U+006C"
+    },
+    {
+      "char": "m",
+      "codepoint": "U+006D"
+    },
+    {
+      "char": "n",
+      "codepoint": "U+006E"
+    },
+    {
+      "char": "o",
+      "codepoint": "U+006F"
+    },
+    {
+      "char": "p",
+      "codepoint": "U+0070"
+    },
+    {
+      "char": "q",
+      "codepoint": "U+0071"
+    },
+    {
+      "char": "r",
+      "codepoint": "U+0072"
+    },
+    {
+      "char": "s",
+      "codepoint": "U+0073"
+    },
+    {
+      "char": "t",
+      "codepoint": "U+0074"
+    },
+    {
+      "char": "u",
+      "codepoint": "U+0075"
+    },
+    {
+      "char": "v",
+      "codepoint": "U+0076"
+    },
+    {
+      "char": "w",
+      "codepoint": "U+0077"
+    },
+    {
+      "char": "x",
+      "codepoint": "U+0078"
+    },
+    {
+      "char": "y",
+      "codepoint": "U+0079"
+    },
+    {
+      "char": "z",
+      "codepoint": "U+007A"
+    },
+    {
+      "char": "{",
+      "codepoint": "U+007B"
+    },
+    {
+      "char": "|",
+      "codepoint": "U+007C"
+    },
+    {
+      "char": "}",
+      "codepoint": "U+007D"
+    },
+    {
+      "char": "·",
+      "codepoint": "U+00B7"
+    },
+    {
+      "char": "Â",
+      "codepoint": "U+00C2"
+    },
+    {
+      "char": "Ä",
+      "codepoint": "U+00C4"
+    },
+    {
+      "char": "Ç",
+      "codepoint": "U+00C7"
+    },
+    {
+      "char": "Ö",
+      "codepoint": "U+00D6"
+    },
+    {
+      "char": "Ü",
+      "codepoint": "U+00DC"
+    },
+    {
+      "char": "ß",
+      "codepoint": "U+00DF"
+    },
+    {
+      "char": "â",
+      "codepoint": "U+00E2"
+    },
+    {
+      "char": "ä",
+      "codepoint": "U+00E4"
+    },
+    {
+      "char": "ç",
+      "codepoint": "U+00E7"
+    },
+    {
+      "char": "ö",
+      "codepoint": "U+00F6"
+    },
+    {
+      "char": "ü",
+      "codepoint": "U+00FC"
+    },
+    {
+      "char": "Ğ",
+      "codepoint": "U+011E"
+    },
+    {
+      "char": "ğ",
+      "codepoint": "U+011F"
+    },
+    {
+      "char": "İ",
+      "codepoint": "U+0130"
+    },
+    {
+      "char": "ı",
+      "codepoint": "U+0131"
+    },
+    {
+      "char": "Ş",
+      "codepoint": "U+015E"
+    },
+    {
+      "char": "ş",
+      "codepoint": "U+015F"
+    },
+    {
+      "char": "Ə",
+      "codepoint": "U+018F"
+    },
+    {
+      "char": "ə",
+      "codepoint": "U+0259"
+    },
+    {
+      "char": "،",
+      "codepoint": "U+060C"
+    },
+    {
+      "char": "؛",
+      "codepoint": "U+061B"
+    },
+    {
+      "char": "؟",
+      "codepoint": "U+061F"
+    },
+    {
+      "char": "ء",
+      "codepoint": "U+0621"
+    },
+    {
+      "char": "آ",
+      "codepoint": "U+0622"
+    },
+    {
+      "char": "أ",
+      "codepoint": "U+0623"
+    },
+    {
+      "char": "ؤ",
+      "codepoint": "U+0624"
+    },
+    {
+      "char": "إ",
+      "codepoint": "U+0625"
+    },
+    {
+      "char": "ئ",
+      "codepoint": "U+0626"
+    },
+    {
+      "char": "ا",
+      "codepoint": "U+0627"
+    },
+    {
+      "char": "ب",
+      "codepoint": "U+0628"
+    },
+    {
+      "char": "ة",
+      "codepoint": "U+0629"
+    },
+    {
+      "char": "ت",
+      "codepoint": "U+062A"
+    },
+    {
+      "char": "ث",
+      "codepoint": "U+062B"
+    },
+    {
+      "char": "ج",
+      "codepoint": "U+062C"
+    },
+    {
+      "char": "ح",
+      "codepoint": "U+062D"
+    },
+    {
+      "char": "خ",
+      "codepoint": "U+062E"
+    },
+    {
+      "char": "د",
+      "codepoint": "U+062F"
+    },
+    {
+      "char": "ذ",
+      "codepoint": "U+0630"
+    },
+    {
+      "char": "ر",
+      "codepoint": "U+0631"
+    },
+    {
+      "char": "ز",
+      "codepoint": "U+0632"
+    },
+    {
+      "char": "س",
+      "codepoint": "U+0633"
+    },
+    {
+      "char": "ش",
+      "codepoint": "U+0634"
+    },
+    {
+      "char": "ص",
+      "codepoint": "U+0635"
+    },
+    {
+      "char": "ض",
+      "codepoint": "U+0636"
+    },
+    {
+      "char": "ط",
+      "codepoint": "U+0637"
+    },
+    {
+      "char": "ظ",
+      "codepoint": "U+0638"
+    },
+    {
+      "char": "ع",
+      "codepoint": "U+0639"
+    },
+    {
+      "char": "غ",
+      "codepoint": "U+063A"
+    },
+    {
+      "char": "ـ",
+      "codepoint": "U+0640"
+    },
+    {
+      "char": "ف",
+      "codepoint": "U+0641"
+    },
+    {
+      "char": "ق",
+      "codepoint": "U+0642"
+    },
+    {
+      "char": "ك",
+      "codepoint": "U+0643"
+    },
+    {
+      "char": "ل",
+      "codepoint": "U+0644"
+    },
+    {
+      "char": "م",
+      "codepoint": "U+0645"
+    },
+    {
+      "char": "ن",
+      "codepoint": "U+0646"
+    },
+    {
+      "char": "ه",
+      "codepoint": "U+0647"
+    },
+    {
+      "char": "و",
+      "codepoint": "U+0648"
+    },
+    {
+      "char": "ى",
+      "codepoint": "U+0649"
+    },
+    {
+      "char": "ي",
+      "codepoint": "U+064A"
+    },
+    {
+      "char": "ً",
+      "codepoint": "U+064B"
+    },
+    {
+      "char": "ٍ",
+      "codepoint": "U+064D"
+    },
+    {
+      "char": "َ",
+      "codepoint": "U+064E"
+    },
+    {
+      "char": "ُ",
+      "codepoint": "U+064F"
+    },
+    {
+      "char": "ّ",
+      "codepoint": "U+0651"
+    },
+    {
+      "char": "—",
+      "codepoint": "U+2014"
+    }
+  ]
+}

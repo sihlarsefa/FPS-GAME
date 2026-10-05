@@ -1,0 +1,68 @@
+/** Backend route snapshot; npm run contracts checks this against both C# APIs.
+ * Server-only write calls are included for completeness, never called by portal UI.
+ * @typedef {{method:string,path:string,service?:string,auth?:boolean,format?:string}} Endpoint
+ */
+export const ENDPOINTS = {
+  health: { method: 'GET', path: '/health' },
+  metrics: { method: 'GET', path: '/metrics', format: 'text' },
+  register: { method: 'POST', path: '/auth/register' },
+  login: { method: 'POST', path: '/auth/login' },
+  refresh: { method: 'POST', path: '/auth/refresh' },
+  verifyEmail: { method: 'POST', path: '/auth/verify-email', auth: true },
+  logout: { method: 'POST', path: '/auth/logout', auth: true },
+  me: { method: 'GET', path: '/players/me', auth: true },
+  player: { method: 'GET', path: '/players/{username}' },
+  createSquad: { method: 'POST', path: '/squads', auth: true },
+  joinSquad: { method: 'POST', path: '/squads/join', auth: true },
+  mySquad: { method: 'GET', path: '/squads/me', auth: true },
+  squad: { method: 'GET', path: '/squads/{id:guid}', auth: true },
+  ready: { method: 'POST', path: '/squads/ready', auth: true },
+  leaveSquad: { method: 'POST', path: '/squads/leave', auth: true },
+  queue: { method: 'POST', path: '/matchmaking/queue', auth: true },
+  cancelQueue: { method: 'DELETE', path: '/matchmaking/queue', auth: true },
+  ticket: { method: 'GET', path: '/matchmaking/tickets/{id:guid}', auth: true },
+  match: { method: 'GET', path: '/matches/{id:guid}', auth: true },
+  registerServer: { method: 'POST', path: '/servers/register' },
+  heartbeat: { method: 'POST', path: '/servers/heartbeat' },
+  servers: { method: 'GET', path: '/servers' },
+  matchResult: { method: 'POST', path: '/matches/{id:guid}/result' },
+  leaderboards: { method: 'GET', path: '/leaderboards' },
+  seasonLeaderboard: { method: 'GET', path: '/leaderboards/season' },
+  friendRequest: { method: 'POST', path: '/friends/request', auth: true },
+  acceptFriend: { method: 'POST', path: '/friends/{id:guid}/accept', auth: true },
+  friends: { method: 'GET', path: '/friends', auth: true },
+  activeSeason: { method: 'GET', path: '/seasons/active' },
+  seasonArchive: { method: 'GET', path: '/seasons/{number:int}/archive' },
+  achievements: { method: 'GET', path: '/achievements/me', auth: true },
+  cosmetics: { method: 'GET', path: '/cosmetics/me', auth: true },
+  equipCosmetic: { method: 'POST', path: '/cosmetics/equip', auth: true },
+  reportPlayer: { method: 'POST', path: '/moderation/report', auth: true },
+  ban: { method: 'POST', path: '/moderation/ban', auth: true },
+  mute: { method: 'POST', path: '/moderation/mute', auth: true },
+  reports: { method: 'GET', path: '/moderation/reports', auth: true },
+  telemetryHealth: { method: 'GET', path: '/health', service: 'telemetry' },
+  events: { method: 'POST', path: '/events/batch', service: 'telemetry' },
+  suspects: { method: 'GET', path: '/reports', service: 'telemetry' },
+  heatmap: { method: 'GET', path: '/heatmap/{matchId}', service: 'telemetry' },
+  heatmapPng: { method: 'GET', path: '/heatmap/{matchId}/png', service: 'telemetry', format: 'blob' },
+  seasonHeatmap: { method: 'GET', path: '/heatmap/season/{seasonId}/png', service: 'telemetry', format: 'blob' },
+  weaponBalance: { method: 'GET', path: '/weapons/balance', service: 'telemetry' },
+  playerRisk: { method: 'GET', path: '/players/{playerId}/risk', service: 'telemetry' },
+  reviewQueue: { method: 'GET', path: '/review-queue', service: 'telemetry' },
+  updateReview: { method: 'PATCH', path: '/review-queue/{id:guid}', service: 'telemetry' },
+  saveReplay: { method: 'POST', path: '/replays', service: 'telemetry' },
+  replay: { method: 'GET', path: '/replays/{matchId}', service: 'telemetry' },
+  rules: { method: 'GET', path: '/rules', service: 'telemetry' },
+  telemetryPerf: { method: 'GET', path: '/metrics/perf', service: 'telemetry' },
+  bench: { method: 'POST', path: '/debug/bench', service: 'telemetry' },
+};
+export const LOBBY_PATH = '/hubs/lobby';
+export function endpointUrl(endpoint, params = {}, query = {}) {
+  const path = endpoint.path.replace(/\{([^}:]+)(?::[^}]+)?\}/g, (_, key) => {
+    if (params[key] === undefined || params[key] === '') throw new TypeError(`Missing path parameter: ${key}`);
+    return encodeURIComponent(String(params[key]));
+  });
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== null && value !== '') search.set(key, String(value));
+  return path + (search.size ? `?${search}` : '');
+}

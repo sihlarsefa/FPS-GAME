@@ -1,0 +1,38 @@
+[
+  {
+    "id": "0.4.0",
+    "slug": "0.4.0",
+    "version": "0.4.0",
+    "title": "0.4.0 — Web portal v2",
+    "date": "2026-10-05",
+    "tags": [],
+    "summary": "Portal JWT API katmanı ve yönetici paneli IIS web.config proxy / SPA fallback İndirme, sistem gereksinimleri ve yama RSS Not Kurulum paketi SHA-256 henüz yer tutucu; F3-8 launcher çıktısıyla güncellenecek."
+  },
+  {
+    "id": "0.3.0",
+    "slug": "0.3.0",
+    "version": "0.3.0",
+    "title": "0.3.0 — Topçu ve intikal",
+    "date": "2026-10-01",
+    "tags": [],
+    "summary": "Oyun dengesi Topçu desteği bekleme süresi dengelendi Kirpi taşıma kapasitesi +1 Kuzgun Barajı yağma düzeni Düzeltmeler Bot intikal yolu kenar durumları"
+  },
+  {
+    "id": "0.2.1",
+    "slug": "0.2.1",
+    "version": "0.2.1",
+    "title": "0.2.1 — Silah ve rütbe",
+    "date": "2026-09-12",
+    "tags": [],
+    "summary": "MPT-76 geri tepme azaltıldı Bot intikal yolu düzeltmesi Rütbe XP eşikleri güncellendi"
+  },
+  {
+    "id": "0.2.0",
+    "slug": "0.2.0",
+    "version": "0.2.0",
+    "title": "0.2.0 — İlk açık tatbikat",
+    "date": "2026-08-20",
+    "tags": [],
+    "summary": "10 kişilik tim lobisi T-70 / Kirpi intikal İlk açık tatbikat sürümü"
+  }
+]

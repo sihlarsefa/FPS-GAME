@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <title>HUD Olay Animasyonları — HAREKÂT</title>
+  <link rel="stylesheet" href="../css/animations.css"/>
+  <style>
+    body { margin: 0; background: #0a0c08; }
+    .controls {
+      position: fixed; top: 16px; left: 16px; z-index: 5;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .note {
+      position: fixed; bottom: 16px; left: 16px; z-index: 5;
+      color: var(--text-muted); font-size: 13px; max-width: 40ch;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button class="btn btn--sm btn--primary" type="button" id="btn-hit">Isabet</button>
+    <button class="btn btn--sm" type="button" id="btn-dmg">Hasar yönü</button>
+    <button class="btn btn--sm" type="button" id="btn-cmd">Komuta devri</button>
+    <button class="btn btn--sm" type="button" id="btn-kill">Öldürme satırı</button>
+    <button class="btn btn--sm btn--ghost" type="button" id="btn-all">Tümü</button>
+  </div>
+  <p class="note">UZATMA prototipi. <code>prefers-reduced-motion</code> açıksa animasyonlar kapanır. Unity HUD ajanları için süre referansı: StyleGuide.md.</p>
+
+  <div class="frame" style="margin:48px auto" aria-label="Animasyonlu HUD">
+    <div class="screen-hud">
+      <div class="crosshair"></div>
+      <div class="anim-hitmark" id="hit"></div>
+      <div class="anim-dmg" id="dmg" style="transform:translate(-50%,-50%) rotate(-40deg)"></div>
+      <div class="anim-cmd" id="cmd">Komuta devri · Astsb. Çelik</div>
+
+      <div class="hud-killfeed" id="feed" aria-live="polite"></div>
+
+      <div class="hud-vitals">
+        <div class="hud-chip">
+          <div class="row" style="justify-content:space-between;font-size:var(--font-tiny);margin-bottom:4px"><span>CAN</span><span>64</span></div>
+          <div class="bar"><span style="width:64%;background:var(--hp-mid)"></span></div>
+        </div>
+      </div>
+      <div class="hud-weapon hud-chip">
+        <div class="hud-weapon__ammo">27 <span>/ 119</span></div>
+        <div class="hud-weapon__name">MPT-76</div>
+      </div>
+      <div class="hud-zone hud-chip">FAZ 2 · Daralma 0:48</div>
+    </div>
+  </div>
+
+  <script>
+    const hit = document.getElementById("hit");
+    const dmg = document.getElementById("dmg");
+    const cmd = document.getElementById("cmd");
+    const feed = document.getElementById("feed");
+
+    function replay(el, cls) {
+      el.classList.remove(cls);
+      void el.offsetWidth;
+      el.classList.add(cls);
+    }
+
+    function addKill() {
+      const row = document.createElement("div");
+      row.className = "hud-killfeed__item hud-chip anim-kill-row is-play";
+      row.innerHTML = '<span class="killer">Yzb. Kartal</span> [MPT-76] <span class="victim">Kr. Kurt</span>';
+      feed.prepend(row);
+      while (feed.children.length > 4) feed.lastChild.remove();
+    }
+
+    document.getElementById("btn-hit").onclick = () => replay(hit, "is-play");
+    document.getElementById("btn-dmg").onclick = () => replay(dmg, "is-play");
+    document.getElementById("btn-cmd").onclick = () => replay(cmd, "is-play");
+    document.getElementById("btn-kill").onclick = addKill;
+    document.getElementById("btn-all").onclick = () => {
+      replay(hit, "is-play");
+      replay(dmg, "is-play");
+      replay(cmd, "is-play");
+      addKill();
+    };
+  </script>
+  <script src="../css/scale.js"></script>
+</body>
+</html>

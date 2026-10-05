@@ -13,7 +13,7 @@ namespace Project.Infrastructure.Player
     /// • Hızlar: yürüme 4,6 · koşu 7,2 (yalnız ileri) · çömelme 2,4 · yüzüstü 1,1 m/s (config). Geri/yan yürüme biraz yavaştır.<br/>
     /// • Duruş: C çömelmeyi aç/kapa, Ctrl basılı tutunca çömel, Z yüzüstü aç/kapa. Boy (1,8 / 1,2 / 0,6 m) yumuşak değişir;
     ///   kalkmadan önce tavan kontrolü yapılır (yer yoksa sığan en yüksek duruşta kalır, açılınca kendiliğinden kalkar).
-    ///   Çömelik/yüzüstüyken Space ayağa kaldırır; koşu tuşuna basmak (ileri girdiyle) çömelmeyi bozar.<br/>
+    ///   Çömelik/yüzüstüyken Space ayağa kaldırır; koşu tuşuna basmak (ileri girdiyle) çömelme/yüzüstünü bozar.<br/>
     /// • Zıplama yalnız ayaktayken; coyote süresi + girdi tamponu; havada sınırlı kontrol; dik yamaçta kayma;
     ///   yokuş aşağı zemine yapışma; basamak/eğim CharacterController ile.<br/>
     /// • Yana eğilme (Q/E) -1..1 yumuşak; koşarken ve yüzüstüyken kapalı.<br/>
@@ -518,9 +518,13 @@ namespace Project.Infrastructure.Player
                 _jumpBufferTimer = 0f;
             }
 
-            // Koşu tuşuna basmak (ileri girdiyle) çömelmeyi bozar.
-            if (sprintPressed && _crouchToggled && !input.Crouch && forward >= config.sprintForwardThreshold)
+            // Koşu tuşuna basmak (ileri girdiyle) çömelmeyi / yüzüstünü bozar (tavan izin verirse ResolveStance kaldırır).
+            if (sprintPressed && (_crouchToggled || _proneToggled) && !input.Crouch && _grounded
+                && forward >= config.sprintForwardThreshold)
+            {
                 _crouchToggled = false;
+                _proneToggled = false;
+            }
         }
 
         private void ResolveStance(bool crouchHeld)

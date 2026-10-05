@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 780" width="720" height="780">
+  <title>Güney Gözetleme Noktası — Yakın Plan</title>
+  <rect width="100%" height="100%" fill="#d8d2b8"/>
+  <text x="60" y="28" font-family="sans-serif" font-size="18" font-weight="700">Güney Gözetleme Noktası — YAKIN PLAN</text>
+  <text x="60" y="48" font-family="sans-serif" font-size="11" fill="#333">Grid D9 · Merkez (-122, -404) · Yarıçap 28 m · Ölçek yerel</text>
+  <rect x="60" y="60" width="600" height="600" fill="#c5c09a" stroke="#3d3a2a" stroke-width="2"/>
+
+  <circle cx="360.0" cy="360.0" r="186.7" fill="none" stroke="#8B0000" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <path d="M432.0,330.0 L440.0,310.0 L448.0,330.0 Z" fill="#c45c12"/>
+  <text x="450.0" y="320.0" font-size="10" font-family="sans-serif" fill="#8a3a00">Güney patika</text>
+  <path d="M232.0,476.7 L240.0,456.7 L248.0,476.7 Z" fill="#c45c12"/>
+  <text x="250.0" y="466.7" font-size="10" font-family="sans-serif" fill="#8a3a00">GB açık</text>
+  <rect x="340.0" y="340.0" width="40.0" height="40.0" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 360.0 360.0)"/>
+  <text x="360.0" y="337.0" text-anchor="middle" font-size="9" font-family="sans-serif">Mevzi</text>
+  <rect x="413.3" y="293.3" width="26.7" height="26.7" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 426.7 306.7)"/>
+  <text x="426.7" y="290.3" text-anchor="middle" font-size="9" font-family="sans-serif">Çuval</text>
+  <circle cx="440.0" cy="466.7" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="440.0" cy="466.7" r="2" fill="#8B0000"/>
+  <text x="448.0" y="460.7" font-size="10" font-family="sans-serif" fill="#8B0000">KN: Güney bakış</text>
+  <text x="60" y="684" font-family="sans-serif" font-size="11" font-weight="600">Mevzi / giriş notları</text>
+  <text x="60" y="702" font-family="sans-serif" font-size="10" fill="#222">1. Baraj ve ağıl hattını gözetler.</text>
+  <text x="60" y="718" font-family="sans-serif" font-size="10" fill="#222">2. S4 güney boğazına yakın.</text>
+  <text x="60" y="734" font-family="sans-serif" font-size="10" fill="#222">3. Erken yağma için riskli ama değerli.</text>
+</svg>

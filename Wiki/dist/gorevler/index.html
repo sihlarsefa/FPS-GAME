@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tim Görevleri · HAREKÂT Kılavuz</title>
+<meta name="description" content="Başlangıç teçhizatı">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><span aria-current="page">Görevler</span></li></ol></nav>
+<h1>Tim Görevleri</h1>
+<p class="lede">10 kişilik tim dağılımı — <code>LoadoutCatalog</code>.</p>
+<div class="card-grid">
+    <a class="card" href="leader.html">
+      
+      <strong>Tim Komutanı</strong>
+      <span class="meta">Leader</span>
+      <p>Komuta, rota ve emir tekerleği; orta zırh ile önde değil, görünürde liderlik.</p>
+    </a>
+    <a class="card" href="rifleman.html">
+      
+      <strong>Piyade</strong>
+      <span class="meta">Rifleman</span>
+      <p>Esnek piyade; MPT-76 veya MPT-55 varyantı, kanat ve yağma.</p>
+    </a>
+    <a class="card" href="marksman.html">
+      
+      <strong>Keskin Nişancı</strong>
+      <span class="meta">Marksman</span>
+      <p>Yüksek zemin ve flanş; JNG ile tek vuruş, SAR 109T ile CQB yedek.</p>
+    </a>
+    <a class="card" href="machinegunner.html">
+      
+      <strong>Makineli Tüfekçi</strong>
+      <span class="meta">MachineGunner</span>
+      <p>Bastırma ateşi ve dar geçit kontrolü; ağır çanta, yavaş dönüş.</p>
+    </a>
+    <a class="card" href="medic.html">
+      
+      <strong>Sıhhiyeci</strong>
+      <span class="meta">Medic</span>
+      <p>Tim gerisinde iyileştirme zinciri; sargı→ilk yardım→çanta önceliği.</p>
+    </a>
+    <a class="card" href="radioman.html">
+      
+      <strong>Telsizci</strong>
+      <span class="meta">Radioman</span>
+      <p>Topçu çağrısı ve iletişim; hayatta kalmak stratejik üstünlük.</p>
+    </a>
+    <a class="card" href="grenadier.html">
+      
+      <strong>Bombacı</strong>
+      <span class="meta">Grenadier</span>
+      <p>Bina/köşe açma; parça bomba stoku ile CQB baskısı.</p>
+    </a></div>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+    "name": "Project.Platform",
+    "rootNamespace": "Project.Platform",
+    "references": [
+        "Project.Core",
+        "Project.Application",
+        "Project.Infrastructure",
+        "com.rlabrecque.steamworks.net"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "STEAMWORKS_NET"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.rlabrecque.steamworks.net",
+            "expression": "1.0.0",
+            "define": "STEAMWORKS_NET"
+        }
+    ],
+    "noEngineReferences": false
+}

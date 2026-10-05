@@ -1,0 +1,85 @@
+MaterialId,kaynak_site,varlik_adi,url,lisans,ucretsiz_mi,notlar
+White,ambientCG / düz renk,plain_white,https://ambientcg.com/,CC0,evet,Düz albedo #FFFFFF. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Black,ambientCG / düz renk,plain_black,https://ambientcg.com/,CC0,evet,Düz albedo #0A0A0A. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Red,ambientCG / düz renk,plain_red,https://ambientcg.com/,CC0,evet,Düz albedo #E30A17. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Yellow,ambientCG / düz renk,plain_yellow,https://ambientcg.com/,CC0,evet,Düz albedo #F5C542. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Blue,ambientCG / düz renk,plain_blue,https://ambientcg.com/,CC0,evet,Düz albedo #2E6BFF. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Green,ambientCG / düz renk,plain_green,https://ambientcg.com/,CC0,evet,Düz albedo #3D7A3D. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Orange,ambientCG / düz renk,plain_orange,https://ambientcg.com/,CC0,evet,Düz albedo #E67E22. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Gray,ambientCG / düz renk,plain_gray,https://ambientcg.com/,CC0,evet,Düz albedo #7A7A7A. Unity: sRGB On Max Size 256 Compression None/RGB24. Normal yok.
+Grass,Poly Haven,grass,https://polyhaven.com/a/grass,CC0,evet,Arazi zemin Terrain Layer. Albedo sRGB Normal BC5 Max 2048 MipMaps Aniso 8. Tiling ~0.05–0.1 world.
+DryGrass,Poly Haven,dry_ground_rocks,https://polyhaven.com/a/dry_ground_rocks,CC0,evet,Kuru bozkır; ambientCG Grass002 kuru alternatif. Terrain Layer Max 2048.
+Dirt,Poly Haven,brown_mud_03,https://polyhaven.com/a/brown_mud_03,CC0,evet,Toprak yol/patika. Albedo+Normal+Roughness Max 2048.
+Mud,Poly Haven,brown_mud_02,https://polyhaven.com/a/brown_mud_02,CC0,evet,Islak çamur roughness düşük. Max 2048.
+Rock,Poly Haven,rock_face,https://polyhaven.com/a/rock_face,CC0,evet,Kaya; ambientCG Rock023. Normal güçlü Max 2048. Mesh scale 1m=1unit.
+RockDark,Poly Haven,rock_boulder_dry,https://polyhaven.com/a/rock_boulder_dry,CC0,evet,Koyu kaya/dağ sırtı. Max 2048.
+Sand,Poly Haven,aerial_beach_01,https://polyhaven.com/a/aerial_beach_01,CC0,evet,Kum/çöl; ambientCG Sand001. Terrain Layer Max 2048.
+Snow,Poly Haven,snow_02,https://polyhaven.com/a/snow_02,CC0,evet,Ayaz Geçidi kar. Roughness düşük Max 2048.
+Gravel,Poly Haven,gravelly_sand,https://polyhaven.com/a/gravelly_sand,CC0,evet,Çakıl; ambientCG Gravel023. Max 2048.
+Asphalt,Poly Haven,asphalt_02,https://polyhaven.com/a/asphalt_02,CC0,evet,Asfalt ana yol. Roughness yüksek Max 2048.
+Water,Poly Haven,HDRI reflection + water shader,https://polyhaven.com/hdris,CC0,evet,URP Water/shader; Cubemap Specular Convolution Readable Off.
+Foliage,Poly Haven,forest_leaves_03,https://polyhaven.com/a/forest_leaves_03,CC0,evet,Yaprak atlas Alpha Cutoff ~0.4 Double Sided Max 1024–2048 Read/Write Off.
+FoliageDark,Poly Haven,forest_leaves_02,https://polyhaven.com/a/forest_leaves_02,CC0,evet,Koyu yaprak; aynı alpha. LOD Max 1024.
+PineNeedles,ambientCG,PineNeedles001,https://ambientcg.com/view?id=PineNeedles001,CC0,evet,Çam iğnesi zemin Terrain Layer Max 2048.
+Bark,Poly Haven,tree_bark_dep2,https://polyhaven.com/a/tree_bark_dep2,CC0,evet,Ağaç gövdesi silindir UV Max 1024–2048 Normal On.
+DeadWood,Poly Haven,wood_table_001,https://polyhaven.com/a/wood_table_001,CC0,evet,Ölü odun/kütük desatüre Max 1024.
+Concrete,Poly Haven,concrete_floor_worn_001,https://polyhaven.com/a/concrete_floor_worn_001,CC0,evet,Beton; ambientCG Concrete034. Max 2048 tiling 2–4m.
+ConcreteDark,Poly Haven,concrete_wall_007,https://polyhaven.com/a/concrete_wall_007,CC0,evet,Koyu beton/FOB Max 2048.
+Plaster,Poly Haven,plastered_wall,https://polyhaven.com/a/plastered_wall,CC0,evet,Sıva köy evi Max 2048.
+PlasterWarm,Poly Haven,painted_plaster_wall,https://polyhaven.com/a/painted_plaster_wall,CC0,evet,Sıcak sıva sarımsı Max 2048.
+Stone,Poly Haven,castle_wall_01,https://polyhaven.com/a/castle_wall_01,CC0,evet,Taş duvar; ambientCG Rock050. Max 2048.
+StoneDark,Poly Haven,medieval_wall_01,https://polyhaven.com/a/medieval_wall_01,CC0,evet,Koyu taş Max 2048.
+Brick,ambientCG,Bricks075,https://ambientcg.com/view?id=Bricks075,CC0,evet,Tuğla; Poly Haven red_brick_03 alternatif. Max 2048.
+RoofTile,ambientCG,RoofTiles03,https://ambientcg.com/view?id=RoofTiles03,CC0,evet,Kiremit çatı Anadolu Max 2048.
+RoofMetal,ambientCG,Metal032,https://ambientcg.com/view?id=Metal032,CC0,evet,Metal çatı/oluk Metallic On Max 2048.
+Wood,Poly Haven,wood_floor,https://polyhaven.com/a/wood_floor,CC0,evet,Ahşap; ambientCG Wood049 Max 2048.
+WoodDark,Poly Haven,dark_wood,https://polyhaven.com/a/dark_wood,CC0,evet,Koyu ahşap/kiriş Max 1024–2048.
+Glass,Poly Haven,glass approximation,https://polyhaven.com/,CC0,evet,URP Lit Transparent düşük alpha; Reflection Probe; texture Max 512 opsiyonel.
+MetalPanel,ambientCG,Metal009,https://ambientcg.com/view?id=Metal009,CC0,evet,Metal panel Metallic=1 Roughness linear Max 2048 Normal BC5.
+MetalDark,ambientCG,Metal021,https://ambientcg.com/view?id=Metal021,CC0,evet,Koyu metal Max 2048.
+Rust,Poly Haven,rusty_metal_02,https://polyhaven.com/a/rusty_metal_02,CC0,evet,Paslı metal Max 2048.
+Hesco,ambientCG,Gravel020 + Fabric katman,https://ambientcg.com/,CC0,evet,Hesco çakıl+kumaş atlas Max 2048 mesh metre.
+Sandbag,ambientCG,Fabric008 + Sand001,https://ambientcg.com/,CC0,evet,Kum torbası blend Max 1024 tiling düşük.
+CamoNet,ambientCG,Fabric029,https://ambientcg.com/view?id=Fabric029,CC0,evet,Kamuflaj ağı alpha cutout Double Sided Max 1024.
+TentCanvas,ambientCG,Fabric004,https://ambientcg.com/view?id=Fabric004,CC0,evet,Çadır branda Max 1024.
+Hay,ambientCG,Ground037,https://ambientcg.com/view?id=Ground037,CC0,evet,Saman/ot Max 1024.
+TurkishFlag,özgün üretim,stilize_bayrak_dokusu,(iç üretim),özgün,hayır,Resmi arma kopyalanmaz; stilize hilal-yıldız #E30A17/#FFFFFF. Max 512 Clamp.
+MosqueDome,ambientCG,Metal042 + yeşil tint,https://ambientcg.com/view?id=Metal042,CC0,evet,Cami kubbesi metalik yeşil özgün renk Max 2048.
+Carpet,ambientCG,Fabric031,https://ambientcg.com/view?id=Fabric031,CC0,evet,Kilim; desen özgün tutulmalı Max 1024.
+VehicleOlive,ambientCG,Metal021 olive tint,https://ambientcg.com/view?id=Metal021,CC0,evet,Kirpi zeytin #4A5C3A Max 2048 Metallic düşük.
+VehicleTan,ambientCG,Metal021 tan tint,https://ambientcg.com/,CC0,evet,Çöl tan #8B7355 Max 2048.
+VehicleDark,ambientCG,Metal021 koyu,https://ambientcg.com/view?id=Metal021,CC0,evet,Koyu araç paneller Max 2048.
+Tire,ambientCG,Rubber004,https://ambientcg.com/view?id=Rubber004,CC0,evet,Lastik Normal güçlü Roughness yüksek Max 1024.
+HeliOlive,ambientCG,Metal021 olive,https://ambientcg.com/,CC0,evet,T-70 gövde zeytin VehicleOlive dili Max 2048.
+Windshield,Poly Haven,glass approximation,https://polyhaven.com/,CC0,evet,Transparent Lit dirty normal Max 512.
+RotorBlade,ambientCG,Metal009 matte,https://ambientcg.com/view?id=Metal009,CC0,evet,Rotor mat metal Max 1024; blur shader ayrı.
+GunMetal,ambientCG,Metal008,https://ambientcg.com/view?id=Metal008,CC0,evet,Silah metal. Viewmodel Max 2048 Aniso 16; loot Max 1024. Metal maps linear.
+GunPolymer,ambientCG,Plastic001,https://ambientcg.com/view?id=Plastic001,CC0,evet,Polimer kabza SAR9/TP9/MPT-55 Max 1024–2048.
+GunWood,Poly Haven,wood_table_001,https://polyhaven.com/a/wood_table_001,CC0,evet,Ahşap dipçik G3A7 Max 1024.
+GunTan,ambientCG,Metal021 tan paint,https://ambientcg.com/,CC0,evet,Tan silah kaplama Max 1024.
+CamoWoodland,özgün + ambientCG baz,dijital_orman_kamuflaj,(üretim),özgün+CC0 baz,kısmi,TSK dijital kopyalanmaz; stilize orman. Max 2048 Repeat.
+CamoMountain,özgün üretim,dijital_dag_kamuflaj,(üretim),özgün,hayır,Dağ gri-yeşil dijital Max 2048.
+CamoDesert,özgün üretim,dijital_col_kamuflaj,(üretim),özgün,hayır,Çöl tan/bej dijital Max 2048.
+CamoUrban,özgün üretim,dijital_sehir_kamuflaj,(üretim),özgün,hayır,Şehir gri dijital Max 2048.
+Skin,Asset Store / özgün,character_skin,(paket),paket lisansına göre,kısmi,Cilt SSS veya düz; Max 1024 sRGB On.
+SkinDark,Asset Store / özgün,character_skin_dark,(paket),paket lisansına göre,kısmi,Koyu cilt aynı UV Max 1024.
+Gear,ambientCG,Fabric008 + Plastic,https://ambientcg.com/,CC0,evet,Teçhizat/yelek Max 1024 Normal On.
+Boots,ambientCG,Leather011,https://ambientcg.com/view?id=Leather011,CC0,evet,Bot derisi Max 1024.
+Beret,ambientCG,Fabric004,https://ambientcg.com/view?id=Fabric004,CC0,evet,Bere kumaşı tint varyant Max 512.
+ArmbandBlue,özgün üretim,kol_bandi_mavi,(üretim),özgün,hayır,Mavi kuvvet Max 256 Clamp.
+ArmbandRed,özgün üretim,kol_bandi_kirmizi,(üretim),özgün,hayır,Kırmızı kuvvet Max 256.
+ArmbandYellow,özgün üretim,kol_bandi_sari,(üretim),özgün,hayır,Sarı Max 256.
+ArmbandGreen,özgün üretim,kol_bandi_yesil,(üretim),özgün,hayır,Yeşil Max 256.
+ZoneWall,shader/özgün,zone_wall_unlit,(kod),özgün,evet,URP Unlit Transparent mavi; scroll opsiyonel Max 256 Compression None.
+Tracer,shader/özgün,tracer_additive,(kod),özgün,evet,Additive particle streak Max 128.
+MuzzleFlash,Poly Haven / VFX,muzzle_flash_spritesheet,https://polyhaven.com/,CC0,evet,Sprite Additive Max 512 Bilinear Read/Write Off.
+Smoke,ambientCG / VFX,smoke_particle,https://ambientcg.com/,CC0,evet,Soft particle Max 512 Soft Particles On.
+Fire,Poly Haven / VFX,fire_sprites,https://polyhaven.com/,CC0,evet,Additive fire sheet Max 512.
+Blood,özgün / VFX,blood_decal,(üretim),özgün,kısmi,Decal albedo+alpha Max 512 URP Decal.
+Spark,VFX,spark_particle,(üretim/CC0),CC0,evet,Küçük additive Max 128.
+BulletHole,ambientCG,metal_hole_decal,https://ambientcg.com/,CC0,evet,Decal Max 256 Depth Bias.
+LootHighlight,shader,emissive_outline,(kod),özgün,evet,Emission; texture gerekmez.
+AllyMarker,özgün UI,ally_marker_icon,(UI),özgün,evet,HUD Sprite Max 128.
+EnemyMarker,özgün UI,enemy_marker_icon,(UI),özgün,evet,HUD Sprite Max 128.
+LandingZone,özgün,lz_smoke_marker,(üretim),özgün,evet,İniş dumanı particle Max 512.
+Parachute,ambientCG,Fabric004,https://ambientcg.com/view?id=Fabric004,CC0,evet,Paraşüt Double Sided Max 1024.

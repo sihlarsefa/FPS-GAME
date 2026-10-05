@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <title>HUD — HAREKÂT</title>
+  <link rel="stylesheet" href="../css/screens.css"/>
+</head>
+<body>
+  <div class="frame" data-screen="hud" aria-label="Oyun içi HUD">
+    <div class="screen-hud">
+      <div class="crosshair" aria-hidden="true"></div>
+
+      <div class="hud-compass hud-chip" role="img" aria-label="Pusula 247 derece">
+        <span>K</span><span>KD</span><span class="hud-compass__deg">247°</span><span>D</span><span>GD</span>
+      </div>
+
+      <div class="hud-order" role="status">Emir: Taarruz — Tepe 4</div>
+
+      <div class="hud-killfeed" aria-live="polite">
+        <div class="hud-killfeed__item hud-chip"><span class="killer">Yzb. Kartal</span> [MPT-76] <span class="victim">Kr. Kurt</span></div>
+        <div class="hud-killfeed__item hud-chip"><span class="killer">Uzm.Çvş. Ateş</span> [Bomba] <span class="victim">Kr. Bozkurt</span></div>
+      </div>
+
+      <div class="hud-minimap" role="img" aria-label="Mini harita">
+        <div class="hud-minimap__zone"></div>
+        <div class="hud-minimap__safe"></div>
+        <div class="hud-minimap__player"></div>
+      </div>
+
+      <div class="hud-squad panel panel--dark" aria-label="Tim paneli">
+        <div class="hud-squad__row"><img class="icon" src="../icons/ranks/yuzbasi.svg" alt=""/><span>Kartal</span><div class="hud-squad__hp"><span style="width:92%"></span></div></div>
+        <div class="hud-squad__row"><img class="icon" src="../icons/ranks/astsubay.svg" alt=""/><span>Çelik</span><div class="hud-squad__hp"><span style="width:70%"></span></div></div>
+        <div class="hud-squad__row"><img class="icon" src="../icons/ranks/cavus.svg" alt=""/><span>Ateş</span><div class="hud-squad__hp"><span style="width:100%"></span></div></div>
+        <div class="hud-squad__row"><img class="icon" src="../icons/ranks/er.svg" alt=""/><span>Yıldız</span><div class="hud-squad__hp"><span style="width:45%"></span></div></div>
+      </div>
+
+      <div class="hud-arty hud-chip">
+        <img class="icon" src="../icons/orders/artillery.svg" alt="" style="vertical-align:middle"/> Topçu CD 1:42
+      </div>
+
+      <div class="hud-vitals" aria-label="Can zırh takviye">
+        <div class="hud-chip">
+          <div class="row" style="justify-content:space-between;font-size:var(--font-tiny);margin-bottom:4px"><span>CAN</span><span>92</span></div>
+          <div class="bar"><span style="width:92%"></span></div>
+        </div>
+        <div class="hud-chip">
+          <div class="row" style="justify-content:space-between;font-size:var(--font-tiny);margin-bottom:4px"><span>ZIRH</span><span>60</span></div>
+          <div class="bar bar--armor"><span style="width:60%"></span></div>
+        </div>
+        <div class="hud-chip">
+          <div class="row" style="justify-content:space-between;font-size:var(--font-tiny);margin-bottom:4px"><span>TAKVİYE</span><span>30</span></div>
+          <div class="bar bar--boost"><span style="width:30%"></span></div>
+        </div>
+      </div>
+
+      <div class="hud-weapon hud-chip" aria-label="Silah ve cephane">
+        <div class="hud-weapon__ammo">28 <span>/ 120</span></div>
+        <div class="hud-weapon__name">MPT-76 · 7.62</div>
+      </div>
+
+      <div class="hud-zone hud-chip">FAZ 2 · Daralma 0:48</div>
+    </div>
+  </div>
+  <script src="../css/scale.js"></script>
+</body>
+</html>

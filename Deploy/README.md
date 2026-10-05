@@ -1,6 +1,12 @@
 # HAREKÂT — Dedicated Server Filosu ve Dağıtım
 
-Türk askeri temalı FPP tim battle royale (**10 kişilik tim**, maç başına **40–60 oyuncu**) için Kubernetes + Agones + Terraform iskeleti. Hedef: **binlerce eşzamanlı oyuncu**.
+> **Canlı / üretim yolu: Windows Server + IIS + Microsoft SQL Server.**  
+> Adım adım kurulum: **[windows/README.md](windows/README.md)**  
+> (Kapasite: [windows/CAPACITY.md](windows/CAPACITY.md) · İzleme: [windows/monitoring.md](windows/monitoring.md))
+>
+> Aşağıdaki Kubernetes + Agones + Terraform iskeleti **isteğe bağlı / ileride** (Linux filo). Yeni Linux sunucu alınmaz; mevcut Windows APP host kullanılır.
+
+Türk askeri temalı FPP tim battle royale (**10 kişilik tim**, maç başına **40–60 oyuncu**). Hedef: **binlerce eşzamanlı oyuncu**.
 
 > Bu klasör dışında dosya yazılmaz. Backend imajı `Backend/` (GÖREV 1), Unity build GÖREV 5 CI ile üretilir.
 

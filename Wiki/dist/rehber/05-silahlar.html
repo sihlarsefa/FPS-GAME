@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. Silahlar · HAREKÂT Kılavuz</title>
+<meta name="description" content="5. Silahlar">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">5. Silahlar</span></li></ol></nav>
+<h1>5. Silahlar</h1><div class="prose"><h2>5. Silahlar</h2>
+<p>Kaynak: <code>WeaponCatalog</code>, <code>WeaponIds</code>. RPM = <code>60 / FireIntervalSeconds</code>.</p>
+<h3>5.1 Özet tablo</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Silah</th><th scope="col">ID</th><th scope="col">Kategori</th><th scope="col">Hasar</th><th scope="col">Şarjör</th><th scope="col">RPM / aralık</th><th scope="col">Doldurma</th><th scope="col">Menzil</th><th scope="col">HS×</th><th scope="col">Mermi</th></tr></thead><tbody><tr><td>SAR 9</td><td>pistol_sar9</td><td>Tabanca</td><td>28</td><td>15</td><td>~375 (0.16s)</td><td>1.5s</td><td>120</td><td>2.0</td><td>9 mm</td></tr><tr><td>Canik TP9</td><td>pistol_tp9</td><td>Tabanca</td><td>26</td><td>18</td><td>~400 (0.15s)</td><td>1.6s</td><td>120</td><td>2.0</td><td>9 mm</td></tr><tr><td>SAR 109T</td><td>smg_sar109t</td><td>Hafif mak.</td><td>22</td><td>30</td><td>800</td><td>2.0s</td><td>180</td><td>1.8</td><td>9 mm</td></tr><tr><td>MPT-55</td><td>ar_mpt55</td><td>Piyade</td><td>26</td><td>30</td><td>750</td><td>2.3s</td><td>450</td><td>2.0</td><td>5.56</td></tr><tr><td>MPT-76</td><td>ar_mpt76</td><td>Piyade</td><td>36</td><td>20</td><td>600</td><td>2.5s</td><td>600</td><td>2.0</td><td>7.62</td></tr><tr><td>G3A7</td><td>ar_g3a7</td><td>Piyade</td><td>38</td><td>20</td><td>550</td><td>2.6s</td><td>600</td><td>2.0</td><td>7.62</td></tr><tr><td>KNT-76</td><td>dmr_knt76</td><td>Nişancı (DMR)</td><td>52</td><td>10</td><td>~214 (0.28s)</td><td>2.8s</td><td>800</td><td>2.2</td><td>7.62</td></tr><tr><td>JNG-90</td><td>sr_jng90</td><td>Keskin nişancı</td><td>90</td><td>5</td><td>~43 (1.4s)</td><td>3.4s</td><td>1000</td><td>2.5</td><td>7.62</td></tr><tr><td>PMT-76</td><td>lmg_pmt76</td><td>Makineli</td><td>34</td><td>100</td><td>650</td><td>6.0s</td><td>600</td><td>1.8</td><td>7.62</td></tr><tr><td>Escort</td><td>sg_escort</td><td>Pompalı</td><td>20×9 saçma</td><td>7</td><td>~70 (0.85s)</td><td>4.2s</td><td>70</td><td>1.5</td><td>12 ga</td></tr></tbody></table></div>
+<h3>5.2 Ek ballistik / kullanım</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Silah</th><th scope="col">Namlu hızı</th><th scope="col">Düşüş (başla→bit)</th><th scope="col">Min hasar faktörü</th><th scope="col">Ağırlık</th><th scope="col">ADS zoom</th><th scope="col">Not</th></tr></thead><tbody><tr><td>SAR 9</td><td>360</td><td>20–70</td><td>0.55</td><td>1.0</td><td>1.15</td><td>Düşük geri tepme</td></tr><tr><td>TP9</td><td>365</td><td>20–70</td><td>0.55</td><td>0.9</td><td>1.15</td><td>Daha büyük şarjör</td></tr><tr><td>SAR 109T</td><td>400</td><td>25–100</td><td>0.50</td><td>3.0</td><td>1.2</td><td>Single/Burst/Auto, burst 3</td></tr><tr><td>MPT-55</td><td>880</td><td>70–300</td><td>0.65</td><td>3.4</td><td>1.35</td><td>Esnek orta mesafe</td></tr><tr><td>MPT-76</td><td>820</td><td>90–400</td><td>0.70</td><td>4.1</td><td>1.35</td><td>Milli ana tüfek</td></tr><tr><td>G3A7</td><td>800</td><td>90–400</td><td>0.70</td><td>4.4</td><td>1.35</td><td>Daha yavaş, daha sert</td></tr><tr><td>KNT-76</td><td>840</td><td>150–600</td><td>0.75</td><td>5.2</td><td><strong>3×</strong></td><td>Scope</td></tr><tr><td>JNG-90</td><td>850</td><td>200–800</td><td>0.80</td><td>6.5</td><td><strong>6×</strong></td><td>Bolt-action</td></tr><tr><td>PMT-76</td><td>830</td><td>90–400</td><td>0.70</td><td><strong>11</strong></td><td>1.3</td><td>Sustained fire</td></tr><tr><td>Escort</td><td>400</td><td>8–40</td><td>0.20</td><td>3.6</td><td>1.15</td><td>PelletSpread 4.5°</td></tr></tbody></table></div>
+<p>Uzuv çarpanı çoğu silahta 0.8 (JNG 0.75, SMG/Escort 0.85).</p>
+<h3>5.3 Rol, artı / eksi</h3>
+<h4>SAR 9</h4>
+<ul>
+<li><strong>Rol:</strong> Standart yan silah.  </li>
+<li><strong>+</strong> Hızlı donanma, güvenilir HS.  </li>
+<li><strong>−</strong> Menzil düşüşü sert; şarjör 15.</li>
+</ul>
+<h4>Canik TP9</h4>
+<ul>
+<li><strong>Rol:</strong> Alternatif yan silah (Telsizci varsayılan).  </li>
+<li><strong>+</strong> 18 mermi, biraz daha yumuşak tepme.  </li>
+<li><strong>−</strong> Biraz daha düşük hasar.</li>
+</ul>
+<h4>SAR 109T</h4>
+<ul>
+<li><strong>Rol:</strong> CQB / KN ikincil.  </li>
+<li><strong>+</strong> Yüksek RPM, düşük tepme, çok mod.  </li>
+<li><strong>−</strong> 9 mm menzil zayıflığı.</li>
+</ul>
+<h4>MPT-55</h4>
+<ul>
+<li><strong>Rol:</strong> Genel amaçlı 5.56; sıhhiye/telsiz/piyade.  </li>
+<li><strong>+</strong> 30 mermi, kontrollü otomatik.  </li>
+<li><strong>−</strong> 7.62’ye göre düşük tek vuruş.</li>
+</ul>
+<h4>MPT-76</h4>
+<ul>
+<li><strong>Rol:</strong> Komutan / piyade ana silahı.  </li>
+<li><strong>+</strong> Güçlü hasar, iyi menzil.  </li>
+<li><strong>−</strong> 20 mermi, daha ağır tepme.</li>
+</ul>
+<h4>G3A7</h4>
+<ul>
+<li><strong>Rol:</strong> Bombacı; sert orta-uzun.  </li>
+<li><strong>+</strong> En yüksek AR hasarı (38).  </li>
+<li><strong>−</strong> En düşük AR RPM; ağır.</li>
+</ul>
+<h4>KNT-76</h4>
+<ul>
+<li><strong>Rol:</strong> Yarı otomatik nişancı; yağmada güçlü.  </li>
+<li><strong>+</strong> 3×, yüksek hasar, hızlı takip atışı.  </li>
+<li><strong>−</strong> Kalça kötü; bloom yüksek.</li>
+</ul>
+<h4>JNG-90</h4>
+<ul>
+<li><strong>Rol:</strong> Keskin nişancı birincil.  </li>
+<li><strong>+</strong> 90 hasar, 2.5× kafa, 6×.  </li>
+<li><strong>−</strong> Bolt, 5 mermi, yavaş doldurma.</li>
+</ul>
+<h4>PMT-76</h4>
+<ul>
+<li><strong>Rol:</strong> Baskı / bastırma.  </li>
+<li><strong>+</strong> 100 mermi, sürekli ateş.  </li>
+<li><strong>−</strong> 6 sn doldurma, ağırlık 11, yavaş donanma.</li>
+</ul>
+<h4>Escort</h4>
+<ul>
+<li><strong>Rol:</strong> Bina / köşe.  </li>
+<li><strong>+</strong> Yakın mesafede yüksek burst (9 pellet).  </li>
+<li><strong>−</strong> 40 m sonrası etkisiz; yavaş ateş.</li>
+</ul>
+<h3>5.4 Bot tercih kademesi (<code>ItemCatalog</code> Level)</h3>
+<p>1: SAR 9, TP9 → 2: SAR 109T, Escort → 3: MPT-55, G3A7 → 4: MPT-76, KNT-76, JNG-90, PMT-76.</p>
+<p>Ayrıntılı denge: <a href="../rehber/16-silah-denge-gerekceleri.html">16-silah-denge-gerekceleri.md</a>.</p></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

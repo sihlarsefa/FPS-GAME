@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 2,
+  "languages": [
+    "tr",
+    "en",
+    "de",
+    "az",
+    "ar"
+  ],
+  "count": 295,
+  "source": "Localization/strings.csv",
+  "rtl": [
+    "ar"
+  ],
+  "format": "composite/named placeholders; adapter must preserve formatting",
+  "translationStatus": "Phase 1 translations retained; human review required before release"
+}

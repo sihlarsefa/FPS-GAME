@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ayarlar — HAREKÂT</title>
+  <link rel="stylesheet" href="../css/screens.css"/>
+</head>
+<body>
+  <div class="frame" data-screen="settings" aria-label="Ayarlar">
+    <div class="screen-settings">
+      <nav class="panel settings-nav" aria-label="Ayar kategorileri">
+        <button type="button" class="is-active">Görüntü</button>
+        <button type="button">Ses</button>
+        <button type="button">Kontroller</button>
+        <button type="button">Oynanış</button>
+        <button type="button">Erişilebilirlik</button>
+      </nav>
+      <section class="panel" style="padding:var(--space-5)" aria-labelledby="set-title">
+        <h1 id="set-title" class="label-header">Görüntü</h1>
+        <div class="settings-row">
+          <label for="res">Çözünürlük</label>
+          <select id="res">
+            <option>1920 × 1080</option>
+            <option>2560 × 1440</option>
+            <option>3840 × 2160</option>
+          </select>
+          <span class="label-muted">FHD</span>
+        </div>
+        <div class="settings-row">
+          <label for="fov">Görüş alanı</label>
+          <input id="fov" type="range" min="70" max="110" value="90"/>
+          <span>90°</span>
+        </div>
+        <div class="settings-row">
+          <label for="bright">Parlaklık</label>
+          <input id="bright" type="range" min="0" max="100" value="55"/>
+          <span>55</span>
+        </div>
+        <div class="settings-row">
+          <label for="vsync">Dikey eşitleme</label>
+          <input id="vsync" type="checkbox" checked style="accent-color:var(--accent);width:22px;height:22px"/>
+          <span>Açık</span>
+        </div>
+        <div class="settings-row">
+          <label for="scale">UI ölçeği</label>
+          <input id="scale" type="range" min="80" max="130" value="100"/>
+          <span>100%</span>
+        </div>
+        <div class="row" style="margin-top:32px;gap:16px">
+          <button class="btn btn--primary" type="button">Uygula</button>
+          <button class="btn btn--ghost" type="button">Geri</button>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="../css/scale.js"></script>
+</body>
+</html>

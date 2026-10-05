@@ -1,0 +1,11 @@
+{
+  "name": "harekat-maps-v2",
+  "private": true,
+  "type": "module",
+  "description": "HAREKÂT Faz 2 harita tasarım verisi (Ayaz Geçidi, Mavi Liman)",
+  "scripts": {
+    "build": "node build.mjs",
+    "validate": "node validate.mjs",
+    "test": "node validate.mjs"
+  }
+}

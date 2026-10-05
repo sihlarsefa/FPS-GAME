@@ -33,6 +33,9 @@ namespace Project.Presentation.Bootstrap
     /// Insertion fazında araçlar yola çıkar ve bölge başlar; tüm araçlar inip yolcuları bırakınca (ya da zaman aşımında)
     /// InMatch'e geçilir. Yerel oyuncu ölünce ya da maç bitince birkaç saniye sonra maç sonu ekranı gösterilir; sonuç
     /// kariyere kaydedilir. Sahne kapanırken kapsayıcı serbest bırakılır ve statik kayıtlar temizlenir.
+    /// Adanmış sunucu modunda (<see cref="ServerRuntime"/>, Windows Dedicated Server build'i) arayüz, ses ve yerel oyuncu
+    /// kurulmaz: tüm timler bot olarak simüle edilir, maç bitince sonuç günlüğe yazılır ve yeni tohumla yeni maç başlar
+    /// (ya da süreç kapanır). Sunucuda takılı kalan maçlar bekçi süresiyle sonlandırılır.
     /// </summary>
     [DefaultExecutionOrder(-500)]
     [DisallowMultipleComponent]
@@ -70,8 +73,8 @@ namespace Project.Presentation.Bootstrap
         [SerializeField, Range(0, 16)] private int vehicleCount = 5;
 
         [Header("İntikal")]
-        [Tooltip("Yapay zekâ timlerinin aracı indikten kaç sn sonra yolcuları bırakır.")]
-        [SerializeField] private float aiReleaseDelaySeconds = 1.5f;
+        [Tooltip("Araç indikten sonra yolcular kendiliğinden inmezse (araç boşalınca kendisi ayrılır) en geç kaç sn sonra bırakılır.")]
+        [SerializeField] private float aiReleaseTimeoutSeconds = 15f;
 
         [Tooltip("Oyuncu araçta kalırsa araç en geç kaç sn sonra yolcuları bırakır.")]
         [SerializeField] private float playerReleaseTimeoutSeconds = 12f;
@@ -85,6 +88,10 @@ namespace Project.Presentation.Bootstrap
         [Header("Maç sonu")]
         [SerializeField] private float deathScreenDelaySeconds = 4f;
         [SerializeField] private float victoryScreenDelaySeconds = 3f;
+
+        [Header("Adanmış sunucu")]
+        [Tooltip("Sunucuda maç bu kadar simülasyon saniyesini aşarsa takılı sayılır ve yeniden başlatılır (0 = MatchDuration × 1.5).")]
+        [SerializeField] private float serverMatchTimeoutSeconds;
 
         [Header("Hata ayıklama")]
         [Tooltip("0'dan büyükse ayarlardaki tim sayısını geçersiz kılar (2..8).")]
@@ -125,6 +132,9 @@ namespace Project.Presentation.Bootstrap
         private float _endScreenAt = -1f;
         private bool _resultRecorded;
         private bool _disposed;
+        private bool _server;
+        private float _serverActionAt = -1f;
+        private bool _serverQuitPending;
 
         /// <summary>Yerel oyuncunun kimliği (tim 0, slot 0).</summary>
         public static PlayerId LocalPlayerId => GameCompositionRoot.DefaultLocalPlayerId;
@@ -139,12 +149,16 @@ namespace Project.Presentation.Bootstrap
         /// <summary>Kurulum tamamlandı ve maç başladı mı?</summary>
         public bool IsReady => _setupComplete;
 
+        /// <summary>Adanmış sunucu modunda mı (arayüz/yerel oyuncu yok)?</summary>
+        public bool IsServer => _server;
+
         // ------------------------------------------------------------------ Yaşam döngüsü
 
         private void Awake()
         {
             GameSession.EnsureInitialized();
             GameSession.Mode = GameMode.BattleRoyale;
+            _server = ServerRuntime.IsDedicatedServer;
             BootstrapUtility.PrepareScene();
 
             _settings = GameSession.Settings;
@@ -156,8 +170,12 @@ namespace Project.Presentation.Bootstrap
             GameContext.Set(_container);
             ResolveServices();
 
-            var quality = _settings != null ? _settings.Current.QualityLevel : 2;
-            BootstrapUtility.InitializeEngineSystems(PostProcessing.Look.Gameplay, quality, true);
+            // Sunucuda ses/efekt/post-processing kurulmaz (grafik aygıtı yok).
+            if (!_server)
+            {
+                var quality = _settings != null ? _settings.Current.QualityLevel : 2;
+                BootstrapUtility.InitializeEngineSystems(PostProcessing.Look.Gameplay, quality, true);
+            }
         }
 
         private void Start()
@@ -181,7 +199,12 @@ namespace Project.Presentation.Bootstrap
             _setupComplete = true;
             _flow = FlowState.Running;
 
-            BootstrapUtility.Try(() => GameAudio.SetAmbience(SoundId.Ambience, 0.55f), "GameAudio.SetAmbience");
+            if (_server)
+                Debug.Log("[Sunucu] Harekât başlıyor — " + _teams.Count + " tim, " + (_match != null ? _match.TotalPlayers : 0)
+                          + " asker, tohum " + _config.RandomSeed + ", zorluk " + _config.Difficulty + ".");
+            else
+                BootstrapUtility.Try(() => GameAudio.SetAmbience(SoundId.Ambience, 0.55f), "GameAudio.SetAmbience");
+
             if (_match != null)
                 BootstrapUtility.Try(_match.Begin, "MatchService.Begin");
 
@@ -237,7 +260,7 @@ namespace Project.Presentation.Bootstrap
                 {
                     Parent = parent,
                     BakeNavMesh = true,
-                    GenerateMinimap = true,
+                    GenerateMinimap = !_server,   // sunucuda harita dokusu gereksiz
                     MinimapSize = 1024
                 };
                 if (worldSeed != 0)
@@ -435,7 +458,8 @@ namespace Project.Presentation.Bootstrap
                     var name = nameIndex < names.Count ? names[nameIndex] : "Asker " + (nameIndex + 1);
                     nameIndex++;
 
-                    if (setup.Team == LocalTeam && slot == 0)
+                    // Sunucuda yerel oyuncu yok: tim 0'ın komutanı da bottur.
+                    if (setup.Team == LocalTeam && slot == 0 && !_server)
                     {
                         SpawnLocalPlayer(setup);
                         if (_playerCombatant != null)
@@ -562,6 +586,9 @@ namespace Project.Presentation.Bootstrap
 
         private void SetupPresentation(Camera[] sceneCameras)
         {
+            if (_server)
+                return;
+
             _ui = GameplayUiController.Create(_runtimeRoot, _player, _settings, GameSession.ReturnToMainMenu);
 
             if (_zone != null)
@@ -632,7 +659,10 @@ namespace Project.Presentation.Bootstrap
             if (_zone != null)
                 BootstrapUtility.Try(_zone.Start, "ZoneService.Start");
 
-            BootstrapUtility.Try(() => GameAudio.Play2D(SoundId.RadioChatter, 0.6f), "GameAudio.Play2D");
+            if (_server)
+                Debug.Log("[Sunucu] İntikal başladı.");
+            else
+                BootstrapUtility.Try(() => GameAudio.Play2D(SoundId.RadioChatter, 0.6f), "GameAudio.Play2D");
         }
 
         private void OnTransportArrived(TeamSetup setup)
@@ -660,7 +690,9 @@ namespace Project.Presentation.Bootstrap
                     continue;
                 }
 
-                if (transport.IsUnloading || transport.IsDeparting)
+                // Araç boşalınca kendisi bırakıp ayrılır (IsDeparting); IsUnloading varışta hemen true olur, yolcular hâlâ
+                // inmekte olabilir — bu yüzden bırakılmış sayılmaz.
+                if (transport.IsDeparting)
                 {
                     setup.Released = true;
                     continue;
@@ -677,8 +709,8 @@ namespace Project.Presentation.Bootstrap
 
                 var waited = Time.time - setup.ArrivedAt;
                 var playerAboard = setup.Team == LocalTeam && IsPlayerInTransport();
-                var delay = playerAboard ? playerReleaseTimeoutSeconds : aiReleaseDelaySeconds;
-                if (waited < delay)
+                var timeout = playerAboard ? playerReleaseTimeoutSeconds : aiReleaseTimeoutSeconds;
+                if (waited < timeout)
                 {
                     allReleased = false;
                     continue;
@@ -737,6 +769,12 @@ namespace Project.Presentation.Bootstrap
             if (_flow == FlowState.EndScreen || _flow == FlowState.Ended)
                 return;
 
+            if (_server)
+            {
+                HandleServerMatchEnded(e.WinnerTeam, false);
+                return;
+            }
+
             var wasDead = _flow == FlowState.LocalDead;
             _flow = FlowState.Ended;
 
@@ -767,6 +805,12 @@ namespace Project.Presentation.Bootstrap
 
         private void UpdateFlow()
         {
+            if (_server)
+            {
+                UpdateServerFlow();
+                return;
+            }
+
             // Olay kaçarsa (ör. Died bağlanamadıysa) ölüm durumunu yokla.
             if (_flow == FlowState.Running && _playerCombatant != null && _playerCombatant.IsInitialized && !_playerCombatant.IsAlive)
                 HandleLocalDeath();
@@ -796,6 +840,62 @@ namespace Project.Presentation.Bootstrap
             {
                 Debug.LogWarning("[MatchBootstrap] Maç sonu ekranı açılamadı — ana menüye dönülüyor.");
                 OnMainMenuRequested();
+            }
+        }
+
+        // ------------------------------------------------------------------ Adanmış sunucu
+
+        private void UpdateServerFlow()
+        {
+            if (_flow == FlowState.Running && _match != null)
+            {
+                var limit = serverMatchTimeoutSeconds > 0f
+                    ? serverMatchTimeoutSeconds
+                    : Mathf.Max(600f, _config.MatchDurationSeconds * 1.5f);
+                if (_match.MatchElapsedSeconds > limit)
+                {
+                    Debug.LogWarning("[Sunucu] Maç " + limit.ToString("0") + " sn sınırını aştı — sonlandırılıp yeniden başlatılıyor.");
+                    HandleServerMatchEnded(-1, true);
+                }
+            }
+
+            if (_serverActionAt < 0f || Time.unscaledTime < _serverActionAt)
+                return;
+
+            _serverActionAt = -1f;
+            if (_serverQuitPending)
+            {
+                ServerRuntime.Quit();
+                return;
+            }
+
+            GameSession.Restart();
+        }
+
+        private void HandleServerMatchEnded(int winnerTeam, bool timedOut)
+        {
+            _flow = FlowState.Ended;
+            var quit = ServerRuntime.RegisterMatchFinished();
+
+            var elapsed = _match != null ? _match.MatchElapsedSeconds : 0f;
+            var winner = winnerTeam >= 0 ? SafeTeamName(winnerTeam) : "yok";
+            Debug.Log("[Sunucu] Maç #" + ServerRuntime.MatchesPlayed + " bitti" + (timedOut ? " (zaman aşımı)" : string.Empty)
+                      + " — kazanan: " + winner + ", süre " + elapsed.ToString("0") + " sn, hayatta "
+                      + (_match != null ? _match.AlivePlayerCount : 0) + "/" + (_match != null ? _match.TotalPlayers : 0) + " asker.");
+
+            if (quit)
+            {
+                _serverQuitPending = true;
+                _serverActionAt = Time.unscaledTime + 2f;
+            }
+            else if (ServerRuntime.AutoRestart)
+            {
+                _serverActionAt = Time.unscaledTime + ServerRuntime.RestartDelaySeconds;
+                Debug.Log("[Sunucu] Yeni maç " + ServerRuntime.RestartDelaySeconds.ToString("0") + " sn sonra başlayacak.");
+            }
+            else
+            {
+                Debug.Log("[Sunucu] Otomatik yeniden başlatma kapalı (-norestart) — boşta bekleniyor.");
             }
         }
 
@@ -875,7 +975,8 @@ namespace Project.Presentation.Bootstrap
             if (_playerCombatant != null)
                 _playerCombatant.Died -= OnLocalCombatantDied;
 
-            BootstrapUtility.Try(() => GameAudio.SetAmbience(SoundId.None, 0f), "GameAudio.SetAmbience");
+            if (!_server)
+                BootstrapUtility.Try(() => GameAudio.SetAmbience(SoundId.None, 0f), "GameAudio.SetAmbience");
             BootstrapUtility.ClearStaticRegistries();
 
             if (_container != null)
@@ -889,7 +990,8 @@ namespace Project.Presentation.Bootstrap
 
             _teams.Clear();
             _bots.Clear();
-            BootstrapUtility.ReleaseCursor();
+            if (!_server)
+                BootstrapUtility.ReleaseCursor();
         }
 
         // ------------------------------------------------------------------ Yardımcılar

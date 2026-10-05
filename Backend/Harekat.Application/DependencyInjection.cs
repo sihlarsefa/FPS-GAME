@@ -14,12 +14,14 @@ public static class DependencyInjection
         services.AddScoped<MatchmakingService>();
         services.AddScoped<MatchResultService>();
         services.AddScoped<GameServerService>();
+        services.AddScoped<MatchAllocationService>();
         services.AddScoped<LeaderboardService>();
         services.AddScoped<FriendshipService>();
         services.AddScoped<SeasonService>();
         services.AddScoped<AchievementService>();
         services.AddScoped<CosmeticService>();
         services.AddScoped<ModerationService>();
+        services.AddScoped<ClientContentService>();
         return services;
     }
 }

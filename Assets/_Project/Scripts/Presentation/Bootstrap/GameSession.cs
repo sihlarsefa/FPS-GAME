@@ -98,24 +98,46 @@ namespace Project.Presentation.Bootstrap
             Settings.Changed += ApplyRuntimeSettings;
             _initialized = true;
 
+            if (ServerRuntime.IsDedicatedServer)
+                ServerRuntime.ConfigureProcess();
+
             InstallSceneHook();
             ApplyRuntimeSettings(Settings.Current);
         }
 
+        /// <summary>Adanmış (başsız) sunucu olarak mı çalışıyoruz? Bkz. <see cref="ServerRuntime"/>.</summary>
+        public static bool IsDedicatedServer => ServerRuntime.IsDedicatedServer;
+
         /// <summary>
         /// Ayarlardan yeni maç yapılandırması üretir (tim sayısı × 10 asker, zorluk, intikal yöntemi, rastgele tohum)
-        /// ve <see cref="Config"/> olarak atar.
+        /// ve <see cref="Config"/> olarak atar. Komut satırı argümanları (-teams, -seed, -difficulty, -insertion, -prematch)
+        /// ayarların üzerine yazılır (sunucu ve test için).
         /// </summary>
         public static MatchConfig CreateMatchConfig()
         {
             EnsureInitialized();
 
-            var settings = Settings?.Current ?? new GameSettings();
-            var config = new MatchConfig().WithTeams(settings.TeamCount, SettingsService.TeamSize);
-            config.Difficulty = settings.Difficulty;
-            config.PlayerInsertion = settings.Insertion;
+            MatchConfig config = null;
+            try
+            {
+                config = Settings?.CreateMatchConfig();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            if (config == null)
+            {
+                var settings = Settings?.Current ?? new GameSettings();
+                config = new MatchConfig().WithTeams(settings.TeamCount, SettingsService.TeamSize);
+                config.Difficulty = settings.Difficulty;
+                config.PlayerInsertion = settings.Insertion;
+            }
+
             config.FriendlyFire = false;
             config.RandomSeed = NewSeed();
+            ServerRuntime.ApplyMatchOverrides(config);
 
             _config = config;
             _configConsumed = false;
@@ -193,6 +215,13 @@ namespace Project.Presentation.Bootstrap
             }
 
             HideLoading();
+
+            // Sunucu boşta takılı kalmasın: süreç kapanır, sunucu yöneticisi yeniden başlatır / alarm verir.
+            if (ServerRuntime.IsDedicatedServer)
+            {
+                Debug.LogError("[Sunucu] Sahne yüklenemediği için süreç kapatılıyor: " + sceneName);
+                ServerRuntime.Quit();
+            }
         }
 
         /// <summary>Ayarlardan yeni bir harekât yapılandırması oluşturur ve Kuzgun Vadisi'ni yükler.</summary>
@@ -243,7 +272,8 @@ namespace Project.Presentation.Bootstrap
         /// <summary>Ayarların motor tarafı etkileri: ses seviyeleri, grafik kalitesi, tam ekran.</summary>
         public static void ApplyRuntimeSettings(GameSettings settings)
         {
-            if (settings == null)
+            // Sunucuda ses/görüntü yok: ayarların motor tarafı etkileri uygulanmaz.
+            if (settings == null || ServerRuntime.IsDedicatedServer)
                 return;
 
             try
@@ -305,6 +335,12 @@ namespace Project.Presentation.Bootstrap
 
         private static void ShowLoading(string message)
         {
+            if (ServerRuntime.IsDedicatedServer)
+            {
+                Debug.Log("[Sunucu] " + message);
+                return;
+            }
+
             try
             {
                 LoadingScreen.Show(message);
@@ -317,6 +353,9 @@ namespace Project.Presentation.Bootstrap
 
         internal static void HideLoading()
         {
+            if (ServerRuntime.IsDedicatedServer)
+                return;
+
             try
             {
                 LoadingScreen.Hide();

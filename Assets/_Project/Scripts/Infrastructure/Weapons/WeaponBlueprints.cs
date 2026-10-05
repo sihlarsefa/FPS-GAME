@@ -168,6 +168,7 @@ namespace Project.Infrastructure.Weapons
 
             // Şarjör bırakma düğmesi (sağ).
             b.Box(p.Metal, new Vector3(width * 0.5f + 0.002f, 0.0f, wellZ - wellLength * 0.5f - 0.006f), new Vector3(0.004f, 0.01f, 0.01f));
+            c.Anchor(WeaponModel.EjectAnchor, new Vector3(width * 0.5f + 0.004f, 0.045f, wellZ - 0.045f));
         }
 
         /// <summary>Picatinny ray: taban + dişler. Üst yüzey yBase + 0.01.</summary>
@@ -594,6 +595,7 @@ namespace Project.Infrastructure.Weapons
             b.Box(p.Metal, new Vector3(0f, 0.04f, 0.05f), new Vector3(0.036f, 0.046f, 0.3f));
             b.Cylinder(p.Metal, new Vector3(0f, 0.055f, -0.1f), new Vector3(0f, 0.055f, 0.2f), 0.0185f, 8);
             b.Box(p.DarkMetal, new Vector3(0.0185f, 0.045f, 0.07f), new Vector3(0.002f, 0.016f, 0.07f));
+            c.Anchor(WeaponModel.EjectAnchor, new Vector3(0.021f, 0.045f, 0.07f));
             b.Box(p.Metal, new Vector3(0f, 0.04f, -0.094f), new Vector3(0.037f, 0.044f, 0.014f));
 
             // Tetik muhafazası + kabza.
@@ -704,6 +706,7 @@ namespace Project.Infrastructure.Weapons
             b.Taper(p.Tan, new Vector3(0f, 0.012f, -0.085f), new Vector2(0.05f, 0.058f), new Vector3(0f, 0.02f, 0.53f), new Vector2(0.046f, 0.044f));
             b.Cylinder(p.Metal, new Vector3(0f, boltY, -0.08f), new Vector3(0f, boltY, 0.19f), 0.019f, 10);
             b.Box(p.DarkMetal, new Vector3(0.0185f, 0.05f, 0.04f), new Vector3(0.002f, 0.014f, 0.065f));
+            c.Anchor(WeaponModel.EjectAnchor, new Vector3(0.021f, 0.05f, 0.04f));
             Rail(c, p.Metal, -0.07f, 0.185f, 0.064f);
 
             // Kurma kolu grubu (pivot sürgü ekseninde).
@@ -765,6 +768,7 @@ namespace Project.Infrastructure.Weapons
 
             b.Box(p.Metal, new Vector3(0f, 0.04f, 0.06f), new Vector3(0.05f, 0.072f, 0.29f));
             b.Box(p.DarkMetal, new Vector3(0.0255f, 0.045f, 0.08f), new Vector3(0.002f, 0.03f, 0.12f));
+            c.Anchor(WeaponModel.EjectAnchor, new Vector3(0.028f, 0.045f, 0.08f));
             b.Box(p.DarkMetal, new Vector3(-0.0255f, 0.03f, 0.12f), new Vector3(0.002f, 0.02f, 0.05f));
             b.Box(p.Metal, new Vector3(0.03f, 0.05f, 0.01f), new Vector3(0.012f, 0.012f, 0.03f));
 
@@ -774,6 +778,10 @@ namespace Project.Infrastructure.Weapons
             for (var i = 0; i < 3; i++)
                 b.Box(p.DarkMetal, new Vector3(0f, 0.0925f, 0.02f + i * 0.06f), new Vector3(0.044f, 0.002f, 0.008f));
             b.Box(p.Metal, new Vector3(0f, 0.084f, -0.045f), new Vector3(0.03f, 0.012f, 0.012f));
+            // Sol el kapağın arka ucunu üstten kavrar (avuç aşağı, parmaklar öne).
+            var coverHandRot = Quaternion.LookRotation(new Vector3(0.25f, -0.15f, 1f), Vector3.up);
+            var coverPalm = new Vector3(-0.004f, 0.0925f + PalmHalfThickness + 0.001f, -0.01f);
+            c.Anchor(WeaponModel.CoverHandAnchor, coverPalm - coverHandRot * new Vector3(0f, 0f, PalmCenter), coverHandRot, WeaponModel.CoverPart);
             b.EndGroup();
 
             // Gez.
@@ -912,6 +920,7 @@ namespace Project.Infrastructure.Weapons
             c.Bp.SlideTravel = 0.026f;
 
             c.Anchor(WeaponModel.MuzzleAnchor, new Vector3(0f, 0.028f, 0.167f));
+            c.Anchor(WeaponModel.EjectAnchor, new Vector3(0.012f, 0.045f, 0.06f));
             c.Anchor(WeaponModel.SightAnchor, new Vector3(0f, 0.0485f, -0.016f));
 
             // Şarjör kabzanın içinde; yalnızca taban plakası görünür.
@@ -932,6 +941,7 @@ namespace Project.Infrastructure.Weapons
 
             b.Box(p.Metal, new Vector3(0f, 0.036f, 0.075f), new Vector3(0.036f, 0.058f, 0.21f));
             b.Box(p.DarkMetal, new Vector3(0.0182f, 0.046f, 0.085f), new Vector3(0.002f, 0.018f, 0.055f));
+            c.Anchor(WeaponModel.EjectAnchor, new Vector3(0.021f, 0.046f, 0.085f));
             b.Box(p.DarkMetal, new Vector3(0f, 0.0065f, 0.12f), new Vector3(0.022f, 0.002f, 0.07f));
             Rail(c, p.Metal, 0.0f, 0.17f, 0.065f);
 

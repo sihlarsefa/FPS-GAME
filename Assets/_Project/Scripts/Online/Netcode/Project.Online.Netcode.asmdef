@@ -1,0 +1,29 @@
+{
+    "name": "Project.Online.Netcode",
+    "rootNamespace": "Project.Online.Netcode",
+    "references": [
+        "Project.Core",
+        "Project.Application",
+        "Project.Infrastructure",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.Collections"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "HAREKAT_NETCODE"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.netcode.gameobjects",
+            "expression": "2.0.0",
+            "define": "HAREKAT_NETCODE"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -1,5 +1,8 @@
 # Cursor (Opus) Görevleri — HAREKÂT Online Altyapı
 
+> **Hedef platform:** sunucular **Windows Server**, veritabanı **MSSQL**, web **düz HTML/CSS/JS**. Linux yok; Linux/Kubernetes içerikleri yalnızca isteğe bağlı/ileride.
+> **Faz 2 görevleri (Unity entegrasyonu, Windows Server, MSSQL):** [CURSOR_FAZ2.md](CURSOR_FAZ2.md)
+
 HAREKÂT, Türk askeri temalı, 10 kişilik timlerle oynanan bir FPP tim battle royale. Hedef, binlerce oyuncunun online oynaması.
 - Unity oyununu aynı anda 16 Claude ajanı yazıyor.
 - Web portalını ve tasarım işlerini ChatGPT/Codex yapıyor.
@@ -33,7 +36,7 @@ Başlatma cümlesi: *"Docs/CURSOR_GOREVI.md içindeki GÖREV X'i baştan sona uy
   - Sunucu tahsisi
   - Maç sonucu işleme: XP = `kills*100 + headshots*25 + (teamCount - teamPlacement)*150 + galibiyet 1000`, ardından rütbe güncellemesi
   - Sıralama tabloları
-- `Harekat.Infrastructure`: EF Core (geliştirmede SQLite, üretimde PostgreSQL; NuGet yoksa JSON repository), PBKDF2 şifre hash'i, JWT.
+- `Harekat.Infrastructure`: EF Core (**üretimde MSSQL / SQL Server**, birim testlerde SQLite; NuGet yoksa JSON repository), PBKDF2 şifre hash'i, JWT.
 - `Harekat.Api` (minimal API):
   - `/auth/register`, `/auth/login`, `/players/me`
   - `/squads`
@@ -42,14 +45,14 @@ Başlatma cümlesi: *"Docs/CURSOR_GOREVI.md içindeki GÖREV X'i baştan sona uy
   - `/matches/{id}/result` (yalnızca server key ile)
   - `/leaderboards`, `/health`
   - OpenAPI/Swagger
-- `Harekat.Tests` (xUnit), `Dockerfile`, `docker-compose.yml` (api + postgres + redis).
+- `Harekat.Tests` (xUnit), `Dockerfile`, geliştirme için `docker-compose.yml` (api + mssql + redis; isteğe bağlı), asıl hedef Windows Server + IIS + MSSQL.
 - `Backend/README.md` (Türkçe): ölçekleme (durumsuz API, Redis kuyruğu) ve Unity entegrasyonu.
 
 ## GÖREV 2 — Dedicated Server Filosu ve Dağıtım (`Deploy/`)
-- `Deploy/server/Dockerfile`: Unity Linux dedicated server build'ini çalıştıran imaj. Build yolu parametre olarak alınsın; port, region ve server key ortam değişkeniyle verilsin.
+- `Deploy/server/Dockerfile`: (İSTEĞE BAĞLI — asıl hedef Windows Server, bkz. CURSOR_FAZ2 F2-7) Unity dedicated server build'ini çalıştıran imaj. Build yolu parametre olarak alınsın; port, region ve server key ortam değişkeniyle verilsin.
 - `Deploy/k8s/`: Kubernetes manifest'leri.
   - Backend için Deployment, Service, HPA
-  - Postgres StatefulSet, Redis
+  - (isteğe bağlı) veritabanı olarak MSSQL, Redis
   - Ingress
 - `Deploy/agones/`: Agones Fleet, FleetAutoscaler ve GameServer şablonları (maç başına bir sunucu, 40–60 oyuncu).
 - `Deploy/terraform/`: bulut iskeleti (değişkenlerle; sağlayıcı seçimi README'de). Örnek modül: Kubernetes cluster ve node pool'lar.
@@ -79,7 +82,7 @@ Ayrı bir .NET 10 projesi; kendi `.sln` dosyası olsun ya da GÖREV 1'in çözü
 ## GÖREV 5 — CI/CD (`.github/workflows/`)
 - `backend.yml`: build, test, Docker imajı.
 - `web.yml`: `Web/` için `npm ci`, lint ve build.
-- `unity.yml`: game-ci (unity-builder) ile macOS ve Linux dedicated server build'leri. Unity lisansı secret'larla verilsin; `BatchEntry.BuildMac` metoduna referans.
+- `unity.yml`: game-ci (unity-builder) ile Windows istemci, **Windows Dedicated Server** ve macOS build'leri. Unity lisansı secret'larla verilsin; `BatchEntry.BuildMac` metoduna referans.
 - `release.yml`: tag ile sürüm, build artefaktlarını yükleme.
 - `.github/README_CI.md` (Türkçe): hangi secret'ların gerektiği.
 
@@ -113,7 +116,7 @@ Ayrı bir .NET 10 projesi; kendi `.sln` dosyası olsun ya da GÖREV 1'in çözü
 1. Çok bölgeli kurulum: İstanbul/Frankfurt/Amsterdam; ping tabanlı yönlendirme.
 2. Mavi-yeşil (blue-green) dağıtım ve geri alma (rollback) betikleri.
 3. Gizli bilgi yönetimi: sealed-secrets ya da external-secrets.
-4. Yedekleme: Postgres için PITR, Redis kalıcılığı, felaket kurtarma runbook'u.
+4. Yedekleme: MSSQL için SQL Agent tam/fark/log yedekleri, Redis kalıcılığı, felaket kurtarma runbook'u.
 5. Grafana panoları (JSON): aktif oyuncu, eşleşme süresi, sunucu doluluğu, hata oranı. Prometheus alarm kuralları.
 6. Yerel geliştirme için kind/minikube ile tek komutta kurulum (`make dev-up`).
 7. Maliyet optimizasyonu: spot node'lar, gece saatleri ölçek kuralları, otomatik ölçekleme simülasyon tablosu.

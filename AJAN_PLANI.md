@@ -41,7 +41,7 @@
 | `pres-player` | Oyuncu kontrolü | Silah kullanımı, etkileşim, iyileşme, bomba, tim emirleri (F1–F4), topçu (V), araçla intikal |
 | `pres-bootstrap` | Oyun akışı | Servis kurulumu, timler, intikal, maç döngüsü, sahne geçişleri, atış poligonu |
 | `pres-hud` | Oyun ekranı | Can, cephane, pusula, nişangâh, hasar yönü, öldürme akışı, tim paneli, dost işaretleri, dürbün görünümü |
-| `editor-setup` | Unity kurulumu | Katmanlar, URP, kalite ayarları, varlıklar, 3 sahne, NavMesh, build (macOS ve Linux sunucu) |
+| `editor-setup` | Unity kurulumu | Katmanlar, URP, kalite ayarları, varlıklar, 3 sahne, NavMesh, build (Windows istemci, Windows Dedicated Server, macOS) — Faz 2'de Cursor'a devredildi |
 | `infra-world-locations` | Lokasyonlar | Köyler, karakol, ileri üs (FOB), taş ocağı, baraj, röle tepesi, ağıl, harabe, atış poligonu |
 | `infra-vehicle-drive` | Sürülebilir araç | Haritada sürülebilir Kirpi |
 
@@ -53,6 +53,50 @@
 
 Her görevin ana kısmı bitince "UZATMA HEDEFLERİ" listesine geçilir.
 Görev başlatma cümlesi: *"Docs/CURSOR_GOREVI.md içindeki GÖREV X'i baştan sona uygula."* (Codex için `CODEX_GOREVI.md`)
+
+## Faz 2 (Cursor) — [Docs/CURSOR_FAZ2.md](Docs/CURSOR_FAZ2.md)
+Hedef: **Windows Server + MSSQL + düz HTML/CSS/JS web**.
+- **F2-1** Unity editör kurulumu ve build araçları: Windows istemci, Windows Dedicated Server, macOS.
+- **F2-2** Sürülebilir Kirpi.
+- **F2-3** Lokasyonlar ve dekor.
+- **F2-4** Gerçek Unity doğrulaması: batch derleme, sahne üretimi, EditMode ve PlayMode testleri, build.
+- **F2-5** Kapsamlı inceleme.
+- **F2-6** Online: Netcode, dedicated server, backend istemcisi.
+- **F2-7** Windows Server altyapısı: IIS, MSSQL, oyun sunucusu yöneticisi.
+- **F2-8** Web ve backend sözleşme testleri.
+
+Anlık sahiplik ve durum: [Docs/DURUM.md](Docs/DURUM.md) · Tüm modül tanımları: [Docs/MODUL_SPESIFIKASYONLARI.md](Docs/MODUL_SPESIFIKASYONLARI.md)
+
+## Faz 2 (Codex) — [Docs/CODEX_FAZ2.md](Docs/CODEX_FAZ2.md)
+- **C2-1** Web portalı v2: backend entegrasyonu, yönetici paneli, IIS `web.config`.
+- **C2-2** Oyuncu wiki'si (`Wiki/`).
+- **C2-3** QA: 300+ test senaryosu, playtest protokolü (`QA/`).
+- **C2-4** MSSQL analitik ve KPI raporu (`Tools/SqlReports/`).
+- **C2-5** Yerelleştirme hattı v2 (`Tools/LocTool/`).
+- **C2-6** İki yeni harita tasarımı: Ayaz Geçidi ve Mavi Liman (`Design/Maps/v2/`).
+- **C2-7** Arayüz mockup'ları ve stil rehberi (`Design/UI/`).
+- **C2-8** E-spor ve canlı operasyon planı (`Marketing/LiveOps/`).
+
+## Faz 3 — [Docs/CURSOR_FAZ3.md](Docs/CURSOR_FAZ3.md) · [Docs/CODEX_FAZ3.md](Docs/CODEX_FAZ3.md)
+- **Cursor:**
+  - F3-1 Online istemci (backend bağlantısı, giriş, tim ve eşleştirme panelleri)
+  - F3-2 Netcode ve Windows Dedicated Server
+  - F3-3 Windows Server altyapısı (MSSQL, IIS, ServerManager servisi)
+  - F3-4 Hazır varlık entegrasyon altyapısı (Varlık Eşleyici, Mixamo yardımcısı)
+  - F3-5 Geliştirici konsolu
+  - F3-6 Hata ve çökme raporu, performans göstergesi
+  - F3-7 Steam hazırlığı
+  - F3-8 Windows kurulum paketi ve launcher
+  - F3-9 PlayMode testleri
+- **Codex:**
+  - C3-1 Hazır varlık listesi ve eşleme CSV'leri
+  - C3-2 Freelancer teknik şartnameleri ve sanat rehberi
+  - C3-3 Ses haritası ve 200+ telsiz repliği
+  - C3-4 Tim amblemleri ve rütbe nişanları
+  - C3-5 Eğitim (tutorial) tasarımı
+  - C3-6 Başarımlar, sezon ve kozmetik katalog
+  - C3-7 Web indirme sayfası ve yama notları
+  - C3-8 QA ve wiki güncellemesi
 
 ## Sonraki aşamalar (iki hat bitince)
 1. **Entegrasyon:** Tüm Unity projesi hatasız derlenene kadar modüller arası uyumsuzluklar düzeltilir.

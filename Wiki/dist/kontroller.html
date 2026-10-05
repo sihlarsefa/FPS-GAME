@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontroller · HAREKÂT Kılavuz</title>
+<meta name="description" content="Tuş haritası ve komuta girdileri">
+<link rel="stylesheet" href="assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="index.html">Ana Sayfa</a><a href="baslangic.html">Yeni Başlayanlar</a><a href="silahlar/index.html">Silahlar</a><a href="rutbeler/index.html">Rütbeler</a><a href="gorevler/index.html">Görevler</a><a href="lokasyonlar/index.html">Lokasyonlar</a><a href="kontroller.html">Kontroller</a><a href="rehber/index.html">GDD</a><a href="karsilastir.html">Karşılaştır</a><a href="harita.html">Harita</a><a href="yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="index.html">Ana Sayfa</a></li><li><span aria-current="page">Kontroller</span></li></ol></nav>
+
+<h1>Kontroller</h1>
+<p class="lede">Kaynak: <code>UnityInputReader</code> ve <code>SquadCommandInput</code>.</p>
+
+<section>
+  <h2>Hareket</h2>
+  <div class="table-scroll"><table>
+<thead><tr><th scope="col">Tuş</th><th scope="col">İşlev</th></tr></thead>
+<tbody><tr><td><kbd>W A S D</kbd></td><td>İleri / sol / geri / sağ</td></tr><tr><td><kbd>Sol Shift</kbd></td><td>Koş</td></tr><tr><td><kbd>Space</kbd></td><td>Zıpla</td></tr><tr><td><kbd>Sol Ctrl (basılı)</kbd></td><td>Eğil (tut)</td></tr><tr><td><kbd>C</kbd></td><td>Eğil (aç/kapa)</td></tr><tr><td><kbd>Z</kbd></td><td>Yüzüstü</td></tr><tr><td><kbd>Q / E</kbd></td><td>Yan eğilme</td></tr></tbody>
+</table></div>
+</section>
+<section>
+  <h2>Çatışma</h2>
+  <div class="table-scroll"><table>
+<thead><tr><th scope="col">Tuş</th><th scope="col">İşlev</th></tr></thead>
+<tbody><tr><td><kbd>Sol tık</kbd></td><td>Ateş</td></tr><tr><td><kbd>Sağ tık</kbd></td><td>Nişan (ADS)</td></tr><tr><td><kbd>R</kbd></td><td>Şarjör değiştir</td></tr><tr><td><kbd>1–4</kbd></td><td>Silah yuvası</td></tr><tr><td><kbd>Fare tekerleği</kbd></td><td>Silah değiştir</td></tr><tr><td><kbd>B</kbd></td><td>Ateş modu</td></tr><tr><td><kbd>X</kbd></td><td>Silahı indir</td></tr><tr><td><kbd>G</kbd></td><td>El bombası</td></tr><tr><td><kbd>T</kbd></td><td>Sis bombası</td></tr><tr><td><kbd>H</kbd></td><td>İyileş</td></tr><tr><td><kbd>J</kbd></td><td>Boost</td></tr><tr><td><kbd>F</kbd></td><td>Etkileşim / yağma</td></tr></tbody>
+</table></div>
+</section>
+<section>
+  <h2>Komuta ve destek</h2>
+  <div class="table-scroll"><table>
+<thead><tr><th scope="col">Tuş</th><th scope="col">İşlev</th></tr></thead>
+<tbody><tr><td><kbd>F1</kbd></td><td>Emir: Takip</td></tr><tr><td><kbd>F2</kbd></td><td>Emir: Mevzi</td></tr><tr><td><kbd>F3</kbd></td><td>Emir: Taarruz</td></tr><tr><td><kbd>F4</kbd></td><td>Emir: Toplan</td></tr><tr><td><kbd>V</kbd></td><td>Topçu çağrısı (telsizci / komutan)</td></tr></tbody>
+</table></div>
+</section>
+<section>
+  <h2>Arayüz</h2>
+  <div class="table-scroll"><table>
+<thead><tr><th scope="col">Tuş</th><th scope="col">İşlev</th></tr></thead>
+<tbody><tr><td><kbd>Tab / I</kbd></td><td>Envanter</td></tr><tr><td><kbd>M</kbd></td><td>Harita</td></tr><tr><td><kbd>Esc</kbd></td><td>Duraklat / menü</td></tr><tr><td><kbd>Caps Lock</kbd></td><td>UI yardımcısı (basılı)</td></tr></tbody>
+</table></div>
+</section>
+<section>
+  <h2>Komuta zinciri</h2>
+  <p>Komutan ölünce komuta hayattaki en kıdemli üyeye geçer. Ayrıntı: <a href="rehber/03-rutbeler-komuta.html">Rütbeler ve komuta</a>.</p>
+</section>
+<section>
+  <h2>İntikal</h2>
+  <ul>
+    <li><strong>T-70:</strong> havadan iniş, geniş sektör seçimi — <a href="rehber/04-intikal.html">İntikal</a>.</li>
+    <li><strong>Kirpi:</strong> yol ağı üzerinden karadan yaklaşım.</li>
+  </ul>
+</section>
+<section>
+  <h2>Topçu desteği</h2>
+  <p>V tuşu ile çağrı (telsizci / yetkili). Bekleme 150 sn. <a href="rehber/08-topcu-destegi.html">Topçu rehberi</a>.</p>
+</section>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="assets/app.js" type="module"></script>
+</body>
+</html>

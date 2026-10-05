@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 780" width="720" height="780">
+  <title>Ağıl — Yakın Plan</title>
+  <rect width="100%" height="100%" fill="#d8d2b8"/>
+  <text x="60" y="28" font-family="sans-serif" font-size="18" font-weight="700">Ağıl — YAKIN PLAN</text>
+  <text x="60" y="48" font-family="sans-serif" font-size="11" fill="#333">Grid D9 · Merkez (-196, -330) · Yarıçap 60 m · Ölçek yerel</text>
+  <rect x="60" y="60" width="600" height="600" fill="#c5c09a" stroke="#3d3a2a" stroke-width="2"/>
+
+  <circle cx="360.0" cy="360.0" r="222.2" fill="none" stroke="#8B0000" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <path d="M374.2,258.9 L382.2,238.9 L390.2,258.9 Z" fill="#c45c12"/>
+  <text x="392.2" y="248.9" font-size="10" font-family="sans-serif" fill="#8a3a00">Ağıl yolu</text>
+  <path d="M448.3,444.1 L456.3,424.1 L464.3,444.1 Z" fill="#c45c12"/>
+  <text x="466.3" y="434.1" font-size="10" font-family="sans-serif" fill="#8a3a00">Güney patika</text>
+  <path d="M226.1,295.9 L234.1,275.9 L242.1,295.9 Z" fill="#c45c12"/>
+  <text x="244.1" y="285.9" font-size="10" font-family="sans-serif" fill="#8a3a00">Batı açık</text>
+  <rect x="334.1" y="341.5" width="51.9" height="37.0" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(0 360.0 360.0)"/>
+  <text x="360.0" y="338.5" text-anchor="middle" font-size="9" font-family="sans-serif">Ahır</text>
+  <rect x="404.4" y="311.9" width="29.6" height="22.2" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(10 419.3 323.0)"/>
+  <text x="419.3" y="308.9" text-anchor="middle" font-size="9" font-family="sans-serif">Ev</text>
+  <rect x="295.2" y="385.9" width="25.9" height="22.2" fill="#6b5a45" stroke="#2a2218" stroke-width="1" transform="rotate(-5 308.1 397.0)"/>
+  <text x="308.1" y="382.9" text-anchor="middle" font-size="9" font-family="sans-serif">Samanlık</text>
+  <circle cx="456.3" cy="285.9" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="456.3" cy="285.9" r="2" fill="#8B0000"/>
+  <text x="464.3" y="279.9" font-size="10" font-family="sans-serif" fill="#8B0000">KN: KD tepe</text>
+  <circle cx="271.1" cy="434.1" r="6" fill="none" stroke="#8B0000" stroke-width="2"/>
+  <circle cx="271.1" cy="434.1" r="2" fill="#8B0000"/>
+  <text x="279.1" y="428.1" font-size="10" font-family="sans-serif" fill="#8B0000">KN: GB duvar</text>
+  <text x="60" y="684" font-family="sans-serif" font-size="11" font-weight="600">Mevzi / giriş notları</text>
+  <text x="60" y="702" font-family="sans-serif" font-size="10" fill="#222">1. Düşük ganimet; geçiş noktası.</text>
+  <text x="60" y="718" font-family="sans-serif" font-size="10" fill="#222">2. Ahır içi dar — bombacı/av tüfeği.</text>
+  <text x="60" y="734" font-family="sans-serif" font-size="10" fill="#222">3. Güney gözetleme ile bağlantılı patika.</text>
+</svg>

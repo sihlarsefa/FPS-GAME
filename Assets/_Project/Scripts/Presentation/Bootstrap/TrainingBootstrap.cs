@@ -22,6 +22,7 @@ namespace Project.Presentation.Bootstrap
     /// envanter, duraklatma menüsü) ama bölge ve rakip tim yok: oyuncu yerde, üç silah + sınırsız mermi ile başlar; silah
     /// raflarında tüm Türk silahları ve teçhizat bulunur; atış hattı boyunca (25-300 m) sabit hedefler ve hareketli hedefler
     /// kurulur. Oyuncu ölürse kısa süre sonra başlangıç noktasında yeniden doğar. Esc menüsünden ana menüye dönülür.
+    /// Adanmış sunucuda poligon anlamsızdır: sahne kurulmaz, harekât sahnesine geçilir.
     /// </summary>
     [DefaultExecutionOrder(-500)]
     [DisallowMultipleComponent]
@@ -67,6 +68,7 @@ namespace Project.Presentation.Bootstrap
         private float _reloadAt = -1f;
         private bool _setupComplete;
         private bool _disposed;
+        private bool _redirectToOperation;
 
         public static PlayerId LocalPlayerId => GameCompositionRoot.DefaultLocalPlayerId;
 
@@ -79,6 +81,13 @@ namespace Project.Presentation.Bootstrap
         private void Awake()
         {
             GameSession.EnsureInitialized();
+            if (ServerRuntime.IsDedicatedServer)
+            {
+                Debug.LogWarning("[Sunucu] Atış poligonu sunucuda çalıştırılmaz — harekât sahnesine geçiliyor.");
+                _redirectToOperation = true;
+                return;
+            }
+
             GameSession.Mode = GameMode.Training;
             BootstrapUtility.PrepareScene();
 
@@ -102,6 +111,12 @@ namespace Project.Presentation.Bootstrap
 
         private void Start()
         {
+            if (_redirectToOperation)
+            {
+                GameSession.StartOperation();
+                return;
+            }
+
             if (_container == null)
                 return;
 

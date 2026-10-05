@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Telsiz</title>
+  <rect x="20" y="18" width="24" height="36" rx="3" fill="#343D28" stroke="#C3B07A" stroke-width="2"/>
+  <rect x="28" y="8" width="4" height="12" fill="#ECEBE0"/>
+  <circle cx="32" cy="34" r="6" fill="#3D9BFF"/>
+  <rect x="26" y="46" width="12" height="4" fill="#5A6345"/>
+</svg>

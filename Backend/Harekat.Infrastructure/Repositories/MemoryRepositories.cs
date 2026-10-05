@@ -18,6 +18,8 @@ public sealed class InMemoryStore
     public ConcurrentBag<SeasonArchiveEntry> SeasonArchives { get; } = new();
     public ConcurrentBag<PlayerReport> Reports { get; } = new();
     public ConcurrentBag<AuditLogEntry> AuditLogs { get; } = new();
+    public ConcurrentDictionary<Guid, NewsItem> NewsItems { get; } = new();
+    public ConcurrentDictionary<string, ClientVersion> ClientVersions { get; } = new();
 
     private readonly string? _path;
     private readonly object _saveLock = new();
@@ -28,6 +30,7 @@ public sealed class InMemoryStore
         if (_path is not null && File.Exists(_path))
             Load();
         SeedSeason();
+        SeedClientContent();
     }
 
     public void Save()
@@ -46,7 +49,9 @@ public sealed class InMemoryStore
                 Seasons = Seasons.Values.ToList(),
                 SeasonArchives = SeasonArchives.ToList(),
                 Reports = Reports.ToList(),
-                AuditLogs = AuditLogs.ToList()
+                AuditLogs = AuditLogs.ToList(),
+                NewsItems = NewsItems.Values.ToList(),
+                ClientVersions = ClientVersions.Values.ToList()
             };
             var dir = Path.GetDirectoryName(_path);
             if (!string.IsNullOrEmpty(dir))
@@ -72,6 +77,8 @@ public sealed class InMemoryStore
             foreach (var a in dto.SeasonArchives) SeasonArchives.Add(a);
             foreach (var r in dto.Reports) Reports.Add(r);
             foreach (var a in dto.AuditLogs) AuditLogs.Add(a);
+            foreach (var n in dto.NewsItems) NewsItems[n.Id] = n;
+            foreach (var v in dto.ClientVersions) ClientVersions[v.Channel] = v;
         }
         catch
         {
@@ -92,6 +99,50 @@ public sealed class InMemoryStore
         Seasons[1] = season;
     }
 
+    private void SeedClientContent()
+    {
+        if (ClientVersions.IsEmpty)
+        {
+            ClientVersions["stable"] = new ClientVersion
+            {
+                Channel = "stable",
+                Version = "0.1.0",
+                PatchUrl = "https://cdn.harekat.example/patches/0.1.0.zip",
+                Sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                PatchSizeBytes = 0,
+                ReleaseNotes = "İlk açık beta sürümü.",
+                Mandatory = false,
+                PublishedAt = DateTimeOffset.UtcNow
+            };
+        }
+
+        if (NewsItems.IsEmpty)
+        {
+            var tr = new NewsItem
+            {
+                Title = "HAREKÂT açık beta başladı",
+                Body = "Kuzgun Vadisi haritası ve 60 kişilik tim savaşları şimdi canlı. Launcher üzerinden güncelleyin ve OYNA'ya basın.",
+                Language = "tr",
+                Author = "HAREKÂT",
+                IsPublished = true,
+                SortOrder = 0,
+                PublishedAt = DateTimeOffset.UtcNow
+            };
+            var en = new NewsItem
+            {
+                Title = "HAREKÂT open beta is live",
+                Body = "Kuzgun Vadisi and 60-player squad battles are online. Update via the launcher and hit PLAY.",
+                Language = "en",
+                Author = "HAREKÂT",
+                IsPublished = true,
+                SortOrder = 0,
+                PublishedAt = DateTimeOffset.UtcNow
+            };
+            NewsItems[tr.Id] = tr;
+            NewsItems[en.Id] = en;
+        }
+    }
+
     private sealed class PersistDto
     {
         public List<Player> Players { get; set; } = [];
@@ -104,6 +155,8 @@ public sealed class InMemoryStore
         public List<SeasonArchiveEntry> SeasonArchives { get; set; } = [];
         public List<PlayerReport> Reports { get; set; } = [];
         public List<AuditLogEntry> AuditLogs { get; set; } = [];
+        public List<NewsItem> NewsItems { get; set; } = [];
+        public List<ClientVersion> ClientVersions { get; set; } = [];
     }
 }
 
@@ -133,6 +186,9 @@ public sealed class MemoryPlayerRepository : IPlayerRepository
     public Task<Player?> GetByEmailAsync(string email, CancellationToken ct = default) =>
         Task.FromResult(_s.Players.Values.FirstOrDefault(p =>
             string.Equals(p.Email, email, StringComparison.OrdinalIgnoreCase)) is { } p ? Clone(p) : null);
+
+    public Task<Player?> GetBySteamIdAsync(ulong steamId, CancellationToken ct = default) =>
+        Task.FromResult(_s.Players.Values.FirstOrDefault(p => p.SteamId == steamId) is { } p ? Clone(p) : null);
 
     public Task<Player?> GetByRefreshTokenHashAsync(string hash, CancellationToken ct = default) =>
         Task.FromResult(_s.Players.Values.FirstOrDefault(p => p.RefreshTokenHash == hash) is { } p ? Clone(p) : null);
@@ -270,6 +326,19 @@ public sealed class MemoryMatchRepository : IMatchRepository
         _s.Matches[match.Id] = match;
         return Task.CompletedTask;
     }
+
+    public Task<IReadOnlyList<Match>> GetPendingAllocationAsync(string? region = null, CancellationToken ct = default)
+    {
+        IReadOnlyList<Match> list = _s.Matches.Values
+            .Where(m => m.Status == MatchStatus.Allocating)
+            .Where(m => string.IsNullOrWhiteSpace(region) || m.Region == region)
+            .OrderBy(m => m.CreatedAt)
+            .ToList();
+        return Task.FromResult(list);
+    }
+
+    public Task<int> CountQueuedTicketsAsync(CancellationToken ct = default) =>
+        Task.FromResult(_s.Tickets.Values.Count(t => t.Status == MatchTicketStatus.Queued));
 }
 
 public sealed class MemoryGameServerRepository : IGameServerRepository
@@ -302,6 +371,12 @@ public sealed class MemoryGameServerRepository : IGameServerRepository
     public Task<IReadOnlyList<GameServer>> GetAllAsync(CancellationToken ct = default)
     {
         IReadOnlyList<GameServer> list = _s.Servers.Values.ToList();
+        return Task.FromResult(list);
+    }
+
+    public Task<IReadOnlyList<GameServer>> GetByHostAsync(string host, CancellationToken ct = default)
+    {
+        IReadOnlyList<GameServer> list = _s.Servers.Values.Where(s => s.Host == host).ToList();
         return Task.FromResult(list);
     }
 }
@@ -403,4 +478,94 @@ public sealed class MemoryModerationRepository : IModerationRepository
         IReadOnlyList<AuditLogEntry> list = _s.AuditLogs.OrderByDescending(a => a.CreatedAt).Take(take).ToList();
         return Task.FromResult(list);
     }
+}
+
+public sealed class MemoryNewsRepository : INewsRepository
+{
+    private readonly InMemoryStore _s;
+    public MemoryNewsRepository(InMemoryStore s) => _s = s;
+
+    public Task<IReadOnlyList<NewsItem>> ListPublishedAsync(string? language, int take, CancellationToken ct = default)
+    {
+        var q = _s.NewsItems.Values.Where(n => n.IsPublished);
+        if (!string.IsNullOrWhiteSpace(language))
+            q = q.Where(n => n.Language == language);
+        IReadOnlyList<NewsItem> list = q.OrderByDescending(n => n.SortOrder)
+            .ThenByDescending(n => n.PublishedAt)
+            .Take(take)
+            .Select(Clone)
+            .ToList();
+        return Task.FromResult(list);
+    }
+
+    public Task<IReadOnlyList<NewsItem>> ListAllAsync(int take, CancellationToken ct = default)
+    {
+        IReadOnlyList<NewsItem> list = _s.NewsItems.Values
+            .OrderByDescending(n => n.PublishedAt)
+            .Take(take)
+            .Select(Clone)
+            .ToList();
+        return Task.FromResult(list);
+    }
+
+    public Task<NewsItem?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
+        Task.FromResult(_s.NewsItems.TryGetValue(id, out var n) ? Clone(n) : null);
+
+    public Task AddAsync(NewsItem item, CancellationToken ct = default)
+    {
+        _s.NewsItems[item.Id] = Clone(item);
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateAsync(NewsItem item, CancellationToken ct = default)
+    {
+        _s.NewsItems[item.Id] = Clone(item);
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        _s.NewsItems.TryRemove(id, out _);
+        return Task.CompletedTask;
+    }
+
+    private static NewsItem Clone(NewsItem n) => new()
+    {
+        Id = n.Id,
+        Title = n.Title,
+        Body = n.Body,
+        Language = n.Language,
+        Author = n.Author,
+        IsPublished = n.IsPublished,
+        SortOrder = n.SortOrder,
+        PublishedAt = n.PublishedAt,
+        UpdatedAt = n.UpdatedAt
+    };
+}
+
+public sealed class MemoryClientVersionRepository : IClientVersionRepository
+{
+    private readonly InMemoryStore _s;
+    public MemoryClientVersionRepository(InMemoryStore s) => _s = s;
+
+    public Task<ClientVersion?> GetAsync(string channel, CancellationToken ct = default) =>
+        Task.FromResult(_s.ClientVersions.TryGetValue(channel, out var v) ? Clone(v) : null);
+
+    public Task UpsertAsync(ClientVersion version, CancellationToken ct = default)
+    {
+        _s.ClientVersions[version.Channel] = Clone(version);
+        return Task.CompletedTask;
+    }
+
+    private static ClientVersion Clone(ClientVersion v) => new()
+    {
+        Channel = v.Channel,
+        Version = v.Version,
+        PatchUrl = v.PatchUrl,
+        Sha256 = v.Sha256,
+        PatchSizeBytes = v.PatchSizeBytes,
+        ReleaseNotes = v.ReleaseNotes,
+        Mandatory = v.Mandatory,
+        PublishedAt = v.PublishedAt
+    };
 }

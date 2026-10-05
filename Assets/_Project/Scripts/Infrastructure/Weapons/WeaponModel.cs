@@ -27,6 +27,8 @@ namespace Project.Infrastructure.Weapons
         public const string MagazineHandAnchor = "MagazineHand";
         public const string BoltHandAnchor = "BoltHand";
         public const string LoadingPortAnchor = "LoadingPort";
+        public const string EjectAnchor = "Eject";
+        public const string CoverHandAnchor = "CoverHand";
 
         private readonly List<Renderer> _renderers = new List<Renderer>(8);
         private Vector3 _magazineHomePosition;
@@ -62,6 +64,15 @@ namespace Project.Infrastructure.Weapons
 
         /// <summary>Pompalıda fişek yükleme ağzı. Yoksa null.</summary>
         public Transform LoadingPort { get; internal set; }
+
+        /// <summary>Kovan atma penceresi (+X dışarı). Yoksa null.</summary>
+        public Transform EjectPort { get; internal set; }
+
+        /// <summary>Makineli tüfekte besleme kapağını açıp kapatan sol elin bileği (kapak parçasının çocuğu). Yoksa null.</summary>
+        public Transform CoverHandGrip { get; internal set; }
+
+        /// <summary>Kovan rengi (pompalıda kırmızı fişek).</summary>
+        public bool ShotgunShells => Style == WeaponStyle.Escort;
 
         public Transform Body { get; internal set; }
         public Transform Magazine { get; internal set; }

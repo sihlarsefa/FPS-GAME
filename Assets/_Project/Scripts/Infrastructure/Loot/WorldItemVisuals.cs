@@ -17,15 +17,16 @@ namespace Project.Infrastructure.Loot
     public sealed class WorldItemVisual
     {
         internal WorldItemVisual(string key, Mesh mesh, Material[] materials, Material[] modelMaterials, Bounds bounds,
-            float ringRadius, GameObject prototype)
+            float ringRadius, GameObject prototype, bool meshless = false)
         {
             Key = key;
             Mesh = mesh;
-            Materials = materials;
-            ModelMaterials = modelMaterials;
+            Materials = materials ?? Array.Empty<Material>();
+            ModelMaterials = modelMaterials ?? Array.Empty<Material>();
             Bounds = bounds;
             RingRadius = ringRadius;
             Prototype = prototype;
+            IsMeshless = meshless;
             _needsPrototype = prototype != null;
         }
 
@@ -48,6 +49,12 @@ namespace Project.Infrastructure.Loot
         /// <summary>Ağ okunamadığı için birleştirilemeyen silah modeli (etkin değil). Genelde null.</summary>
         public GameObject Prototype { get; }
 
+        /// <summary>
+        /// Görselsiz şablon (yalnızca sınırlar): grafik aygıtı olmayan sunucu (Windows Server / Linux dedicated, -nographics)
+        /// ya da model üretimi tamamen başarısız olduğunda. Mesh null, malzeme dizileri boştur.
+        /// </summary>
+        public bool IsMeshless { get; }
+
         private readonly bool _needsPrototype;
 
         /// <summary>Paylaşılan kaynaklar hâlâ geçerli mi (sahne/varlık boşaltması sonrası yeniden üretim için).</summary>
@@ -55,6 +62,9 @@ namespace Project.Infrastructure.Loot
         {
             get
             {
+                if (IsMeshless)
+                    return true;
+
                 if (Mesh == null || Materials == null || (_needsPrototype && Prototype == null))
                     return false;
 
@@ -110,6 +120,22 @@ namespace Project.Infrastructure.Loot
         private static readonly Color HighlightColor = new(1f, 0.88f, 0.5f, 0.2f);
         private static readonly Color FocusColor = new(1f, 0.9f, 0.55f, 0.6f);
 
+        private static int _headless = -1;
+
+        /// <summary>
+        /// Grafik aygıtı yok (dedicated sunucu: Windows Server / Linux, -batchmode -nographics). Bu durumda model,
+        /// malzeme ve vurgu üretilmez; yalnızca etkileşim tetikleri ve kayıt çalışır (sunucu yükü/bellek tasarrufu).
+        /// </summary>
+        public static bool IsHeadless
+        {
+            get
+            {
+                if (_headless < 0)
+                    _headless = SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null ? 1 : 0;
+                return _headless == 1;
+            }
+        }
+
         /// <summary>Eşyanın şablonu (önbellekli). Hiçbir zaman null dönmez.</summary>
         public static WorldItemVisual Get(LootItemData item) => Get(item.ItemId, item.Category);
 
@@ -123,18 +149,39 @@ namespace Project.Infrastructure.Loot
             if (Cache.TryGetValue(key, out var cached) && cached != null && cached.IsAlive)
                 return cached;
 
-            WorldItemVisual visual;
-            try
+            WorldItemVisual visual = null;
+            if (IsHeadless)
             {
-                visual = Create(key, itemId, category);
+                visual = CreateMeshless(key, ResolveCategory(itemId, category));
             }
-            catch (Exception e)
+            else
             {
-                Debug.LogException(e);
-                visual = null;
+                try
+                {
+                    visual = Create(key, itemId, category);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    visual = null;
+                }
+
+                if (visual == null)
+                {
+                    try
+                    {
+                        visual = CreateGeneric(key);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                        visual = null;
+                    }
+                }
+
+                visual ??= CreateMeshless(key, ResolveCategory(itemId, category));
             }
 
-            visual ??= CreateGeneric(key);
             Cache[key] = visual;
             return visual;
         }
@@ -147,6 +194,9 @@ namespace Project.Infrastructure.Loot
             go.layer = layer;
             if (parent != null)
                 go.transform.SetParent(parent, false);
+
+            if (visual.IsMeshless || visual.Mesh == null)
+                return go;
 
             go.AddComponent<MeshFilter>().sharedMesh = visual.Mesh;
             var renderer = go.AddComponent<MeshRenderer>();
@@ -182,7 +232,7 @@ namespace Project.Infrastructure.Loot
         /// <summary>Oyuncunun baktığı eşyanın altındaki parlak halka (tek, paylaşılan). null → gizle.</summary>
         internal static void ShowFocus(LootPickupComponent pickup)
         {
-            if (pickup == null || !pickup.IsAvailable)
+            if (pickup == null || !pickup.IsAvailable || IsHeadless)
             {
                 if (_focusMarker != null)
                     _focusMarker.SetActive(false);
@@ -191,6 +241,9 @@ namespace Project.Infrastructure.Loot
 
             if (_focusMarker == null)
             {
+                if (!UnityEngine.Application.isPlaying)
+                    return;
+
                 _focusMarker = new GameObject("[Eşya Odak Halkası]") { layer = GameLayers.IgnoreRaycast };
                 _focusMarker.AddComponent<MeshFilter>().sharedMesh = FocusRingMesh();
                 var renderer = _focusMarker.AddComponent<MeshRenderer>();
@@ -223,6 +276,35 @@ namespace Project.Infrastructure.Loot
         // ------------------------------------------------------------------ Creation
 
         private static string CategoryKey(ItemCategory category) => "#" + category;
+
+        private static ItemCategory ResolveCategory(string itemId, ItemCategory category)
+        {
+            if (itemId != null && ItemCatalog.TryGet(itemId, out var definition))
+                return definition.Category;
+            if (itemId != null && WeaponCatalog.Contains(itemId))
+                return ItemCategory.Weapon;
+            return category;
+        }
+
+        /// <summary>Görselsiz şablon: kategoriye göre yaklaşık model sınırları (tetik kutusu ve halka yarıçapı için).</summary>
+        private static WorldItemVisual CreateMeshless(string key, ItemCategory category)
+        {
+            Vector3 size;
+            switch (category)
+            {
+                case ItemCategory.Weapon: size = new Vector3(0.1f, 0.08f, 1.0f); break;
+                case ItemCategory.Armor: size = new Vector3(0.5f, 0.16f, 0.6f); break;
+                case ItemCategory.Helmet: size = new Vector3(0.32f, 0.19f, 0.4f); break;
+                case ItemCategory.Backpack: size = new Vector3(0.4f, 0.55f, 0.3f); break;
+                case ItemCategory.Medical: size = new Vector3(0.36f, 0.16f, 0.26f); break;
+                case ItemCategory.Ammunition: size = new Vector3(0.32f, 0.2f, 0.18f); break;
+                default: size = new Vector3(0.22f, 0.2f, 0.16f); break;
+            }
+
+            var bounds = new Bounds(new Vector3(0f, size.y * 0.5f, 0f), size);
+            var ringRadius = Mathf.Clamp(Mathf.Max(size.x, size.z) * 0.5f + 0.08f, 0.28f, 0.7f);
+            return new WorldItemVisual(key, null, null, null, bounds, ringRadius, null, true);
+        }
 
         private static WorldItemVisual Create(string key, string itemId, ItemCategory category)
         {
@@ -324,6 +406,9 @@ namespace Project.Infrastructure.Loot
         private static Material Mat(MaterialId id) => MaterialLibrary.Get(id);
 
         private static readonly Quaternion FaceForward = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+
+        /// <summary>Ön yüze bakan hilal; açıklığı karşıdan bakana göre sağda (Kızılay amblemi gibi).</summary>
+        private static readonly Quaternion FrontCrescent = FaceForward * Quaternion.Euler(0f, 180f, 0f);
         private static readonly Quaternion AlongX = Quaternion.FromToRotation(Vector3.up, Vector3.right);
         private static readonly Quaternion AlongZ = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
 
@@ -331,7 +416,17 @@ namespace Project.Infrastructure.Loot
 
         private static WorldItemVisual CreateWeapon(string key, string weaponId)
         {
-            var definition = WeaponCatalog.Get(weaponId);
+            WeaponDefinitionData definition = null;
+            try
+            {
+                if (!WeaponCatalog.TryGet(weaponId, out definition))
+                    definition = null;
+            }
+            catch (Exception)
+            {
+                definition = null;
+            }
+
             GameObject temp = null;
             try
             {
@@ -376,7 +471,8 @@ namespace Project.Infrastructure.Loot
             Builder.Clear();
             TmpRenderers.Clear();
             model.GetComponentsInChildren(true, TmpRenderers);
-            var readable = TmpRenderers.Count > 0;
+            var readable = true;
+            var meshCount = 0;
             for (var i = 0; i < TmpRenderers.Count && readable; i++)
             {
                 var renderer = TmpRenderers[i];
@@ -386,17 +482,30 @@ namespace Project.Infrastructure.Loot
                 if (!renderer.TryGetComponent<MeshFilter>(out var filter) || filter.sharedMesh == null)
                     continue;
 
+                if (IsLowerLod(renderer, model))
+                    continue;
+
+                meshCount++;
                 var matrix = layDown * rootInverse * renderer.transform.localToWorldMatrix;
                 if (!Builder.AppendMesh(filter.sharedMesh, matrix, renderer.sharedMaterials))
                     readable = false;
             }
 
             TmpRenderers.Clear();
+
+            // Görünür ağ yok (fabrika henüz model üretmiyor ya da hepsi gizli) → basit siluet kullanılır.
+            if (meshCount == 0)
+            {
+                Builder.Clear();
+                return null;
+            }
+
             if (readable && Builder.VertexCount > 0)
                 return Finish(key, null);
 
             Builder.Clear();
-            if (!UnityEngine.Application.isPlaying)
+            // Okunabilir ama boş ağlar → basit siluet; okunamayan ağlar yalnızca oyun modunda prototip olarak saklanır.
+            if (readable || !UnityEngine.Application.isPlaying)
                 return null;
 
             // Okunamayan ağlar: hiyerarşiyi prototip olarak sakla (her eşyada kopyalanır).
@@ -423,6 +532,34 @@ namespace Project.Infrastructure.Loot
 
             Builder.Clear();
             return Finish(key, prototype, bounds);
+        }
+
+        /// <summary>Model LODGroup kullanıyorsa yalnızca LOD0 çizicileri birleştirilir (üst üste binen seviyeler olmasın).</summary>
+        private static bool IsLowerLod(Renderer renderer, GameObject model)
+        {
+            var group = renderer.GetComponentInParent<LODGroup>(true);
+            if (group == null || !group.transform.IsChildOf(model.transform))
+                return false;
+
+            var lods = group.GetLODs();
+            for (var l = 1; l < lods.Length; l++)
+            {
+                var list = lods[l].renderers;
+                if (list == null)
+                    continue;
+
+                for (var r = 0; r < list.Length; r++)
+                {
+                    if (ReferenceEquals(list[r], renderer))
+                    {
+                        // Aynı çizici LOD0'da da varsa dahil et.
+                        var lod0 = lods.Length > 0 ? lods[0].renderers : null;
+                        return lod0 == null || Array.IndexOf(lod0, renderer) < 0;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static bool IsActiveUnder(Transform t, Transform root)
@@ -623,7 +760,7 @@ namespace Project.Infrastructure.Loot
                     Builder.Box(new Vector3(0f, h * 0.5f, 0f), new Vector3(w, h, d), white);
                     Builder.Box(new Vector3(0f, h * 0.62f, 0f), new Vector3(w + 0.006f, 0.022f, d + 0.006f), red);
                     Builder.Crescent(new Vector3(0f, h + 0.002f, 0f), 0.1f, Quaternion.identity, 28, red);
-                    Builder.Crescent(new Vector3(0f, h * 0.36f, d * 0.5f + 0.002f), 0.06f, FaceForward, 24, red);
+                    Builder.Crescent(new Vector3(0f, h * 0.36f, d * 0.5f + 0.002f), 0.06f, FrontCrescent, 24, red);
                     Builder.Box(new Vector3(0f, h + 0.03f, -d * 0.3f), new Vector3(0.16f, 0.018f, 0.03f), dark);
                     Builder.Box(new Vector3(-0.07f, h + 0.014f, -d * 0.3f), new Vector3(0.014f, 0.028f, 0.022f), dark);
                     Builder.Box(new Vector3(0.07f, h + 0.014f, -d * 0.3f), new Vector3(0.014f, 0.028f, 0.022f), dark);
@@ -641,7 +778,7 @@ namespace Project.Infrastructure.Loot
                     Builder.Box(new Vector3(0f, h * 0.5f, 0f), new Vector3(w, h, d), white);
                     Builder.Box(new Vector3(0f, h * 0.97f, 0f), new Vector3(w + 0.008f, h * 0.08f, d + 0.008f), Lit(OffWhite, 0.3f));
                     Builder.Crescent(new Vector3(0f, h + 0.008f, 0f), 0.08f, Quaternion.identity, 24, red);
-                    Builder.Crescent(new Vector3(0f, h * 0.45f, d * 0.5f + 0.002f), 0.05f, FaceForward, 20, red);
+                    Builder.Crescent(new Vector3(0f, h * 0.45f, d * 0.5f + 0.002f), 0.05f, FrontCrescent, 20, red);
                     Builder.Box(new Vector3(0f, h + 0.026f, -d * 0.32f), new Vector3(0.12f, 0.016f, 0.026f), Lit(SteelGray, 0.4f, 0.3f));
                     break;
                 }
@@ -841,6 +978,7 @@ namespace Project.Infrastructure.Loot
         private static void ResetStatics()
         {
             Cache.Clear();
+            _headless = -1;
             _focusRingMesh = null;
             _focusMarker = null;
             _prototypeHolder = null;

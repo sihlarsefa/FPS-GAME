@@ -63,6 +63,12 @@ Swagger: `http://localhost:5xxx/swagger`
 | POST/GET | `/replays` | `harekat-replay-v1` + GZip |
 | GET | `/rules` | Aktif kural seti |
 | GET | `/health`, `/metrics/perf` | Sağlık + performans |
+| POST | `/client-errors` | İstemci hata/çökme raporu (hız sınırlı) |
+| GET | `/client-errors?skip=&take=` | Yönetici listesi |
+
+Web proxy: `POST/GET /telemetry/client-errors` → bu uçlar.
+
+MSSQL: `Storage:Provider=SqlServer` + `ConnectionStrings:SqlServer` ile `dbo.ClientErrors` tablosu otomatik oluşur; aksi halde bellek deposu.
 
 ### Örnek batch
 

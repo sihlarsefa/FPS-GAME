@@ -59,6 +59,7 @@ namespace Project.Infrastructure.AI
         private int _slot;
         private int _seed;
         private bool _initialized;
+        private bool _setupFailed;
         private bool _dead;
         private bool _equipmentDirty = true;
         private float _eyeHeight = StandingEyeHeight;
@@ -164,6 +165,7 @@ namespace Project.Infrastructure.AI
             }
             catch (Exception e)
             {
+                bot._setupFailed = true;
                 Debug.LogException(e, go);
             }
 
@@ -328,6 +330,15 @@ namespace Project.Infrastructure.AI
 
         private void AfterActivate()
         {
+            if (_setupFailed || Combatant == null || _perception == null || Profile == null)
+            {
+                // Kurulum yarım kaldı: yapay zekâ döngüsü çalışmaz (hata zaten günlüğe yazıldı).
+                _initialized = false;
+                if (_agent != null)
+                    _agent.enabled = false;
+                return;
+            }
+
             if (_agent != null && _agent.enabled)
             {
                 if (!_agent.isOnNavMesh)
@@ -350,6 +361,7 @@ namespace Project.Infrastructure.AI
             _nextDecision = now + Range(0.05f, 0.5f);
             _nextLootSearch = now + Range(0.5f, 2f);
             _aimYaw = transform.eulerAngles.y;
+            _anchorYaw = _aimYaw;
             _initialized = true;
         }
 
@@ -515,13 +527,27 @@ namespace Project.Infrastructure.AI
             away.y = 0f;
             away = away.sqrMagnitude > 0.0001f ? away.normalized : Vector3.forward;
 
+            // Bakış: aracın kapı yönü (varsa), yoksa araçtan dışarı.
+            var yaw = Mathf.Atan2(away.x, away.z) * Mathf.Rad2Deg;
+            if (transport != null)
+            {
+                try
+                {
+                    yaw = transport.GetDisembarkYaw(_seat);
+                }
+                catch (Exception)
+                {
+                    // varsayılan yön
+                }
+            }
+
             transform.SetParent(_homeParent, true);
             _seated = false;
             _disembarkAt = -1f;
             _disembarkAwayDirection = away;
             _landedTime = Time.time;
 
-            LandAt(point, Mathf.Atan2(away.x, away.z) * Mathf.Rad2Deg, DisembarkSearchRadius);
+            LandAt(point, yaw, DisembarkSearchRadius);
             if (gameObject.activeInHierarchy)
                 EnableAgentIfPossible();
 
@@ -555,7 +581,8 @@ namespace Project.Infrastructure.AI
             }
 
             transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
-            _aimYaw = yaw;
+            _aimYaw = Mathf.Repeat(yaw, 360f);
+            _anchorYaw = _aimYaw;
             _aimPitch = 0f;
 
             if (_collider != null)
@@ -685,7 +712,7 @@ namespace Project.Infrastructure.AI
                 return;
 
             model.SetLocomotion(_seated ? Vector3.zero : _velocity, stance, !_seated);
-            model.SetAimPitch(_aimPitch);
+            model.SetAimPitch(-_aimPitch); // model: pozitif = aşağı
 
             var inventory = combatant.Inventory;
             var weapon = inventory != null ? inventory.ActiveWeapon : null;

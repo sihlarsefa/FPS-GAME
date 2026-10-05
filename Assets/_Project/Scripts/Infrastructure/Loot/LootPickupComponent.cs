@@ -30,6 +30,12 @@ namespace Project.Infrastructure.Loot
         private const float GroundProbeDistance = 500f;
         private const float MaxGroundTilt = 32f;
 
+        /// <summary>
+        /// LOD ayıklama eşiği (ekran yüksekliğine oranı). ~0.4 m'lik eşya ≈ 55 m, ~1.1 m'lik silah ≈ 150 m ötede çizilmez
+        /// (QualitySettings.lodBias ile ölçeklenir). Binlerce yerdeki eşyanın çizim maliyetini sınırlar.
+        /// </summary>
+        public const float CullScreenHeight = 0.005f;
+
         // Sahneye elle yerleştirilen eşyalar için (eski kurulum/antrenman). Spawn ile üretilenlerde kullanılmaz.
         [SerializeField] private string itemId = ItemIds.Bandage;
         [SerializeField] private ItemCategory category = ItemCategory.Medical;
@@ -40,6 +46,8 @@ namespace Project.Infrastructure.Loot
         private static readonly Stack<LootPickupComponent> Pool = new(64);
         private static readonly List<LootItemData> DroppedBuffer = new(8);
         private static Transform _root;
+        private static int _nextSpawnId;
+        private static int _syncedFrame = -1;
 
         private LootItemData _item;
         private bool _configured;
@@ -49,16 +57,20 @@ namespace Project.Infrastructure.Loot
         private string _name = string.Empty;
         private MeshFilter _filter;
         private MeshRenderer _renderer;
+        private LODGroup _lodGroup;
         private BoxCollider _trigger;
         private GameObject _prototypeCopy;
         private WorldItemVisual _visual;
         private Vector3 _focusPoint;
         private float _ringRadius = 0.35f;
+        private int _spawnId;
+        private float _spawnTime;
 
         // LootRegistry tarafından yönetilir.
         internal int RegistryIndex = -1;
         internal long CellKey;
         internal Vector3 RegisteredPosition;
+        internal int RegisteredSpawnId;
 
         // ------------------------------------------------------------------ Public API
 
@@ -79,6 +91,15 @@ namespace Project.Infrastructure.Loot
 
         /// <summary>Vurgu halkasının yarıçapı (m).</summary>
         public float RingRadius => _ringRadius;
+
+        /// <summary>
+        /// Her Spawn/Configure'da artan benzersiz kimlik (&gt; 0). Havuzdan yeniden kullanılan nesne yeni kimlik alır:
+        /// tutulan referansın hâlâ aynı eşyayı gösterdiğini doğrulamak ve ileride ağ eşlemesi (LootRegistry.TryGet) için.
+        /// </summary>
+        public int SpawnId => _spawnId;
+
+        /// <summary>Eşyanın yere konduğu an (Time.time).</summary>
+        public float SpawnTime => _spawnTime;
 
         /// <summary>Yeni eşya üretir (havuzdan yeniden kullanır), zemine oturtur ve kaydeder. Geçersiz eşyada null.</summary>
         public static LootPickupComponent Spawn(LootItemData item, Vector3 position, float yaw = 0f)
@@ -106,13 +127,16 @@ namespace Project.Infrastructure.Loot
                 pickup.transform.SetParent(root, false);
 
             pickup.ApplyItem(item);
+            EnsurePhysicsSynced();
             pickup.PlaceOnGround(position, yaw);
             pickup._available = true;
+            pickup.AssignSpawnId();
             if (!pickup.gameObject.activeSelf)
                 pickup.gameObject.SetActive(true);   // OnEnable → kayıt
             else
                 LootRegistry.Register(pickup);
 
+            LootFocusDriver.Ensure();
             return pickup;
         }
 
@@ -183,9 +207,12 @@ namespace Project.Infrastructure.Loot
                 return;
             }
 
+            var wasAvailable = IsAvailable;
             ApplyItem(Normalize(item));
             _available = true;
             _pooled = false;
+            if (!wasAvailable || _spawnId == 0)
+                AssignSpawnId();
             if (!gameObject.activeSelf)
                 gameObject.SetActive(true);
             else if (isActiveAndEnabled)
@@ -270,8 +297,12 @@ namespace Project.Infrastructure.Loot
                 {
                     ApplyItem(Normalize(data));
                     _available = true;
+                    AssignSpawnId();
                     if (snapToGroundOnAwake)
+                    {
+                        EnsurePhysicsSynced();
                         PlaceOnGround(transform.position, transform.eulerAngles.y);
+                    }
                 }
             }
         }
@@ -324,14 +355,16 @@ namespace Project.Infrastructure.Loot
 
             var amount = result.FullyTaken ? before.Quantity : Mathf.Clamp(result.QuantityTaken, 0, before.Quantity);
             taken = before.WithQuantity(Mathf.Max(1, amount));
-            var dropNear = transform.position;
+
+            // Önce yerine düşenleri bırak, sonra bu eşyayı kaldır: aksi hâlde havuz bu nesneyi hemen düşen eşya için
+            // yeniden kullanır ve çağıranın elindeki referans başka bir eşyayı göstermeye başlar.
+            SpawnDroppedBuffer(transform.position);
 
             if (result.FullyTaken || amount >= before.Quantity)
                 Despawn();
             else if (amount > 0)
                 Take(amount);
 
-            SpawnDroppedBuffer(dropNear);
             return result;
         }
 
@@ -363,6 +396,9 @@ namespace Project.Infrastructure.Loot
 
         private void PlayPickupSound(Combatant combatant)
         {
+            if (WorldItemVisuals.IsHeadless)
+                return;
+
             try
             {
                 if (combatant.IsLocalPlayer)
@@ -388,11 +424,16 @@ namespace Project.Infrastructure.Loot
             quantity = item.Quantity;
 
             var visual = WorldItemVisuals.Get(item);
-            if (!ReferenceEquals(visual, _visual))
+            if (visual != null && !ReferenceEquals(visual, _visual))
             {
                 _visual = visual;
-                _filter.sharedMesh = visual.Mesh;
-                _renderer.sharedMaterials = visual.Materials;
+                if (_filter != null)
+                    _filter.sharedMesh = visual.Mesh;
+                if (_renderer != null)
+                {
+                    _renderer.sharedMaterials = visual.Materials;
+                    _renderer.enabled = visual.Mesh != null;
+                }
 
                 if (_prototypeCopy != null)
                 {
@@ -403,9 +444,13 @@ namespace Project.Infrastructure.Loot
                 if (visual.Prototype != null)
                 {
                     _prototypeCopy = Instantiate(visual.Prototype, transform, false);
+                    _prototypeCopy.name = visual.Prototype.name;
                     GameLayers.SetLayerRecursively(_prototypeCopy, GameLayers.Loot);
+                    DisableColliders(_prototypeCopy);
                     _prototypeCopy.SetActive(true);
                 }
+
+                RefreshLod();
 
                 var bounds = visual.Bounds;
                 var size = new Vector3(
@@ -469,16 +514,24 @@ namespace Project.Infrastructure.Loot
 
         private void EnsureComponents()
         {
-            if (_filter == null && !TryGetComponent(out _filter))
+            // Dedicated sunucuda (grafik aygıtı yok) çizim bileşeni eklenmez; tetik ve kayıt yeterlidir.
+            var headless = WorldItemVisuals.IsHeadless;
+            if (_filter == null && !TryGetComponent(out _filter) && !headless)
                 _filter = gameObject.AddComponent<MeshFilter>();
 
-            if (_renderer == null && !TryGetComponent(out _renderer))
+            if (_renderer == null && !TryGetComponent(out _renderer) && !headless)
             {
                 _renderer = gameObject.AddComponent<MeshRenderer>();
                 _renderer.shadowCastingMode = ShadowCastingMode.On;
                 _renderer.receiveShadows = true;
                 _renderer.lightProbeUsage = LightProbeUsage.BlendProbes;
                 _renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+            }
+
+            if (_lodGroup == null && !TryGetComponent(out _lodGroup) && _renderer != null)
+            {
+                _lodGroup = gameObject.AddComponent<LODGroup>();
+                _lodGroup.fadeMode = LODFadeMode.None;
             }
 
             if (_trigger == null)
@@ -498,6 +551,63 @@ namespace Project.Infrastructure.Loot
                         others[i].enabled = false;
                 }
             }
+        }
+
+        /// <summary>Uzak eşyaları çizmemek için tek seviyeli LOD (modelin + prototip kopyasının tüm çiziciler).</summary>
+        private void RefreshLod()
+        {
+            if (_lodGroup == null || _renderer == null)
+                return;
+
+            Renderer[] renderers;
+            if (_prototypeCopy != null)
+            {
+                var children = _prototypeCopy.GetComponentsInChildren<Renderer>(true);
+                renderers = new Renderer[children.Length + 1];
+                renderers[0] = _renderer;
+                Array.Copy(children, 0, renderers, 1, children.Length);
+            }
+            else
+            {
+                renderers = new Renderer[] { _renderer };
+            }
+
+            _lodGroup.SetLODs(new[] { new LOD(CullScreenHeight, renderers) });
+            _lodGroup.RecalculateBounds();
+        }
+
+        private static void DisableColliders(GameObject root)
+        {
+            var colliders = root.GetComponentsInChildren<Collider>(true);
+            for (var i = 0; i < colliders.Length; i++)
+                colliders[i].enabled = false;
+        }
+
+        private void AssignSpawnId()
+        {
+            unchecked
+            {
+                _nextSpawnId++;
+                if (_nextSpawnId <= 0)
+                    _nextSpawnId = 1;
+            }
+
+            _spawnId = _nextSpawnId;
+            _spawnTime = UnityEngine.Application.isPlaying ? Time.time : 0f;
+        }
+
+        /// <summary>
+        /// Aynı karede oluşturulan/taşınan çarpıştırıcıların zemin ışınlarında görünmesi için karede bir kez fizik
+        /// dönüşümlerini eşitler (Physics.autoSyncTransforms kapalıyken gerekli).
+        /// </summary>
+        private static void EnsurePhysicsSynced()
+        {
+            var frame = Time.frameCount;
+            if (frame == _syncedFrame)
+                return;
+
+            _syncedFrame = frame;
+            Physics.SyncTransforms();
         }
 
         /// <summary>Eksik adı katalogdan doldurur; adet en az 1.</summary>
@@ -554,6 +664,8 @@ namespace Project.Infrastructure.Loot
             Pool.Clear();
             DroppedBuffer.Clear();
             _root = null;
+            _nextSpawnId = 0;
+            _syncedFrame = -1;
         }
     }
 }

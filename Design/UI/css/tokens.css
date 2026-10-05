@@ -1,0 +1,84 @@
+/* HAREKÂT UI tokens — matches Assets Presentation/UI/UiTheme.cs */
+:root {
+  /* Panels / ground */
+  --bg: #12150E;
+  --panel-dark: rgba(22, 26, 17, 0.90);
+  --panel: rgba(35, 41, 27, 0.92);
+  --panel-light: rgba(52, 61, 40, 0.94);
+  --panel-border: #5A6345;
+  --hud-backdrop: rgba(0, 0, 0, 0.45);
+  --overlay: rgba(0, 0, 0, 0.72);
+
+  /* Accent */
+  --accent: #E30A17;
+  --accent-dark: #9E0710;
+  --accent-light: #FF3B47;
+  --amber: #F2A900;
+  --khaki: #C3B07A;
+  --ally: #3D9BFF;
+  --enemy: #FF4A3D;
+  --success: #5FC84E;
+  --zone: rgba(46, 123, 255, 0.70);
+  --safe-zone: rgba(255, 255, 255, 0.85);
+  --boost: #F2C12E;
+  --armor: #8EB8D8;
+
+  /* Text */
+  --text: #ECEBE0;
+  --text-dim: #B4B6A4;
+  --text-muted: #7C816E;
+  --text-header: var(--amber);
+  --text-shadow: rgba(0, 0, 0, 0.75);
+
+  /* Controls */
+  --btn: rgba(58, 68, 44, 0.95);
+  --btn-hover: #505D3B;
+  --btn-pressed: #2A311F;
+  --btn-disabled: rgba(43, 46, 38, 0.60);
+  --track: rgba(14, 16, 11, 0.82);
+  --slider-fill: #B91A22;
+
+  /* Health */
+  --hp-high: #ECEBE0;
+  --hp-mid: var(--amber);
+  --hp-low: #E32A2A;
+
+  /* Type scale (1920×1080 reference) */
+  --font-tiny: 14px;
+  --font-small: 18px;
+  --font-normal: 22px;
+  --font-medium: 26px;
+  --font-large: 34px;
+  --font-title: 52px;
+  --font-huge: 88px;
+  --font-hud-num: 44px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --pad: 16px;
+  --gap: 8px;
+  --radius: 6px;
+  --accent-strip: 4px;
+  --btn-h: 56px;
+  --btn-w: 300px;
+  --row-h: 40px;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-fade: 180ms;
+  --dur-med: 280ms;
+  --dur-slow: 450ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Frame sizes */
+  --frame-w: 1920px;
+  --frame-h: 1080px;
+
+  --font: "Segoe UI", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+}

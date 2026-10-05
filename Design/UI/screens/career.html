@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <title>Kariyer — HAREKÂT</title>
+  <link rel="stylesheet" href="../css/screens.css"/>
+</head>
+<body>
+  <div class="frame" data-screen="career" aria-label="Kariyer ve rütbe">
+    <div class="screen-career">
+      <aside class="panel rank-badge panel--strip">
+        <img class="icon--xl" src="../icons/ranks/yuzbasi.svg" alt="Yüzbaşı nişanı"/>
+        <p class="tag tag--amber">Subay</p>
+        <h1 class="rank-badge__name">Yüzbaşı</h1>
+        <p class="label-muted">Yzb. Kartal</p>
+        <div style="width:100%;margin-top:8px">
+          <div class="row" style="justify-content:space-between;font-size:var(--font-tiny);margin-bottom:6px">
+            <span>XP 54 200</span><span>→ Binbaşı 62 000</span>
+          </div>
+          <div class="bar bar--xp" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100" role="progressbar">
+            <span style="width:68%"></span>
+          </div>
+        </div>
+        <button class="btn btn--sm" type="button" style="margin-top:16px;width:100%">Ana menü</button>
+      </aside>
+      <main>
+        <h1 class="label-header">Kariyer</h1>
+        <div class="career-stats">
+          <div class="panel stat-tile"><strong>142</strong><span>Maç</span></div>
+          <div class="panel stat-tile"><strong>18</strong><span>Galibiyet</span></div>
+          <div class="panel stat-tile"><strong>2.4</strong><span>K/D</span></div>
+        </div>
+        <section class="panel" style="padding:var(--pad);margin-bottom:var(--space-4)">
+          <h2 style="margin:0 0 12px;color:var(--text-header);font-size:var(--font-medium)">En iyi silah</h2>
+          <div class="row">
+            <img class="icon--lg" src="../icons/weapons/rifle.svg" alt=""/>
+            <div>
+              <strong>MPT-76</strong>
+              <p class="label-muted" style="margin:4px 0 0">312 öldürme · %34 isabet</p>
+            </div>
+          </div>
+        </section>
+        <section class="panel" style="padding:0">
+          <h2 class="sr-only">Son maçlar</h2>
+          <ul class="career-list">
+            <li><span>Kuzgun Vadisi · 3. sıra</span><span class="tag tag--ally">+820 XP</span></li>
+            <li><span>Kuzgun Vadisi · 1. sıra</span><span class="tag tag--amber">+1 450 XP</span></li>
+            <li><span>Poligon · Eğitim</span><span class="tag">+40 XP</span></li>
+            <li><span>Kuzgun Vadisi · 7. sıra</span><span class="tag">+210 XP</span></li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="../css/scale.js"></script>
+</body>
+</html>

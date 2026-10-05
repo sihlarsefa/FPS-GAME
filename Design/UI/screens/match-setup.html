@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <title>Harekât Kurulumu — HAREKÂT</title>
+  <link rel="stylesheet" href="../css/screens.css"/>
+</head>
+<body>
+  <div class="frame" data-screen="match-setup" aria-label="Harekât kurulumu">
+    <div class="screen-setup">
+      <header>
+        <h1 class="label-header">Harekât kurulumu</h1>
+        <p class="label-muted">Tim sayısı, zorluk ve intikal seçimi</p>
+      </header>
+      <div class="screen-setup__grid">
+        <section class="panel setup-card" aria-labelledby="teams">
+          <h3 id="teams">Tim sayısı</h3>
+          <label class="setup-option is-active"><input type="radio" name="teams" checked/> 8 tim (80 kişi)</label>
+          <label class="setup-option"><input type="radio" name="teams"/> 6 tim (60 kişi)</label>
+          <label class="setup-option"><input type="radio" name="teams"/> 4 tim (40 kişi)</label>
+          <label class="setup-option"><input type="radio" name="teams"/> Eğitim: 2 tim</label>
+        </section>
+        <section class="panel setup-card" aria-labelledby="diff">
+          <h3 id="diff">Zorluk</h3>
+          <label class="setup-option"><input type="radio" name="diff"/> Acemi</label>
+          <label class="setup-option is-active"><input type="radio" name="diff" checked/> Standart</label>
+          <label class="setup-option"><input type="radio" name="diff"/> Veteran</label>
+          <p class="label-muted" style="margin-top:16px">Veteran: bot nişanı ve zone baskısı artar.</p>
+        </section>
+        <section class="panel setup-card" aria-labelledby="insert">
+          <h3 id="insert">İntikal</h3>
+          <label class="setup-option is-active">
+            <img class="icon" src="../icons/transport/helicopter.svg" alt=""/>
+            <input type="radio" name="insert" checked/> T-70 Helikopter
+          </label>
+          <label class="setup-option">
+            <img class="icon" src="../icons/transport/kirpi.svg" alt=""/>
+            <input type="radio" name="insert"/> Kirpi Zırhlı
+          </label>
+          <p class="label-muted" style="margin-top:16px">Harita: Kuzgun Vadisi</p>
+        </section>
+      </div>
+      <footer class="setup-footer">
+        <button class="btn btn--ghost" type="button">Geri</button>
+        <button class="btn btn--primary" type="button">Harekâta Başla</button>
+      </footer>
+    </div>
+  </div>
+  <script src="../css/scale.js"></script>
+</body>
+</html>

@@ -30,7 +30,7 @@ public class EdgeCaseTests
                 ["Jwt:Secret"] = "HarekatDevSecretKey_ChangeInProduction_Min32Chars!"
             }).Build());
         var auth = new AuthService(players, hasher, jwt, new FakeEmailService(NullLogger<FakeEmailService>.Instance),
-            mod, uow, NullLogger<AuthService>.Instance);
+            mod, uow, new Harekat.Infrastructure.Auth.PassThroughSteamTicketValidator(), NullLogger<AuthService>.Instance);
         var squads = new SquadService(squadsRepo, players, uow, NullLogger<SquadService>.Instance);
         var mm = new MatchmakingService(tickets, squadsRepo, players, matches, serversRepo, seasons, uow, NullLogger<MatchmakingService>.Instance);
         var results = new MatchResultService(matches, players, squadsRepo, serversRepo, seasons, uow, new AchievementService(), NullLogger<MatchResultService>.Instance);
@@ -67,7 +67,7 @@ public class EdgeCaseTests
             }).Build());
         var modRepo = new MemoryModerationRepository(store);
         var auth = new AuthService(players, hasher, jwt, new FakeEmailService(NullLogger<FakeEmailService>.Instance),
-            modRepo, uow, NullLogger<AuthService>.Instance);
+            modRepo, uow, new Harekat.Infrastructure.Auth.PassThroughSteamTicketValidator(), NullLogger<AuthService>.Instance);
         var moderation = new ModerationService(modRepo, players, uow);
 
         var admin = await auth.RegisterAsync(new RegisterRequest("AdminUser", "admin@t.com", "password123"));
@@ -111,7 +111,7 @@ public class EdgeCaseTests
                 ["Jwt:Secret"] = "HarekatDevSecretKey_ChangeInProduction_Min32Chars!"
             }).Build());
         var auth = new AuthService(players, hasher, jwt, new FakeEmailService(NullLogger<FakeEmailService>.Instance),
-            mod, uow, NullLogger<AuthService>.Instance);
+            mod, uow, new Harekat.Infrastructure.Auth.PassThroughSteamTicketValidator(), NullLogger<AuthService>.Instance);
         var squads = new SquadService(squadsRepo, players, uow, NullLogger<SquadService>.Instance);
         var mm = new MatchmakingService(tickets, squadsRepo, players, matches, serversRepo, seasons, uow, NullLogger<MatchmakingService>.Instance);
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>HAREKÂT — İkon Seti</title>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <style>
+    body { padding: 32px; max-width: 1100px; margin: 0 auto; }
+    h1 { color: var(--amber); font-size: 34px; }
+    h2 { margin-top: 40px; color: var(--text-dim); font-size: 22px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
+    .cell { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 6px; padding: 16px 8px; text-align: center; }
+    .cell img { width: 56px; height: 56px; }
+    .cell span { display: block; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+    .note { color: var(--text-muted); font-size: 14px; max-width: 60ch; }
+  </style>
+</head>
+<body>
+  <h1>İkon seti</h1>
+  <p class="note">Özgün stilize çizimler. Rütbe nişanları resmi armaları kopyalamaz; oyun içi kariyer/HUD kullanımı içindir.</p>
+
+  <h2>Silah sınıfları</h2>
+  <div class="grid">
+    <div class="cell"><img src="weapons/rifle.svg" alt=""/><span>Tüfek</span></div>
+    <div class="cell"><img src="weapons/pistol.svg" alt=""/><span>Tabanca</span></div>
+    <div class="cell"><img src="weapons/sniper.svg" alt=""/><span>Keskin</span></div>
+    <div class="cell"><img src="weapons/shotgun.svg" alt=""/><span>Pompalı</span></div>
+    <div class="cell"><img src="weapons/smg.svg" alt=""/><span>SMG</span></div>
+    <div class="cell"><img src="weapons/lmg.svg" alt=""/><span>LMG</span></div>
+    <div class="cell"><img src="weapons/grenade.svg" alt=""/><span>Bomba</span></div>
+  </div>
+
+  <h2>Eşya kategorileri</h2>
+  <div class="grid">
+    <div class="cell"><img src="items/ammo.svg" alt=""/><span>Cephane</span></div>
+    <div class="cell"><img src="items/medkit.svg" alt=""/><span>Sağlık</span></div>
+    <div class="cell"><img src="items/armor.svg" alt=""/><span>Zırh</span></div>
+    <div class="cell"><img src="items/boost.svg" alt=""/><span>Takviye</span></div>
+    <div class="cell"><img src="items/radio.svg" alt=""/><span>Telsiz</span></div>
+  </div>
+
+  <h2>Tim emirleri</h2>
+  <div class="grid">
+    <div class="cell"><img src="orders/follow.svg" alt=""/><span>Takip</span></div>
+    <div class="cell"><img src="orders/hold.svg" alt=""/><span>Mevzi</span></div>
+    <div class="cell"><img src="orders/attack.svg" alt=""/><span>Taarruz</span></div>
+    <div class="cell"><img src="orders/rally.svg" alt=""/><span>Toplan</span></div>
+    <div class="cell"><img src="orders/artillery.svg" alt=""/><span>Topçu</span></div>
+  </div>
+
+  <h2>İntikal</h2>
+  <div class="grid">
+    <div class="cell"><img src="transport/helicopter.svg" alt=""/><span>T-70</span></div>
+    <div class="cell"><img src="transport/kirpi.svg" alt=""/><span>Kirpi</span></div>
+  </div>
+
+  <h2>Rütbe nişanları (stilize · MilitaryRank 19)</h2>
+  <p class="note">Kaynak set: <code>Design/Teams/ranks/</code> ile senkron. Resmi arma kopyası değil.</p>
+  <div class="grid">
+    <div class="cell"><img src="ranks/er.svg" alt=""/><span>Er</span></div>
+    <div class="cell"><img src="ranks/onbasi.svg" alt=""/><span>Onbaşı</span></div>
+    <div class="cell"><img src="ranks/cavus.svg" alt=""/><span>Çavuş</span></div>
+    <div class="cell"><img src="ranks/sozlesmeli-er.svg" alt=""/><span>Sözl. Er</span></div>
+    <div class="cell"><img src="ranks/uzman-onbasi.svg" alt=""/><span>Uzm. Onb.</span></div>
+    <div class="cell"><img src="ranks/uzman-cavus.svg" alt=""/><span>Uzm. Çvş.</span></div>
+    <div class="cell"><img src="ranks/astsubay-cavus.svg" alt=""/><span>Astsb. Çvş.</span></div>
+    <div class="cell"><img src="ranks/astsubay-kidemli-cavus.svg" alt=""/><span>Astsb. Kd. Çvş.</span></div>
+    <div class="cell"><img src="ranks/astsubay-ustcavus.svg" alt=""/><span>Astsb. Üçvş.</span></div>
+    <div class="cell"><img src="ranks/astsubay-kidemli-ustcavus.svg" alt=""/><span>Astsb. Kd. Üçvş.</span></div>
+    <div class="cell"><img src="ranks/astsubay-bascavus.svg" alt=""/><span>Astsb. Bçvş.</span></div>
+    <div class="cell"><img src="ranks/astsubay-kidemli-bascavus.svg" alt=""/><span>Astsb. Kd. Bçvş.</span></div>
+    <div class="cell"><img src="ranks/astegmen.svg" alt=""/><span>Asteğmen</span></div>
+    <div class="cell"><img src="ranks/tegmen.svg" alt=""/><span>Teğmen</span></div>
+    <div class="cell"><img src="ranks/ustegmen.svg" alt=""/><span>Üsteğmen</span></div>
+    <div class="cell"><img src="ranks/yuzbasi.svg" alt=""/><span>Yüzbaşı</span></div>
+    <div class="cell"><img src="ranks/binbasi.svg" alt=""/><span>Binbaşı</span></div>
+    <div class="cell"><img src="ranks/yarbay.svg" alt=""/><span>Yarbay</span></div>
+    <div class="cell"><img src="ranks/albay.svg" alt=""/><span>Albay</span></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+SoundId,kaynak_paket,dosya_onerisi,katman(yakın/orta/uzak),lisans,notlar
+None,—,—,—,—,Sessiz yer tutucu; asset yok. Unity import edilmez.
+ShotPistol,Sonniss GDC 2023–2025 Weapons,9mm_Close_Shot_*.wav,yakın,Sonniss RF,SAR9/TP9. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotPistol,Sonniss GDC Weapons,9mm_Medium_Outdoor_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotPistol,Sonniss GDC Distants,9mm_Distant_Report_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+ShotSmg,Sonniss GDC 2023–2025 Weapons,SMG_9mm_Close_Burst_*.wav,yakın,Sonniss RF,SAR 109T; burst 3–5 varyasyon. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotSmg,Sonniss GDC Weapons,SMG_Medium_Crack_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotSmg,Sonniss GDC Distants,SMG_Distant_Air_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+ShotRifle556,Sonniss GDC 2023–2025 Weapons,AR15_556_Close_*.wav,yakın,Sonniss RF,MPT-55; Sample Rate 48 kHz; Normalize Off. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotRifle556,Sonniss GDC Weapons,AR_556_Medium_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotRifle556,Sonniss GDC Distants,Rifle_556_Distant_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+ShotRifle762,Sonniss GDC 2023–2025 Weapons,BattleRifle_762_Close_*.wav,yakın,Sonniss RF,MPT-76/G3A7; Highpass 80 Hz. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotRifle762,Sonniss GDC Weapons,BattleRifle_762_Medium_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotRifle762,Sonniss GDC Distants,762_Distant_Boom_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+ShotDmr,Sonniss GDC 2023–2025 Weapons,DMR_762_Close_*.wav,yakın,Sonniss RF,KNT-76 tek atış transient. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotDmr,Sonniss GDC Weapons,DMR_Medium_Crack_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotDmr,Sonniss GDC Distants,Sniper_Distant_Crack_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+ShotSniper,Sonniss GDC 2023–2025 Weapons,BoltAction_Sniper_Close_*.wav,yakın,Sonniss RF,JNG-90; uzun tail. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotSniper,Sonniss GDC Weapons,Sniper_Medium_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotSniper,Sonniss GDC Distants,Sniper_Distant_Heavy_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+ShotShotgun,Sonniss GDC 2023–2025 Weapons,Shotgun_12ga_Close_*.wav,yakın,Sonniss RF,Escort; FPS yakında mono tercih. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotShotgun,Sonniss GDC Weapons,Shotgun_Medium_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotShotgun,Sonniss GDC Distants,Shotgun_Distant_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+ShotMachineGun,Sonniss GDC 2023–2025 Weapons,LMG_762_Close_Loopable_*.wav,yakın,Sonniss RF,PMT-76; attack one-shot + body loop. Unity: Force To Mono Off; Decompress On Load (viewmodel); Spatial 3D Min1 Max80. İç mekân kısa reverb.
+ShotMachineGun,Sonniss GDC Weapons,LMG_Medium_*.wav,orta,Sonniss RF,Mesafe ~40–120 m; LPF 3–4 kHz. Compressed In Memory Quality 70.
+ShotMachineGun,Sonniss GDC Distants,MG_Distant_Rattle_*.wav,uzak,Sonniss RF,120 m+ report. Compressed; Priority düşük; delay distance/343.
+DryFire,Sonniss GDC Weapons/Foley,DryFire_Click_*.wav,yakın,Sonniss RF,Boş tetik; Max distance 15. 2–3 varyasyon.
+ReloadMagOut,Sonniss GDC Foley/Weapons,Mag_Out_Metal_*.wav,yakın,Sonniss RF,Şarjör çıkış; 3+ varyasyon.
+ReloadMagIn,Sonniss GDC Foley/Weapons,Mag_In_Click_*.wav,yakın,Sonniss RF,Şarjör oturtma.
+ReloadBolt,Sonniss GDC Foley/Weapons,Bolt_Charge_*.wav,yakın,Sonniss RF,Sürgü; JNG-90 uzun varyant.
+ShellInsert,Sonniss GDC Foley,Shotgun_Shell_Insert_*.wav,yakın,Sonniss RF,Escort tek fişek.
+FireModeSwitch,Sonniss GDC Foley,FireSelector_Click_*.wav,yakın,Sonniss RF,Atış modu düğmesi.
+WeaponEquip,Sonniss GDC Foley,Weapon_Equip_Rustle_*.wav,yakın,Sonniss RF,Silah değiştirme foley.
+Footstep,Sonniss GDC Footsteps,FS_Boot_Dirt_Concrete_Gravel_Snow_*.wav,yakın,Sonniss RF,Zemin setleri Dirt/Mud/Rock/Asphalt/Snow. 3D; pitch 0.95–1.05. Compressed.
+Jump,Sonniss GDC Foley,Cloth_Jump_Effort_*.wav,yakın,Sonniss RF,Zıplama efor+kumaş.
+Land,Sonniss GDC Footsteps,Land_Boot_*.wav,yakın,Sonniss RF,İniş; hıza göre volume.
+HitMarker,Sonniss GDC UI / özgün,UI_HitConfirm_Tick_*.wav,yakın (2D),Sonniss RF / özgün,HUD 2D Spatial Blend 0 Priority yüksek.
+KillConfirm,Sonniss GDC UI,UI_Kill_Confirm_*.wav,yakın (2D),Sonniss RF / özgün,2D.
+Headshot,Sonniss GDC UI,UI_Headshot_Special_*.wav,yakın (2D),Sonniss RF / özgün,2D vurgu.
+HitFlesh,Sonniss GDC Impacts,Impact_Flesh_*.wav,yakın,Sonniss RF,3D eti isabet.
+HitHelmet,Sonniss GDC Impacts,Impact_Helmet_Metal_*.wav,yakın,Sonniss RF,Kask metalik.
+HitArmor,Sonniss GDC Impacts,Impact_BodyArmor_*.wav,yakın,Sonniss RF,Plaka isabeti.
+BulletImpact,Sonniss GDC Impacts,Impact_Dirt_Concrete_Wood_*.wav,yakın,Sonniss RF,Yüzeye göre varyasyon; Decal senkron.
+BulletImpactMetal,Sonniss GDC Impacts,Impact_Metal_Ricochet_*.wav,yakın,Sonniss RF,Metal sıçrama.
+BulletWhiz,Sonniss GDC Weapons,Bullet_By_Whiz_*.wav,orta,Sonniss RF,Mermi ıslığı; Doppler opsiyonel.
+Punch,Sonniss GDC Foley,Melee_Punch_*.wav,yakın,Sonniss RF,Yumruk/melee.
+Explosion,Sonniss GDC Explosions,Explosion_Close_*.wav,yakın,Sonniss RF,El bombası yakın; -1 dBTP peak.
+Explosion,Sonniss GDC Explosions,Explosion_Medium_Tail_*.wav,orta,Sonniss RF,Orta mesafe kuyruk.
+Explosion,Sonniss GDC Explosions,Explosion_Distant_Boom_*.wav,uzak,Sonniss RF,Uzak boom LPF.
+ArtilleryWhistle,Sonniss GDC Explosions/War,Artillery_Incoming_Whistle_*.wav,orta,Sonniss RF,Topçu ıslığı; sonra Explosion.
+GrenadePin,Sonniss GDC Foley,Grenade_Pin_Pull_*.wav,yakın,Sonniss RF,Pim çekme.
+GrenadeBounce,Sonniss GDC Foley,Grenade_Bounce_Concrete_*.wav,yakın,Sonniss RF,Zemin bounce varyasyonları.
+SmokeHiss,Sonniss GDC Foley,Smoke_Grenade_Hiss_Loop_*.wav,yakın,Sonniss RF,Sis hiss; Loop On Compressed In Memory.
+Bandage,Sonniss GDC Foley/Medical,Bandage_Wrap_*.wav,yakın,Sonniss RF,Sargı foley.
+Drink,Sonniss GDC Foley,Drink_Can_Sip_*.wav,yakın,Sonniss RF,Boost içecek.
+Pickup,Sonniss GDC UI/Foley,Item_Pickup_*.wav,yakın (2D/3D),Sonniss RF,Yağma alma kısa.
+UiClick,Sonniss GDC UI,UI_Click_Soft_*.wav,yakın (2D),Sonniss RF,Menü tık Preload 2D.
+UiHover,Sonniss GDC UI,UI_Hover_*.wav,yakın (2D),Sonniss RF,Hover düşük volume.
+UiConfirm,Sonniss GDC UI,UI_Confirm_Positive_*.wav,yakın (2D),Sonniss RF,Onay.
+ZoneWarning,Sonniss GDC Alarms / özgün,Alarm_Pulse_Warning_*.wav,yakın (2D),Sonniss RF / özgün,Zone uyarı 2D pulse.
+ZoneDamage,özgün / Sonniss,Zone_Damage_Tick_*.wav,yakın (2D),özgün tercih,Hasar tik; Heartbeat frekans ayrımı.
+HelicopterRotor,Sonniss GDC Vehicles/Aircraft,Heli_Rotor_Loop_*.wav,orta,Sonniss RF,T-70 Loop On 3D Doppler Streaming/Compressed.
+HelicopterRotor,Sonniss GDC Vehicles,Heli_Rotor_Distant_*.wav,uzak,Sonniss RF,Uzak rotor LPF instance.
+VehicleEngine,Sonniss GDC Vehicles,Truck_Diesel_Loop_*.wav,orta,Sonniss RF,Kirpi motor loop RPM pitch.
+VehicleEngine,Sonniss GDC Vehicles,Truck_Distant_Rumble_*.wav,uzak,Sonniss RF,Uzak uğultu.
+Wind,Sonniss GDC Ambience,Wind_Mountain_Loop_*.wav,uzak,Sonniss RF,Loop Streaming düşük priority.
+Ambience,Sonniss GDC Ambience,Rural_Valley_Ambience_*.wav,uzak,Sonniss RF,Bölge bedleri köy/orman/baraj Loop Streaming.
+DistantBattle,Sonniss GDC War Ambience,Distant_Battle_Loop_*.wav,uzak,Sonniss RF,Uzak muharebe; karışım en alt.
+MenuMusic,özgün / Sonniss Music,menu_theme_military_anatolian.wav,yakın (2D),özgün veya müzik lisansı,Ana menü Streaming 2D Music bus; Sonniss müzik bedeli ayrı oku.
+RadioBeep,Sonniss GDC Radio/UI,Radio_Beep_*.wav,yakın (2D),Sonniss RF,Telsiz bip.
+RadioChatter,özgün seslendirme,radio_chatter_*.wav,yakın (2D),özgün,C3-3 replikler; bandpass 300–3k Mono Forced.
+Death,Sonniss GDC Foley,Death_BodyFall_*.wav,yakın,Sonniss RF,Ölüm/düşüş.
+Heartbeat,Sonniss GDC Medical Foley,Heartbeat_Loop_*.wav,yakın (2D),Sonniss RF,Düşük can Loop 2D.
+VehicleDoor,Sonniss GDC Vehicles,Vehicle_Door_OpenClose_*.wav,yakın,Sonniss RF,Kirpi kapı.

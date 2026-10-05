@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U5. UI/UX Akış Diyagramları · HAREKÂT Kılavuz</title>
+<meta name="description" content="U5. UI/UX Akış Diyagramları">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">U5. UI/UX Akış Diyagramları</span></li></ol></nav>
+<h1>U5. UI/UX Akış Diyagramları</h1><div class="prose"><h2>U5. UI/UX Akış Diyagramları</h2>
+<p>Arayüz metinleri Türkçe. Diyagramlar Mermaid.</p>
+<h3>20.1 Ana menü</h3>
+<pre><code>flowchart TD
+  A[Açılış / Logo] --&gt; B[Ana Menü]
+  B --&gt; C[Hızlı Maç]
+  B --&gt; D[Eğitim / Poligon]
+  B --&gt; E[Tim]
+  B --&gt; F[Profil / Rütbe]
+  B --&gt; G[Ayarlar]
+  B --&gt; H[Çıkış]
+  C --&gt; I{Intikal seç}
+  I --&gt;|T-70| J[Maç yükleniyor]
+  I --&gt;|Kirpi| J
+  D --&gt; K[TutorialBootstrap / Poligon]
+  E --&gt; L[Davet / Bekleme]
+  L --&gt; C
+  F --&gt; B
+  G --&gt; B</code></pre>
+<h3>20.2 Maç akışı</h3>
+<pre><code>stateDiagram-v2
+  [*] --&gt; OnMac: PreMatch ~6sn
+  OnMac --&gt; Intikal: İntikal animasyonu
+  Intikal --&gt; Yagma: İniş / çıkış
+  Yagma --&gt; Muharebe: Zone Start
+  Muharebe --&gt; Muharebe: Waiting / Shrinking döngüsü
+  Muharebe --&gt; Sonuc: Tek tim kaldı / süre
+  Muharebe --&gt; Izleyici: Oyuncu öldü
+  Izleyici --&gt; Sonuc: Maç bitti
+  Sonuc --&gt; [*]: XP &amp; menü</code></pre>
+<h3>20.3 Maç içi HUD bilgi mimarisi</h3>
+<pre><code>flowchart LR
+  subgraph Sol
+    HP[Can / Zırh / Boost]
+    Silah[Silah / mermi]
+  end
+  subgraph Orta
+    Nisangah[Nişangâh]
+    Emir[Aktif emir banner]
+  end
+  subgraph Sag
+    Mini[Minimap + zone]
+    Tim[Tim listesi + rütbe]
+    Topcu[Topçu CD]
+  end
+  subgraph Alt
+    Kill[Kill feed]
+    ZoneTxt[Faz / süre]
+  end</code></pre>
+<h3>20.4 Ölüm ve izleyici</h3>
+<pre><code>flowchart TD
+  O[Hasar alındı] --&gt; P{Can &gt; 0?}
+  P --&gt;|Evet| Q[Hasar yönü UI]
+  P --&gt;|Hayır| R[Ölüm kamerası]
+  R --&gt; S{Komuta devri?}
+  S --&gt;|Evet| T[Yeni komutan bildirimi]
+  S --&gt;|Hayır| U[Tim yok]
+  T --&gt; V[İzleyici: tim arkadaşı seç]
+  U --&gt; V
+  V --&gt; W[Serbest kamera / sonraki]
+  V --&gt; X[Maç sonucu bekle]
+  X --&gt; Y[XP özeti]
+  Y --&gt; Z[Ana menü / Yeniden]</code></pre>
+<h3>20.5 Emir verme (komutan)</h3>
+<pre><code>sequenceDiagram
+  participant O as Oyuncu
+  participant UI as Komuta UI
+  participant S as SquadOrderService
+  participant B as Bot AI
+  O-&gt;&gt;UI: Emir tuşu / tekerlek
+  UI-&gt;&gt;UI: Hedef noktası (Attack)
+  UI-&gt;&gt;S: Issue(order, target)
+  S--&gt;&gt;B: SquadOrderIssuedEvent
+  B-&gt;&gt;B: Decide() öncelik sırası
+  B--&gt;&gt;UI: Tim panelinde emir ikonu</code></pre>
+<h3>20.6 Topçu çağrısı</h3>
+<pre><code>flowchart TD
+  A[Telsizci hayatta + CD hazır] --&gt; B[Haritada hedef]
+  B --&gt; C[Onay]
+  C --&gt; D[6 sn ıslık + işaret]
+  D --&gt; E[8 mermi]
+  E --&gt; F[CD 150 sn]
+  A --&gt;|CD dolu| G[UI: kalan süre]</code></pre>
+<h3>20.7 Erişilebilirlik notları</h3>
+<ul>
+<li>Emir tekerleği: klavye sayıları + fare.  </li>
+<li>Zone: renk + süre metni + ses.  </li>
+<li>Ölüm ekranı: otomatik odak “Yeniden / Menü” (gamepad).</li>
+</ul></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

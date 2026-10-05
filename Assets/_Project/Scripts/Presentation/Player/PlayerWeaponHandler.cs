@@ -280,7 +280,8 @@ namespace Project.Presentation.Player
             var after = weapon.CurrentFireMode;
             if (after == before)
             {
-                _owner.Notify("Tek ateş modu", 1f);
+                // Silahın tek ateş modu var (ör. JNG-90 tek atış, PMT-76 otomatik).
+                _owner.Notify(FireModeName(after, weapon.Definition) + " — tek mod", 1f);
                 return;
             }
 

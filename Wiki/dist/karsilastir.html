@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Silah Karşılaştır · HAREKÂT Kılavuz</title>
+<meta name="description" content="İki silah karşılaştırması">
+<link rel="stylesheet" href="assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="index.html">Ana Sayfa</a><a href="baslangic.html">Yeni Başlayanlar</a><a href="silahlar/index.html">Silahlar</a><a href="rutbeler/index.html">Rütbeler</a><a href="gorevler/index.html">Görevler</a><a href="lokasyonlar/index.html">Lokasyonlar</a><a href="kontroller.html">Kontroller</a><a href="rehber/index.html">GDD</a><a href="karsilastir.html">Karşılaştır</a><a href="harita.html">Harita</a><a href="yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="index.html">Ana Sayfa</a></li><li><span aria-current="page">Karşılaştır</span></li></ol></nav>
+
+<h1>Silah Karşılaştırma</h1>
+<p class="lede">İki silahı yan yana seç. Veriler derleme zamanında gömüldü.</p>
+<div class="compare-controls">
+  <label>Silah A <select data-compare-a></select></label>
+  <label>Silah B <select data-compare-b></select></label>
+</div>
+<div data-compare-table></div>
+<script type="application/json" id="weapon-data">[{"id":"Sar9","name":"SAR 9","category":"Tabanca","damage":28,"magazine":15,"rpm":375,"reload":1.5,"range":120,"ammo":"9 mm","hs":2,"falloff":"20–70","minFactor":0.55},{"id":"Tp9","name":"Canik TP9","category":"Tabanca","damage":26,"magazine":18,"rpm":400,"reload":1.6,"range":120,"ammo":"9 mm","hs":2,"falloff":"20–70","minFactor":0.55},{"id":"Sar109","name":"SAR 109T","category":"Hafif Makineli","damage":22,"magazine":30,"rpm":800,"reload":2,"range":180,"ammo":"9 mm","hs":1.8,"falloff":"25–100","minFactor":0.5},{"id":"Mpt55","name":"MPT-55","category":"Piyade Tüfeği","damage":26,"magazine":30,"rpm":750,"reload":2.3,"range":450,"ammo":"5.56 mm","hs":2,"falloff":"70–300","minFactor":0.65},{"id":"Mpt76","name":"MPT-76","category":"Piyade Tüfeği","damage":36,"magazine":20,"rpm":600,"reload":2.5,"range":600,"ammo":"7.62 mm","hs":2,"falloff":"90–400","minFactor":0.7},{"id":"G3","name":"G3A7","category":"Piyade Tüfeği","damage":38,"magazine":20,"rpm":550,"reload":2.6,"range":600,"ammo":"7.62 mm","hs":2,"falloff":"90–400","minFactor":0.7},{"id":"Knt76","name":"KNT-76","category":"Nişancı Tüfeği","damage":52,"magazine":10,"rpm":214.29,"reload":2.8,"range":800,"ammo":"7.62 mm","hs":2.2,"falloff":"150–600","minFactor":0.75},{"id":"Jng90","name":"JNG-90","category":"Keskin Nişancı","damage":90,"magazine":5,"rpm":42.86,"reload":3.4,"range":1000,"ammo":"7.62 mm","hs":2.5,"falloff":"200–800","minFactor":0.8},{"id":"Pmt76","name":"PMT-76","category":"Makineli Tüfek","damage":34,"magazine":100,"rpm":650,"reload":6,"range":600,"ammo":"7.62 mm","hs":1.8,"falloff":"90–400","minFactor":0.7},{"id":"Escort","name":"Escort","category":"Pompalı","damage":20,"magazine":7,"rpm":70.59,"reload":4.2,"range":70,"ammo":"12 Kalibre","hs":1.5,"falloff":"8–40","minFactor":0.2}]</script>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="assets/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "domainSource": "Harekat.Domain.Entities.Season(Number, Name, StartsAt, EndsAt) + Player.SeasonXp / SeasonRank",
+  "backendSeedFields": [
+    "number",
+    "name",
+    "startsAt",
+    "endsAt"
+  ],
+  "season": {
+    "number": 1,
+    "name": "Sezon 1 — Kuzgun İnişi",
+    "nameEn": "Season 1 — Raven Descent",
+    "startsAt": "2026-11-02T00:00:00+00:00",
+    "endsAt": "2027-01-11T00:00:00+00:00",
+    "weeks": 10,
+    "durationDays": 70,
+    "themeTr": "Kuzgun Vadisi gece ve kıyı intikalleri; kozmetik odaklı ödül merdiveni.",
+    "themeEn": "Kuzgun Valley night and coastal insertions; cosmetics-only reward track."
+  },
+  "progressionSplit": {
+    "careerRank": {
+      "source": "Player.Stats.Experience → RankCatalog.RankForXp → MilitaryRank",
+      "persistsAcrossSeasons": true,
+      "descriptionTr": "Kariyer rütbesi kalıcıdır; sezon bitince sıfırlanmaz.",
+      "descriptionEn": "Career rank is permanent; not reset at season end."
+    },
+    "seasonScore": {
+      "source": "Player.SeasonXp → SeasonRank = RankCatalog.RankForXp(SeasonXp) (görünüm)",
+      "persistsAcrossSeasons": false,
+      "descriptionTr": "Sezon puanı (SeasonXp) yalnızca aktif sezonda birikir; arşiv sonrası 0'a çekilir (SeasonService.ArchiveSeasonAsync).",
+      "descriptionEn": "SeasonXp accumulates only in the active season; reset to 0 on archive.",
+      "leaderboard": "GET /leaderboards/season, GET /seasons/{n}/archive"
+    }
+  },
+  "rewardRules": [
+    "Ödül merdiveni YALNIZCA kozmetik (camo, bere, kol bandı, silah kaplama, zafer pozu, çerçeve).",
+    "Silah istatistiği, zırh, topçu cooldown, XP çarpanı veya bot avantajı YOK.",
+    "Ücretsiz hat anlamlıdır: her hafta en az bir kozmetik.",
+    "Sezon arşiv rozetleri: frame_archive_s1_top10 / top100 (SeasonArchiveEntry.RewardBadge)."
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "startsOffsetDays": 0,
+      "endsOffsetDays": 7,
+      "seasonXpRequired": 500,
+      "reward": {
+        "cosmeticId": "armband_season1",
+        "labelTr": "Hafta 1 — Sezon Kol Bandı",
+        "labelEn": "Week 1 — Season Armband",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 1: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 1: Operation Raven Descent continues."
+    },
+    {
+      "week": 2,
+      "startsOffsetDays": 7,
+      "endsOffsetDays": 14,
+      "seasonXpRequired": 1500,
+      "reward": {
+        "cosmeticId": "camo_coast",
+        "labelTr": "Hafta 2 — Kıyı Kamuflajı",
+        "labelEn": "Week 2 — Coastal Camo",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 2: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 2: Operation Raven Descent continues."
+    },
+    {
+      "week": 3,
+      "startsOffsetDays": 14,
+      "endsOffsetDays": 21,
+      "seasonXpRequired": 3000,
+      "reward": {
+        "cosmeticId": "skin_mpt55_coast",
+        "labelTr": "Hafta 3 — MPT-55 Kıyı Kaplama",
+        "labelEn": "Week 3 — MPT-55 Coast Wrap",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 3: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 3: Operation Raven Descent continues."
+    },
+    {
+      "week": 4,
+      "startsOffsetDays": 21,
+      "endsOffsetDays": 28,
+      "seasonXpRequired": 5000,
+      "reward": {
+        "cosmeticId": "beret_steel",
+        "labelTr": "Hafta 4 — Çelik Bere",
+        "labelEn": "Week 4 — Steel Beret",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 4: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 4: Operation Raven Descent continues."
+    },
+    {
+      "week": 5,
+      "startsOffsetDays": 28,
+      "endsOffsetDays": 35,
+      "seasonXpRequired": 7500,
+      "reward": {
+        "cosmeticId": "frame_season1",
+        "labelTr": "Hafta 5 — Sezon Çerçevesi",
+        "labelEn": "Week 5 — Season Frame",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 5: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 5: Operation Raven Descent continues."
+    },
+    {
+      "week": 6,
+      "startsOffsetDays": 35,
+      "endsOffsetDays": 42,
+      "seasonXpRequired": 10500,
+      "reward": {
+        "cosmeticId": "skin_jng90_snow",
+        "labelTr": "Hafta 6 — JNG-90 Kar (sezon erken açılım)",
+        "labelEn": "Week 6 — JNG-90 Snow early unlock",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 6: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 6: Operation Raven Descent continues."
+    },
+    {
+      "week": 7,
+      "startsOffsetDays": 42,
+      "endsOffsetDays": 49,
+      "seasonXpRequired": 14000,
+      "reward": {
+        "cosmeticId": "pose_binoculars",
+        "labelTr": "Hafta 7 — Dürbün Pozu (sezon)",
+        "labelEn": "Week 7 — Optics pose via season",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 7: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 7: Operation Raven Descent continues."
+    },
+    {
+      "week": 8,
+      "startsOffsetDays": 49,
+      "endsOffsetDays": 56,
+      "seasonXpRequired": 18000,
+      "reward": {
+        "cosmeticId": "beret_frost",
+        "labelTr": "Hafta 8 — Ayaz Beresi",
+        "labelEn": "Week 8 — Frost Beret",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 8: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 8: Operation Raven Descent continues."
+    },
+    {
+      "week": 9,
+      "startsOffsetDays": 56,
+      "endsOffsetDays": 63,
+      "seasonXpRequired": 23000,
+      "reward": {
+        "cosmeticId": "camo_mountain",
+        "labelTr": "Hafta 9 — Dağ Kamuflajı (sezon)",
+        "labelEn": "Week 9 — Mountain Camo via season",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 9: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 9: Operation Raven Descent continues."
+    },
+    {
+      "week": 10,
+      "startsOffsetDays": 63,
+      "endsOffsetDays": 70,
+      "seasonXpRequired": 30000,
+      "reward": {
+        "cosmeticId": "pose_flag_plant",
+        "labelTr": "Hafta 10 — Bayrak Dikme Pozu",
+        "labelEn": "Week 10 — Flag Plant Pose",
+        "type": "cosmetic_only"
+      },
+      "narrativeTr": "Sezon 1 · Hafta 10: Kuzgun İnişi harekâtı devam ediyor.",
+      "narrativeEn": "Season 1 · Week 10: Operation Raven Descent continues."
+    }
+  ],
+  "bonusMilestones": [
+    {
+      "seasonXpRequired": 1000,
+      "cosmeticId": "frame_bronze",
+      "note": "Erken bronz çerçeve (sezon yolu)"
+    },
+    {
+      "seasonXpRequired": 20000,
+      "cosmeticId": "skin_g3_woodland",
+      "note": "Orman G3 kaplama (sezon yolu)"
+    },
+    {
+      "seasonXpRequired": 28000,
+      "cosmeticId": "beret_navy",
+      "note": "Lacivert bere erken (sezon yolu)"
+    }
+  ],
+  "archiveRewards": [
+    {
+      "placementMax": 10,
+      "rewardBadge": "frame_archive_s1_top10"
+    },
+    {
+      "placementMax": 100,
+      "rewardBadge": "frame_archive_s1_top100"
+    }
+  ],
+  "xpReference": {
+    "matchFormula": "kills*100 + headshots*25 + (teamCount-placement)*150 + win?1000:0",
+    "source": "RankCatalog.CalculateMatchXp / GDD 12-ilerleme.md",
+    "noteTr": "Aynı XP hem kariyer Experience hem SeasonXp'e eklenir (MatchResultService)."
+  }
+}

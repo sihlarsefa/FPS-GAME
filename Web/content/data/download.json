@@ -1,0 +1,35 @@
+{
+  "latestVersion": "0.4.0",
+  "platform": "Windows",
+  "installer": {
+    "filename": "HarekatSetup-0.4.0.exe",
+    "url": "/downloads/HarekatSetup-0.4.0.exe",
+    "sizeMb": 0,
+    "placeholder": true,
+    "note_tr": "Kurulum dosyası Cursor F3-8 ile üretilecek; bağlantı şimdilik yer tutucu.",
+    "note_en": "Installer is produced by Cursor F3-8; link is a placeholder for now."
+  },
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "sha256Note_tr": "Gerçek SHA-256, imzalı kurulum paketi yayınlandığında buraya yazılacak.",
+  "sha256Note_en": "Real SHA-256 will be published with the signed installer.",
+  "steam": {
+    "status": "coming_soon",
+    "url": null,
+    "label_tr": "Steam — yakında",
+    "label_en": "Steam — coming soon"
+  },
+  "steps_tr": [
+    "Windows 10/11 64-bit sistem gereksinimlerini kontrol edin.",
+    "Kurulum dosyasını indirin (yer tutucu bağlantı; paket hazır olunca aktif olur).",
+    "İndirilen .exe dosyasının SHA-256 değerini bu sayfadaki özetle doğrulayın.",
+    "Kurulumu yönetici olarak çalıştırın ve varsayılan klasörü onaylayın.",
+    "Launcher açıldığında hesap ile giriş yapıp tatbikata katılın."
+  ],
+  "steps_en": [
+    "Check Windows 10/11 64-bit system requirements.",
+    "Download the installer (placeholder until the package ships).",
+    "Verify the .exe SHA-256 against the digest on this page.",
+    "Run setup as administrator and confirm the install path.",
+    "Sign in via the launcher and join an exercise."
+  ]
+}

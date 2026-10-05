@@ -13,6 +13,7 @@ public static class DependencyInjection
         services.AddSingleton<WeaponBalanceService>();
         services.AddSingleton<RiskScoreQueryService>();
         services.AddSingleton<ReplayService>();
+        services.AddSingleton<ClientErrorService>();
         return services;
     }
 }

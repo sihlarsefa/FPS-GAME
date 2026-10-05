@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Silahlar · HAREKÂT Kılavuz</title>
+<meta name="description" content="Silah kataloğu">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><span aria-current="page">Silahlar</span></li></ol></nav>
+<h1>Silahlar</h1>
+<p class="lede">10 silah — değerler <code>WeaponCatalog</code> kaynaklı; TTK <code>BalanceCalc</code> çıktısından.</p>
+<div class="table-scroll"><table>
+<thead><tr><th scope="col">Silah</th><th scope="col">Sınıf</th><th scope="col">Hasar</th><th scope="col">Şarjör</th><th scope="col">RPM</th><th scope="col">Mermi</th></tr></thead>
+<tbody><tr><td><a href="sar9.html">SAR 9</a></td><td>Tabanca</td><td>28</td><td>15</td><td>375</td><td>9 mm</td></tr><tr><td><a href="tp9.html">Canik TP9</a></td><td>Tabanca</td><td>26</td><td>18</td><td>400</td><td>9 mm</td></tr><tr><td><a href="sar109.html">SAR 109T</a></td><td>Hafif Makineli</td><td>22</td><td>30</td><td>800</td><td>9 mm</td></tr><tr><td><a href="mpt55.html">MPT-55</a></td><td>Piyade Tüfeği</td><td>26</td><td>30</td><td>750</td><td>5.56 mm</td></tr><tr><td><a href="mpt76.html">MPT-76</a></td><td>Piyade Tüfeği</td><td>36</td><td>20</td><td>600</td><td>7.62 mm</td></tr><tr><td><a href="g3.html">G3A7</a></td><td>Piyade Tüfeği</td><td>38</td><td>20</td><td>550</td><td>7.62 mm</td></tr><tr><td><a href="knt76.html">KNT-76</a></td><td>Nişancı Tüfeği</td><td>52</td><td>10</td><td>214.3</td><td>7.62 mm</td></tr><tr><td><a href="jng90.html">JNG-90</a></td><td>Keskin Nişancı</td><td>90</td><td>5</td><td>42.9</td><td>7.62 mm</td></tr><tr><td><a href="pmt76.html">PMT-76</a></td><td>Makineli Tüfek</td><td>34</td><td>100</td><td>650</td><td>7.62 mm</td></tr><tr><td><a href="escort.html">Escort</a></td><td>Pompalı</td><td>20</td><td>7</td><td>70.6</td><td>12 Kalibre</td></tr></tbody>
+</table></div>
+<p><a href="../karsilastir.html">İki silahı karşılaştır →</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

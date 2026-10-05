@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ana Sayfa · HAREKÂT Kılavuz</title>
+<meta name="description" content="HAREKÂT oyuncu kılavuzu">
+<link rel="stylesheet" href="assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="index.html">Ana Sayfa</a><a href="baslangic.html">Yeni Başlayanlar</a><a href="silahlar/index.html">Silahlar</a><a href="rutbeler/index.html">Rütbeler</a><a href="gorevler/index.html">Görevler</a><a href="lokasyonlar/index.html">Lokasyonlar</a><a href="kontroller.html">Kontroller</a><a href="rehber/index.html">GDD</a><a href="karsilastir.html">Karşılaştır</a><a href="harita.html">Harita</a><a href="yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><span aria-current="page">Ana Sayfa</span></li></ol></nav>
+
+<section class="hero">
+  <p class="eyebrow">Harekât tatbikatı · Mavi / Kırmızı</p>
+  <h1>Oyuncu Kılavuzu</h1>
+  <p class="lede">Silah istatistikleri, rütbe nişanları, tim görevleri, Kuzgun Vadisi lokasyonları ve GDD bölümleri — kataloglardan üretilmiş statik saha rehberi.</p>
+  <p lang="en" class="lede en-note">Field guide generated from GDD and Unity catalogs. Turkish primary, English chrome available.</p>
+</section>
+<section>
+  <h2>Hızlı erişim</h2>
+  <div class="card-grid">
+    <a class="card" href="baslangic.html">
+      
+      <strong>Yeni Başlayanlar</strong>
+      
+      <p>İlk 10 dakika, eğitim ve temel ipuçları</p>
+    </a>
+    <a class="card" href="silahlar/index.html">
+      
+      <strong>Silahlar</strong>
+      <span class="meta">10 silah</span>
+      <p>Hasar, RPM, TTK ve kullanım notları</p>
+    </a>
+    <a class="card" href="rutbeler/index.html">
+      
+      <strong>Rütbeler</strong>
+      <span class="meta">19 rütbe</span>
+      <p>Nişan, XP eşiği, komuta zinciri</p>
+    </a>
+    <a class="card" href="gorevler/index.html">
+      
+      <strong>Tim Görevleri</strong>
+      <span class="meta">7 rol</span>
+      <p>Başlangıç teçhizatı ve taktik rol</p>
+    </a>
+    <a class="card" href="lokasyonlar/index.html">
+      
+      <strong>Lokasyonlar</strong>
+      
+      <p>Pafta kesiti ve taktik notlar</p>
+    </a>
+    <a class="card" href="kontroller.html">
+      
+      <strong>Kontroller</strong>
+      
+      <p>Tuş haritası ve emirler</p>
+    </a>
+    <a class="card" href="harita.html">
+      
+      <strong>Kuzgun Vadisi</strong>
+      
+      <p>Etkileşimli pafta</p>
+    </a>
+    <a class="card" href="karsilastir.html">
+      
+      <strong>Silah Karşılaştır</strong>
+      
+      <p>İki silah yan yana</p>
+    </a></div>
+</section>
+<section>
+  <h2>Sistem özeti</h2>
+  <div class="table-scroll"><table><tbody><tr><th scope="row">Tim boyutu</th><td>10</td></tr><tr><th scope="row">Harita</th><td>Kuzgun Vadisi (1024×1024 m)</td></tr><tr><th scope="row">İntikal</th><td>T-70 helikopter veya Kirpi ZPT</td></tr><tr><th scope="row">Zone fazları</th><td>7</td></tr><tr><th scope="row">Topçu bekleme</th><td>150 sn</td></tr></tbody></table></div>
+</section>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="assets/app.js" type="module"></script>
+</body>
+</html>

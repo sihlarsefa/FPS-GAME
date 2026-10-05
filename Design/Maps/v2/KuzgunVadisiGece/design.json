@@ -1,0 +1,31 @@
+{
+  "variantOf": "Kuzgun Vadisi",
+  "schema": "DesignOnly.NightOpsVariant",
+  "baseLayout": "MapLayout.CreateKuzgunVadisi",
+  "HalfSize": 512,
+  "MaxHeight": 160,
+  "WaterLevel": 18,
+  "lighting": {
+    "ambientLuxRange": [0.2, 0.5],
+    "buildingInterior": "warm leakage",
+    "roadLamps": "sparse asphalt only",
+    "fobHelipad": "local bright, no full-map wash"
+  },
+  "vision": {
+    "nvg": "near-mid range; moon bloom risk",
+    "thermal": "structure heat + recent fire; weak through glass",
+    "lootNvg": ["High", "Military"],
+    "startNvgPerSquadMax": 2
+  },
+  "audio": {
+    "riverDominance": "higher than day",
+    "villageQuiet": true,
+    "generatorMask": ["ForwardBase", "Karakol"],
+    "criticalEventsAlwaysVisual": true
+  },
+  "gameplayNotes": [
+    "Same locations and roads as day layout",
+    "Reward sound discipline and light control",
+    "Compass HUD priority when fog + dark combine at zone edge"
+  ]
+}

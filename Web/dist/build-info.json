@@ -1,4 +1,14 @@
 {
-  "builtAt": "2026-10-05T13:14:45.894Z",
-  "stack": "html-css-js"
+  "builtAt": "2026-10-05T17:20:43.922Z",
+  "stack": "html-css-js",
+  "version": "0.4.0",
+  "features": [
+    "jwt-api",
+    "admin",
+    "iis",
+    "i18n",
+    "pwa-push",
+    "theme",
+    "news-md"
+  ]
 }

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7. Harekât Alanı (Zone) Fazları · HAREKÂT Kılavuz</title>
+<meta name="description" content="7. Harekât Alanı (Zone) Fazları">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">7. Harekât Alanı (Zone) Fazları</span></li></ol></nav>
+<h1>7. Harekât Alanı (Zone) Fazları</h1><div class="prose"><h2>7. Harekât Alanı (Zone) Fazları</h2>
+<p>Kaynak: <code>MatchConfig.DefaultZonePhases</code>, <code>ZoneService</code>.</p>
+<h3>7.1 Kavramlar</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Terim</th><th scope="col">Anlam</th></tr></thead><tbody><tr><td>Mavi bölge</td><td>Güvenli harekât alanı dışı hasar veren alan</td></tr><tr><td>Beyaz çember</td><td>Bir sonraki güvenli alan (<code>NextZone</code>)</td></tr><tr><td>Waiting</td><td>Bekleme — çember sabit</td></tr><tr><td>Shrinking</td><td>Daralma — merkez/yarıçap doğrusal enterpolasyon</td></tr><tr><td>Finished</td><td>Plan bitti</td></tr></tbody></table></div>
+<p>Başlangıç yarıçapı ~<code>mapHalfSize × 1.45</code> (~742 m); harita yarı boyutu 512 m.</p>
+<h3>7.2 Faz planı (~13 dk daralma)</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Faz</th><th scope="col">Bekleme (sn)</th><th scope="col">Daralma (sn)</th><th scope="col">Hedef yarıçap (m)</th><th scope="col">Hasar / sn</th></tr></thead><tbody><tr><td>0</td><td>150</td><td>70</td><td>420</td><td>1</td></tr><tr><td>1</td><td>80</td><td>55</td><td>260</td><td>2</td></tr><tr><td>2</td><td>65</td><td>45</td><td>160</td><td>3.5</td></tr><tr><td>3</td><td>55</td><td>40</td><td>95</td><td>5</td></tr><tr><td>4</td><td>45</td><td>35</td><td>50</td><td>8</td></tr><tr><td>5</td><td>35</td><td>30</td><td>20</td><td>11</td></tr><tr><td>6</td><td>25</td><td>30</td><td>0</td><td>16</td></tr></tbody></table></div>
+<p>Toplam bekleme+daralma ≈ <strong>855 sn</strong> (~14.25 dk) + erken yağma penceresi.</p>
+<h3>7.3 Merkez seçim kuralları</h3>
+<ol>
+<li>Yeni çember, mevcut çemberin <strong>tamamen içinde</strong>.  </li>
+<li>Merkez tercihen <code>|x|,|z| ≤ mapHalfSize × 0.8</code>.  </li>
+<li>Sonraki çember, bekleme başında seçilir (HUD beyaz halka).  </li>
+<li>Faz değişiminde <code>ZoneStageChangedEvent</code>.</li>
+</ol>
+<h3>7.4 Taktik etkiler</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Evre</th><th scope="col">Taktik</th></tr></thead><tbody><tr><td>Faz 0–1</td><td>Geniş rotasyon; FOB/Karakol yağması mümkün</td></tr><tr><td>Faz 2–3</td><td>Köprü ve dere geçişleri kritik</td></tr><tr><td>Faz 4–5</td><td>Mevzi + sis; topçu değeri artar</td></tr><tr><td>Faz 6</td><td>Merkez çöküşü; açık alanda kalmak ölümcül</td></tr></tbody></table></div>
+<p>Ses uyarıları: <code>ZoneWarning</code>, <code>ZoneDamage</code> — ayrıntı <a href="../rehber/19-ses-tasarim.html">19-ses-tasarim.md</a>.</p></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

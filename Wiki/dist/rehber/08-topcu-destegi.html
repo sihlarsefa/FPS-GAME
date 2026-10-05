@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>8. Topçu Desteği · HAREKÂT Kılavuz</title>
+<meta name="description" content="8. Topçu Desteği">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">8. Topçu Desteği</span></li></ol></nav>
+<h1>8. Topçu Desteği</h1><div class="prose"><h2>8. Topçu Desteği</h2>
+<p>Kaynak: <code>ArtilleryService</code>, <code>MatchConfig.ArtilleryCooldownSeconds</code>.</p>
+<h3>8.1 Kim çağırır?</h3>
+<p><strong>Telsizci</strong> rolü (slot 4) — anlatı olarak telsiz üzerinden batarya ateşi.   Teknik çağrı: <code>ArtilleryService.TryCall(team, caller, target)</code>.</p>
+<h3>8.2 Parametreler</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Parametre</th><th scope="col">Değer</th></tr></thead><tbody><tr><td>Bekleme (cooldown)</td><td><strong>150 sn</strong> / tim</td></tr><tr><td>Mermi sayısı / atış</td><td>8</td></tr><tr><td>Yayılma yarıçapı</td><td>18 m</td></tr><tr><td>İlk gecikme</td><td>6 sn (ıslık öncesi)</td></tr><tr><td>Mermi hasarı</td><td>120</td></tr><tr><td>Patlama yarıçapı</td><td>9 m</td></tr><tr><td>Mermiler arası</td><td>0.35–0.75 sn</td></tr><tr><td>Etkin kalma (linger)</td><td>son mermiden +1.5 sn</td></tr></tbody></table></div>
+<p>Hasar kaynağı adı: <strong>Topçu Ateşi</strong> (<code>DamageSourceIds.Artillery</code>).</p>
+<h3>8.3 Oynanış döngüsü</h3>
+<ol>
+<li>Telsizci / komutan hedef işaretler (harita veya nişangâh).  </li>
+<li>Onay → 6 sn uyarı (ıslık: <code>ArtilleryWhistle</code>).  </li>
+<li>8 mermi yağar; botlar <code>IsInDangerZone</code> ile kaçar.  </li>
+<li>Tim cooldown’a girer.</li>
+</ol>
+<h3>8.4 Tasarım gerekçesi</h3>
+<ul>
+<li><strong>Güçlü ama seyrek:</strong> 150 sn, tek tim başına tek “süper silah” ritmi.  </li>
+<li><strong>Okunabilir:</strong> Islık + harita işareti → karşı taraf kaçabilir (beceri vs şans dengesi).  </li>
+<li><strong>Rol kimliği:</strong> Telsizciyi hayatta tutmak stratejik; <a href="../rehber/18-rol-yetenekleri.html">18-rol-yetenekleri.md</a>.</li>
+</ul>
+<h3>8.5 Kötüye kullanım sınırları</h3>
+<ul>
+<li>Dost ateşi kapalıysa müttefik hasarı yok (varsayılan).  </li>
+<li>Zone dışı hedef: geçerli (kaçan düşmanı cezalandırma).  </li>
+<li>Spam yok: cooldown sert.</li>
+</ul></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

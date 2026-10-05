@@ -334,7 +334,7 @@ namespace Project.Infrastructure.AI
             }
 
             StopMoving();
-            LookYaw(ScanYaw(transform.eulerAngles.y, now));
+            LookYaw(ScanYaw(_anchorYaw, now));
             TryTacticalReload(now);
             TryBoost(now);
         }
@@ -449,7 +449,7 @@ namespace Project.Infrastructure.AI
             }
             else
             {
-                yaw = _leader != null ? _leader.transform.eulerAngles.y : transform.eulerAngles.y;
+                yaw = _leader != null ? _leader.transform.eulerAngles.y : _anchorYaw;
             }
 
             LookYaw(ScanYaw(yaw, now, 40f));
@@ -488,7 +488,7 @@ namespace Project.Infrastructure.AI
                 if (_arrivedTime < 0f)
                     _arrivedTime = now;
 
-                LookYaw(ScanYaw(transform.eulerAngles.y, now, 90f));
+                LookYaw(ScanYaw(_anchorYaw, now, 90f));
                 if (now - _arrivedTime > 3f)
                 {
                     _arrivedTime = -1f;
@@ -584,7 +584,7 @@ namespace Project.Infrastructure.AI
                     _arrivedTime = now;
 
                 _desiredStance = Stance.Crouching;
-                LookYaw(ScanYaw(transform.eulerAngles.y, now, 120f));
+                LookYaw(ScanYaw(_anchorYaw, now, 120f));
                 if (now - _arrivedTime > 2.5f)
                 {
                     _perception.ClearInvestigation();
@@ -684,7 +684,7 @@ namespace Project.Infrastructure.AI
             if (_perception.HasLastKnownEnemyPosition)
                 LookAt(_perception.LastKnownEnemyPosition + Vector3.up * 1.3f);
             else
-                LookYaw(ScanYaw(transform.eulerAngles.y, now, 60f));
+                LookYaw(ScanYaw(_anchorYaw, now, 60f));
 
             if (!itemUse.IsUsing)
             {

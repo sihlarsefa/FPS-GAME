@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="HAREKÂT stilize amblem">
+  <title>HAREKÂT Emblem</title>
+  <desc>Stilize hilal ve yıldız esinli özgün amblem. Resmi arma veya bayrak kopyası değildir.</desc>
+  <!-- Shield base -->
+  <defs>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="#0b0b0b"/>
+  <path d="M128 18 L218 48 L218 130 C218 178 178 214 128 238 C78 214 38 178 38 130 L38 48 Z"
+        fill="url(#shieldGrad)" stroke="#E30A17" stroke-width="6"/>
+  <!-- Stylized crescent (original geometry, not official arms) -->
+  <path d="M148 72
+           C118 74 96 100 96 132
+           C96 164 118 190 148 192
+           C128 186 114 162 114 132
+           C114 102 128 78 148 72 Z"
+        fill="#E30A17"/>
+  <!-- Stylized 5-point star, offset right of crescent -->
+  <polygon points="168,108 174,124 192,124 178,136 183,154 168,143 153,154 158,136 144,124 162,124"
+           fill="#F5F5F5"/>
+  <!-- Thin chevron / operation mark -->
+  <path d="M78 200 L128 214 L178 200" fill="none" stroke="#E30A17" stroke-width="3" stroke-linecap="square"/>
+</svg>

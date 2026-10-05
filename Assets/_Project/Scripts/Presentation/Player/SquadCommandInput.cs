@@ -4,6 +4,7 @@ using Project.Core.Domain;
 using Project.Infrastructure;
 using Project.Infrastructure.Audio;
 using Project.Infrastructure.Combat;
+using Project.Presentation.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,13 +13,15 @@ namespace Project.Presentation.Player
     /// <summary>
     /// Tim emirleri ve topçu çağrısı (klavye doğrudan Input System ile okunur):
     /// F1 Beni takip et, F2 Mevzi al, F3 Taarruz (nişan noktası), F4 Toplan — yalnızca tim komutanıyken.
-    /// V: topçu desteği (nişan noktası ≤ 600 m, yoksa harita işareti) — komutan ya da timde yaşayan telsizci varken.
+    /// V: topçu desteği (nişan noktası ≤ 600 m, yoksa harita işareti ≤ 600 m) — komutan ya da timde yaşayan telsizci varken.
+    /// Tam harita açıkken de çalışır: hedef harita işaretidir.
     /// </summary>
     public sealed class SquadCommandInput : IDisposable
     {
         public const float OrderMaxDistance = 400f;
         private const float AccessRefreshInterval = 0.5f;
         private const float DangerCloseDistance = 40f;
+        private const string OutOfRangeText = "Hedef menzil dışında (en fazla 600 m)";
 
         private readonly PlayerController _owner;
         private readonly List<Combatant> _teamBuffer = new(16);
@@ -88,9 +91,17 @@ namespace Project.Presentation.Player
             }
         }
 
+        /// <summary>
+        /// Oyun girdisi açıkken: hedef nişan noktası (yoksa harita işareti). Tam harita/envanter açıkken (oyun girdisi kapalı)
+        /// de çalışır; o zaman hedef yalnızca harita işaretidir — haritada işaretle, V/F3 ile hedefe gönder.
+        /// </summary>
         public void Tick(float dt)
         {
-            if (!_owner.InputEnabled || _owner.IsDead)
+            if (_owner.IsDead || Time.timeScale <= 0f)
+                return;
+
+            var overlayOpen = !_owner.InputEnabled;
+            if (overlayOpen && !MapOverlayInput.IsAnyOpen)
                 return;
 
             var keyboard = Keyboard.current;
@@ -98,20 +109,20 @@ namespace Project.Presentation.Player
                 return;
 
             if (keyboard.f1Key.wasPressedThisFrame)
-                IssueOrder(SquadOrder.Follow);
+                IssueOrder(SquadOrder.Follow, overlayOpen);
             else if (keyboard.f2Key.wasPressedThisFrame)
-                IssueOrder(SquadOrder.HoldPosition);
+                IssueOrder(SquadOrder.HoldPosition, overlayOpen);
             else if (keyboard.f3Key.wasPressedThisFrame)
-                IssueOrder(SquadOrder.Attack);
+                IssueOrder(SquadOrder.Attack, overlayOpen);
             else if (keyboard.f4Key.wasPressedThisFrame)
-                IssueOrder(SquadOrder.Regroup);
+                IssueOrder(SquadOrder.Regroup, overlayOpen);
 
             if (keyboard.vKey.wasPressedThisFrame)
-                CallArtillery();
+                CallArtillery(overlayOpen);
         }
 
         // ================================================================ emirler
-        private void IssueOrder(SquadOrder order)
+        private void IssueOrder(SquadOrder order, bool markerOnly)
         {
             var combatant = _owner.Combatant;
             if (combatant == null)
@@ -134,13 +145,13 @@ namespace Project.Presentation.Player
             var target = _owner.transform.position;
             if (order == SquadOrder.Attack)
             {
-                if (_owner.TryGetAimPoint(OrderMaxDistance, out var aimPoint))
+                if (!markerOnly && _owner.TryGetAimPoint(OrderMaxDistance, out var aimPoint))
                     target = aimPoint;
                 else if (_owner.MapMarker.HasValue)
                     target = _owner.MapMarker.Value;
                 else
                 {
-                    _owner.Notify("Taarruz hedefi görülmüyor", 1.5f);
+                    _owner.Notify(markerOnly ? "Önce haritada hedef işaretleyin" : "Taarruz hedefi görülmüyor", 1.5f);
                     return;
                 }
             }
@@ -160,7 +171,8 @@ namespace Project.Presentation.Player
 
             _lastIssued = order;
             PlayerController.PlaySound2D(SoundId.RadioBeep, 0.6f);
-            _owner.Notify(OrderText(order), 2f);
+            // HUD emri SquadOrderIssuedEvent'ten merkez mesajı olarak gösterir: istem satırına yazılmaz.
+            _owner.Notify(OrderText(order), 2f, false);
         }
 
         public static string OrderText(SquadOrder order)
@@ -194,7 +206,7 @@ namespace Project.Presentation.Player
         }
 
         // ================================================================ topçu
-        private void CallArtillery()
+        private void CallArtillery(bool markerOnly)
         {
             var combatant = _owner.Combatant;
             if (combatant == null)
@@ -222,17 +234,22 @@ namespace Project.Presentation.Player
             }
 
             Vector3 target;
-            if (_owner.TryGetAimPoint(PlayerController.ArtilleryMaxRange, out var aimPoint))
+            if (!markerOnly && _owner.TryGetAimPoint(PlayerController.ArtilleryMaxRange, out var aimPoint))
             {
                 target = aimPoint;
             }
             else if (_owner.MapMarker.HasValue)
             {
                 target = _owner.MapMarker.Value;
+                if (HorizontalDistance(_owner.transform.position, target) > PlayerController.ArtilleryMaxRange)
+                {
+                    _owner.Notify(OutOfRangeText, 1.8f);
+                    return;
+                }
             }
             else
             {
-                _owner.Notify("Hedef menzil dışında (en fazla 600 m)", 1.8f);
+                _owner.Notify(markerOnly ? "Önce haritada hedef işaretleyin" : OutOfRangeText, 1.8f);
                 return;
             }
 
@@ -257,10 +274,18 @@ namespace Project.Presentation.Player
             }
 
             PlayerController.PlaySound2D(SoundId.RadioChatter, 0.7f);
-            var distance = Vector3.Distance(_owner.transform.position, target);
-            _owner.Notify(distance < DangerCloseDistance
+            // HUD çağrıyı ArtilleryStrikeEvent'ten gösterir; yalnızca yakın atış uyarısı istem satırına da yazılır.
+            var dangerClose = HorizontalDistance(_owner.transform.position, target) < DangerCloseDistance;
+            _owner.Notify(dangerClose
                 ? "Topçu ateşi istendi — DİKKAT, yakın atış!"
-                : "Topçu ateşi istendi — atışlar yolda", 2.5f);
+                : "Topçu ateşi istendi — atışlar yolda", 2.5f, dangerClose);
+        }
+
+        private static float HorizontalDistance(Vector3 a, Vector3 b)
+        {
+            var dx = a.x - b.x;
+            var dz = a.z - b.z;
+            return Mathf.Sqrt(dx * dx + dz * dz);
         }
 
         private static string CooldownText(float seconds)

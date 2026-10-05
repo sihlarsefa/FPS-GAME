@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Kılıç Timi">
+  <title>Kılıç Timi — özgün stilize amblem</title>
+  <circle cx="64" cy="64" r="60" fill="#23291B" stroke="#8A9199" stroke-width="3"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#8A9199" stroke-width="1" opacity="0.45"/>
+  <path d="M64 18l4 48-4 40-4-40z" fill="#8A9199"/>
+  <path d="M64 18l2.5 48L64 106l-2.5-40z" fill="#E30A17"/>
+  <rect x="52" y="66" width="24" height="6" rx="1" fill="#8A9199"/>
+  <rect x="58" y="72" width="12" height="8" rx="1" fill="#E30A17"/>
+  <circle cx="64" cy="69" r="2.5" fill="#23291B"/>
+  <circle cx="96" cy="96" r="6" fill="#8A9199"/>
+  <circle cx="97.8" cy="95.64" r="4.2" fill="#23291B"/>
+  <polygon points="102.9,96 99.3,93.9 101.1,96 99.3,98.1" fill="#8A9199"/>
+</svg>

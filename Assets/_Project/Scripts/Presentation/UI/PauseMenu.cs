@@ -138,6 +138,33 @@ namespace Project.Presentation.UI
             Raise(Closed, "Closed");
         }
 
+        /// <summary>
+        /// Esc / geri tuşu için: açık onay penceresini ya da ayar penceresini kapatır ve true döner. Alt pencere yoksa
+        /// false döner — çağıran bu durumda menüyü kapatabilir (<see cref="Close"/>).
+        /// </summary>
+        public bool HandleBack()
+        {
+            if (!IsOpen)
+                return false;
+
+            if (_dialog != null)
+            {
+                _dialog.Cancel();
+                return true;
+            }
+
+            if (_settingsPanel != null)
+            {
+                _settingsPanel.Close();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Ayar veya onay penceresi açık mı?</summary>
+        public bool HasSubPanel => _dialog != null || _settingsPanel != null;
+
         /// <summary>Açıksa kapatır, kapalıysa açar.</summary>
         public void Toggle()
         {
@@ -305,12 +332,20 @@ namespace Project.Presentation.UI
                 ? "Atış poligonundan ayrılıp karargâha dönülecek."
                 : "Harekâttan çekilirsen bu maçtaki ilerlemen kaydedilmez. Karargâha dönmek istediğine emin misin?";
             _dialog = MenuDialog.Show(_root, "Ana menüye dön", message, "ANA MENÜ", GoToMainMenu, "VAZGEÇ", OnDialogCancelled, true);
+            SetMainInteractable(false);
         }
 
         private void OnDialogCancelled()
         {
             _dialog = null;
+            SetMainInteractable(true);
             SelectDefault();
+        }
+
+        private void SetMainInteractable(bool interactable)
+        {
+            if (_contentGroup != null)
+                _contentGroup.interactable = interactable;
         }
 
         private void GoToMainMenu()
@@ -349,6 +384,7 @@ namespace Project.Presentation.UI
             {
                 _dialog.Dismiss();
                 _dialog = null;
+                SetMainInteractable(true);
             }
 
             if (_settingsPanel != null)

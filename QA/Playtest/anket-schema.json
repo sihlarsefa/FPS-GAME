@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "qa-playtest-anket-v1",
+  "title": "HAREKÂT Playtest Anket Çıktısı",
+  "type": "object",
+  "required": ["schemaVersion", "submittedAt", "buildId", "ratings", "consent"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "submittedAt": { "type": "string", "format": "date-time" },
+    "buildId": { "type": "string", "minLength": 1 },
+    "sessionId": { "type": "string" },
+    "playerTag": {
+      "type": "string",
+      "description": "Takma ad; gerçek kimlik istenmez"
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["windows-client", "macos-editor", "other"]
+    },
+    "consent": {
+      "type": "boolean",
+      "description": "Anonim playtest verisi paylaşım onayı"
+    },
+    "ratings": {
+      "type": "object",
+      "required": [
+        "controls_clarity",
+        "squad_orders",
+        "hud_readability",
+        "fairness",
+        "replay_intent",
+        "perf_feel"
+      ],
+      "properties": {
+        "controls_clarity": { "$ref": "#/$defs/likert5" },
+        "squad_orders": { "$ref": "#/$defs/likert5" },
+        "hud_readability": { "$ref": "#/$defs/likert5" },
+        "fairness": { "$ref": "#/$defs/likert5" },
+        "replay_intent": { "$ref": "#/$defs/likert5" },
+        "perf_feel": { "$ref": "#/$defs/likert5" },
+        "insertion": { "$ref": "#/$defs/likert5" },
+        "inventory": { "$ref": "#/$defs/likert5" },
+        "zone": { "$ref": "#/$defs/likert5" },
+        "audio": { "$ref": "#/$defs/likert5" }
+      },
+      "additionalProperties": false
+    },
+    "nps": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Arkadaşına tavsiye 0–10"
+    },
+    "bestMoment": { "type": "string", "maxLength": 1000 },
+    "worstMoment": { "type": "string", "maxLength": 1000 },
+    "bugs": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 500 },
+      "maxItems": 10
+    },
+    "freeText": { "type": "string", "maxLength": 2000 }
+  },
+  "$defs": {
+    "likert5": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "1=çok kötü … 5=çok iyi"
+    }
+  },
+  "additionalProperties": false
+}

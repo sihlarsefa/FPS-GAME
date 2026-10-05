@@ -233,6 +233,30 @@ namespace Project.Presentation.UI
             return value.ToString(format, Invariant).Replace('.', ',');
         }
 
+        /// <summary>
+        /// Türkçe kurallarıyla büyük harfe çevirir ("Kuzgun Vadisi" → "KUZGUN VADİSİ"; i → İ, ı → I). Kültür
+        /// tablolarına bağımlı değildir (değişmez kültür + Türkçe i/ı eşlemesi). Null → boş dizgi.
+        /// </summary>
+        public static string ToUpperTurkish(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            var chars = text.ToCharArray();
+            for (var i = 0; i < chars.Length; i++)
+            {
+                var c = chars[i];
+                if (c == 'i')
+                    chars[i] = 'İ';
+                else if (c == 'ı')
+                    chars[i] = 'I';
+                else
+                    chars[i] = char.ToUpperInvariant(c);
+            }
+
+            return new string(chars);
+        }
+
         // ------------------------------------------------------------------ İşaretçi yardımcıları
 
         /// <summary>

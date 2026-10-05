@@ -174,3 +174,54 @@ public sealed class ReplayMetaDto
     public required int FrameCount { get; init; }
     public required long CompressedBytes { get; init; }
 }
+
+public sealed class ClientErrorRequest
+{
+    public string? Id { get; set; }
+    public string? Trigger { get; set; }
+    public string? Version { get; set; }
+    public string? Scene { get; set; }
+    public string? Platform { get; set; }
+    public string? DeviceModel { get; set; }
+    public string? OperatingSystem { get; set; }
+    public string? ProcessorType { get; set; }
+    public int ProcessorCount { get; set; }
+    public int SystemMemoryMb { get; set; }
+    public string? GraphicsDeviceName { get; set; }
+    public int GraphicsMemoryMb { get; set; }
+    public string? UnityVersion { get; set; }
+    public string? ExceptionType { get; set; }
+    public string? Message { get; set; }
+    public string? StackTrace { get; set; }
+    public List<string>? RecentLogs { get; set; }
+    public string? CreatedAtUtc { get; set; }
+}
+
+public sealed class ClientErrorDto
+{
+    public required Guid Id { get; init; }
+    public required string Trigger { get; init; }
+    public required string Version { get; init; }
+    public required string Scene { get; init; }
+    public required string Platform { get; init; }
+    public required string DeviceModel { get; init; }
+    public required string OperatingSystem { get; init; }
+    public required string ProcessorType { get; init; }
+    public required int ProcessorCount { get; init; }
+    public required int SystemMemoryMb { get; init; }
+    public required string GraphicsDeviceName { get; init; }
+    public required int GraphicsMemoryMb { get; init; }
+    public required string UnityVersion { get; init; }
+    public required string ExceptionType { get; init; }
+    public required string Message { get; init; }
+    public required string StackTrace { get; init; }
+    public required IReadOnlyList<string> RecentLogs { get; init; }
+    public string? ClientIp { get; init; }
+    public required DateTimeOffset CreatedAt { get; init; }
+}
+
+public sealed class ClientErrorListResponse
+{
+    public required IReadOnlyList<ClientErrorDto> Items { get; init; }
+    public required int Total { get; init; }
+}

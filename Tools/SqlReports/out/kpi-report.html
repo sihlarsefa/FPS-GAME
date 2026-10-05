@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>HAREKÂT — Analitik KPI Raporu</title>
+<style>
+:root {
+  --bg: #e8e4d9;
+  --panel: #f7f5ef;
+  --ink: #1a1a1a;
+  --muted: #5a5a5a;
+  --olive: #2f4a2c;
+  --red: #E30A17;
+  --amber: #c47a12;
+  --blue: #3d5a80;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(160deg, #d9d3c3 0%, var(--bg) 40%, #cfd6c4 100%);
+  color: var(--ink); line-height: 1.45;
+}
+header {
+  padding: 28px 32px 18px;
+  border-bottom: 3px solid var(--red);
+  background: rgba(47,74,44,.92); color: #f5f2ea;
+}
+header h1 { margin: 0 0 6px; font-size: 1.6rem; letter-spacing: .04em; }
+header p { margin: 0; opacity: .9; font-size: .95rem; }
+.badge {
+  display: inline-block; margin-top: 10px; padding: 3px 10px;
+  border: 1px solid #f5f2ea; border-radius: 2px; font-size: .75rem; letter-spacing: .08em;
+}
+main { padding: 24px 32px 48px; max-width: 1200px; margin: 0 auto; }
+.grid-kpi {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px; margin-bottom: 28px;
+}
+.kpi {
+  background: var(--panel); border: 1px solid #c9c2b0; padding: 14px 12px;
+  border-top: 3px solid var(--olive);
+}
+.kpi-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.kpi-value { font-size: 1.45rem; font-weight: 700; margin-top: 4px; }
+.section {
+  background: var(--panel); border: 1px solid #c9c2b0; padding: 16px 18px; margin-bottom: 18px;
+}
+.section h2 {
+  margin: 0 0 12px; font-size: 1.05rem; color: var(--olive);
+  border-bottom: 1px solid #ddd6c6; padding-bottom: 6px;
+}
+.charts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;
+}
+.chart-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #ddd6c6; }
+th { background: #ebe6d8; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
+footer { padding: 16px 32px 32px; color: var(--muted); font-size: .8rem; max-width: 1200px; margin: 0 auto; }
+@media print {
+  body { background: #fff; }
+  header { background: #2f4a2c; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>HAREKÂT Analitik KPI</h1>
+  <p>Tatbikat operasyon metrikleri · üretilme: 2026-10-05T17:16:38.029Z</p>
+  <span class="badge">ÖRNEK VERİ</span>
+</header>
+<main>
+  <section class="grid-kpi" aria-label="Özet KPI">
+    <article class="kpi"><div class="kpi-label">DAU</div><div class="kpi-value">1842</div></article>
+    <article class="kpi"><div class="kpi-label">WAU</div><div class="kpi-value">9120</div></article>
+    <article class="kpi"><div class="kpi-label">MAU</div><div class="kpi-value">28450</div></article>
+    <article class="kpi"><div class="kpi-label">Çevrimiçi</div><div class="kpi-value">126</div></article>
+    <article class="kpi"><div class="kpi-label">D1 tutma</div><div class="kpi-value">42.5%</div></article>
+    <article class="kpi"><div class="kpi-label">D7 tutma</div><div class="kpi-value">21.8%</div></article>
+    <article class="kpi"><div class="kpi-label">D30 tutma</div><div class="kpi-value">9.4%</div></article>
+    <article class="kpi"><div class="kpi-label">Ort. maç</div><div class="kpi-value">18.4 dk</div></article>
+    <article class="kpi"><div class="kpi-label">Ort. bekleme</div><div class="kpi-value">38 sn</div></article>
+    <article class="kpi"><div class="kpi-label">Filo doluluk</div><div class="kpi-value">61.2%</div></article>
+    <article class="kpi"><div class="kpi-label">Şüphe (7g)</div><div class="kpi-value">47</div></article>
+  </section>
+
+  <section class="section">
+    <h2>Aktif oyuncu ve elde tutma</h2>
+    <div class="charts">
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Son 7 gün DAU">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Son 7 gün DAU</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <path d="M48.0,59.3 L131.3,50.6 L214.7,53.3 L298.0,36.8 L381.3,28.0 L464.7,32.6 L548.0,41.3" fill="none" stroke="#E30A17" stroke-width="2.5"/>
+  <circle cx="48.0" cy="59.3" r="3.5" fill="#E30A17"/>
+     <text x="48.0" y="208" text-anchor="middle" font-size="10" fill="#334">D-6</text>
+<circle cx="131.3" cy="50.6" r="3.5" fill="#E30A17"/>
+     <text x="131.3" y="208" text-anchor="middle" font-size="10" fill="#334">D-5</text>
+<circle cx="214.7" cy="53.3" r="3.5" fill="#E30A17"/>
+     <text x="214.7" y="208" text-anchor="middle" font-size="10" fill="#334">D-4</text>
+<circle cx="298.0" cy="36.8" r="3.5" fill="#E30A17"/>
+     <text x="298.0" y="208" text-anchor="middle" font-size="10" fill="#334">D-3</text>
+<circle cx="381.3" cy="28.0" r="3.5" fill="#E30A17"/>
+     <text x="381.3" y="208" text-anchor="middle" font-size="10" fill="#334">D-2</text>
+<circle cx="464.7" cy="32.6" r="3.5" fill="#E30A17"/>
+     <text x="464.7" y="208" text-anchor="middle" font-size="10" fill="#334">D-1</text>
+<circle cx="548.0" cy="41.3" r="3.5" fill="#E30A17"/>
+     <text x="548.0" y="208" text-anchor="middle" font-size="10" fill="#334">Bugün</text>
+</svg></div>
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Elde tutma %">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Elde tutma %</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <rect x="48.0" y="28.0" width="162.7" height="156.0" fill="#2f4a2c" rx="2"/>
+      <text x="129.3" y="208" text-anchor="middle" font-size="10" fill="#334">D1</text>
+      <text x="129.3" y="24.0" text-anchor="middle" font-size="10" fill="#111">42.5</text>
+<rect x="216.7" y="104.0" width="162.7" height="80.0" fill="#2f4a2c" rx="2"/>
+      <text x="298.0" y="208" text-anchor="middle" font-size="10" fill="#334">D7</text>
+      <text x="298.0" y="100.0" text-anchor="middle" font-size="10" fill="#111">21.8</text>
+<rect x="385.3" y="149.5" width="162.7" height="34.5" fill="#2f4a2c" rx="2"/>
+      <text x="466.7" y="208" text-anchor="middle" font-size="10" fill="#334">D30</text>
+      <text x="466.7" y="145.5" text-anchor="middle" font-size="10" fill="#111">9.4</text>
+</svg></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Maç süresi ve eşleştirme</h2>
+    <div class="charts">
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Maç süresi dağılımı">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Maç süresi dağılımı</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <rect x="48.0" y="173.4" width="78.3" height="10.6" fill="#c47a12" rx="2"/>
+      <text x="87.2" y="208" text-anchor="middle" font-size="10" fill="#334">0-5dk</text>
+      <text x="87.2" y="169.4" text-anchor="middle" font-size="10" fill="#111">42</text>
+<rect x="132.3" y="138.7" width="78.3" height="45.3" fill="#c47a12" rx="2"/>
+      <text x="171.5" y="208" text-anchor="middle" font-size="10" fill="#334">5-10dk</text>
+      <text x="171.5" y="134.7" text-anchor="middle" font-size="10" fill="#111">180</text>
+<rect x="216.7" y="80.8" width="78.3" height="103.2" fill="#c47a12" rx="2"/>
+      <text x="255.8" y="208" text-anchor="middle" font-size="10" fill="#334">10-15dk</text>
+      <text x="255.8" y="76.8" text-anchor="middle" font-size="10" fill="#111">410</text>
+<rect x="301.0" y="28.0" width="78.3" height="156.0" fill="#c47a12" rx="2"/>
+      <text x="340.2" y="208" text-anchor="middle" font-size="10" fill="#334">15-20dk</text>
+      <text x="340.2" y="24.0" text-anchor="middle" font-size="10" fill="#111">620</text>
+<rect x="385.3" y="85.9" width="78.3" height="98.1" fill="#c47a12" rx="2"/>
+      <text x="424.5" y="208" text-anchor="middle" font-size="10" fill="#334">20-30dk</text>
+      <text x="424.5" y="81.9" text-anchor="middle" font-size="10" fill="#111">390</text>
+<rect x="469.7" y="160.1" width="78.3" height="23.9" fill="#c47a12" rx="2"/>
+      <text x="508.8" y="208" text-anchor="middle" font-size="10" fill="#334">30dk+</text>
+      <text x="508.8" y="156.1" text-anchor="middle" font-size="10" fill="#111">95</text>
+</svg></div>
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Bekleme süresi">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Bekleme süresi</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <rect x="48.0" y="115.8" width="95.2" height="68.3" fill="#3d5a80" rx="2"/>
+      <text x="95.6" y="208" text-anchor="middle" font-size="10" fill="#334">0-15sn</text>
+      <text x="95.6" y="111.8" text-anchor="middle" font-size="10" fill="#111">210</text>
+<rect x="149.2" y="28.0" width="95.2" height="156.0" fill="#3d5a80" rx="2"/>
+      <text x="196.8" y="208" text-anchor="middle" font-size="10" fill="#334">15-45sn</text>
+      <text x="196.8" y="24.0" text-anchor="middle" font-size="10" fill="#111">480</text>
+<rect x="250.4" y="80.0" width="95.2" height="104.0" fill="#3d5a80" rx="2"/>
+      <text x="298.0" y="208" text-anchor="middle" font-size="10" fill="#334">45-90sn</text>
+      <text x="298.0" y="76.0" text-anchor="middle" font-size="10" fill="#111">320</text>
+<rect x="351.6" y="138.5" width="95.2" height="45.5" fill="#3d5a80" rx="2"/>
+      <text x="399.2" y="208" text-anchor="middle" font-size="10" fill="#334">90-180sn</text>
+      <text x="399.2" y="134.5" text-anchor="middle" font-size="10" fill="#111">140</text>
+<rect x="452.8" y="166.1" width="95.2" height="17.9" fill="#3d5a80" rx="2"/>
+      <text x="500.4" y="208" text-anchor="middle" font-size="10" fill="#334">180sn+</text>
+      <text x="500.4" y="162.1" text-anchor="middle" font-size="10" fill="#111">55</text>
+</svg></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Silah öldürmeleri ve rütbe</h2>
+    <div class="charts">
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="320" viewBox="0 0 560 320" role="img" aria-label="Silah öldürme (30g)">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="12" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Silah öldürme (30g)</text>
+  <text x="102" y="45.7" text-anchor="end" font-size="11" fill="#222">ar_mpt76</text>
+      <rect x="110" y="32.0" width="402.0" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="518.0" y="45.7" font-size="11" fill="#111">4200</text>
+<text x="102" y="72.9" text-anchor="end" font-size="11" fill="#222">ar_mpt55</text>
+      <rect x="110" y="59.2" width="296.7" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="412.7" y="72.9" font-size="11" fill="#111">3100</text>
+<text x="102" y="100.1" text-anchor="end" font-size="11" fill="#222">smg_sar109t</text>
+      <rect x="110" y="86.4" width="268.0" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="384.0" y="100.1" font-size="11" fill="#111">2800</text>
+<text x="102" y="127.3" text-anchor="end" font-size="11" fill="#222">dmr_knt76</text>
+      <rect x="110" y="113.6" width="181.9" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="297.9" y="127.3" font-size="11" fill="#111">1900</text>
+<text x="102" y="154.5" text-anchor="end" font-size="11" fill="#222">sr_jng90</text>
+      <rect x="110" y="140.8" width="105.3" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="221.3" y="154.5" font-size="11" fill="#111">1100</text>
+<text x="102" y="181.7" text-anchor="end" font-size="11" fill="#222">lmg_pmt76</text>
+      <rect x="110" y="168.0" width="93.8" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="209.8" y="181.7" font-size="11" fill="#111">980</text>
+<text x="102" y="208.9" text-anchor="end" font-size="11" fill="#222">ar_g3a7</text>
+      <rect x="110" y="195.2" width="83.3" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="199.3" y="208.9" font-size="11" fill="#111">870</text>
+<text x="102" y="236.1" text-anchor="end" font-size="11" fill="#222">sg_escort</text>
+      <rect x="110" y="222.4" width="61.3" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="177.3" y="236.1" font-size="11" fill="#111">640</text>
+<text x="102" y="263.3" text-anchor="end" font-size="11" fill="#222">pistol_sar9</text>
+      <rect x="110" y="249.6" width="49.8" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="165.8" y="263.3" font-size="11" fill="#111">520</text>
+<text x="102" y="290.5" text-anchor="end" font-size="11" fill="#222">pistol_tp9</text>
+      <rect x="110" y="276.8" width="39.2" height="19.2" fill="#2f4a2c" rx="2"/>
+      <text x="155.2" y="290.5" font-size="11" fill="#111">410</text>
+</svg></div>
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Rütbe grupları">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Rütbe grupları</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <rect x="48.0" y="28.0" width="66.3" height="156.0" fill="#5c4033" rx="2"/>
+      <text x="81.1" y="208" text-anchor="middle" font-size="10" fill="#334">Er</text>
+      <text x="81.1" y="24.0" text-anchor="middle" font-size="10" fill="#111">8200</text>
+<rect x="120.3" y="81.3" width="66.3" height="102.7" fill="#5c4033" rx="2"/>
+      <text x="153.4" y="208" text-anchor="middle" font-size="10" fill="#334">Onbaşı</text>
+      <text x="153.4" y="77.3" text-anchor="middle" font-size="10" fill="#111">5400</text>
+<rect x="192.6" y="109.8" width="66.3" height="74.2" fill="#5c4033" rx="2"/>
+      <text x="225.7" y="208" text-anchor="middle" font-size="10" fill="#334">Çavuş</text>
+      <text x="225.7" y="105.8" text-anchor="middle" font-size="10" fill="#111">3900</text>
+<rect x="264.9" y="106.0" width="66.3" height="78.0" fill="#5c4033" rx="2"/>
+      <text x="298.0" y="208" text-anchor="middle" font-size="10" fill="#334">Uzman</text>
+      <text x="298.0" y="102.0" text-anchor="middle" font-size="10" fill="#111">4100</text>
+<rect x="337.1" y="115.5" width="66.3" height="68.5" fill="#5c4033" rx="2"/>
+      <text x="370.3" y="208" text-anchor="middle" font-size="10" fill="#334">Astsubay</text>
+      <text x="370.3" y="111.5" text-anchor="middle" font-size="10" fill="#111">3600</text>
+<rect x="409.4" y="141.2" width="66.3" height="42.8" fill="#5c4033" rx="2"/>
+      <text x="442.6" y="208" text-anchor="middle" font-size="10" fill="#334">Subay</text>
+      <text x="442.6" y="137.2" text-anchor="middle" font-size="10" fill="#111">2250</text>
+<rect x="481.7" y="165.0" width="66.3" height="19.0" fill="#5c4033" rx="2"/>
+      <text x="514.9" y="208" text-anchor="middle" font-size="10" fill="#334">Üst subay</text>
+      <text x="514.9" y="161.0" text-anchor="middle" font-size="10" fill="#111">1000</text>
+</svg></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Tim yerleşimi, sunucu, hile şüphesi</h2>
+    <div class="charts">
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Yerleşim dağılımı">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Yerleşim dağılımı</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <rect x="48.0" y="145.0" width="95.2" height="39.0" fill="#3d5a80" rx="2"/>
+      <text x="95.6" y="208" text-anchor="middle" font-size="10" fill="#334">1</text>
+      <text x="95.6" y="141.0" text-anchor="middle" font-size="10" fill="#111">120</text>
+<rect x="149.2" y="145.7" width="95.2" height="38.4" fill="#3d5a80" rx="2"/>
+      <text x="196.8" y="208" text-anchor="middle" font-size="10" fill="#334">2</text>
+      <text x="196.8" y="141.7" text-anchor="middle" font-size="10" fill="#111">118</text>
+<rect x="250.4" y="144.7" width="95.2" height="39.3" fill="#3d5a80" rx="2"/>
+      <text x="298.0" y="208" text-anchor="middle" font-size="10" fill="#334">3</text>
+      <text x="298.0" y="140.7" text-anchor="middle" font-size="10" fill="#111">121</text>
+<rect x="351.6" y="67.0" width="95.2" height="117.0" fill="#3d5a80" rx="2"/>
+      <text x="399.2" y="208" text-anchor="middle" font-size="10" fill="#334">4-6</text>
+      <text x="399.2" y="63.0" text-anchor="middle" font-size="10" fill="#111">360</text>
+<rect x="452.8" y="28.0" width="95.2" height="156.0" fill="#3d5a80" rx="2"/>
+      <text x="500.4" y="208" text-anchor="middle" font-size="10" fill="#334">7-10</text>
+      <text x="500.4" y="24.0" text-anchor="middle" font-size="10" fill="#111">480</text>
+</svg></div>
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Bölge doluluk %">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Bölge doluluk %</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <rect x="48.0" y="28.0" width="162.7" height="156.0" fill="#2f4a2c" rx="2"/>
+      <text x="129.3" y="208" text-anchor="middle" font-size="10" fill="#334">tr</text>
+      <text x="129.3" y="24.0" text-anchor="middle" font-size="10" fill="#111">68</text>
+<rect x="216.7" y="60.1" width="162.7" height="123.9" fill="#2f4a2c" rx="2"/>
+      <text x="298.0" y="208" text-anchor="middle" font-size="10" fill="#334">eu</text>
+      <text x="298.0" y="56.1" text-anchor="middle" font-size="10" fill="#111">54</text>
+<rect x="385.3" y="89.9" width="162.7" height="94.1" fill="#2f4a2c" rx="2"/>
+      <text x="466.7" y="208" text-anchor="middle" font-size="10" fill="#334">me</text>
+      <text x="466.7" y="85.9" text-anchor="middle" font-size="10" fill="#111">41</text>
+</svg></div>
+      <div class="chart-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="560" height="220" viewBox="0 0 560 220" role="img" aria-label="Şüphe raporları (hafta)">
+  <rect width="100%" height="100%" fill="#f7f5ef"/>
+  <text x="48" y="18" font-size="13" font-weight="600" fill="#1a1a1a">Şüphe raporları (hafta)</text>
+  <line x1="48" y1="28" x2="48" y2="184" stroke="#bbb"/>
+  <line x1="48" y1="184" x2="548" y2="184" stroke="#bbb"/>
+  <path d="M48.0,98.9 L131.3,70.5 L214.7,113.1 L298.0,28.0 L381.3,56.4 L464.7,127.3 L548.0,127.3" fill="none" stroke="#E30A17" stroke-width="2.5"/>
+  <circle cx="48.0" cy="98.9" r="3.5" fill="#E30A17"/>
+     <text x="48.0" y="208" text-anchor="middle" font-size="10" fill="#334">Pzt</text>
+<circle cx="131.3" cy="70.5" r="3.5" fill="#E30A17"/>
+     <text x="131.3" y="208" text-anchor="middle" font-size="10" fill="#334">Sal</text>
+<circle cx="214.7" cy="113.1" r="3.5" fill="#E30A17"/>
+     <text x="214.7" y="208" text-anchor="middle" font-size="10" fill="#334">Çar</text>
+<circle cx="298.0" cy="28.0" r="3.5" fill="#E30A17"/>
+     <text x="298.0" y="208" text-anchor="middle" font-size="10" fill="#334">Per</text>
+<circle cx="381.3" cy="56.4" r="3.5" fill="#E30A17"/>
+     <text x="381.3" y="208" text-anchor="middle" font-size="10" fill="#334">Cum</text>
+<circle cx="464.7" cy="127.3" r="3.5" fill="#E30A17"/>
+     <text x="464.7" y="208" text-anchor="middle" font-size="10" fill="#334">Cmt</text>
+<circle cx="548.0" cy="127.3" r="3.5" fill="#E30A17"/>
+     <text x="548.0" y="208" text-anchor="middle" font-size="10" fill="#334">Paz</text>
+</svg></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>En iyi timler (örnek / canlı)</h2>
+    <table><thead><tr><th>Tim</th><th>Maç</th><th>Galibiyet %</th><th>Ort. sıra</th></tr></thead><tbody><tr><td>Mavi-7</td><td>48</td><td>31.2%</td><td>3.4</td></tr><tr><td>Kırmızı-3</td><td>52</td><td>28.8%</td><td>3.9</td></tr><tr><td>Tim Anadolu</td><td>40</td><td>27.5%</td><td>4.1</td></tr></tbody></table>
+  </section>
+
+  <section class="section">
+    <h2>Silah denge: BalanceCalc vs telemetri</h2>
+    <table><thead><tr><th>Silah</th><th>Beklenen TTK</th><th>Gerçek TTK</th><th>Sonuç</th></tr></thead><tbody><tr><td>ar_mpt76</td><td>0.32</td><td>0.29</td><td>guclu_outlier</td></tr><tr><td>sr_jng90</td><td>0</td><td>0.12</td><td>izle</td></tr><tr><td>sg_escort</td><td>0.2</td><td>0.21</td><td>uyumlu</td></tr></tbody></table>
+  </section>
+</main>
+<footer>
+  HAREKÂT SqlReports · salt okunur T-SQL · Tools/SqlReports · bağlantı: yok (örnek)
+</footer>
+</body>
+</html>

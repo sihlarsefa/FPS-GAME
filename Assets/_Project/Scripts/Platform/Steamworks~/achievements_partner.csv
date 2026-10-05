@@ -1,0 +1,78 @@
+﻿api_name,backend_id,category,display_name_turkish,description_turkish,display_name_english,description_english,hidden,metric,target,icon_idea
+ACH_FIRST_BLOOD,first_blood,combat,İlk Kan,İlk öldürmeni yap,First Blood,Get your first kill,0,kills,1,blood_drop
+ACH_FIRST_VICTORY,first_victory,career,İlk Zafer,İlk maçını kazan,First Victory,Win your first match,0,wins,1,flag_raised
+ACH_SHARPSHOOTER_10,sharpshooter_10,combat,Keskin Nişancı I,10 kafa vuruşu yap,Sharpshooter I,Land 10 headshots,0,headshots,10,crosshair_1
+ACH_SHARPSHOOTER_100,sharpshooter_100,combat,Keskin Nişancı II,100 kafa vuruşu yap,Sharpshooter II,Land 100 headshots,0,headshots,100,crosshair_2
+ACH_SHARPSHOOTER_500,sharpshooter_500,combat,Keskin Nişancı III,500 kafa vuruşu yap,Sharpshooter III,Land 500 headshots,0,headshots,500,crosshair_3
+ACH_VETERAN_10,veteran_10,career,Kıdemli Asker I,10 maç oyna,Veteran I,Play 10 matches,0,matches,10,boots_1
+ACH_VETERAN_50,veteran_50,career,Kıdemli Asker II,50 maç oyna,Veteran II,Play 50 matches,0,matches,50,boots_2
+ACH_VETERAN_100,veteran_100,career,Kıdemli Asker III,100 maç oyna,Veteran III,Play 100 matches,0,matches,100,boots_3
+ACH_VETERAN_500,veteran_500,career,Kıdemli Asker IV,500 maç oyna,Veteran IV,Play 500 matches,0,matches,500,boots_4
+ACH_KILLER_25,killer_25,combat,Avcı I,25 öldürme yap,Hunter I,Get 25 kills,0,kills,25,target_1
+ACH_KILLER_100,killer_100,combat,Avcı II,100 öldürme yap,Hunter II,Get 100 kills,0,kills,100,target_2
+ACH_KILLER_500,killer_500,combat,Avcı III,500 öldürme yap,Hunter III,Get 500 kills,0,kills,500,target_3
+ACH_KILLER_1000,killer_1000,combat,Avcı IV,1000 öldürme yap,Hunter IV,Get 1000 kills,0,kills,1000,target_4
+ACH_CHAMPION_5,champion_5,career,Şampiyon I,5 galibiyet al,Champion I,Win 5 matches,0,wins,5,laurel_1
+ACH_CHAMPION_25,champion_25,career,Şampiyon II,25 galibiyet al,Champion II,Win 25 matches,0,wins,25,laurel_2
+ACH_CHAMPION_100,champion_100,career,Şampiyon III,100 galibiyet al,Champion III,Win 100 matches,0,wins,100,laurel_3
+ACH_DAMAGE_10K,damage_10k,combat,Hasar Ustası I,10.000 hasar ver,Damage Master I,"Deal 10,000 damage",0,damage,10000,explosion_1
+ACH_DAMAGE_100K,damage_100k,combat,Hasar Ustası II,100.000 hasar ver,Damage Master II,"Deal 100,000 damage",0,damage,100000,explosion_2
+ACH_SURVIVOR_600,survivor_600,survival,Hayatta Kalan I,Tek maçta 10 dakika hayatta kal,Survivor I,Survive 10 minutes in one match,0,survival,600,heartbeat_1
+ACH_SURVIVOR_1200,survivor_1200,survival,Hayatta Kalan II,Tek maçta 20 dakika hayatta kal,Survivor II,Survive 20 minutes in one match,0,survival,1200,heartbeat_2
+ACH_TOP3_10,top3_10,career,Podyum,10 kez ilk 3'e gir,Podium,Finish top 3 ten times,0,top3,10,medal_podium
+ACH_COMMAND_TRANSFER,command_transfer,squad,Komuta Devri,Tim lideri olarak 5 maç bitir,Command Transfer,Finish 5 matches as squad leader,0,leader_matches,5,baton_pass
+ACH_SQUAD_BUILDER,squad_builder,social,Tim Kurucu,Bir tim kur,Squad Founder,Create a squad,0,squads_created,1,squad_crest
+ACH_SOCIAL_BUTTERFLY,social_butterfly,social,Sosyal Asker,5 arkadaş edin,Social Soldier,Add 5 friends,0,friends,5,handshake
+ACH_SEASON_GRINDER,season_grinder,season,Sezon Askeri,Sezonda 5000 XP kazan,Season Grinder,"Earn 5,000 season XP",0,season_xp,5000,calendar_star
+ACH_RANK_ONBASI,rank_onbasi,career,Onbaşı,Onbaşı rütbesine ulaş,Corporal,Reach Corporal career rank,0,rank,1,rank_chevron_1
+ACH_RANK_CAVUS,rank_cavus,career,Çavuş,Çavuş rütbesine ulaş,Sergeant,Reach Sergeant career rank,0,rank,2,rank_chevron_2
+ACH_RANK_ASTSUBAY,rank_astsubay,career,Astsubay,Astsubay Çavuş rütbesine ulaş,NCO,Reach Astsubay Çavuş,0,rank,6,rank_nco
+ACH_RANK_OFFICER,rank_officer,career,Subay,Asteğmen rütbesine ulaş,Officer,Reach Asteğmen,0,rank,12,rank_officer
+ACH_RANK_ALBAY,rank_albay,career,Albay,Albay rütbesine ulaş,Colonel,Reach Colonel,0,rank,18,rank_colonel
+ACH_COSMETIC_COLLECTOR,cosmetic_collector,cosmetic,Koleksiyoncu,5 kozmetik ürün aç,Collector,Unlock 5 cosmetics,0,cosmetics,5,wardrobe
+ACH_BOT_SLAYER,bot_slayer,career,Bot Avcısı,Bot doldurulmuş maçta kazan,Bot Slayer,Win a bot-filled match,0,bot_wins,1,bot_chip
+ACH_REGION_WARRIOR,region_warrior,career,Bölge Askeri,Tercih ettiğin bölgede 20 maç oyna,Region Warrior,Play 20 matches in preferred region,0,region_matches,20,map_pin
+ACH_ELO_CLIMBER,elo_climber,career,Elo Tırmanışı,Elo 1500'e ulaş,Elo Climber,Reach Elo 1500,0,elo,1500,ladder
+ACH_PERFECT_SQUAD,perfect_squad,squad,Tam Tim,10 kişilik dolu timle maça gir,Full Squad,Enter a match with a full 10-man squad,0,full_squad_matches,1,ten_soldiers
+ACH_COMMAND_WIN,command_win,squad,Komuta Devri — Zafer,Komutan şehit düştükten sonra komutayı alıp timi zafere taşı,Command Transfer Victory,Assume command after the commander falls and lead the squad to victory,0,command_wins,1,broken_baton_flag
+ACH_SNIPER_300,sniper_300,combat,Keskin Nişancı — Uzak Mesafe,JNG-90 ile 300 m üstü kafa vuruşu yap,Long-Range Sharpshooter,Land a headshot beyond 300 m with the JNG-90,0,jng90_hs_300m,1,scope_300
+ACH_ARTILLERY_MASTER,artillery_master,support,Topçu Ustası,10 isabetli topçu darbesi çağır,Artillery Master,Call 10 artillery impacts that deal damage,0,artillery_hits,10,howitzer
+ACH_ARTILLERY_FIRST,artillery_first,support,Ateş Emri,İlk topçu desteğini çağır,Fire Mission,Call your first artillery strike,0,artillery_calls,1,radio_v
+ACH_ORDER_FOLLOW,order_follow,squad,Takipteyiz,Takip emri vererek 20 kez timi yönlendir,Follow Lead,Issue Follow order 20 times,0,orders_follow,20,f1_arrow
+ACH_ORDER_HOLD,order_hold,squad,Mevzilen,Tut emri 20 kez ver,Hold Position,Issue Hold order 20 times,0,orders_hold,20,f2_shield
+ACH_ORDER_ATTACK,order_attack,squad,Hücum,Saldırı emri 20 kez ver,Attack Order,Issue Attack order 20 times,0,orders_attack,20,f3_bayonet
+ACH_ORDER_RALLY,order_rally,squad,Toplanma,Toplanma emri 20 kez ver,Rally Point,Issue Rally order 20 times,0,orders_rally,20,f4_flag
+ACH_MEDKIT_SAVIOR,medkit_savior,survival,Sıhhiye,50 medkit kullan,Field Medic,Use 50 medkits,0,medkits_used,50,cross_red
+ACH_ARMOR_UP,armor_up,survival,Zırhlı,25 zırh seti kuşan/yenile,Armored Up,Equip or refresh armor 25 times,0,armor_uses,25,vest
+ACH_LOOT_HOARDER,loot_hoarder,survival,Ganimetçi,200 ganimet topla,Loot Hoarder,Pick up 200 loot items,0,loot_pickups,200,crate
+ACH_GRENADE_FRAG,grenade_frag,combat,Bomba Atışı,El bombasıyla 25 öldürme,Frag Thrower,Get 25 kills with frag grenades,0,grenade_kills,25,frag
+ACH_SMOKE_SCREEN,smoke_screen,support,Sis Perdesi,30 sis bombası kullan,Smoke Screen,Use 30 smoke grenades,0,smoke_uses,30,smoke_cloud
+ACH_MPT76_KILLS,mpt76_kills,weapon,MPT-76 Ustası,MPT-76 ile 100 öldürme,MPT-76 Master,Get 100 kills with MPT-76,0,kills_ar_mpt76,100,rifle_mpt76
+ACH_MPT55_KILLS,mpt55_kills,weapon,MPT-55 Ustası,MPT-55 ile 75 öldürme,MPT-55 Master,Get 75 kills with MPT-55,0,kills_ar_mpt55,75,rifle_mpt55
+ACH_G3_KILLS,g3_kills,weapon,G3A7 Ustası,G3A7 ile 75 öldürme,G3A7 Master,Get 75 kills with G3A7,0,kills_ar_g3a7,75,rifle_g3
+ACH_KNT76_KILLS,knt76_kills,weapon,KNT-76 Ustası,KNT-76 ile 50 öldürme,KNT-76 Master,Get 50 kills with KNT-76,0,kills_dmr_knt76,50,dmr_knt
+ACH_JNG90_KILLS,jng90_kills,weapon,Bora-12 Ustası,JNG-90 ile 40 öldürme,JNG-90 Master,Get 40 kills with JNG-90,0,kills_sr_jng90,40,sniper_jng
+ACH_PMT76_KILLS,pmt76_kills,weapon,PMT-76 Ustası,PMT-76 ile 80 öldürme,PMT-76 Master,Get 80 kills with PMT-76,0,kills_lmg_pmt76,80,lmg_pmt
+ACH_SAR109_KILLS,sar109_kills,weapon,SAR 109T Ustası,SAR 109T ile 60 öldürme,SAR 109T Master,Get 60 kills with SAR 109T,0,kills_smg_sar109t,60,smg_sar
+ACH_ESCORT_KILLS,escort_kills,weapon,Escort Ustası,Escort ile 40 öldürme,Escort Master,Get 40 kills with Escort shotgun,0,kills_sg_escort,40,shotgun
+ACH_PISTOL_KILLS,pistol_kills,weapon,Tabanca Ustası,SAR 9 veya TP9 ile 30 öldürme,Sidearm Master,Get 30 kills with SAR 9 or TP9,0,kills_pistol,30,pistol
+ACH_KIRPI_DRIVER,kirpi_driver,vehicle,Kirpi Sürücüsü,Kirpi ile 5 km kat et,Kirpi Driver,Drive 5 km in a Kirpi,0,kirpi_distance_m,5000,mrap
+ACH_HELI_PASSENGER,heli_passenger,vehicle,Hava İntikal,Helikopterle 10 kez intikal tamamla,Air Insertion,Complete 10 helicopter insertions,0,heli_insertions,10,heli_t70
+ACH_ZONE_EDGE,zone_edge,survival,Çemberde Dur,Mavi hattın 20 m içinde 5 dakika hayatta kal (tek maç),Zone Edge,Survive 5 minutes within 20 m of the blue zone edge in one match,0,zone_edge_seconds,300,zone_ring
+ACH_FINAL_CIRCLE,final_circle,survival,Son Çember,Son daralma fazında hayatta kal,Final Circle,Be alive during the final zone stage,0,final_circle_alive,1,last_ring
+ACH_RELOAD_UNDER_FIRE,reload_under_fire,combat,Ateş Altında Şarjör,Hasar aldıktan 3 sn içinde 50 şarjör değiştir,Reload Under Fire,Reload 50 times within 3 seconds of taking damage,0,reloads_under_fire,50,mag_swap
+ACH_NO_DEATH_WIN,no_death_win,career,Yarasız Zafer,Ölmeden bir maç kazan,Flawless Victory,Win a match without dying,0,flawless_wins,1,clean_flag
+ACH_SQUAD_WIPE,squad_wipe,combat,Tim Temizliği,Rakip timin tamamını tek başına yok et (10 kez),Squad Wipe,Solo wipe an enemy squad 10 times,0,squad_wipes,10,skull_ten
+ACH_ASSIST_KING,assist_king,combat,Destek Ateşi,100 asist yap,Assist King,Get 100 assists,0,assists,100,wingman
+ACH_DAMAGE_1M,damage_1m,combat,Hasar Ustası III,1.000.000 hasar ver,Damage Master III,"Deal 1,000,000 damage",0,damage,1000000,explosion_3
+ACH_SEASON_XP_25K,season_xp_25k,season,Sezon Gazisi,Sezonda 25.000 XP kazan,Season Veteran,"Earn 25,000 season XP",0,season_xp,25000,season_medal
+ACH_COSMETICS_15,cosmetics_15,cosmetic,Teçhizat Koleksiyoncusu,15 kozmetik ürün aç,Gear Collector,Unlock 15 cosmetics,0,cosmetics,15,closet
+ACH_FRIENDS_20,friends_20,social,Birlik Ruhu,20 arkadaş edin,Unit Spirit,Add 20 friends,0,friends,20,unit_crest
+ACH_TRAINING_COMPLETE,training_complete,tutorial,Poligon Mezunu,Atış poligonu eğitim zincirini tamamla,Range Graduate,Complete the training range chain,0,tutorial_complete,1,range_target
+ACH_FIRST_ORDER,first_order,squad,İlk Emir,İlk tim emrini ver,First Order,Issue your first squad order,0,orders_any,1,radio_f
+ACH_MULTI_KILL_3,multi_kill_3,combat,Üçlü Vuruş,10 saniye içinde 3 öldürme (15 kez),Triple Kill,"Get a triple kill within 10 seconds, 15 times",0,multi_kills_3,15,triple
+ACH_NIGHT_OPS,night_ops,career,Gece Harekâtı,Kuzgun Vadisi Gece haritasında 10 maç oyna,Night Ops,Play 10 matches on Kuzgun Vadisi Gece,0,matches_kuzgun_gece,10,moon_ops
+ACH_MAP_AYAZ,map_ayaz,career,Ayaz Geçidi Gazisi,Ayaz Geçidi'nde 15 maç oyna,Ayaz Pass Veteran,Play 15 matches on Ayaz Geçidi,0,matches_ayaz,15,snow_peak
+ACH_MAP_LIMAN,map_liman,career,Mavi Liman Gazisi,Mavi Liman'da 15 maç oyna,Blue Harbor Veteran,Play 15 matches on Mavi Liman,0,matches_mavi_liman,15,anchor
+ACH_REVIVE_ALLY,revive_ally,squad,Yoldaşını Kurtar,Takım arkadaşını 25 kez canlandır (gelecek: downed sistemi),Save a Comrade,Revive a teammate 25 times (future downed system),0,revives,25,helping_hand
+ACH_HEADSHOT_ONLY_WIN,headshot_only_win,combat,Keskin Zafer,Bir maçta en az 5 kafa vuruşu öldürmesi yapıp kazan,Headshot Victory,Win a match with at least 5 headshot kills,0,hs_kill_wins,1,skull_scope

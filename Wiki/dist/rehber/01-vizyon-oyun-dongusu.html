@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. Vizyon ve Oyun Döngüsü · HAREKÂT Kılavuz</title>
+<meta name="description" content="1. Vizyon ve Oyun Döngüsü">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">1. Vizyon ve Oyun Döngüsü</span></li></ol></nav>
+<h1>1. Vizyon ve Oyun Döngüsü</h1><div class="prose"><h2>1. Vizyon ve Oyun Döngüsü</h2>
+<h3>1.1 Vizyon</h3>
+<p><strong>HAREKÂT</strong>, oyuncuya bir <strong>tim komutanı</strong> hissi verir: 10 kişilik bir birliği yönetir, TSK tarzı rütbe ve komuta zinciriyle emir verir, Türk yapımı silahlarla dağlık arazide son tim ayakta kalana kadar savaşır.</p>
+<p>Oyuncu fantazisi üç katmandadır:</p>
+<ol>
+<li><strong>Komuta</strong> — Emirler (Takip, Mevzi, Taarruz, Toplan), topçu çağrısı, intikal seçimi.</li>
+<li><strong>Tim</strong> — Roller birbirini tamamlar; tek kahramanlık yerine koordinasyon kazanır.</li>
+<li><strong>Tatbikat</strong> — Mavi / Kırmızı kuvvetler; gerçek örgüt adı yok; “harekât tatbikatı” kurgusu.</li>
+</ol>
+<h3>1.2 Tasarım direkleri</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Direk</th><th scope="col">Açıklama</th></tr></thead><tbody><tr><td>Tim ölçeği</td><td>10 kişi; BR’nin klasik 4’lü squad’dan daha “birlik” hissi</td></tr><tr><td>Komuta zinciri</td><td>Rütbe kıdemi; komutan düşünce komuta otomatik devredilir</td></tr><tr><td>Türk silah ekosistemi</td><td>Katalogdaki milli / yerli silah kimlikleri</td></tr><tr><td>Okunabilir arazi</td><td>Kuzgun Vadisi: dere, köprü, köy, karakol, FOB, tepeler</td></tr><tr><td>Adil ilerleme</td><td>Kozmetik dışı güç satışı yok</td></tr></tbody></table></div>
+<h3>1.3 Maç döngüsü (çekirdek döngü)</h3>
+<pre><code>Lobide tim / ayar → Intikal seçimi (T-70 | Kirpi)
+  → İniş / çıkış → Yağma &amp; mevzi
+  → Zone bekleme/daralma döngüsü
+  → Çatışma / topçu / emirler
+  → Son tim ayakta → Sonuç &amp; XP
+  → Kariyer / menü</code></pre>
+<h4>Fazlar</h4>
+<div class="table-scroll"><table><thead><tr><th scope="col">Faz</th><th scope="col">Süre (hedef)</th><th scope="col">Oyuncu odağı</th></tr></thead><tbody><tr><td>Ön maç</td><td>~6 sn</td><td>Hazırlık, intikal onayı</td></tr><tr><td>Erken oyun</td><td>0–4 dk</td><td>İniş sektörü, temel teçhizat, ilk temas</td></tr><tr><td>Orta oyun</td><td>4–12 dk</td><td>Zone rotasyonu, FOB/karakol baskınları, topçu</td></tr><tr><td>Geç oyun</td><td>12–25 dk</td><td>Dar çember, mevzi savaşları, komuta baskısı</td></tr><tr><td>Sonuç</td><td>anlık</td><td>Sıralama, XP, rütbe ilerlemesi</td></tr></tbody></table></div>
+<p>Varsayılan <code>MatchConfig</code>: 4 tim × 10 = 40 savaşçı; harita yarı boyutu 512 m; maç süresi üst sınırı 1500 sn.</p>
+<h3>1.4 Kazanma ve kaybetme</h3>
+<ul>
+<li><strong>Kazanma:</strong> Rakip tüm timler elendiğinde (son ayakta kalan tim).</li>
+<li><strong>Oyuncu ölümü:</strong> Offline’da oyuncu genelde Tim Komutanı’dır; ölünce komuta kıdem sırasına geçer, AI tim savaşmaya devam eder; oyuncu izleyici / sonuç akışına geçer.</li>
+<li><strong>Dost ateşi:</strong> Varsayılan kapalı (<code>FriendlyFire = false</code>).</li>
+</ul>
+<h3>1.5 Oturum döngüsü (meta)</h3>
+<ol>
+<li>Ana menü → Eğitim / Hızlı maç / Ayarlar  </li>
+<li>Maç sonucu → XP (<code>CareerStatsService</code>)  </li>
+<li>Rütbe eşiği aşılırsa terfi bildirimi  </li>
+<li>Kozmetik / profil (gelecek) → yeniden kuyruk  </li>
+</ol>
+<h3>1.6 Başarı ölçütleri (tasarım KPI)</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Ölçüt</th><th scope="col">Hedef (tasarım)</th></tr></thead><tbody><tr><td>İlk 10 dk’da “tim hissi”</td><td>Emir kullanma oranı &gt; %50 (yeni oyuncu)</td></tr><tr><td>Ortalama maç süresi</td><td>12–20 dk (erken elenme dahil)</td></tr><tr><td>Silah çeşitliliği</td><td>Üst 3 silah toplam kill &lt; %55</td></tr><tr><td>Topçu kullanımı</td><td>Maç başına ≥ 1 çağrı (telsizci hayattayken)</td></tr></tbody></table></div></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

@@ -218,6 +218,19 @@ namespace Project.Infrastructure.Player
             EnsureInitialized();
         }
 
+        private void OnEnable()
+        {
+            // Yeniden açılış (ölüm kamerası / canlanma sonrası): geçici etkiler temiz başlasın, FOV yeniden yazılsın.
+            ClearRecoil();
+            _shakeAmplitude = 0f;
+            _dip = 0f;
+            _dipTarget = 0f;
+            _dipVelocity = 0f;
+            _bobWeight = 0f;
+            _eye = _eyeTarget;
+            _appliedFov = -1f;
+        }
+
         private void OnDisable()
         {
             // Sallantı/sarsıntıyı geri al (ölüm/araç kamerasına temiz geçiş).

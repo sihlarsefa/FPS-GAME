@@ -8,6 +8,7 @@ public interface IPlayerRepository
     Task<Player?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<Player?> GetByUsernameAsync(string username, CancellationToken ct = default);
     Task<Player?> GetByEmailAsync(string email, CancellationToken ct = default);
+    Task<Player?> GetBySteamIdAsync(ulong steamId, CancellationToken ct = default);
     Task<Player?> GetByRefreshTokenHashAsync(string hash, CancellationToken ct = default);
     Task<IReadOnlyList<Player>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
     Task<IReadOnlyList<Player>> GetLeaderboardAsync(string metric, int take, CancellationToken ct = default);
@@ -41,6 +42,8 @@ public interface IMatchRepository
     Task<Match?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(Match match, CancellationToken ct = default);
     Task UpdateAsync(Match match, CancellationToken ct = default);
+    Task<IReadOnlyList<Match>> GetPendingAllocationAsync(string? region = null, CancellationToken ct = default);
+    Task<int> CountQueuedTicketsAsync(CancellationToken ct = default);
 }
 
 public interface IGameServerRepository
@@ -50,6 +53,7 @@ public interface IGameServerRepository
     Task AddAsync(GameServer server, CancellationToken ct = default);
     Task UpdateAsync(GameServer server, CancellationToken ct = default);
     Task<IReadOnlyList<GameServer>> GetAllAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<GameServer>> GetByHostAsync(string host, CancellationToken ct = default);
 }
 
 public interface IFriendshipRepository
@@ -77,6 +81,22 @@ public interface IModerationRepository
     Task UpdateReportAsync(PlayerReport report, CancellationToken ct = default);
     Task AddAuditAsync(AuditLogEntry entry, CancellationToken ct = default);
     Task<IReadOnlyList<AuditLogEntry>> GetAuditAsync(int take, CancellationToken ct = default);
+}
+
+public interface INewsRepository
+{
+    Task<IReadOnlyList<NewsItem>> ListPublishedAsync(string? language, int take, CancellationToken ct = default);
+    Task<IReadOnlyList<NewsItem>> ListAllAsync(int take, CancellationToken ct = default);
+    Task<NewsItem?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task AddAsync(NewsItem item, CancellationToken ct = default);
+    Task UpdateAsync(NewsItem item, CancellationToken ct = default);
+    Task DeleteAsync(Guid id, CancellationToken ct = default);
+}
+
+public interface IClientVersionRepository
+{
+    Task<ClientVersion?> GetAsync(string channel, CancellationToken ct = default);
+    Task UpsertAsync(ClientVersion version, CancellationToken ct = default);
 }
 
 public interface IPasswordHasher

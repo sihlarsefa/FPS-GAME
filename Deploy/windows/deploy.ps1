@@ -123,6 +123,17 @@ Start-Sleep -Seconds 2
 dotnet publish $apiProj -c Release -o $ApiOut --self-contained false
 if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
 
+# ServerManager (Windows Service) — publish only; service install is optional
+$smProj = Join-Path $Repo 'Backend\Harekat.ServerManager\Harekat.ServerManager.csproj'
+$smOut = Join-Path $Root 'servermanager'
+if (Test-Path $smProj) {
+    Write-Host 'ServerManager publish...' -ForegroundColor Yellow
+    New-Item -ItemType Directory -Force -Path $smOut | Out-Null
+    dotnet publish $smProj -c Release -o $smOut --self-contained false
+    if ($LASTEXITCODE -ne 0) { Write-Host 'ServerManager publish FAILED (API devam)' -ForegroundColor Yellow }
+    else { Write-Host ("ServerManager -> " + $smOut) -ForegroundColor Green }
+}
+
 $prod = @{
     Logging            = @{ LogLevel = @{ Default = 'Information'; 'Microsoft.AspNetCore' = 'Warning' } }
     AllowedHosts       = '*'

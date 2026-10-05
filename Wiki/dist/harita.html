@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuzgun Vadisi Haritası · HAREKÂT Kılavuz</title>
+<meta name="description" content="Etkileşimli pafta">
+<link rel="stylesheet" href="assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="index.html">Ana Sayfa</a><a href="baslangic.html">Yeni Başlayanlar</a><a href="silahlar/index.html">Silahlar</a><a href="rutbeler/index.html">Rütbeler</a><a href="gorevler/index.html">Görevler</a><a href="lokasyonlar/index.html">Lokasyonlar</a><a href="kontroller.html">Kontroller</a><a href="rehber/index.html">GDD</a><a href="karsilastir.html">Karşılaştır</a><a href="harita.html">Harita</a><a href="yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="index.html">Ana Sayfa</a></li><li><span aria-current="page">Harita</span></li></ol></nav>
+
+<h1>Kuzgun Vadisi Haritası</h1>
+<p class="lede">Pafta SVG — katmanları aç/kapa. Lokasyon sayfalarına gitmek için listeden seç.</p>
+<div class="map-toolbar" data-map-toolbar>
+  <label><input type="checkbox" data-layer="grid" checked> Grid</label>
+  <label><input type="checkbox" data-layer="labels" checked> Etiketler</label>
+  <label><input type="checkbox" data-layer="roads" checked> Yollar</label>
+  <label><input type="checkbox" data-layer="water" checked> Su</label>
+</div>
+<figure class="map-frame">
+  <object data="assets/maps/kuzgun-vadisi-pafta.svg" type="image/svg+xml" aria-label="Kuzgun Vadisi paftası" data-map-object></object>
+</figure>
+<section>
+  <h2>Lokasyonlar</h2>
+  <ul class="link-list"><li><a href="lokasyonlar/agil.html">Ağıl</a> <span class="meta">(D9)</span></li><li><a href="lokasyonlar/bati-gozetleme.html">Batı Gözetleme Noktası</a> <span class="meta">(B5)</span></li><li><a href="lokasyonlar/cam-sirti.html">Çam Sırtı</a> <span class="meta">(I2)</span></li><li><a href="lokasyonlar/dogu-gozetleme.html">Doğu Gözetleme Noktası</a> <span class="meta">(I5)</span></li><li><a href="lokasyonlar/guney-gozetleme.html">Güney Gözetleme Noktası</a> <span class="meta">(D9)</span></li><li><a href="lokasyonlar/ileri-us.html">İleri Üs Bölgesi</a> <span class="meta">(H6)</span></li><li><a href="lokasyonlar/kuzey-gozetleme.html">Kuzey Gözetleme Noktası</a> <span class="meta">(D2)</span></li><li><a href="lokasyonlar/kuzgun-baraji.html">Kuzgun Barajı</a> <span class="meta">(F9)</span></li><li><a href="lokasyonlar/kuzgun-koyu.html">Kuzgun Köyü</a> <span class="meta">(D5)</span></li><li><a href="lokasyonlar/role-tepesi.html">Röle Tepesi</a> <span class="meta">(B3)</span></li><li><a href="lokasyonlar/sinir-karakolu.html">Sınır Karakolu</a> <span class="meta">(G2)</span></li><li><a href="lokasyonlar/tas-ocagi.html">Taş Ocağı</a> <span class="meta">(C7)</span></li><li><a href="lokasyonlar/yamac-koyu.html">Yamaç Köyü</a> <span class="meta">(H4)</span></li><li><a href="lokasyonlar/yikik-koy.html">Yıkık Köy</a> <span class="meta">(G8)</span></li></ul>
+</section>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="assets/app.js" type="module"></script>
+</body>
+</html>

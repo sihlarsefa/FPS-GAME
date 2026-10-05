@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using Harekat.Application.Abstractions;
 using Harekat.Application.Common;
@@ -18,6 +19,7 @@ public sealed class AuthService
     private readonly IEmailService _email;
     private readonly IModerationRepository _moderation;
     private readonly IUnitOfWork _uow;
+    private readonly ISteamTicketValidator _steam;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
@@ -27,6 +29,7 @@ public sealed class AuthService
         IEmailService email,
         IModerationRepository moderation,
         IUnitOfWork uow,
+        ISteamTicketValidator steam,
         ILogger<AuthService> logger)
     {
         _players = players;
@@ -35,6 +38,7 @@ public sealed class AuthService
         _email = email;
         _moderation = moderation;
         _uow = uow;
+        _steam = steam;
         _logger = logger;
     }
 
@@ -138,6 +142,99 @@ public sealed class AuthService
         player.IsOnline = false;
         await _players.UpdateAsync(player, ct);
         await _uow.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Steam session / Web API ticket ile giriş veya ilk kayıt.
+    /// </summary>
+    public async Task<AuthResponse> LoginWithSteamAsync(SteamAuthRequest request, string? ip = null, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.Ticket))
+            throw new AppException("Steam ticket gerekli.", 400, ErrorCodes.Validation);
+
+        var identity = await _steam.ValidateAsync(request.Ticket, ct);
+        var player = await _players.GetBySteamIdAsync(identity.SteamId, ct);
+
+        if (player is null)
+        {
+            var persona = !string.IsNullOrWhiteSpace(request.PersonaName)
+                ? request.PersonaName!.Trim()
+                : identity.PersonaName;
+            var username = await AllocateSteamUsernameAsync(persona, identity.SteamId, ct);
+            player = new Player
+            {
+                Username = username,
+                Email = $"steam_{identity.SteamId}@steam.local",
+                PasswordHash = _hasher.Hash(Convert.ToHexString(RandomNumberGenerator.GetBytes(32))),
+                SteamId = identity.SteamId,
+                EmailVerified = true,
+                Region = string.IsNullOrWhiteSpace(request.Region) ? "tr" : request.Region!.Trim().ToLowerInvariant(),
+                Stats = new CareerStats()
+            };
+            await _players.AddAsync(player, ct);
+            await _moderation.AddAuditAsync(new AuditLogEntry
+            {
+                ActorId = player.Id,
+                Action = "auth.steam.register",
+                Resource = $"player:{player.Id}",
+                IpAddress = ip
+            }, ct);
+            _logger.LogInformation("Steam kaydı: {Username} steamid={SteamId}", player.Username, identity.SteamId);
+        }
+        else
+        {
+            if (player.IsCurrentlyBanned)
+                throw new AppException($"Hesap yasaklı: {player.BanReason}", 403, ErrorCodes.Banned);
+
+            player.LastSeenAt = DateTimeOffset.UtcNow;
+            player.IsOnline = true;
+            await _moderation.AddAuditAsync(new AuditLogEntry
+            {
+                ActorId = player.Id,
+                Action = "auth.steam.login",
+                Resource = $"player:{player.Id}",
+                IpAddress = ip
+            }, ct);
+        }
+
+        return await PersistTokensAsync(player, ct);
+    }
+
+    private async Task<string> AllocateSteamUsernameAsync(string? persona, ulong steamId, CancellationToken ct)
+    {
+        var baseName = SanitizeUsername(persona);
+        if (string.IsNullOrEmpty(baseName))
+            baseName = "Asker" + steamId.ToString()[^6..];
+
+        if (baseName.Length < 3)
+            baseName = baseName.PadRight(3, '0');
+        if (baseName.Length > 20)
+            baseName = baseName[..20];
+
+        var candidate = baseName;
+        for (var i = 0; i < 32; i++)
+        {
+            if (await _players.GetByUsernameAsync(candidate, ct) is null)
+                return candidate;
+            var suffix = (i + 1).ToString();
+            var trim = Math.Max(3, 24 - suffix.Length);
+            candidate = (baseName.Length > trim ? baseName[..trim] : baseName) + suffix;
+        }
+
+        return "s" + steamId;
+    }
+
+    private static string SanitizeUsername(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return string.Empty;
+        var sb = new StringBuilder(raw.Length);
+        foreach (var c in raw.Trim())
+        {
+            if (char.IsAsciiLetterOrDigit(c) || c == '_')
+                sb.Append(c);
+        }
+        return sb.ToString();
     }
 
     private async Task<AuthResponse> PersistTokensAsync(Player player, CancellationToken ct)

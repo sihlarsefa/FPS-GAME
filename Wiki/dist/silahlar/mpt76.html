@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPT-76 · HAREKÂT Kılavuz</title>
+<meta name="description" content="MPT-76 istatistikleri">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">Silahlar</a></li><li><span aria-current="page">MPT-76</span></li></ol></nav>
+
+<h1>MPT-76</h1>
+<p class="meta">Piyade Tüfeği · <code>Mpt76</code></p>
+<div class="table-scroll"><table><tbody><tr><th scope="row">Hasar</th><td>36</td></tr><tr><th scope="row">Şarjör</th><td>20</td></tr><tr><th scope="row">RPM</th><td>600</td></tr><tr><th scope="row">Ateş aralığı</th><td>0.1 sn</td></tr><tr><th scope="row">Doldurma</th><td>2.5 sn</td></tr><tr><th scope="row">Menzil</th><td>600 m</td></tr><tr><th scope="row">Mermi</th><td>7.62 mm</td></tr><tr><th scope="row">Kafa çarpanı</th><td>2</td></tr><tr><th scope="row">Menzil düşüşü</th><td>90 → 400 m</td></tr><tr><th scope="row">Min hasar faktörü</th><td>0.7</td></tr><tr><th scope="row">Saçma</th><td>—</td></tr></tbody></table></div>
+<section>
+  <h2>Öldürme süresi (zırhsız gövde)</h2>
+  <p>BalanceCalc <code>ttk.csv</code> — armor 0, helmet 0, zone=body.</p>
+  <div class="table-scroll"><table>
+<thead><tr><th scope="col">Mesafe (m)</th><th scope="col">Vuruş</th><th scope="col">TTK (sn)</th><th scope="col">Hasar/atış</th><th scope="col">DPS</th></tr></thead>
+<tbody><tr><td>10.0</td><td>3</td><td>0.2</td><td>36.0</td><td>500.0</td></tr><tr><td>50.0</td><td>3</td><td>0.2</td><td>36.0</td><td>500.0</td></tr><tr><td>100.0</td><td>3</td><td>0.2</td><td>35.652</td><td>500.0</td></tr><tr><td>200.0</td><td>4</td><td>0.3</td><td>32.168</td><td>333.333</td></tr><tr><td>300.0</td><td>4</td><td>0.3</td><td>28.684</td><td>333.333</td></tr></tbody>
+</table></div>
+</section>
+<section>
+  <h2>Kullanım ipuçları</h2>
+  <p><strong>Rol:</strong> Komutan / piyade ana silahı.</p>
+  <ul class="plus"><li>Güçlü hasar, iyi menzil.</li></ul>
+  <ul class="minus"><li>20 mermi, daha ağır tepme.</li></ul>
+</section>
+<p><a href="index.html">← Tüm silahlar</a> · <a href="../karsilastir.html?a=Mpt76">Karşılaştır</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{
+  "nameEnglish": "Frost Pass",
+  "grid": {
+    "cellMetres": 100,
+    "columns": "ABCDEFGHIJ",
+    "rows": 10,
+    "north": "+Z"
+  },
+  "sectors": [
+    {
+      "id": "S1",
+      "name": "Kuzey geçit kapısı",
+      "transport": "Kirpi",
+      "center": {
+        "x": 70,
+        "y": 470
+      },
+      "radius": 20,
+      "elevation": 106
+    },
+    {
+      "id": "S2",
+      "name": "Güney geçit kapısı",
+      "transport": "Kirpi",
+      "center": {
+        "x": 0,
+        "y": -470
+      },
+      "radius": 20,
+      "elevation": 59
+    },
+    {
+      "id": "S3",
+      "name": "Batı kaya düzlük",
+      "transport": "T-70",
+      "center": {
+        "x": -405,
+        "y": 245
+      },
+      "radius": 20,
+      "elevation": 100
+    },
+    {
+      "id": "S4",
+      "name": "Doğu ikmal düzlüğü",
+      "transport": "T-70",
+      "center": {
+        "x": 385,
+        "y": -160
+      },
+      "radius": 20,
+      "elevation": 69
+    }
+  ],
+  "elevationModel": "inverse-distance-squared; 30 m smoothing; location TargetHeight samples; design estimate only",
+  "roadGradeLimit": 0.25,
+  "lootCounts": {
+    "Low": 2,
+    "Medium": 4,
+    "High": 3,
+    "Military": 1
+  },
+  "surfaceNotes": "Yüksek dağların arasında iki rotalı geçit. Radar sırtı erken görüş, kayak evi güvenli ikmal sağlar. Kar ve kaya siluetleri açık zemini tehlikeli kılar; beyaz yüzeylerde işaretlerin dış çizgisi korunur."
+}

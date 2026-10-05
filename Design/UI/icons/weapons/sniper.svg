@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Keskin ni_anc1</title>
+  <rect x="4" y="30" width="48" height="5" rx="1" fill="#ECEBE0"/>
+  <rect x="50" y="28" width="10" height="4" fill="#B4B6A4"/>
+  <circle cx="28" cy="24" r="7" stroke="#F2A900" stroke-width="2" fill="none"/>
+  <circle cx="28" cy="24" r="2" fill="#F2A900"/>
+  <rect x="20" y="35" width="5" height="14" fill="#C3B07A"/>
+</svg>

@@ -30,7 +30,8 @@ namespace Project.Presentation.UI
         /// <summary>Örtüyü gösterir ya da iletisini günceller. Oynatma dışında (editör) yok sayılır.</summary>
         public static void Show(string message)
         {
-            if (!UnityEngine.Application.isPlaying)
+            // Editörde oynatma dışında ve başsız (batch / dedicated server) çalışmada örtü kurulmaz.
+            if (!UnityEngine.Application.isPlaying || UnityEngine.Application.isBatchMode)
                 return;
 
             try

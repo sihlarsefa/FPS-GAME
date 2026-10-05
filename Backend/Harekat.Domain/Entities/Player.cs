@@ -10,6 +10,8 @@ public sealed class Player
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
+    /// <summary>SteamID64; Steam ile giriş yapan hesaplarda dolu.</summary>
+    public ulong? SteamId { get; set; }
     public CareerStats Stats { get; set; } = new();
     public int EloRating { get; set; } = 1000;
     public Guid? SquadId { get; set; }

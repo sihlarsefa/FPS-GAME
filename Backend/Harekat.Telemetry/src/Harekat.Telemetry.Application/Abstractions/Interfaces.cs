@@ -83,3 +83,10 @@ public sealed record PerformanceSnapshot(
     double AvgAnalysisMs,
     double P95IngestionMs,
     double P95AnalysisMs);
+
+public interface IClientErrorStore
+{
+    Task SaveAsync(ClientErrorRecord record, CancellationToken ct = default);
+    Task<IReadOnlyList<ClientErrorRecord>> ListAsync(int skip = 0, int take = 50, CancellationToken ct = default);
+    Task<int> CountAsync(CancellationToken ct = default);
+}

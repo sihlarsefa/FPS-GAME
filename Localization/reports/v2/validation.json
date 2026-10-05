@@ -1,0 +1,223 @@
+{
+  "rows": 295,
+  "errors": [],
+  "warnings": [
+    {
+      "key": "pause.btn.settings",
+      "lang": "de",
+      "length": 13,
+      "limit": 18,
+      "reason": "layout-review"
+    },
+    {
+      "key": "pause.btn.main_menu",
+      "lang": "ar",
+      "length": 16,
+      "limit": 18,
+      "reason": "layout-review"
+    },
+    {
+      "key": "pause.dialog.title",
+      "lang": "ar",
+      "length": 23,
+      "limit": 56,
+      "reason": "layout-review"
+    },
+    {
+      "key": "pause.control.artillery",
+      "lang": "de",
+      "length": 23,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "settings.title",
+      "lang": "de",
+      "length": 13,
+      "limit": 56,
+      "reason": "layout-review"
+    },
+    {
+      "key": "settings.master_volume",
+      "lang": "en",
+      "length": 13,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "settings.master_volume",
+      "lang": "de",
+      "length": 15,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "settings.master_volume",
+      "lang": "ar",
+      "length": 13,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "match.msg.kia",
+      "lang": "en",
+      "length": 25,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "notify.single_fire_only",
+      "lang": "ar",
+      "length": 22,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "notify.no_ammo",
+      "lang": "de",
+      "length": 14,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "order.name.hold",
+      "lang": "de",
+      "length": 15,
+      "limit": 18,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.cavus",
+      "lang": "de",
+      "length": 13,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.uzman_onbasi",
+      "lang": "en",
+      "length": 19,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.uzman_cavus",
+      "lang": "en",
+      "length": 19,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.uzman_cavus",
+      "lang": "de",
+      "length": 21,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.astegmen",
+      "lang": "en",
+      "length": 17,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.ustegmen",
+      "lang": "en",
+      "length": 16,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.ustegmen",
+      "lang": "az",
+      "length": 13,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.yarbay",
+      "lang": "en",
+      "length": 18,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.yarbay",
+      "lang": "de",
+      "length": 14,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.category.enlisted",
+      "lang": "az",
+      "length": 17,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.category.specialist",
+      "lang": "en",
+      "length": 19,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.category.nco",
+      "lang": "en",
+      "length": 24,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "rank.category.nco",
+      "lang": "de",
+      "length": 14,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "item.ammo_556",
+      "lang": "de",
+      "length": 16,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "item.ammo_762",
+      "lang": "de",
+      "length": 16,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "damage.arty",
+      "lang": "az",
+      "length": 17,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "team.simsek",
+      "lang": "en",
+      "length": 17,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "team.pars",
+      "lang": "de",
+      "length": 15,
+      "limit": 160,
+      "reason": "layout-review"
+    },
+    {
+      "key": "location.yikik_koy",
+      "lang": "en",
+      "length": 14,
+      "limit": 160,
+      "reason": "layout-review"
+    }
+  ]
+}

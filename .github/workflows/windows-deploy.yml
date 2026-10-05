@@ -2,14 +2,14 @@ name: Windows Deploy
 
 on:
   workflow_dispatch:
-  # Enable after WIN_HOST / WIN_USER / WIN_SSH_* secrets exist:
-  # push:
-  #   branches: [main]
-  #   paths:
-  #     - "Backend/**"
-  #     - "Web/**"
-  #     - "Deploy/windows/**"
-  #     - ".github/workflows/windows-deploy.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Backend/**"
+      - "Web/**"
+      - "Wiki/**"
+      - "Deploy/windows/**"
+      - ".github/workflows/windows-deploy.yml"
 
 concurrency:
   group: windows-deploy
@@ -29,7 +29,7 @@ jobs:
           key: ${{ secrets.WIN_SSH_PRIVATE_KEY }}
           password: ${{ secrets.WIN_SSH_PASSWORD }}
           script_stop: true
-          command_timeout: 30m
+          command_timeout: 45m
           script: |
             powershell -NoProfile -ExecutionPolicy Bypass -Command "
               $ErrorActionPreference = 'Stop'

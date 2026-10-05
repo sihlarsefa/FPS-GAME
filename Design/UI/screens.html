@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>HAREKÂT UI — Ekran Galerisi</title>
+  <link rel="stylesheet" href="css/screens.css"/>
+  <style>
+    body {
+      margin: 0;
+      background: #0a0c08;
+      color: var(--text);
+      font-family: var(--font);
+    }
+    .gallery-head {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: rgba(18, 21, 14, 0.96);
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(8px);
+    }
+    .gallery-head h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      color: var(--amber);
+      text-transform: uppercase;
+    }
+    .gallery-head a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 10px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+    .gallery-head a:hover,
+    .gallery-head a.is-on {
+      color: var(--text);
+      border-color: var(--panel-border);
+      background: var(--panel);
+    }
+    .scale-toggle {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+    .scale-toggle button {
+      background: var(--btn);
+      border: 1px solid var(--panel-border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .scale-toggle button.is-on {
+      background: var(--accent);
+      border-color: var(--accent-dark);
+    }
+    .shot {
+      padding: 32px 24px 48px;
+      border-bottom: 1px solid rgba(90, 99, 69, 0.35);
+    }
+    .shot__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      max-width: 1920px;
+      margin: 0 auto 12px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .shot__meta strong {
+      color: var(--text);
+      font-size: 18px;
+      letter-spacing: 0.04em;
+    }
+    .shot__stage {
+      overflow: auto;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    .shot__stage .frame {
+      transform-origin: top left;
+    }
+    body[data-scale="1080"] .shot__stage .frame {
+      transform: scale(0.55);
+      margin-bottom: calc(1080px * -0.45);
+    }
+    body[data-scale="1440"] .shot__stage .frame {
+      transform: scale(0.42);
+      margin-bottom: calc(1440px * -0.58);
+    }
+    body[data-scale="1440"] .frame:not(.frame--qhd) {
+      display: none;
+    }
+    body[data-scale="1080"] .frame--qhd {
+      display: none;
+    }
+    .links-bar {
+      padding: 8px 24px 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .links-bar a { color: var(--ally); }
+  </style>
+</head>
+<body data-scale="1080">
+  <header class="gallery-head">
+    <h1>HAREKÂT · UI Galeri</h1>
+    <a href="#main-menu">Ana menü</a>
+    <a href="#match-setup">Kurulum</a>
+    <a href="#career">Kariyer</a>
+    <a href="#settings">Ayarlar</a>
+    <a href="#hud">HUD</a>
+    <a href="#full-map">Harita</a>
+    <a href="#inventory">Envanter</a>
+    <a href="#scope">Dürbün</a>
+    <a href="#death">Ölüm</a>
+    <a href="#victory">Zafer</a>
+    <a href="#loading">Yükleme</a>
+    <div class="scale-toggle" role="group" aria-label="Ölçek">
+      <button type="button" class="is-on" data-scale="1080">1920×1080</button>
+      <button type="button" data-scale="1440">2560×1440</button>
+    </div>
+  </header>
+  <p class="links-bar">
+    Stil: <a href="StyleGuide.md">StyleGuide.md</a> ·
+    İkonlar: <a href="icons/index.html">icons/</a> ·
+    Animasyon: <a href="prototypes/hud-events.html">HUD olayları</a> ·
+    Renk körlüğü: <a href="ColorBlindness.md">rapor</a>
+  </p>
+
+  <!-- Each shot embeds the same markup twice: FHD + QHD -->
+
+  <section class="shot" id="main-menu">
+    <div class="shot__meta"><strong>Ana menü</strong><span>screens/main-menu.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/main-menu.html" title="Ana menü 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/main-menu.html?scale=qhd" title="Ana menü 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="match-setup">
+    <div class="shot__meta"><strong>Harekât kurulumu</strong><span>screens/match-setup.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/match-setup.html" title="Kurulum 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/match-setup.html?scale=qhd" title="Kurulum 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="career">
+    <div class="shot__meta"><strong>Kariyer ve rütbe</strong><span>screens/career.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/career.html" title="Kariyer 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/career.html?scale=qhd" title="Kariyer 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="settings">
+    <div class="shot__meta"><strong>Ayarlar</strong><span>screens/settings.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/settings.html" title="Ayarlar 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/settings.html?scale=qhd" title="Ayarlar 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="hud">
+    <div class="shot__meta"><strong>Oyun içi HUD</strong><span>screens/hud.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/hud.html" title="HUD 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/hud.html?scale=qhd" title="HUD 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="full-map">
+    <div class="shot__meta"><strong>Tam harita</strong><span>screens/full-map.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/full-map.html" title="Harita 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/full-map.html?scale=qhd" title="Harita 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="inventory">
+    <div class="shot__meta"><strong>Envanter</strong><span>screens/inventory.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/inventory.html" title="Envanter 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/inventory.html?scale=qhd" title="Envanter 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="scope">
+    <div class="shot__meta"><strong>Dürbün görünümü</strong><span>screens/scope.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/scope.html" title="Dürbün 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/scope.html?scale=qhd" title="Dürbün 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="death">
+    <div class="shot__meta"><strong>Ölüm ekranı</strong><span>screens/death.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/death.html" title="Ölüm 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/death.html?scale=qhd" title="Ölüm 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="victory">
+    <div class="shot__meta"><strong>Zafer ekranı</strong><span>screens/victory.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/victory.html" title="Zafer 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/victory.html?scale=qhd" title="Zafer 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <section class="shot" id="loading">
+    <div class="shot__meta"><strong>Yükleme ekranı</strong><span>screens/loading.html</span></div>
+    <div class="shot__stage">
+      <iframe class="frame" src="screens/loading.html" title="Yükleme 1080" style="border:0;width:1920px;height:1080px"></iframe>
+      <iframe class="frame frame--qhd" src="screens/loading.html?scale=qhd" title="Yükleme 1440" style="border:0;width:2560px;height:1440px"></iframe>
+    </div>
+  </section>
+
+  <script>
+    const body = document.body;
+    document.querySelectorAll(".scale-toggle button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".scale-toggle button").forEach((b) => b.classList.remove("is-on"));
+        btn.classList.add("is-on");
+        body.dataset.scale = btn.dataset.scale;
+        // QHD iframes need frame--qhd class on inner document; inject via post-load
+        document.querySelectorAll("iframe.frame--qhd").forEach((iframe) => {
+          iframe.addEventListener("load", () => {
+            try {
+              const doc = iframe.contentDocument;
+              const frame = doc && doc.querySelector(".frame");
+              if (frame) frame.classList.add("frame--qhd");
+            } catch (_) { /* file:// may block */ }
+          }, { once: true });
+          try {
+            const doc = iframe.contentDocument;
+            const frame = doc && doc.querySelector(".frame");
+            if (frame) frame.classList.add("frame--qhd");
+          } catch (_) {}
+        });
+      });
+    });
+    // Initial QHD class injection
+    window.addEventListener("load", () => {
+      document.querySelectorAll("iframe.frame--qhd").forEach((iframe) => {
+        try {
+          const frame = iframe.contentDocument && iframe.contentDocument.querySelector(".frame");
+          if (frame) frame.classList.add("frame--qhd");
+        } catch (_) {}
+      });
+    });
+  </script>
+</body>
+</html>

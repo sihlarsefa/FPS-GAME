@@ -6,10 +6,10 @@ Türk askeri temalı FPP tim battle royale için .NET 10 katmanlı backend.
 
 ```
 ┌────────────┐     JWT      ┌──────────────┐     EF/Memory    ┌────────────┐
-│ Unity /    │─────────────▶│  Harekat.Api │────────────────▶│ SQLite /   │
-│ ClientSdk  │◀─────────────│  Minimal API │                  │ PostgreSQL │
-└────────────┘   SignalR    │  + LobbyHub  │                  └────────────┘
-                            └──────┬───────┘
+│ Unity /    │─────────────▶│  Harekat.Api │────────────────▶│ SQL Server │
+│ ClientSdk  │◀─────────────│  Minimal API │                  │ (üretim) / │
+└────────────┘   SignalR    │  + LobbyHub  │                  │ Sqlite/Mem │
+                            └──────┬───────┘                  └────────────┘
                                    │
                      ┌─────────────┼─────────────┐
                      ▼             ▼             ▼
@@ -18,11 +18,13 @@ Türk askeri temalı FPP tim battle royale için .NET 10 katmanlı backend.
                              EF/JSON)         Match, Rank…)
 ```
 
+> **Üretim:** `Storage:Provider=SqlServer` (varsayılan). PostgreSQL/Npgsql kaldırıldı. Sqlite/Memory yalnızca yerel test.
+
 ### Ölçekleme
 
 - **Durumsuz API:** Oturum JWT ile taşınır; birden fazla API pod'u yatay ölçeklenebilir (HPA).
-- **Redis:** `docker-compose` içinde Redis vardır; üretimde eşleştirme kuyruğu ve presence için kullanılabilir (geliştirmede bellek içi kuyruk).
-- **Dedicated sunucular:** `/servers/register` + heartbeat; maç sonucu yalnızca `X-Server-Id` + `X-Server-Key` ile.
+- **Redis:** Windows host’ta `HarekatRedis` veya docker-compose; üretimde eşleştirme kuyruğu / presence.
+- **Dedicated sunucular:** `Harekat.ServerManager` + `/servers/*` + `/matches/pending-allocation` + `/matches/{id}/claim`.
 - **Bölge:** Eşleştirme `region` + ping tercihi ile ayrılır (`tr`, `eu`, …).
 
 ```
@@ -39,8 +41,9 @@ Oyuncu → API (N replica) → Matchmaking (bölge kuyruğu)
 |-------|--------|
 | `Harekat.Domain` | Player, Squad (max 10), MatchTicket, Match, GameServer, MilitaryRank, CareerStats |
 | `Harekat.Application` | Auth, tim, eşleştirme, maç sonucu, sıralama, arkadaş, sezon, başarım, kozmetik, moderasyon |
-| `Harekat.Infrastructure` | EF Core (SQLite/Postgres) veya JSON/Memory, PBKDF2, JWT |
+| `Harekat.Infrastructure` | EF Core (**SQL Server** / Sqlite) veya Memory, PBKDF2, JWT |
 | `Harekat.Api` | Minimal API + Swagger + SignalR + Serilog + OpenTelemetry/Prometheus |
+| `Harekat.ServerManager` | Windows Service — port havuzu, spawn, heartbeat, metrics |
 | `Harekat.Tests` | xUnit |
 | `ClientSdk/` | Saf HttpClient Unity SDK (bağımlılıksız) |
 
@@ -63,9 +66,9 @@ Health: `/health` · Metrikler: `/metrics`
 docker compose up --build
 ```
 
-API: `http://localhost:8080` · Postgres: `5432` · Redis: `6379`
+API: `http://localhost:8080` · Redis: `6379`
 
-Ortam: `Storage__Provider=Postgres` (veya `Sqlite` / `Memory`).
+Ortam: `Storage__Provider=SqlServer` (veya `Sqlite` / `Memory`).
 
 ## Ana uç noktalar
 
@@ -75,10 +78,19 @@ Ortam: `Storage__Provider=Postgres` (veya `Sqlite` / `Memory`).
 | GET | `/players/me` | Bearer |
 | POST | `/squads`, `/squads/join`, `/squads/ready` | Tim max 10 |
 | POST | `/matchmaking/queue` | N×10, eksik = bot |
-| POST | `/servers/register`, `/servers/heartbeat` | Dedicated |
+| POST | `/servers/register`, `/servers/heartbeat`, `/servers/release` | Dedicated / ServerManager |
+| GET | `/servers`, `/servers/by-host/{host}` | Liste |
+| GET | `/matches/pending-allocation?region=` | ServerManager poll |
+| POST | `/matches/{id}/claim` | → `ClaimMatchResponse` (`match`, `serverId`, `endpoint`) |
 | POST | `/matches/{id}/result` | Server key header |
+| GET | `/matchmaking/queue-depth` | İzleme |
 | GET | `/leaderboards` | experience/kills/wins/elo |
 | GET | `/health` | |
+| GET | `/metrics` | Prometheus |
+| GET | `/news?lang=tr` | Launcher haber akışı |
+| GET | `/client/version?channel=stable` | Yama zip URL + SHA-256 |
+| PUT | `/admin/client/version` | Admin — sürüm yayımla |
+| POST/PUT/DELETE | `/admin/news` | Admin — haber CRUD |
 
 Hub: `/hubs/lobby?access_token=…&squadId=…`
 

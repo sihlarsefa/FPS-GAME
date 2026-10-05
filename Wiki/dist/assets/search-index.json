@@ -1,0 +1,742 @@
+[
+  {
+    "title": "Ana Sayfa",
+    "url": "/index.html",
+    "type": "sayfa",
+    "text": "HAREKÂT oyuncu kılavuzu ana sayfa",
+    "keywords": []
+  },
+  {
+    "title": "Yeni Başlayanlar",
+    "url": "/baslangic.html",
+    "type": "rehber",
+    "text": "# U6. İlk 10 Dakika ve Eğitim (Tutorial)\n\nAmaç: Yeni oyuncu **10 dakika içinde** hareket, ateş, yağma, emir ve zone kavramlarını öğrenir; “tim komutanı” fantezisine bağlanır.\n\n## 21.1 İlk 10 dakika deneyimi (hızlı maç yolu)\n\n| Dakika | Deneyim | Öğrenilen |\n|--------|---------|-----------|\n| 0:00–0:30 | Ana menü, “Hızlı Maç”, T-70 varsayılan | Giriş sürtünmesi düşük |\n| 0:30–1:30 | İntikal, iniş K",
+    "keywords": []
+  },
+  {
+    "title": "Kontroller",
+    "url": "/kontroller.html",
+    "type": "rehber",
+    "text": "W A S D İleri / sol / geri / sağ Sol Shift Koş Space Zıpla Sol Ctrl (basılı) Eğil (tut) C Eğil (aç/kapa) Z Yüzüstü Q / E Yan eğilme Sol tık Ateş Sağ tık Nişan (ADS) R Şarjör değiştir 1–4 Silah yuvası Fare tekerleği Silah değiştir B Ateş modu X Silahı indir G El bombası T Sis bombası H İyileş J Boost F Etkileşim / yağma F1 Emir: Takip F2 Emir: Mevzi F3 Emir: Taarruz F4 Emir: Toplan V Topçu çağrısı ",
+    "keywords": []
+  },
+  {
+    "title": "Silahlar",
+    "url": "/silahlar/index.html",
+    "type": "indeks",
+    "text": "silah kataloğu",
+    "keywords": []
+  },
+  {
+    "title": "SAR 9",
+    "url": "/silahlar/sar9.html",
+    "type": "silah",
+    "text": "SAR 9 Pistol Mm9",
+    "keywords": [
+      "Sar9",
+      "Tabanca"
+    ]
+  },
+  {
+    "title": "Canik TP9",
+    "url": "/silahlar/tp9.html",
+    "type": "silah",
+    "text": "Canik TP9 Pistol Mm9",
+    "keywords": [
+      "Tp9",
+      "Tabanca"
+    ]
+  },
+  {
+    "title": "SAR 109T",
+    "url": "/silahlar/sar109.html",
+    "type": "silah",
+    "text": "SAR 109T Smg Mm9",
+    "keywords": [
+      "Sar109",
+      "Hafif Makineli"
+    ]
+  },
+  {
+    "title": "MPT-55",
+    "url": "/silahlar/mpt55.html",
+    "type": "silah",
+    "text": "MPT-55 AssaultRifle Mm556",
+    "keywords": [
+      "Mpt55",
+      "Piyade Tüfeği"
+    ]
+  },
+  {
+    "title": "MPT-76",
+    "url": "/silahlar/mpt76.html",
+    "type": "silah",
+    "text": "MPT-76 AssaultRifle Mm762",
+    "keywords": [
+      "Mpt76",
+      "Piyade Tüfeği"
+    ]
+  },
+  {
+    "title": "G3A7",
+    "url": "/silahlar/g3.html",
+    "type": "silah",
+    "text": "G3A7 AssaultRifle Mm762",
+    "keywords": [
+      "G3",
+      "Piyade Tüfeği"
+    ]
+  },
+  {
+    "title": "KNT-76",
+    "url": "/silahlar/knt76.html",
+    "type": "silah",
+    "text": "KNT-76 Dmr Mm762",
+    "keywords": [
+      "Knt76",
+      "Nişancı Tüfeği"
+    ]
+  },
+  {
+    "title": "JNG-90",
+    "url": "/silahlar/jng90.html",
+    "type": "silah",
+    "text": "JNG-90 Sniper Mm762",
+    "keywords": [
+      "Jng90",
+      "Keskin Nişancı"
+    ]
+  },
+  {
+    "title": "PMT-76",
+    "url": "/silahlar/pmt76.html",
+    "type": "silah",
+    "text": "PMT-76 Lmg Mm762",
+    "keywords": [
+      "Pmt76",
+      "Makineli Tüfek"
+    ]
+  },
+  {
+    "title": "Escort",
+    "url": "/silahlar/escort.html",
+    "type": "silah",
+    "text": "Escort Shotgun Gauge12",
+    "keywords": [
+      "Escort",
+      "Pompalı"
+    ]
+  },
+  {
+    "title": "Rütbeler",
+    "url": "/rutbeler/index.html",
+    "type": "indeks",
+    "text": "rütbe listesi",
+    "keywords": []
+  },
+  {
+    "title": "Er",
+    "url": "/rutbeler/rank-0.html",
+    "type": "rütbe",
+    "text": "Er Er Er/Erbaş 0",
+    "keywords": [
+      "Er"
+    ]
+  },
+  {
+    "title": "Onbaşı",
+    "url": "/rutbeler/rank-1.html",
+    "type": "rütbe",
+    "text": "Onbaşı Onb. Er/Erbaş 500",
+    "keywords": [
+      "Onb."
+    ]
+  },
+  {
+    "title": "Çavuş",
+    "url": "/rutbeler/rank-2.html",
+    "type": "rütbe",
+    "text": "Çavuş Çvş. Er/Erbaş 1200",
+    "keywords": [
+      "Çvş."
+    ]
+  },
+  {
+    "title": "Sözleşmeli Er",
+    "url": "/rutbeler/rank-3.html",
+    "type": "rütbe",
+    "text": "Sözleşmeli Er Sözl.Er Er/Erbaş 2200",
+    "keywords": [
+      "Sözl.Er"
+    ]
+  },
+  {
+    "title": "Uzman Onbaşı",
+    "url": "/rutbeler/rank-4.html",
+    "type": "rütbe",
+    "text": "Uzman Onbaşı Uzm.Onb. Uzman Erbaş 3500",
+    "keywords": [
+      "Uzm.Onb."
+    ]
+  },
+  {
+    "title": "Uzman Çavuş",
+    "url": "/rutbeler/rank-5.html",
+    "type": "rütbe",
+    "text": "Uzman Çavuş Uzm.Çvş. Uzman Erbaş 5200",
+    "keywords": [
+      "Uzm.Çvş."
+    ]
+  },
+  {
+    "title": "Astsubay Çavuş",
+    "url": "/rutbeler/rank-6.html",
+    "type": "rütbe",
+    "text": "Astsubay Çavuş Astsb.Çvş. Astsubay 7500",
+    "keywords": [
+      "Astsb.Çvş."
+    ]
+  },
+  {
+    "title": "Astsubay Kıdemli Çavuş",
+    "url": "/rutbeler/rank-7.html",
+    "type": "rütbe",
+    "text": "Astsubay Kıdemli Çavuş Astsb.Kd.Çvş. Astsubay 10000",
+    "keywords": [
+      "Astsb.Kd.Çvş."
+    ]
+  },
+  {
+    "title": "Astsubay Üstçavuş",
+    "url": "/rutbeler/rank-8.html",
+    "type": "rütbe",
+    "text": "Astsubay Üstçavuş Astsb.Üçvş. Astsubay 13000",
+    "keywords": [
+      "Astsb.Üçvş."
+    ]
+  },
+  {
+    "title": "Astsubay Kıdemli Üstçavuş",
+    "url": "/rutbeler/rank-9.html",
+    "type": "rütbe",
+    "text": "Astsubay Kıdemli Üstçavuş Astsb.Kd.Üçvş. Astsubay 16500",
+    "keywords": [
+      "Astsb.Kd.Üçvş."
+    ]
+  },
+  {
+    "title": "Astsubay Başçavuş",
+    "url": "/rutbeler/rank-10.html",
+    "type": "rütbe",
+    "text": "Astsubay Başçavuş Astsb.Bçvş. Astsubay 20500",
+    "keywords": [
+      "Astsb.Bçvş."
+    ]
+  },
+  {
+    "title": "Astsubay Kıdemli Başçavuş",
+    "url": "/rutbeler/rank-11.html",
+    "type": "rütbe",
+    "text": "Astsubay Kıdemli Başçavuş Astsb.Kd.Bçvş. Astsubay 25000",
+    "keywords": [
+      "Astsb.Kd.Bçvş."
+    ]
+  },
+  {
+    "title": "Asteğmen",
+    "url": "/rutbeler/rank-12.html",
+    "type": "rütbe",
+    "text": "Asteğmen Asteğmen Subay 30000",
+    "keywords": [
+      "Asteğmen"
+    ]
+  },
+  {
+    "title": "Teğmen",
+    "url": "/rutbeler/rank-13.html",
+    "type": "rütbe",
+    "text": "Teğmen Teğmen Subay 36000",
+    "keywords": [
+      "Teğmen"
+    ]
+  },
+  {
+    "title": "Üsteğmen",
+    "url": "/rutbeler/rank-14.html",
+    "type": "rütbe",
+    "text": "Üsteğmen Üsteğmen Subay 43000",
+    "keywords": [
+      "Üsteğmen"
+    ]
+  },
+  {
+    "title": "Yüzbaşı",
+    "url": "/rutbeler/rank-15.html",
+    "type": "rütbe",
+    "text": "Yüzbaşı Yzb. Subay 51000",
+    "keywords": [
+      "Yzb."
+    ]
+  },
+  {
+    "title": "Binbaşı",
+    "url": "/rutbeler/rank-16.html",
+    "type": "rütbe",
+    "text": "Binbaşı Bnb. Subay 62000",
+    "keywords": [
+      "Bnb."
+    ]
+  },
+  {
+    "title": "Yarbay",
+    "url": "/rutbeler/rank-17.html",
+    "type": "rütbe",
+    "text": "Yarbay Yb. Subay 75000",
+    "keywords": [
+      "Yb."
+    ]
+  },
+  {
+    "title": "Albay",
+    "url": "/rutbeler/rank-18.html",
+    "type": "rütbe",
+    "text": "Albay Alb. Subay 90000",
+    "keywords": [
+      "Alb."
+    ]
+  },
+  {
+    "title": "Tim Görevleri",
+    "url": "/gorevler/index.html",
+    "type": "indeks",
+    "text": "görev teçhizat",
+    "keywords": []
+  },
+  {
+    "title": "Tim Komutanı",
+    "url": "/gorevler/leader.html",
+    "type": "görev",
+    "text": "Tim Komutanı Mpt76 Sar9",
+    "keywords": [
+      "Leader"
+    ]
+  },
+  {
+    "title": "Piyade",
+    "url": "/gorevler/rifleman.html",
+    "type": "görev",
+    "text": "Piyade Mpt76 Mpt55 Sar9",
+    "keywords": [
+      "Rifleman"
+    ]
+  },
+  {
+    "title": "Keskin Nişancı",
+    "url": "/gorevler/marksman.html",
+    "type": "görev",
+    "text": "Keskin Nişancı Jng90 Sar109",
+    "keywords": [
+      "Marksman"
+    ]
+  },
+  {
+    "title": "Makineli Tüfekçi",
+    "url": "/gorevler/machinegunner.html",
+    "type": "görev",
+    "text": "Makineli Tüfekçi Pmt76 Sar9",
+    "keywords": [
+      "MachineGunner"
+    ]
+  },
+  {
+    "title": "Sıhhiyeci",
+    "url": "/gorevler/medic.html",
+    "type": "görev",
+    "text": "Sıhhiyeci Mpt55 Sar9",
+    "keywords": [
+      "Medic"
+    ]
+  },
+  {
+    "title": "Telsizci",
+    "url": "/gorevler/radioman.html",
+    "type": "görev",
+    "text": "Telsizci Mpt55 Tp9",
+    "keywords": [
+      "Radioman"
+    ]
+  },
+  {
+    "title": "Bombacı",
+    "url": "/gorevler/grenadier.html",
+    "type": "görev",
+    "text": "Bombacı G3 Sar9",
+    "keywords": [
+      "Grenadier"
+    ]
+  },
+  {
+    "title": "Ağıl",
+    "url": "/lokasyonlar/agil.html",
+    "type": "lokasyon",
+    "text": "# Ağıl\n\n| Alan | Değer |\n|------|-------|\n| Grid | **D9** |\n| Tür | `Farm` |\n| Ganimet | `Low` |\n| Merkez (x, z) | `-196, -330` |\n| Radius / Flatten | 60 m / 46 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/agil-yakin-plan.svg](../YakinPlanlar/agil-yakin-plan.svg) |\n\n## Özet\n\nGB çiftlik / ağıl; geçiş ve düşük loot.\n\n## Arazi ve yapılar\n\nAhır, ev, samanlık. Ocak yolundan ayrılan toprak yol.\n",
+    "keywords": [
+      "D9",
+      "agil"
+    ]
+  },
+  {
+    "title": "Batı Gözetleme Noktası",
+    "url": "/lokasyonlar/bati-gozetleme.html",
+    "type": "lokasyon",
+    "text": "# Batı Gözetleme Noktası\n\n| Alan | Değer |\n|------|-------|\n| Grid | **B5** |\n| Tür | `Outpost` |\n| Ganimet | `High` |\n| Merkez (x, z) | `-386, 82` |\n| Radius / Flatten | 28 m / 17 m |\n| Major | Hayır (gözetleme) |\n| Yakın plan | [../YakinPlanlar/bati-gozetleme-yakin-plan.svg](../YakinPlanlar/bati-gozetleme-yakin-plan.svg) |\n\n## Özet\n\nBatı kenar; röle yolu hattını keser.\n\n## Arazi ve yapılar\n\nKena",
+    "keywords": [
+      "B5",
+      "bati-gozetleme"
+    ]
+  },
+  {
+    "title": "Çam Sırtı",
+    "url": "/lokasyonlar/cam-sirti.html",
+    "type": "lokasyon",
+    "text": "# Çam Sırtı\n\n| Alan | Değer |\n|------|-------|\n| Grid | **I2** |\n| Tür | `Forest` |\n| Ganimet | `Low` |\n| Merkez (x, z) | `318, 318` |\n| Radius / Flatten | 110 m / 20 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/cam-sirti-yakin-plan.svg](../YakinPlanlar/cam-sirti-yakin-plan.svg) |\n\n## Özet\n\nKD ormanlık sırt; düşük ganimet, pusu ve kaçış.\n\n## Arazi ve yapılar\n\nGeniş Radius, ClearRadius 26 m",
+    "keywords": [
+      "I2",
+      "cam-sirti"
+    ]
+  },
+  {
+    "title": "Doğu Gözetleme Noktası",
+    "url": "/lokasyonlar/dogu-gozetleme.html",
+    "type": "lokasyon",
+    "text": "# Doğu Gözetleme Noktası\n\n| Alan | Değer |\n|------|-------|\n| Grid | **I5** |\n| Tür | `Outpost` |\n| Ganimet | `High` |\n| Merkez (x, z) | `386, 40` |\n| Radius / Flatten | 28 m / 17 m |\n| Major | Hayır (gözetleme) |\n| Yakın plan | [../YakinPlanlar/dogu-gozetleme-yakin-plan.svg](../YakinPlanlar/dogu-gozetleme-yakin-plan.svg) |\n\n## Özet\n\nDoğu kenar mevzi; FOB ve ana yolu gözetler.\n\n## Arazi ve yapılar",
+    "keywords": [
+      "I5",
+      "dogu-gozetleme"
+    ]
+  },
+  {
+    "title": "Güney Gözetleme Noktası",
+    "url": "/lokasyonlar/guney-gozetleme.html",
+    "type": "lokasyon",
+    "text": "# Güney Gözetleme Noktası\n\n| Alan | Değer |\n|------|-------|\n| Grid | **D9** |\n| Tür | `Outpost` |\n| Ganimet | `High` |\n| Merkez (x, z) | `-122, -404` |\n| Radius / Flatten | 28 m / 17 m |\n| Major | Hayır (gözetleme) |\n| Yakın plan | [../YakinPlanlar/guney-gozetleme-yakin-plan.svg](../YakinPlanlar/guney-gozetleme-yakin-plan.svg) |\n\n## Özet\n\nGüney mevzi; baraj–ağıl hattı gözetimi.\n\n## Arazi ve yapıl",
+    "keywords": [
+      "D9",
+      "guney-gozetleme"
+    ]
+  },
+  {
+    "title": "İleri Üs Bölgesi",
+    "url": "/lokasyonlar/ileri-us.html",
+    "type": "lokasyon",
+    "text": "# İleri Üs Bölgesi\n\n| Alan | Değer |\n|------|-------|\n| Grid | **H6** |\n| Tür | `ForwardBase` |\n| Ganimet | `Military` |\n| Merkez (x, z) | `262, -92` |\n| Radius / Flatten | 85 m / 68 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/ileri-us-yakin-plan.svg](../YakinPlanlar/ileri-us-yakin-plan.svg) |\n\n## Özet\n\nAskeri ganimet FOB; helipad, hangar, konteyner, Hesco. Geç oyun kalesi.\n\n## Arazi ve y",
+    "keywords": [
+      "H6",
+      "ileri-us"
+    ]
+  },
+  {
+    "title": "Kuzey Gözetleme Noktası",
+    "url": "/lokasyonlar/kuzey-gozetleme.html",
+    "type": "lokasyon",
+    "text": "# Kuzey Gözetleme Noktası\n\n| Alan | Değer |\n|------|-------|\n| Grid | **D2** |\n| Tür | `Outpost` |\n| Ganimet | `High` |\n| Merkez (x, z) | `-168, 372` |\n| Radius / Flatten | 28 m / 17 m |\n| Major | Hayır (gözetleme) |\n| Yakın plan | [../YakinPlanlar/kuzey-gozetleme-yakin-plan.svg](../YakinPlanlar/kuzey-gozetleme-yakin-plan.svg) |\n\n## Özet\n\nKüçük kuzey mevzi; High loot, hızlı grev.\n\n## Arazi ve yapı",
+    "keywords": [
+      "D2",
+      "kuzey-gozetleme"
+    ]
+  },
+  {
+    "title": "Kuzgun Barajı",
+    "url": "/lokasyonlar/kuzgun-baraji.html",
+    "type": "lokasyon",
+    "text": "# Kuzgun Barajı\n\n| Alan | Değer |\n|------|-------|\n| Grid | **F9** |\n| Tür | `Dam` |\n| Ganimet | `Medium` |\n| Merkez (x, z) | `20, -345` |\n| Radius / Flatten | 65 m / 30 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/kuzgun-baraji-yakin-plan.svg](../YakinPlanlar/kuzgun-baraji-yakin-plan.svg) |\n\n## Özet\n\nGüney baraj + gölet; dar tepe, flanş ateşi riski.\n\n## Arazi ve yapılar\n\nKontrol binası, k",
+    "keywords": [
+      "F9",
+      "kuzgun-baraji"
+    ]
+  },
+  {
+    "title": "Kuzgun Köyü",
+    "url": "/lokasyonlar/kuzgun-koyu.html",
+    "type": "lokasyon",
+    "text": "# Kuzgun Köyü\n\n| Alan | Değer |\n|------|-------|\n| Grid | **D5** |\n| Tür | `Village` |\n| Ganimet | `Medium` |\n| Merkez (x, z) | `-118, 22` |\n| Radius / Flatten | 85 m / 60 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/kuzgun-koyu-yakin-plan.svg](../YakinPlanlar/kuzgun-koyu-yakin-plan.svg) |\n\n## Özet\n\nVadi ortası ana köy; orta ganimet, erken–orta oyun toplanma ve köprü yaklaşımı.\n\n## Arazi v",
+    "keywords": [
+      "D5",
+      "kuzgun-koyu"
+    ]
+  },
+  {
+    "title": "Röle Tepesi",
+    "url": "/lokasyonlar/role-tepesi.html",
+    "type": "lokasyon",
+    "text": "# Röle Tepesi\n\n| Alan | Değer |\n|------|-------|\n| Grid | **B3** |\n| Tür | `RelayHill` |\n| Ganimet | `High` |\n| Merkez (x, z) | `-322, 302` |\n| Radius / Flatten | 55 m / 34 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/role-tepesi-yakin-plan.svg](../YakinPlanlar/role-tepesi-yakin-plan.svg) |\n\n## Özet\n\nKB yüksek nokta; anten, bunker, görüş hakimiyeti.\n\n## Arazi ve yapılar\n\nKıvrımlı dağ yolu.",
+    "keywords": [
+      "B3",
+      "role-tepesi"
+    ]
+  },
+  {
+    "title": "Sınır Karakolu",
+    "url": "/lokasyonlar/sinir-karakolu.html",
+    "type": "lokasyon",
+    "text": "# Sınır Karakolu\n\n| Alan | Değer |\n|------|-------|\n| Grid | **G2** |\n| Tür | `Karakol` |\n| Ganimet | `High` |\n| Merkez (x, z) | `140, 392` |\n| Radius / Flatten | 55 m / 42 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/sinir-karakolu-yakin-plan.svg](../YakinPlanlar/sinir-karakolu-yakin-plan.svg) |\n\n## Özet\n\nKuzeydoğu yüksek ganimet karakolu; erken oyun sıcak noktası.\n\n## Arazi ve yapılar\n\nD",
+    "keywords": [
+      "G2",
+      "sinir-karakolu"
+    ]
+  },
+  {
+    "title": "Taş Ocağı",
+    "url": "/lokasyonlar/tas-ocagi.html",
+    "type": "lokasyon",
+    "text": "# Taş Ocağı\n\n| Alan | Değer |\n|------|-------|\n| Grid | **C7** |\n| Tür | `Quarry` |\n| Ganimet | `Medium` |\n| Merkez (x, z) | `-282, -150` |\n| Radius / Flatten | 70 m / 50 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/tas-ocagi-yakin-plan.svg](../YakinPlanlar/tas-ocagi-yakin-plan.svg) |\n\n## Özet\n\nBatı vadi ocağı; basamaklı arazi ve tek araç girişi.\n\n## Arazi ve yapılar\n\nTeraslı kazı, hangar,",
+    "keywords": [
+      "C7",
+      "tas-ocagi"
+    ]
+  },
+  {
+    "title": "Yamaç Köyü",
+    "url": "/lokasyonlar/yamac-koyu.html",
+    "type": "lokasyon",
+    "text": "# Yamaç Köyü\n\n| Alan | Değer |\n|------|-------|\n| Grid | **H4** |\n| Tür | `Village` |\n| Ganimet | `Medium` |\n| Merkez (x, z) | `208, 178` |\n| Radius / Flatten | 70 m / 50 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/yamac-koyu-yakin-plan.svg](../YakinPlanlar/yamac-koyu-yakin-plan.svg) |\n\n## Özet\n\nDoğu yamaç köyü; FOB ve karakol arasında geçiş düğümü.\n\n## Arazi ve yapılar\n\nYükselen yamaç, d",
+    "keywords": [
+      "H4",
+      "yamac-koyu"
+    ]
+  },
+  {
+    "title": "Yıkık Köy",
+    "url": "/lokasyonlar/yikik-koy.html",
+    "type": "lokasyon",
+    "text": "# Yıkık Köy\n\n| Alan | Değer |\n|------|-------|\n| Grid | **G8** |\n| Tür | `Ruins` |\n| Ganimet | `Medium` |\n| Merkez (x, z) | `178, -298` |\n| Radius / Flatten | 65 m / 48 m |\n| Major | Evet |\n| Yakın plan | [../YakinPlanlar/yikik-koy-yakin-plan.svg](../YakinPlanlar/yikik-koy-yakin-plan.svg) |\n\n## Özet\n\nGüney harabe; enkaz örtü, baraja yakın.\n\n## Arazi ve yapılar\n\nYıkıntı evler, bodrum. Harabe yolu a",
+    "keywords": [
+      "G8",
+      "yikik-koy"
+    ]
+  },
+  {
+    "title": "Lokasyonlar",
+    "url": "/lokasyonlar/index.html",
+    "type": "indeks",
+    "text": "Kuzgun Vadisi lokasyonları",
+    "keywords": []
+  },
+  {
+    "title": "1. Vizyon ve Oyun Döngüsü",
+    "url": "/rehber/01-vizyon-oyun-dongusu.html",
+    "type": "gdd",
+    "text": "# 1. Vizyon ve Oyun Döngüsü\n\n## 1.1 Vizyon\n\n**HAREKÂT**, oyuncuya bir **tim komutanı** hissi verir: 10 kişilik bir birliği yönetir, TSK tarzı rütbe ve komuta zinciriyle emir verir, Türk yapımı silahlarla dağlık arazide son tim ayakta kalana kadar savaşır.\n\nOyuncu fantazisi üç katmandadır:\n\n1. **Komuta** — Emirler (Takip, Mevzi, Taarruz, Toplan), topçu çağrısı, intikal seçimi.\n2. **Tim** — Roller b",
+    "keywords": [
+      "01-vizyon-oyun-dongusu"
+    ]
+  },
+  {
+    "title": "2. Tim Yapısı ve Roller",
+    "url": "/rehber/02-tim-yapisi-roller.html",
+    "type": "gdd",
+    "text": "# 2. Tim Yapısı ve Roller\n\nKaynak: `TeamRole`, `LoadoutCatalog` (SquadSize = 10).\n\n## 2.1 Slot dağılımı\n\n| Slot | Rol | Kısa kod | Görevin özü |\n|------|-----|----------|-------------|\n| 0 | Tim Komutanı | KMT | Emir, yön, MPT-76 |\n| 1 | Keskin Nişancı | KN | Uzun mesafe, JNG-90 |\n| 2 | Makineli Tüfekçi | MAK | Baskı ateşi, PMT-76 |\n| 3 | Sıhhiyeci | SHH | Tıbbi stok, MPT-55 |\n| 4 | Telsizci | TEL",
+    "keywords": [
+      "02-tim-yapisi-roller"
+    ]
+  },
+  {
+    "title": "3. TSK Rütbeleri ve Komuta Zinciri",
+    "url": "/rehber/03-rutbeler-komuta.html",
+    "type": "gdd",
+    "text": "# 3. TSK Rütbeleri ve Komuta Zinciri\n\nKaynak: `MilitaryRank`, `RankCatalog`, `ChainOfCommandService` (sözleşme).\n\n## 3.1 Rütbe listesi (küçükten büyüğe)\n\n| Enum | Tam ad | Kısa | Sınıf | XP eşiği |\n|------|--------|------|-------|----------|\n| Er | Er | Er | Er/Erbaş | 0 |\n| Onbasi | Onbaşı | Onb. | Er/Erbaş | 500 |\n| Cavus | Çavuş | Çvş. | Er/Erbaş | 1 200 |\n| SozlesmeliEr | Sözleşmeli Er | Sözl.",
+    "keywords": [
+      "03-rutbeler-komuta"
+    ]
+  },
+  {
+    "title": "4. İntikal Sistemi (T-70 / Kirpi)",
+    "url": "/rehber/04-intikal.html",
+    "type": "gdd",
+    "text": "# 4. İntikal Sistemi (T-70 / Kirpi)\n\nKaynak: `InsertionMethod`, `MatchConfig` (PlaneAltitude 120, PlaneSpeed 38), Transport katmanı.\n\n## 4.1 Seçenekler\n\n| Yöntem | Enum | Anlatı | Oynanış |\n|--------|------|--------|---------|\n| T-70 helikopteri | `Helicopter` | Havadan intikal | Yüksekten bakış, geniş iniş seçimi, rotor sesi/toz |\n| Kirpi ZPT | `ArmoredVehicle` | Karadan intikal | Yol/patika odak",
+    "keywords": [
+      "04-intikal"
+    ]
+  },
+  {
+    "title": "5. Silahlar",
+    "url": "/rehber/05-silahlar.html",
+    "type": "gdd",
+    "text": "# 5. Silahlar\n\nKaynak: `WeaponCatalog`, `WeaponIds`. RPM = `60 / FireIntervalSeconds`.\n\n## 5.1 Özet tablo\n\n| Silah | ID | Kategori | Hasar | Şarjör | RPM / aralık | Doldurma | Menzil | HS× | Mermi |\n|-------|-----|----------|-------|--------|--------------|----------|-------|-----|-------|\n| SAR 9 | pistol_sar9 | Tabanca | 28 | 15 | ~375 (0.16s) | 1.5s | 120 | 2.0 | 9 mm |\n| Canik TP9 | pistol_tp9",
+    "keywords": [
+      "05-silahlar"
+    ]
+  },
+  {
+    "title": "6. Teçhizat ve Envanter",
+    "url": "/rehber/06-techizat-envanter.html",
+    "type": "gdd",
+    "text": "# 6. Teçhizat ve Envanter\n\nKaynak: `ItemCatalog`.\n\n## 6.1 Mühimmat\n\n| Eşya | Ağırlık / adet | Yerden alınan |\n|------|----------------|---------------|\n| 9mm Mermi | 0.375 | 30 |\n| 5.56 Mermi | 0.5 | 30 |\n| 7.62 Mermi | 0.7 | 30 |\n| 12 Kalibre Fişek | 1.25 | 10 |\n\n## 6.2 Tıbbi\n\n| Eşya | Ağırlık | Kullanım | İyileşme | Tavan |\n|------|---------|----------|----------|-------|\n| Sargı Bezi | 2 | 4 sn",
+    "keywords": [
+      "06-techizat-envanter"
+    ]
+  },
+  {
+    "title": "7. Harekât Alanı (Zone) Fazları",
+    "url": "/rehber/07-zone-fazlari.html",
+    "type": "gdd",
+    "text": "# 7. Harekât Alanı (Zone) Fazları\n\nKaynak: `MatchConfig.DefaultZonePhases`, `ZoneService`.\n\n## 7.1 Kavramlar\n\n| Terim | Anlam |\n|-------|--------|\n| Mavi bölge | Güvenli harekât alanı dışı hasar veren alan |\n| Beyaz çember | Bir sonraki güvenli alan (`NextZone`) |\n| Waiting | Bekleme — çember sabit |\n| Shrinking | Daralma — merkez/yarıçap doğrusal enterpolasyon |\n| Finished | Plan bitti |\n\nBaşlang",
+    "keywords": [
+      "07-zone-fazlari"
+    ]
+  },
+  {
+    "title": "8. Topçu Desteği",
+    "url": "/rehber/08-topcu-destegi.html",
+    "type": "gdd",
+    "text": "# 8. Topçu Desteği\n\nKaynak: `ArtilleryService`, `MatchConfig.ArtilleryCooldownSeconds`.\n\n## 8.1 Kim çağırır?\n\n**Telsizci** rolü (slot 4) — anlatı olarak telsiz üzerinden batarya ateşi.  \nTeknik çağrı: `ArtilleryService.TryCall(team, caller, target)`.\n\n## 8.2 Parametreler\n\n| Parametre | Değer |\n|-----------|-------|\n| Bekleme (cooldown) | **150 sn** / tim |\n| Mermi sayısı / atış | 8 |\n| Yayılma yar",
+    "keywords": [
+      "08-topcu-destegi"
+    ]
+  },
+  {
+    "title": "9. Kuzgun Vadisi — Bölgeler",
+    "url": "/rehber/09-kuzgun-vadisi.html",
+    "type": "gdd",
+    "text": "# 9. Kuzgun Vadisi — Bölgeler\n\nKaynak: `MapLayout.CreateKuzgunVadisi`, `WorldTypes.LocationKind`.\n\n## 9.1 Harita özeti\n\n| Özellik | Değer |\n|---------|--------|\n| Ad | Kuzgun Vadisi |\n| Boyut | 1024 × 1024 m (`HalfSize` 512) |\n| Max yükseklik | 160 m |\n| Su seviyesi | 18 m |\n| Ana hidroloji | Kuzgun Deresi (K→G), baraj göleti |\n| Ana yol | Asfalt “Ana Yol” + toprak bağlantılar |\n\nKoordinat: merkez",
+    "keywords": [
+      "09-kuzgun-vadisi"
+    ]
+  },
+  {
+    "title": "10. Botlar ve Yapay Zekâ",
+    "url": "/rehber/10-bot-ai.html",
+    "type": "gdd",
+    "text": "# 10. Botlar ve Yapay Zekâ\n\nKaynak: `BotDecisionService`, `BotSenses`, `SquadOrder`.\n\n## 10.1 Tasarım hedefi\n\nBotlar “kusursuz nişancı” değil; **okunabilir askeri davranış** sergiler: emre uyar, bölgeden kaçar, yağmalar, iyileşir. Performans: ~60 savaşçı, kademeli tick.\n\n## 10.2 Karar önceliği (bireysel)\n\n1. **Engage** — Düşman görünür + silahlı (veya <4 m yumruk).  \n2. Silahsız + uzak düşman → **",
+    "keywords": [
+      "10-bot-ai"
+    ]
+  },
+  {
+    "title": "11. Ses ve Görsel Yönelim (Özet)",
+    "url": "/rehber/11-ses-gorsel.html",
+    "type": "gdd",
+    "text": "# 11. Ses ve Görsel Yönelim (Özet)\n\nAyrıntılı ses: [19-ses-tasarim.md](19-ses-tasarim.md).  \nTeknik: prosedürel `GameAudio` / `GameVfx` (dış asset yok).\n\n## 11.1 Görsel dil\n\n| Öğe | Yönelim |\n|-----|---------|\n| Siluet | Low-poly askeri; dijital kamuflaj |\n| Palet | Zeytin / toprak / beton; vurgu kırmızısı (#E30A17) UI’da |\n| Okunurluk | Mavi/kırmızı kol bandı (kuvvet); dost-düşman siluet |\n| Zone",
+    "keywords": [
+      "11-ses-gorsel"
+    ]
+  },
+  {
+    "title": "12. İlerleme Sistemi",
+    "url": "/rehber/12-ilerleme.html",
+    "type": "gdd",
+    "text": "# 12. İlerleme Sistemi\n\nKaynak: `CareerStatsService` / `SettingsService` XP sabitleri, `RankCatalog`.\n\n## 12.1 Maç sonu XP\n\n| Kaynak | XP |\n|--------|-----|\n| Öldürme | 100 |\n| Kafa isabeti (bonus) | +25 |\n| Geçilen rakip tim | 150 × (TeamCount − placement) |\n| Zafer | 1000 |\n\nÖrnek: 4 timlik maçta 2. sıra, 5 kill, 1 HS →  \n`5×100 + 25 + 150×(4−2) = 500+25+300 = 825` (+galibiyet yok).\n\n## 12.2 Rüt",
+    "keywords": [
+      "12-ilerleme"
+    ]
+  },
+  {
+    "title": "13. Gelecek Modlar (Fikir Düzeyi)",
+    "url": "/rehber/13-gelecek-modlar.html",
+    "type": "gdd",
+    "text": "# 13. Gelecek Modlar (Fikir Düzeyi)\n\nMevcut çekirdek: **Tim BR (Kuzgun Vadisi)**. Aşağıdakiler yol haritası fikirleridir; uygulama sözleşmesi değildir.\n\n## 13.1 Gece Harekâtı\n\n- Düşük ışık, NVG kozmetik veya sınırlı ekipman slotu.  \n- Ses baskın bilgi kaynağı; ayak sesi menzili artar.  \n- Zone rengi / HUD kontrastı gece paletine uyarlanır.  \n- Topçu izleri daha görünür (ışık flaşı).\n\n## 13.2 Rehin",
+    "keywords": [
+      "13-gelecek-modlar"
+    ]
+  },
+  {
+    "title": "14. Online Mimari Özeti",
+    "url": "/rehber/14-online-ozet.html",
+    "type": "gdd",
+    "text": "# 14. Online Mimari Özeti\n\nKaynak: `Docs/CONTRACTS.md` otorite modeli. Backend ayrı ekip (`Docs/CURSOR_GOREVI.md`).\n\n## 14.1 İlke\n\n**Sunucu otoriteli:** hasar, envanter, AI kararları, zone yalnızca `HasAuthority` tarafında mutasyona uğrar. İstemci öngörü + uzlaştırma.\n\n## 14.2 Katmanlar (oyuncu perspektifi)\n\n```\nİstemci (Unity) ←→ Match Instance (oyun sunucusu)\n                 ←→ Lobby / Matchmak",
+    "keywords": [
+      "14-online-ozet"
+    ]
+  },
+  {
+    "title": "15. Monetizasyon (Yalnız Kozmetik)",
+    "url": "/rehber/15-monetizasyon.html",
+    "type": "gdd",
+    "text": "# 15. Monetizasyon (Yalnız Kozmetik)\n\n## 15.1 Sert kural\n\n**Pay-to-win yok.** Para ile satın alınamaz:\n\n- Silah hasarı / şarjör / tepme  \n- Zırh azaltması veya dayanıklılık  \n- Topçu cooldown kısaltma  \n- XP çarpanı (güç veren)  \n- Bot zorluğu düşürme  \n\n## 15.2 Satılabilir (kozmetik)\n\n| Kategori | Örnek |\n|----------|--------|\n| Kamuflaj | Üniforma deseni, silah skin |\n| Nişan | Kariyer dışı süs ",
+    "keywords": [
+      "15-monetizasyon"
+    ]
+  },
+  {
+    "title": "U1. Silah Denge Gerekçeleri",
+    "url": "/rehber/16-silah-denge-gerekceleri.html",
+    "type": "gdd",
+    "text": "# U1. Silah Denge Gerekçeleri\n\nKatalog değerleri sabittir; bu belge **neden** bu değerlerin seçildiğini ve gerçek dünyaya dair genel notları açıklar (simülasyon iddiası yok).\n\n## Ortak çerçeve\n\n- **Can:** 100 HP.  \n- **Zırh:** %30 / %40 / %55 azaltma (Sv.1–3).  \n- **Hedef TTK bandı (gövde, zırhsız, optimal mesafe):**  \n  - CQB SMG/pompalı: çok hızlı  \n  - AR: 0.25–0.45 sn burst  \n  - DMR/SR: düşük",
+    "keywords": [
+      "16-silah-denge-gerekceleri"
+    ]
+  },
+  {
+    "title": "U2. Tim Taktikleri El Kitabı",
+    "url": "/rehber/17-tim-taktikleri.html",
+    "type": "gdd",
+    "text": "# U2. Tim Taktikleri El Kitabı\n\nOyun içi mekanik karşılıklarıyla. Emirler: `SquadOrder`.\n\n## 17.1 Kama düzeni (wedge)\n\n**Amaç:** İleri ilerlerken 360° değil, ön yayda güvenlik.\n\n| Pozisyon | Rol | Emir |\n|----------|-----|------|\n| Uç | Komutan veya piyade | Follow lider |\n| Sol kanat | Makineli + piyade | Follow |\n| Sağ kanat | Bombacı + piyade | Follow |\n| Geride | Sıhhiye + Telsizci | Follow, m",
+    "keywords": [
+      "17-tim-taktikleri"
+    ]
+  },
+  {
+    "title": "U3. Rol Yetenekleri — Maliyet / Fayda",
+    "url": "/rehber/18-rol-yetenekleri.html",
+    "type": "gdd",
+    "text": "# U3. Rol Yetenekleri — Maliyet / Fayda\n\nMevcut oyunda roller **loadout + topçu (telsizci)** ile ayrışır. Bu belge genişleme fikirlerini maliyet/fayda ile değerlendirir.\n\nÖlçek: Fayda 1–5, Maliyet (geliştirme + denge riski) 1–5, Öneri: Şimdi / Sonra / Belki.\n\n## Tim Komutanı\n\n| Yetenek | Fayda | Maliyet | Not | Öneri |\n|---------|-------|---------|-----|-------|\n| Emir seti (mevcut) | 5 | 1 | Teme",
+    "keywords": [
+      "18-rol-yetenekleri"
+    ]
+  },
+  {
+    "title": "U4. Ses Tasarım Dokümanı",
+    "url": "/rehber/19-ses-tasarim.html",
+    "type": "gdd",
+    "text": "# U4. Ses Tasarım Dokümanı\n\nKaynak kimlikler: `SoundId` (prosedürel üretim).\n\n## 19.1 Bus / karışım öncelikleri\n\nÖncelik yüksek → düşük (aynı anda çakışmada kıs):\n\n| Öncelik | Bus | Örnekler |\n|---------|-----|----------|\n| 10 | Kritik oyuncu geri bildirimi | HitMarker, KillConfirm, Headshot, Death, Heartbeat |\n| 9 | Tehlike uyarı | ZoneWarning, ZoneDamage, ArtilleryWhistle |\n| 8 | Yerel silah | S",
+    "keywords": [
+      "19-ses-tasarim"
+    ]
+  },
+  {
+    "title": "U5. UI/UX Akış Diyagramları",
+    "url": "/rehber/20-ui-ux-akislari.html",
+    "type": "gdd",
+    "text": "# U5. UI/UX Akış Diyagramları\n\nArayüz metinleri Türkçe. Diyagramlar Mermaid.\n\n## 20.1 Ana menü\n\n```mermaid\nflowchart TD\n  A[Açılış / Logo] --> B[Ana Menü]\n  B --> C[Hızlı Maç]\n  B --> D[Eğitim / Poligon]\n  B --> E[Tim]\n  B --> F[Profil / Rütbe]\n  B --> G[Ayarlar]\n  B --> H[Çıkış]\n  C --> I{Intikal seç}\n  I -->|T-70| J[Maç yükleniyor]\n  I -->|Kirpi| J\n  D --> K[TutorialBootstrap / Poligon]\n  E --> ",
+    "keywords": [
+      "20-ui-ux-akislari"
+    ]
+  },
+  {
+    "title": "U6. İlk 10 Dakika ve Eğitim (Tutorial)",
+    "url": "/rehber/21-ilk-10-dk-tutorial.html",
+    "type": "gdd",
+    "text": "# U6. İlk 10 Dakika ve Eğitim (Tutorial)\n\nAmaç: Yeni oyuncu **10 dakika içinde** hareket, ateş, yağma, emir ve zone kavramlarını öğrenir; “tim komutanı” fantezisine bağlanır.\n\n## 21.1 İlk 10 dakika deneyimi (hızlı maç yolu)\n\n| Dakika | Deneyim | Öğrenilen |\n|--------|---------|-----------|\n| 0:00–0:30 | Ana menü, “Hızlı Maç”, T-70 varsayılan | Giriş sürtünmesi düşük |\n| 0:30–1:30 | İntikal, iniş K",
+    "keywords": [
+      "21-ilk-10-dk-tutorial"
+    ]
+  },
+  {
+    "title": "GDD",
+    "url": "/rehber/index.html",
+    "type": "indeks",
+    "text": "oyun tasarım belgeleri",
+    "keywords": []
+  },
+  {
+    "title": "Silah Karşılaştır",
+    "url": "/karsilastir.html",
+    "type": "araç",
+    "text": "silah karşılaştırma",
+    "keywords": []
+  },
+  {
+    "title": "Kuzgun Vadisi Haritası",
+    "url": "/harita.html",
+    "type": "harita",
+    "text": "pafta grid yollar su lokasyon",
+    "keywords": []
+  },
+  {
+    "title": "Yama Notları",
+    "url": "/yama-notlari.html",
+    "type": "arsiv",
+    "text": "Oyuncu kılavuzu (Wiki) statik site: silah, rütbe, lokasyon ve GDD sayfaları. BalanceCalc TTK tabloları silah sayfalarına gömüldü. İstemci araması, silah karşılaştırma ve etkileşimli pafta katmanları. GDD 21 bölüm, denge hesaplayıcı ve Kuzgun Vadisi paftaları yayımlandı. Web portalı v1 ve yerelleştirme tabloları.",
+    "keywords": []
+  }
+]

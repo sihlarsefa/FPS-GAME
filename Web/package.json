@@ -2,12 +2,15 @@
   "name": "harekat-web",
   "private": true,
   "type": "module",
-  "version": "0.3.0",
-  "description": "HAREKÂT web portalı — vanilla HTML/CSS/JS",
+  "version": "0.4.0",
+  "description": "HAREKÂT web portalı v2 — vanilla HTML/CSS/JS + JWT API",
   "scripts": {
     "start": "npx --yes serve -l 5173 .",
     "lint": "node scripts/lint.mjs",
     "test": "node scripts/test.mjs",
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "contracts": "node scripts/contracts.mjs",
+    "news": "node scripts/news-build.mjs",
+    "patchnotes": "node scripts/patchnotes-build.mjs"
   }
 }

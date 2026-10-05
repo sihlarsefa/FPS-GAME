@@ -95,7 +95,7 @@ CSV’de `{0}`, `{1}` Smart Format yer tutucularıdır.
   `menu.team_summary.one` / `.other` (Türkçe çoğul eki UI’da nadiren değişir;
   Azerbaycan ve Arapça için ayrı kural gerekir).
 - Arapça: RTL — `LocalizeStringEvent` + TextMeshPro `isRightToLeftText`.
-- Doğrulama: `Localization/scripts/validate_placeholders.py`.
+- Doğrulama: `cd Tools/LocTool && npm run validate` (eski: `scripts/validate_placeholders.py`).
 
 ### 5. Kataloglar
 
@@ -121,11 +121,13 @@ CSV’de `{0}`, `{1}` Smart Format yer tutucularıdır.
 ### 8. CI / kalite kapısı
 
 ```bash
-python3 Localization/scripts/validate_placeholders.py
+cd Tools/LocTool && npm run validate && npm run export
+# isteğe bağlı: python3 Localization/scripts/validate_placeholders.py
 ```
 
 Kurallar: tüm dillerde aynı placeholder kümesi; boş hücre yok; DE düğme metni ≤ 18 karakter uyarısı
-(`reports/METIN_UZUNLUGU_RISK_RAPORU.md`).
+(`reports/v2/validation.json`, `reports/METIN_UZUNLUGU_RISK_RAPORU.md`).
+Dosya:satır eşlemesi: `UNITY_STRING_MAP_V2.md` (LocTool `extract`).
 
 ## Öncelik sırası (uygulama)
 
@@ -147,6 +149,9 @@ Kurallar: tüm dillerde aynı placeholder kümesi; boş hücre yok; DE düğme m
 ## İlgili dosyalar
 
 - `Localization/strings.csv`
+- `Localization/KEY_NAMING.md`
 - `Localization/ASKERI_TERIMLER_SOZLUGU.md`
+- `Localization/UNITY_STRING_MAP_V2.md`
+- `Tools/LocTool/README.md`
 - `Localization/scripts/validate_placeholders.py`
 - `Localization/reports/METIN_UZUNLUGU_RISK_RAPORU.md`

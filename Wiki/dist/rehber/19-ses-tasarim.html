@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U4. Ses Tasarım Dokümanı · HAREKÂT Kılavuz</title>
+<meta name="description" content="U4. Ses Tasarım Dokümanı">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">U4. Ses Tasarım Dokümanı</span></li></ol></nav>
+<h1>U4. Ses Tasarım Dokümanı</h1><div class="prose"><h2>U4. Ses Tasarım Dokümanı</h2>
+<p>Kaynak kimlikler: <code>SoundId</code> (prosedürel üretim).</p>
+<h3>19.1 Bus / karışım öncelikleri</h3>
+<p>Öncelik yüksek → düşük (aynı anda çakışmada kıs):</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Öncelik</th><th scope="col">Bus</th><th scope="col">Örnekler</th></tr></thead><tbody><tr><td>10</td><td>Kritik oyuncu geri bildirimi</td><td>HitMarker, KillConfirm, Headshot, Death, Heartbeat</td></tr><tr><td>9</td><td>Tehlike uyarı</td><td>ZoneWarning, ZoneDamage, ArtilleryWhistle</td></tr><tr><td>8</td><td>Yerel silah</td><td>Shot<em>, Reload</em>, DryFire, FireModeSwitch</td></tr><tr><td>7</td><td>Yakın muharebe 3D</td><td>BulletWhiz, Explosion, HitFlesh/Armor/Helmet</td></tr><tr><td>6</td><td>Hareket / araç</td><td>Footstep, Jump, Land, VehicleEngine, HelicopterRotor</td></tr><tr><td>5</td><td>Etkileşim</td><td>Pickup, Bandage, Drink, GrenadePin/Bounce, SmokeHiss</td></tr><tr><td>4</td><td>Telsiz / UI</td><td>RadioBeep, RadioChatter, UiClick/Hover/Confirm</td></tr><tr><td>3</td><td>Ambiyans</td><td>Wind, Ambience, DistantBattle</td></tr><tr><td>2</td><td>Müzik</td><td>MenuMusic</td></tr></tbody></table></div>
+<p><strong>Duck kuralları:</strong> ArtilleryWhistle sırasında Ambiyans −6 dB; kendi Shot* iken DistantBattle −3 dB.</p>
+<h3>19.2 Silah ateşleri</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">SoundId</th><th scope="col">Kullanım</th></tr></thead><tbody><tr><td>ShotPistol</td><td>SAR 9, TP9</td></tr><tr><td>ShotSmg</td><td>SAR 109T</td></tr><tr><td>ShotRifle556</td><td>MPT-55</td></tr><tr><td>ShotRifle762</td><td>MPT-76, G3A7</td></tr><tr><td>ShotDmr</td><td>KNT-76</td></tr><tr><td>ShotSniper</td><td>JNG-90 (daha uzun kuyruk)</td></tr><tr><td>ShotShotgun</td><td>Escort</td></tr><tr><td>ShotMachineGun</td><td>PMT-76 (daha dolgun gövde)</td></tr></tbody></table></div>
+<p><code>PlayGunshot</code>: yerel nişancı için daha dolgun + stereo merkez; uzak için low-pass + mesafe atenuasyonu (maxDistance silaha göre 80–200 m).</p>
+<h3>19.3 Olay kartları</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Olay</th><th scope="col">SoundId</th><th scope="col">Tarif</th><th scope="col">2D/3D</th><th scope="col">Max mesafe</th></tr></thead><tbody><tr><td>Kuru ateş</td><td>DryFire</td><td>Metalik tık</td><td>2D yerel / 3D uzak</td><td>20</td></tr><tr><td>Şarjör çık</td><td>ReloadMagOut</td><td>Plastik-metal</td><td>3D</td><td>25</td></tr><tr><td>Şarjör gir</td><td>ReloadMagIn</td><td>Kilit tıkı</td><td>3D</td><td>25</td></tr><tr><td>Sürgü</td><td>ReloadBolt</td><td>JNG/pompada vurgulu</td><td>3D</td><td>30</td></tr><tr><td>Fişek</td><td>ShellInsert</td><td>Escort tek tek</td><td>3D</td><td>20</td></tr><tr><td>Mod değiştir</td><td>FireModeSwitch</td><td>Küçük klik</td><td>2D</td><td>—</td></tr><tr><td>Kuşan</td><td>WeaponEquip</td><td>Kayış/metal</td><td>2D</td><td>—</td></tr><tr><td>Adım</td><td>Footstep</td><td>Zemin türüne göre perde</td><td>3D</td><td>35</td></tr><tr><td>İsabet UI</td><td>HitMarker</td><td>Kısa “tak”</td><td>2D</td><td>—</td></tr><tr><td>Kill</td><td>KillConfirm</td><td>Çift tık + alçak ton</td><td>2D</td><td>—</td></tr><tr><td>Kafa</td><td>Headshot</td><td>Daha tiz kill</td><td>2D</td><td>—</td></tr><tr><td>Et</td><td>HitFlesh</td><td>Islak kısa</td><td>3D</td><td>40</td></tr><tr><td>Kask/zırh</td><td>HitHelmet/Armor</td><td>Metalik</td><td>3D</td><td>45</td></tr><tr><td>Islık</td><td>ArtilleryWhistle</td><td>6 sn inen glissando</td><td>3D hedef</td><td>250</td></tr><tr><td>Patlama</td><td>Explosion</td><td>Düşük frekans gövde</td><td>3D</td><td>120</td></tr><tr><td>Zone uyarı</td><td>ZoneWarning</td><td>Siren benzeri nabız</td><td>2D</td><td>—</td></tr><tr><td>Zone hasar</td><td>ZoneDamage</td><td>Elektriksel cızırtı</td><td>2D</td><td>—</td></tr><tr><td>Rotor</td><td>HelicopterRotor</td><td>Loop</td><td>3D follow</td><td>200</td></tr><tr><td>Motor</td><td>VehicleEngine</td><td>Loop RPM’e pitch</td><td>3D</td><td>150</td></tr><tr><td>Telsiz</td><td>RadioBeep/Chatter</td><td>Komuta geri bildirimi</td><td>2D</td><td>—</td></tr><tr><td>Ölüm</td><td>Death</td><td>Kısa nefes kesilmesi</td><td>2D</td><td>—</td></tr><tr><td>Kalp</td><td>Heartbeat</td><td>Can düşükken loop</td><td>2D</td><td>—</td></tr></tbody></table></div>
+<h3>19.4 Dinamik durumlar</h3>
+<ul>
+<li><strong>Can ≤ %30:</strong> Heartbeat fade-in; müzik yok.  </li>
+<li><strong>Sis içinde:</strong> dış Shot* high-cut.  </li>
+<li><strong>İzleyici modu:</strong> HitMarker yok; DistantBattle + Ambiyans öne.</li>
+</ul>
+<h3>19.5 Uygulama notları</h3>
+<ul>
+<li>Havuz: <code>GameAudio</code> DontDestroyOnLoad.  </li>
+<li>Per-frame alloc yok; loop’lar <code>StartLoop</code>/<code>StopLoop</code>.  </li>
+<li>Ayarlar: Master / Ambient ayrı (<code>GameAudio</code> API).</li>
+</ul></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

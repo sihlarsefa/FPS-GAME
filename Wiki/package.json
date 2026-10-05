@@ -1,0 +1,12 @@
+{
+  "name": "harekat-field-guide",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node build.mjs",
+    "lint": "node --check build.mjs && node --check lib/catalogs.mjs && node --check lib/markdown.mjs && node --check lib/html.mjs && node --check src/app.js",
+    "test": "node --test test/*.test.mjs",
+    "ci": "npm run lint && npm run build && npm test"
+  }
+}

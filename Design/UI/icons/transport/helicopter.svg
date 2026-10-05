@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Helikopter (T-70)</title>
+  <ellipse cx="32" cy="34" rx="18" ry="8" fill="#5A6345"/>
+  <rect x="28" y="24" width="8" height="12" fill="#C3B07A"/>
+  <rect x="8" y="30" width="48" height="3" fill="#ECEBE0"/>
+  <rect x="46" y="34" width="12" height="3" fill="#B4B6A4"/>
+  <circle cx="24" cy="42" r="3" fill="#12150E"/>
+  <circle cx="40" cy="42" r="3" fill="#12150E"/>
+  <path d="M30 24h4v-6h-4z" fill="#F2A900"/>
+</svg>

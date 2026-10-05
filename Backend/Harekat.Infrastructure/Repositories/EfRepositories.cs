@@ -25,6 +25,9 @@ public sealed class EfPlayerRepository : IPlayerRepository
     public Task<Player?> GetByEmailAsync(string email, CancellationToken ct = default) =>
         _db.Players.FirstOrDefaultAsync(p => p.Email == email.ToLower(), ct);
 
+    public Task<Player?> GetBySteamIdAsync(ulong steamId, CancellationToken ct = default) =>
+        _db.Players.FirstOrDefaultAsync(p => p.SteamId == steamId, ct);
+
     public Task<Player?> GetByRefreshTokenHashAsync(string hash, CancellationToken ct = default) =>
         _db.Players.FirstOrDefaultAsync(p => p.RefreshTokenHash == hash, ct);
 
@@ -120,6 +123,17 @@ public sealed class EfMatchRepository : IMatchRepository
 
     public async Task AddAsync(Match match, CancellationToken ct = default) => await _db.Matches.AddAsync(match, ct);
     public Task UpdateAsync(Match match, CancellationToken ct = default) { _db.Matches.Update(match); return Task.CompletedTask; }
+
+    public async Task<IReadOnlyList<Match>> GetPendingAllocationAsync(string? region = null, CancellationToken ct = default)
+    {
+        var q = _db.Matches.Where(m => m.Status == MatchStatus.Allocating);
+        if (!string.IsNullOrWhiteSpace(region))
+            q = q.Where(m => m.Region == region);
+        return await q.OrderBy(m => m.CreatedAt).ToListAsync(ct);
+    }
+
+    public Task<int> CountQueuedTicketsAsync(CancellationToken ct = default) =>
+        _db.MatchTickets.CountAsync(t => t.Status == MatchTicketStatus.Queued, ct);
 }
 
 public sealed class EfGameServerRepository : IGameServerRepository
@@ -136,6 +150,9 @@ public sealed class EfGameServerRepository : IGameServerRepository
     public async Task AddAsync(GameServer server, CancellationToken ct = default) => await _db.GameServers.AddAsync(server, ct);
     public Task UpdateAsync(GameServer server, CancellationToken ct = default) { _db.GameServers.Update(server); return Task.CompletedTask; }
     public async Task<IReadOnlyList<GameServer>> GetAllAsync(CancellationToken ct = default) => await _db.GameServers.ToListAsync(ct);
+
+    public async Task<IReadOnlyList<GameServer>> GetByHostAsync(string host, CancellationToken ct = default) =>
+        await _db.GameServers.Where(s => s.Host == host).ToListAsync(ct);
 }
 
 public sealed class EfFriendshipRepository : IFriendshipRepository
@@ -203,4 +220,70 @@ public sealed class EfModerationRepository : IModerationRepository
 
     public async Task<IReadOnlyList<AuditLogEntry>> GetAuditAsync(int take, CancellationToken ct = default) =>
         await _db.AuditLogs.OrderByDescending(a => a.CreatedAt).Take(take).ToListAsync(ct);
+}
+
+public sealed class EfNewsRepository : INewsRepository
+{
+    private readonly Persistence.HarekatDbContext _db;
+    public EfNewsRepository(Persistence.HarekatDbContext db) => _db = db;
+
+    public async Task<IReadOnlyList<NewsItem>> ListPublishedAsync(string? language, int take, CancellationToken ct = default)
+    {
+        var q = _db.NewsItems.Where(n => n.IsPublished);
+        if (!string.IsNullOrWhiteSpace(language))
+            q = q.Where(n => n.Language == language);
+        return await q.OrderByDescending(n => n.SortOrder)
+            .ThenByDescending(n => n.PublishedAt)
+            .Take(take)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<NewsItem>> ListAllAsync(int take, CancellationToken ct = default) =>
+        await _db.NewsItems.OrderByDescending(n => n.PublishedAt).Take(take).ToListAsync(ct);
+
+    public Task<NewsItem?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
+        _db.NewsItems.FirstOrDefaultAsync(n => n.Id == id, ct);
+
+    public async Task AddAsync(NewsItem item, CancellationToken ct = default) =>
+        await _db.NewsItems.AddAsync(item, ct);
+
+    public Task UpdateAsync(NewsItem item, CancellationToken ct = default)
+    {
+        _db.NewsItems.Update(item);
+        return Task.CompletedTask;
+    }
+
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var item = await _db.NewsItems.FirstOrDefaultAsync(n => n.Id == id, ct);
+        if (item is not null)
+            _db.NewsItems.Remove(item);
+    }
+}
+
+public sealed class EfClientVersionRepository : IClientVersionRepository
+{
+    private readonly Persistence.HarekatDbContext _db;
+    public EfClientVersionRepository(Persistence.HarekatDbContext db) => _db = db;
+
+    public Task<ClientVersion?> GetAsync(string channel, CancellationToken ct = default) =>
+        _db.ClientVersions.FirstOrDefaultAsync(v => v.Channel == channel, ct);
+
+    public async Task UpsertAsync(ClientVersion version, CancellationToken ct = default)
+    {
+        var existing = await _db.ClientVersions.FirstOrDefaultAsync(v => v.Channel == version.Channel, ct);
+        if (existing is null)
+        {
+            await _db.ClientVersions.AddAsync(version, ct);
+            return;
+        }
+
+        existing.Version = version.Version;
+        existing.PatchUrl = version.PatchUrl;
+        existing.Sha256 = version.Sha256;
+        existing.PatchSizeBytes = version.PatchSizeBytes;
+        existing.ReleaseNotes = version.ReleaseNotes;
+        existing.Mandatory = version.Mandatory;
+        existing.PublishedAt = version.PublishedAt;
+    }
 }

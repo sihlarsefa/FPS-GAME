@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <title>Tam Harita — HAREKÂT</title>
+  <link rel="stylesheet" href="../css/screens.css"/>
+</head>
+<body>
+  <div class="frame" data-screen="full-map" aria-label="Tam harita">
+    <div class="screen-map">
+      <div class="map-canvas" role="img" aria-label="Kuzgun Vadisi haritası">
+        <div class="map-canvas__zone"></div>
+        <div class="map-canvas__safe"></div>
+        <div class="map-pin map-pin--lz" style="left:40%;top:62%" title="İniş"></div>
+        <div class="map-pin map-pin--ally" style="left:48%;top:55%"></div>
+        <div class="map-pin map-pin--ally" style="left:51%;top:58%"></div>
+        <div class="map-pin map-pin--ally" style="left:46%;top:60%"></div>
+        <div class="map-pin map-pin--enemy" style="left:64%;top:38%"></div>
+        <div class="map-pin map-pin--enemy" style="left:70%;top:42%"></div>
+        <span style="position:absolute;left:22%;top:28%;font-size:var(--font-tiny);color:var(--text-muted)">Radar</span>
+        <span style="position:absolute;left:58%;top:70%;font-size:var(--font-tiny);color:var(--text-muted)">Köy</span>
+        <span style="position:absolute;left:72%;top:22%;font-size:var(--font-tiny);color:var(--text-muted)">Geçit</span>
+      </div>
+      <aside class="panel map-legend">
+        <h3>Katmanlar</h3>
+        <ul style="margin:0;padding:0">
+          <li><span class="map-pin map-pin--ally" style="position:static;transform:none"></span> Tim</li>
+          <li><span class="map-pin map-pin--enemy" style="position:static;transform:none"></span> Temas</li>
+          <li><span class="map-pin map-pin--lz" style="position:static;transform:none"></span> İniş noktası</li>
+          <li><span style="width:12px;height:12px;border:2px solid var(--zone);border-radius:50%;display:inline-block"></span> Zone</li>
+          <li><span style="width:12px;height:12px;border:2px solid var(--safe-zone);border-radius:50%;display:inline-block"></span> Güvenli</li>
+        </ul>
+        <hr style="border:none;border-top:1px solid var(--panel-border);margin:20px 0"/>
+        <p class="label-muted">M · kapat · Sol tık işaret · Topçu hedefi telsizci ile</p>
+        <div class="row" style="margin-top:16px">
+          <img class="icon" src="../icons/orders/artillery.svg" alt=""/>
+          <span class="tag tag--amber">Topçu hazır</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script src="../css/scale.js"></script>
+</body>
+</html>

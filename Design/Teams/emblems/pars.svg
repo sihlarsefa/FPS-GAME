@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Pars Timi">
+  <title>Pars Timi — özgün stilize amblem</title>
+  <circle cx="64" cy="64" r="60" fill="#3A3428" stroke="#C4A574" stroke-width="3"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#C4A574" stroke-width="1" opacity="0.45"/>
+  <ellipse cx="64" cy="56" rx="28" ry="24" fill="#C4A574"/>
+  <circle cx="48" cy="48" r="3.5" fill="#3A3428"/>
+  <circle cx="62" cy="44" r="3" fill="#3A3428"/>
+  <circle cx="76" cy="50" r="3.5" fill="#3A3428"/>
+  <circle cx="54" cy="62" r="2.8" fill="#3A3428"/>
+  <circle cx="70" cy="64" r="3.2" fill="#3A3428"/>
+  <circle cx="82" cy="62" r="2.5" fill="#3A3428"/>
+  <ellipse cx="52" cy="54" rx="2.5" ry="3.2" fill="#ECEBE0"/>
+  <ellipse cx="74" cy="54" rx="2.5" ry="3.2" fill="#ECEBE0"/>
+  <path d="M44 40l-8-10M84 40l8-10" stroke="#C4A574" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="64" cy="100" r="6.3" fill="#ECEBE0"/>
+  <circle cx="65.89" cy="99.62" r="4.41" fill="#3A3428"/>
+  <polygon points="71.25,100 67.47,97.8 69.36,100 67.47,102.21" fill="#ECEBE0"/>
+</svg>

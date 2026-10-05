@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Kartal Timi">
+  <title>Kartal Timi — özgün stilize amblem</title>
+  <circle cx="64" cy="64" r="60" fill="#1B3A5C" stroke="#F2A900" stroke-width="3"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#F2A900" stroke-width="1" opacity="0.45"/>
+  <path d="M40 78c8-22 18-34 28-40 4 8 10 14 18 18-6 4-12 14-14 28-10-4-22-2-32-6z" fill="#F2A900"/>
+  <path d="M66 40c6-2 14 2 18 10-8 2-14 6-18 12-4-8-4-16 0-22z" fill="#E30A17"/>
+  <circle cx="78" cy="48" r="2.5" fill="#1B3A5C"/>
+  <path d="M54 70l8 4 4-10" stroke="#1B3A5C" stroke-width="2" fill="none"/>
+  <circle cx="64" cy="100" r="6.6" fill="#F2A900"/>
+  <circle cx="65.98" cy="99.6" r="4.62" fill="#1B3A5C"/>
+  <polygon points="71.59,100 67.63,97.69 69.61,100 67.63,102.31" fill="#F2A900"/>
+</svg>

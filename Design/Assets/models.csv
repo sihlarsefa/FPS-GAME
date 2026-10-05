@@ -1,0 +1,27 @@
+kimlik(WeaponId/arac/asker/bina),gecici_hazir_model_onerisi,kaynak,fiyat_araligi,benzerlik_notu,lisans
+pistol_sar9,Low Poly generic 9mm striker pistol,Unity Asset Store / Sketchfab,0–25$,SAR9 birebir değil; genel tabanca. Socket: Muzzle Grip_R Grip_L Magazine Bolt Sight. FBX Scale 1; Read/Write Off loot / On viewmodel.,Asset Store EULA / CC-BY
+pistol_tp9,Polymer pistol TP9-like generic,Asset Store / CGTrader,15–60$,Polimer tabanca; marka yazısı yok. Aynı socket set.,Ticari kullanım teyidi
+smg_sar109t,MP5/SMG low-poly 9mm PDW,Asset Store,0–40$,SAR 109T yerine genel SMG; LOD viewmodel+world.,Asset Store EULA
+ar_mpt55,AR-15 / M4 style 5.56,Asset Store,0–50$,MPT-55 AR türevi; Lod0 <12k tris viewmodel.,Ticari
+ar_mpt76,SCAR-H / battle rifle 7.62,Asset Store / CGTrader,20–80$,MPT-76 geçici SCAR-H benzeri; socket set zorunlu.,Ticari; marka yok
+ar_g3a7,G3 / HK51 style battle rifle,Asset Store / Sketchfab,0–70$,G3A7 siluet; ahşap dipçik GunWood.,Ticari / CC
+dmr_knt76,SVD/DMR 7.62 with optic rail,Asset Store,20–80$,KNT-76 geçici DMR; Sight socket.,Ticari
+sr_jng90,Bolt-action sniper generic,Asset Store,15–90$,JNG-90 sürgülü; Bolt transform; 6x scope ayrı.,Ticari
+lmg_pmt76,PKM/M240 style GPMG,Asset Store / CGTrader,25–100$,PMT-76 genel 7.62 LMG.,Ticari
+sg_escort,Pump shotgun 12ga low-poly,Asset Store,0–40$,Escort pompalı; ShellInsert senkron.,Ticari
+grenade_frag,M67/generic frag grenade,Asset Store / Kenney,0–15$,El bombası loot+viewmodel ~0.1 m.,CC0 veya EULA
+smoke_grenade,Smoke grenade canister,Asset Store,0–15$,Sis bombası.,Ticari/CC0
+arac_kirpi,MRAP 4x4 armored (Cougar/MaxxPro-like),Unity Asset Store Military Vehicles,40–200$,Kirpi ZPT yüksek şasi; Seat_* anchors; VehicleDoor. Scale ~6–7 m; WheelCollider.,Ticari Extended gerekebilir
+arac_t70,Utility helicopter UH-1/Mi-8 general,Asset Store,50–250$,T-70 genel nakliye; RotorBlade ayrı; 8+ seat.,Ticari; marka logo sil
+asker_tim,Mixamo Y Bot + military gear,Mixamo + Store,0–80$,Humanoid T-pose; CamoWoodland özgün; Armband*; LOD0 <15k.,Mixamo ToS + gear EULA
+asker_komutan,Aynı body + beret mesh,Mixamo + özgün bere,0–80$,Komutan Beret material; aynı Avatar.,aynı
+bina_koy_evi,Mediterranean village house modular,Asset Store,0–60$,Anadolu köy evi Plaster+RoofTile. Pivot metre.,Ticari
+bina_cami,Small mosque dome + minaret generic,Asset Store / Sketchfab,20–120$,MosqueDome; gerçek cami kopyası değil.,Ticari
+bina_karakol,Military outpost / checkpoint,Asset Store,20–100$,Sınır karakolu beton+kule.,Ticari
+bina_hesco,Hesco bastion wall modules,Asset Store,0–40$,Hesco MaterialId; 1–2 m segment.,Ticari/CC
+prop_kum_torbasi,Sandbag stack props,Asset Store / Kenney,0–20$,Sandbag material; NavMesh obstacle.,CC0/Ticari
+prop_cadir,Military tent,Asset Store,0–30$,TentCanvas İleri Üs.,Ticari
+prop_kutu_yagma,Ammo crate / loot box,Asset Store,0–15$,LootHighlight emission.,Ticari/CC0
+prop_agac_cam,Pine tree billboard+mesh,Poly Haven / Store,0–40$,Foliage Bark PineNeedles LOD.,CC0/Ticari
+prop_kaya,Rock meshes set,Poly Haven,0$,Rock/RockDark RockScatter. Scale 0.5–2.,CC0
+fps_arms,FPS sleeved arms,Asset Store FPS pack,15–60$,Viewmodel kollar Camo; Generic rig.,Ticari

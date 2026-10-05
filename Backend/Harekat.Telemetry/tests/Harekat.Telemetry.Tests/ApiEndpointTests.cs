@@ -110,12 +110,35 @@ public class ApiEndpointTests : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task Bench_PerfSmoke()
+    public async Task ClientErrors_Ingest_And_List()
     {
-        var res = await _client.PostAsync("/debug/bench", null);
-        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync());
-        Assert.True(doc.RootElement.GetProperty("accepted").GetInt32() > 0);
-        Assert.True(doc.RootElement.GetProperty("ms").GetInt64() < 5000);
+        var req = new ClientErrorRequest
+        {
+            Trigger = "exception",
+            Version = "0.1.0",
+            Scene = "KuzgunVadisi",
+            Platform = "OSXEditor",
+            DeviceModel = "test",
+            OperatingSystem = "TestOS",
+            Message = "NullReferenceException",
+            StackTrace = "at Test.Foo()",
+            RecentLogs = ["[log] hello", "[error] boom"],
+            CreatedAtUtc = DateTimeOffset.UtcNow.ToString("o")
+        };
+
+        var created = await _client.PostAsJsonAsync("/client-errors", req);
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+
+        var list = await _client.GetFromJsonAsync<ClientErrorListResponse>("/client-errors?take=10");
+        Assert.NotNull(list);
+        Assert.True(list!.Total >= 1);
+        Assert.Contains(list.Items, i => i.Message.Contains("NullReference", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ClientErrors_Empty_Is_400()
+    {
+        var res = await _client.PostAsJsonAsync("/client-errors", new ClientErrorRequest());
+        Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
     }
 }

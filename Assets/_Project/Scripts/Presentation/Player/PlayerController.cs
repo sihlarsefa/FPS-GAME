@@ -43,14 +43,16 @@ namespace Project.Presentation.Player
 
         private const float CapsuleRadius = 0.3f;
         private const float DefaultEyeHeight = 1.62f;
-        private const float SafeFallSpeed = 11f;
-        private const float FallDamagePerMetrePerSecond = 7.5f;
+        private const float LandingShakeSpeed = 7f;
         private const float DisembarkFallGraceSeconds = 1.2f;
         private const float VehicleExitFallGraceSeconds = 0.8f;
         private const float DeathCamSeconds = 1.4f;
+        private const float DeathCamMaxSeconds = 4f;
         private const float DeathCamGroundOffset = 0.28f;
         private const float DeathCamRollDegrees = 72f;
+        private const float DeathCamProbeDistance = 400f;
         private const float AdsMoveSpeedFactor = 0.65f;
+        private const float MapMarkerProbeHeight = 1200f;
 
         private enum Mode
         {
@@ -60,6 +62,13 @@ namespace Project.Presentation.Player
             Driving,
             Dead
         }
+
+        private static readonly string[] MovementConfigResourcePaths =
+        {
+            "PlayerMovementConfig",
+            "Config/PlayerMovementConfig",
+            "Settings/PlayerMovementConfig"
+        };
 
         private static PlayerMovementConfig _defaultConfig;
 
@@ -116,6 +125,7 @@ namespace Project.Presentation.Player
 
         // ölüm kamerası
         private float _deathTime;
+        private float _deathCamDuration = DeathCamSeconds;
         private Vector3 _deathCamStartPos;
         private Quaternion _deathCamStartRot;
         private Vector3 _deathCamEndPos;
@@ -318,13 +328,11 @@ namespace Project.Presentation.Player
             // --- teçhizat (botlarla aynı: LoadoutCatalog rol teçhizatı)
             if (combatant.Inventory != null)
             {
-                SafeRun(() =>
-                {
-                    if (args.ApplyLoadout)
-                        combatant.Inventory.ApplyLoadout(args.Loadout ?? LoadoutCatalog.For(args.Role), true);
-                    if (args.InfiniteAmmo)
-                        combatant.Inventory.InfiniteAmmo = true;
-                }, go);
+                if (args.ApplyLoadout)
+                    ApplyLoadout(combatant.Inventory, args, go);
+
+                if (args.InfiniteAmmo)
+                    SafeRun(() => combatant.Inventory.InfiniteAmmo = true, go);
             }
 
             var footsteps = go.AddComponent<FootstepEmitter>();
@@ -620,9 +628,10 @@ namespace Project.Presentation.Player
 
         private void SimulateDriving(PlayerCommand command, float dt)
         {
+            // Araç yok oldu/patladı, sürücü kaydı düştü (araç Exit ile bıraktı) ya da araç bizi koltuktan ayırdı: in.
             var vehicle = _vehicle;
             if (vehicle == null || !vehicle.isActiveAndEnabled || vehicle.Health <= 0f
-                || (vehicle.Driver != null && vehicle.Driver != _combatant))
+                || vehicle.Driver != _combatant || transform.parent == null)
             {
                 ExitVehicle(false);
                 return;
@@ -736,7 +745,10 @@ namespace Project.Presentation.Player
             TeleportMotor(position, yaw);
             SetPhysicalBody(true);
             if (_combatant != null)
+            {
                 _combatant.DropState = DropState.Landed;
+                _combatant.IsTargetable = true;
+            }
 
             _fallGraceUntil = Time.time + DisembarkFallGraceSeconds;
             _weapons.SetViewModelVisible(true);
@@ -763,6 +775,9 @@ namespace Project.Presentation.Player
 
             _combatant.Revive();
             _combatant.DropState = DropState.Landed;
+            _combatant.IsTargetable = true;
+            _combatant.Stance = Stance.Standing;
+            CombatantRegistry.LocalPlayer = _combatant;
             try
             {
                 _chain?.Revive(_combatant.Id);
@@ -773,16 +788,32 @@ namespace Project.Presentation.Player
             }
 
             _mode = Mode.OnFoot;
-            if (_camera != null)
-                _camera.enabled = true;
             ResetCameraOffset();
             TeleportMotor(SnapToGround(position), yaw);
             SetPhysicalBody(true);
+            if (_motor != null)
+                _motor.SetStance(Stance.Standing, true);
+
+            if (_camera != null)
+            {
+                _camera.enabled = true;
+                _camera.ResetView();
+            }
+
+            _hitboxes?.Follow(Stance.Standing, ReferenceStandingHeight, false);
             _fallGraceUntil = Time.time + DisembarkFallGraceSeconds;
             _weapons.ResetState();
             _weapons.SetViewModelVisible(true);
+            _interaction.Clear();
+            _notification = null;
             if (_input != null)
                 _input.GameplayEnabled = _inputEnabled;
+
+            if (_inputEnabled)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
         }
 
         private void TeleportMotor(Vector3 position, float yaw)
@@ -833,8 +864,10 @@ namespace Project.Presentation.Player
 
             if (_combatant != null)
             {
+                // Botlarla aynı: intikal aracındaki asker hedef alınmaz (gövde içinde, iniş öncesi).
                 _combatant.DropState = DropState.InTransport;
                 _combatant.Stance = Stance.Crouching;
+                _combatant.IsTargetable = false;
             }
 
             _weapons.OnLeaveFoot();
@@ -851,7 +884,8 @@ namespace Project.Presentation.Player
                 return;
 
             _transportArrivedAt = Time.time;
-            Notify("İniş bölgesine varıldı — [F] araçtan in", AutoDisembarkSeconds);
+            // İstem satırı geri sayımı gösterir ("[F] Araçtan in (3)"); mesaj yalnızca olayla (HUD merkez mesajı) gider.
+            Notify("İniş bölgesine varıldı — [F] araçtan in", AutoDisembarkSeconds, false);
         }
 
         /// <summary>İntikal aracından iner (araç vardıysa ya da zorunluysa): iniş noktasına konur, kontrol açılır.</summary>
@@ -862,11 +896,16 @@ namespace Project.Presentation.Player
 
             var transport = _transport;
             var point = transform.position;
+            var yaw = Yaw;
             if (transport != null)
             {
                 try
                 {
                     point = transport.GetDisembarkPoint(_seat);
+                    // Araçtan dışarı bakacak şekilde in (aracın tanımladığı iniş yönü).
+                    var disembarkYaw = transport.GetDisembarkYaw(_seat);
+                    if (!float.IsNaN(disembarkYaw) && !float.IsInfinity(disembarkYaw))
+                        yaw = disembarkYaw;
                 }
                 catch (Exception e)
                 {
@@ -875,17 +914,21 @@ namespace Project.Presentation.Player
             }
 
             UnhookTransport();
-
-            var yaw = Yaw;
             transform.SetParent(null, true);
 
             _mode = Mode.OnFoot;
             TeleportMotor(SnapToGround(point), yaw);
             SetPhysicalBody(true);
+            if (_motor != null)
+                _motor.SetStance(Stance.Standing, true);
             _fallGraceUntil = Time.time + DisembarkFallGraceSeconds;
 
             if (_combatant != null)
+            {
                 _combatant.DropState = DropState.Landed;
+                _combatant.Stance = Stance.Standing;
+                _combatant.IsTargetable = true;
+            }
 
             _weapons.SetViewModelVisible(true);
             PlaySound2D(SoundId.VehicleDoor, 0.6f);
@@ -966,10 +1009,13 @@ namespace Project.Presentation.Player
             var yaw = Yaw;
             transform.SetParent(null, true);
 
-            var exitPoint = vehicle != null ? FindVehicleExitPoint(vehicle.transform) : transform.position;
+            var exitPoint = vehicle != null ? FindVehicleExitPoint(vehicle.transform) : SnapToGround(transform.position);
             _mode = Mode.OnFoot;
             TeleportMotor(exitPoint, yaw);
             SetPhysicalBody(true);
+            if (_combatant != null)
+                _combatant.IsTargetable = true;   // araç Exit'i çağrılmadıysa (patlama/yok olma) da hedef alınabilir olsun
+
             _fallGraceUntil = Time.time + VehicleExitFallGraceSeconds;
             _weapons.SetViewModelVisible(true);
             PlaySound2D(SoundId.VehicleDoor, 0.7f);
@@ -1055,16 +1101,17 @@ namespace Project.Presentation.Player
             if (_mode != Mode.OnFoot || _combatant == null || !_combatant.IsAlive)
                 return;
 
-            if (impactSpeed > 7f)
-                _camera?.Shake(Mathf.Clamp01((impactSpeed - 7f) / 14f), 0.3f);
+            if (impactSpeed > LandingShakeSpeed)
+                _camera?.Shake(Mathf.Clamp01((impactSpeed - LandingShakeSpeed) / 14f), 0.3f);
 
-            if (impactSpeed <= SafeFallSpeed || Time.time < _fallGraceUntil)
+            if (Time.time < _fallGraceUntil)
                 return;
 
             if (_combatant.DropState != DropState.Landed || !GameContext.HasAuthority)
                 return;
 
-            var damage = (impactSpeed - SafeFallSpeed) * FallDamagePerMetrePerSecond;
+            // Ortak kural (sunucu/bot ile aynı): 12 m/s altı zararsız, üstü (v - 12) * 7.5.
+            var damage = DamageCalculator.ComputeFallDamage(impactSpeed);
             if (damage <= 0.5f)
                 return;
 
@@ -1145,8 +1192,13 @@ namespace Project.Presentation.Player
             }
 
             var groundY = _deathCamStartPos.y - 1.4f;
-            if (Physics.Raycast(_deathCamStartPos, Vector3.down, out var hit, 60f, GameLayers.GroundMask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(_deathCamStartPos, Vector3.down, out var hit, DeathCamProbeDistance, GameLayers.GroundMask,
+                    QueryTriggerInteraction.Ignore))
                 groundY = hit.point.y;
+
+            // Uzun düşüşte (araçta vurulma) süre serbest düşüşe göre uzar: t = sqrt(2h / g).
+            var drop = Mathf.Max(0f, _deathCamStartPos.y - groundY);
+            _deathCamDuration = Mathf.Clamp(Mathf.Sqrt(2f * drop / 9.81f), DeathCamSeconds, DeathCamMaxSeconds);
 
             // Darbe yönünden uzağa doğru hafifçe devril.
             var fallDirection = transform.forward;
@@ -1180,7 +1232,7 @@ namespace Project.Presentation.Player
             if (_cameraOffset == null)
                 return;
 
-            var t = Mathf.Clamp01((Time.time - _deathTime) / DeathCamSeconds);
+            var t = Mathf.Clamp01((Time.time - _deathTime) / Mathf.Max(0.1f, _deathCamDuration));
             // Yerçekimi hissi: hızlanarak düş; dönüş yumuşak biter.
             var fall = t * t;
             var rotT = 1f - (1f - t) * (1f - t);
@@ -1265,8 +1317,17 @@ namespace Project.Presentation.Player
             return false;
         }
 
+        /// <summary>Harita işaretini koyar; nokta araziye oturtulur (harita tıklaması yükseklik taşımayabilir).</summary>
         public void SetMapMarker(Vector3 worldPoint)
         {
+            if (float.IsNaN(worldPoint.x) || float.IsNaN(worldPoint.z))
+                return;
+
+            var top = new Vector3(worldPoint.x, MapMarkerProbeHeight, worldPoint.z);
+            if (Physics.Raycast(top, Vector3.down, out var hit, MapMarkerProbeHeight * 2f, GameLayers.GroundMask,
+                    QueryTriggerInteraction.Ignore))
+                worldPoint = hit.point;
+
             MapMarker = worldPoint;
         }
 
@@ -1275,14 +1336,21 @@ namespace Project.Presentation.Player
             MapMarker = null;
         }
 
-        /// <summary>Kısa süreli bilgi mesajı gösterir (InteractionPrompt üzerinden + Notification olayı).</summary>
-        public void Notify(string text, float seconds = 2f)
+        /// <summary>
+        /// Kısa süreli bilgi mesajı: <see cref="Notification"/> olayı + (showInPrompt ise) süre boyunca
+        /// <see cref="InteractionPrompt"/> yerine gösterilir. HUD'un zaten olaydan gösterdiği mesajlar (tim emri,
+        /// topçu çağrısı) için showInPrompt=false verilir ki iki kez görünmesin.
+        /// </summary>
+        public void Notify(string text, float seconds = 2f, bool showInPrompt = true)
         {
             if (string.IsNullOrEmpty(text))
                 return;
 
-            _notification = text;
-            _notificationUntil = Time.time + Mathf.Max(0.25f, seconds);
+            if (showInPrompt)
+            {
+                _notification = text;
+                _notificationUntil = Time.time + Mathf.Max(0.25f, seconds);
+            }
 
             var handler = Notification;
             if (handler == null)
@@ -1387,26 +1455,62 @@ namespace Project.Presentation.Player
             return rank;
         }
 
+        /// <summary>
+        /// Botlarla aynı yaklaşım: rol teçhizatı (LoadoutCatalog, tim yuvası 0 varyantı) ya da verilen özel loadout;
+        /// katalog hata verirse yedek tüfek + mermi + sargı. Sonunda en iyi silah kuşanılır.
+        /// </summary>
+        private static void ApplyLoadout(InventoryService inventory, PlayerSpawnArgs args, UnityEngine.Object context)
+        {
+            try
+            {
+                inventory.ApplyLoadout(args.Loadout ?? LoadoutCatalog.For(args.Role, 0), true);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, context);
+                try
+                {
+                    inventory.GiveWeapon(WeaponIds.Mpt55, true);
+                    inventory.GiveItem(ItemIds.Ammo556, 120);
+                    inventory.GiveItem(ItemIds.Bandage, 3);
+                }
+                catch (Exception)
+                {
+                    // katalog yok — silahsız (yumruk) başlar
+                }
+            }
+
+            try
+            {
+                if (inventory.ActiveSlot < 0)
+                    inventory.SelectBestWeapon();
+            }
+            catch (Exception)
+            {
+                // silah yok
+            }
+        }
+
         private static PlayerMovementConfig LoadMovementConfig()
         {
             if (_defaultConfig != null)
                 return _defaultConfig;
 
-            try
+            // Editörün ürettiği Resources varlığı (varsa); yoksa çalışma zamanı varsayılanı (tek örnek, paylaşılır).
+            for (var i = 0; i < MovementConfigResourcePaths.Length && _defaultConfig == null; i++)
             {
-                _defaultConfig = Resources.Load<PlayerMovementConfig>("PlayerMovementConfig");
-            }
-            catch (Exception)
-            {
-                _defaultConfig = null;
+                try
+                {
+                    _defaultConfig = Resources.Load<PlayerMovementConfig>(MovementConfigResourcePaths[i]);
+                }
+                catch (Exception)
+                {
+                    _defaultConfig = null;
+                }
             }
 
             if (_defaultConfig == null)
-            {
-                _defaultConfig = ScriptableObject.CreateInstance<PlayerMovementConfig>();
-                _defaultConfig.name = "PlayerMovementConfig (varsayılan)";
-                _defaultConfig.hideFlags = HideFlags.DontSave;
-            }
+                _defaultConfig = PlayerMovementConfig.CreateDefault();
 
             return _defaultConfig;
         }

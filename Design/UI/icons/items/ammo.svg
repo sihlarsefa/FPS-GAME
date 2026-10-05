@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Cephane</title>
+  <rect x="14" y="18" width="36" height="32" rx="3" fill="#343D28" stroke="#C3B07A" stroke-width="2"/>
+  <rect x="20" y="24" width="8" height="20" rx="1" fill="#F2A900"/>
+  <rect x="30" y="24" width="8" height="20" rx="1" fill="#F2A900"/>
+  <rect x="40" y="24" width="6" height="20" rx="1" fill="#E30A17"/>
+</svg>

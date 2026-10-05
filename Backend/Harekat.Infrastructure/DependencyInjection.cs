@@ -22,8 +22,10 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddSingleton<IEmailService, FakeEmailService>();
+        services.AddHttpClient<ISteamTicketValidator, SteamTicketValidator>();
 
-        var provider = config["Storage:Provider"] ?? "Memory";
+        // Varsayılan: SqlServer (üretim). Memory/Sqlite yerel/test.
+        var provider = config["Storage:Provider"] ?? "SqlServer";
 
         if (IsEfProvider(provider))
         {
@@ -38,15 +40,19 @@ public static class DependencyInjection
                 {
                     var cs = config.GetConnectionString("SqlServer")
                              ?? config.GetConnectionString("Default")
-                             ?? "Server=localhost;Database=Harekat;Trusted_Connection=True;TrustServerCertificate=True";
-                    opt.UseSqlServer(cs);
+                             ?? "Server=localhost;Database=Harekat;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+                    opt.UseSqlServer(cs, sql =>
+                        sql.MigrationsAssembly(typeof(HarekatDbContext).Assembly.FullName));
+                }
+                else if (IsPostgresProvider(provider))
+                {
+                    throw new InvalidOperationException(
+                        "PostgreSQL/Npgsql kaldırıldı. Storage:Provider=SqlServer kullanın. " +
+                        "İsteğe bağlı Postgres için EnablePostgres derleme bayrağı ve Npgsql paketi gerekir.");
                 }
                 else
                 {
-                    var cs = config.GetConnectionString("Postgres")
-                             ?? config.GetConnectionString("Default")
-                             ?? "Host=localhost;Database=harekat;Username=harekat;Password=harekat";
-                    opt.UseNpgsql(cs);
+                    throw new InvalidOperationException($"Bilinmeyen Storage:Provider '{provider}'. SqlServer | Sqlite | Memory.");
                 }
             });
 
@@ -118,23 +124,39 @@ public static class DependencyInjection
 
     public static async Task EnsureStorageAsync(this IServiceProvider sp, IConfiguration config)
     {
-        var provider = config["Storage:Provider"] ?? "Memory";
+        var provider = config["Storage:Provider"] ?? "SqlServer";
         if (!IsEfProvider(provider))
             return;
 
         using var scope = sp.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<HarekatDbContext>();
 
-        // EnsureCreated is a no-op when the catalog already exists (even if empty).
-        await db.Database.EnsureCreatedAsync();
-        try
+        if (IsSqlServerProvider(provider))
         {
-            _ = await db.Seasons.AnyAsync();
+            // SQL Server: migration'ları uygula (yoksa EnsureCreated yedeği).
+            var pending = await db.Database.GetPendingMigrationsAsync();
+            if (pending.Any() || (await db.Database.GetAppliedMigrationsAsync()).Any())
+            {
+                await db.Database.MigrateAsync();
+            }
+            else
+            {
+                await db.Database.EnsureCreatedAsync();
+            }
         }
-        catch
+        else
         {
-            var creator = (RelationalDatabaseCreator)db.GetService<IDatabaseCreator>()!;
-            await creator.CreateTablesAsync();
+            // Sqlite test/dev: EnsureCreated yeterli.
+            await db.Database.EnsureCreatedAsync();
+            try
+            {
+                _ = await db.Seasons.AnyAsync();
+            }
+            catch
+            {
+                var creator = (RelationalDatabaseCreator)db.GetService<IDatabaseCreator>()!;
+                await creator.CreateTablesAsync();
+            }
         }
 
         if (!await db.Seasons.AnyAsync())
@@ -155,9 +177,12 @@ public static class DependencyInjection
         string.Equals(provider, "SQLServer", StringComparison.OrdinalIgnoreCase) ||
         string.Equals(provider, "MSSQL", StringComparison.OrdinalIgnoreCase);
 
+    private static bool IsPostgresProvider(string provider) =>
+        string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(provider, "PostgreSQL", StringComparison.OrdinalIgnoreCase);
+
     private static bool IsEfProvider(string provider) =>
         string.Equals(provider, "Sqlite", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(provider, "PostgreSQL", StringComparison.OrdinalIgnoreCase) ||
-        IsSqlServerProvider(provider);
+        IsSqlServerProvider(provider) ||
+        IsPostgresProvider(provider);
 }

@@ -394,8 +394,15 @@ namespace Project.Infrastructure.Player
             var eased = _patrolT * _patrolT * (3f - 2f * _patrolT);
             var t = Mathf.Lerp(_patrolT, eased, 0.35f);
             var position = Vector3.Lerp(_pointA, _pointB, t);
+
+            // Engebeli zeminde iki nokta arasındaki düz çizgi yerine zemini izle (yalnızca hareketli hedefler; ucuz tek ışın).
+            if (Physics.Raycast(position + Vector3.up * 1.5f, Vector3.down, out var hit, 4f, GameLayers.GroundMask, QueryTriggerInteraction.Ignore))
+                position.y = Mathf.Lerp(previous.y, hit.point.y, 1f - Mathf.Exp(-20f * dt));
+
             transform.position = position;
-            Combatant.Velocity = (position - previous) / dt;
+            var velocity = (position - previous) / dt;
+            velocity.y = 0f;
+            Combatant.Velocity = velocity;
         }
 
         private void FaceLocalPlayer(float maxDegrees)

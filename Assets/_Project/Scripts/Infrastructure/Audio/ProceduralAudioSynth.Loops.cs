@@ -373,16 +373,31 @@ namespace Project.Infrastructure.Audio
         //  MENÜ MÜZİĞİ — karanlık askerî pad + davul, 16 s (60 BPM, 4 ölçü), kesintisiz
         // =====================================================================================
 
+        /// <summary>
+        /// Menü müziğinin alçak frekanslı tonal katmanları (pad, dron, boru, hava) bu oranda seyreltilmiş tamponda
+        /// üretilir ve doğrusal aradeğerle tam orana çıkarılır. Katmanlar ≤ ~1 kHz'e süzüldüğü için duyulur fark
+        /// yoktur; üretim süresi (döngünün kritik yolu) ~4 kat kısalır.
+        /// </summary>
+        private const int MusicDecimation = 4;
+
         private static float[] MenuMusicLoop(ref SynthRng rng)
         {
             const float length = MenuMusicLoopSeconds;
             const float bar = 4f;
             const float beat = 1f;
-            var b = Buffer(length);
-            var n = b.Length;
+
+            // Seyreltilmiş "sanal" tampon: SynthDsp yardımcıları sabit örnekleme hızıyla çalıştığından süreler
+            // 1/D, frekanslar D ile ölçeklenir (zaman sıkıştırma) — sonuç tam orana çıkarılınca aynı perdededir.
+            const int d = MusicDecimation;
+            const float vt = 1f / d;
+            const float vf = d;
+            var nLow = Samples(length) / d;
+            var n = nLow * d;
+            var b = new float[n];
+            var low = new float[nLow];
 
             // ---- Pad: Re minör — Si♭ — Sol minör — La (i – VI – iv – V), dedektörlü testere dişleri.
-            var pad = new float[n];
+            var pad = new float[nLow];
             var chords = new[]
             {
                 new[] { 73.42f, 110.00f, 146.83f, 174.61f },  // Dm  (D2 A2 D3 F3)
@@ -391,39 +406,53 @@ namespace Project.Infrastructure.Audio
                 new[] { 55.00f, 82.41f, 110.00f, 138.59f }    // A   (A1 E2 A2 C#3)
             };
             for (var c = 0; c < chords.Length; c++)
-                PadChord(pad, c * bar, bar, 1.1f, 1.8f, chords[c], 0.0045f);
-
-            var padHz = new float[n / ControlStep + 1];
-            for (var i = 0; i < padHz.Length; i++)
             {
-                var u = (double)i * ControlStep / n;
-                padHz[i] = 520f + 380f * (0.5f + 0.5f * Sin(u * 2.0 - 0.25));
+                var notes = chords[c];
+                for (var k = 0; k < notes.Length; k++)
+                    notes[k] *= vf;
+                PadChord(pad, c * bar * vt, bar * vt, 1.1f * vt, 1.8f * vt, notes, 0.0045f);
             }
 
-            var padFiltered = new float[n];
+            var padHz = new float[nLow / ControlStep + 1];
+            for (var i = 0; i < padHz.Length; i++)
+            {
+                var u = (double)i * ControlStep / nLow;
+                padHz[i] = (520f + 380f * (0.5f + 0.5f * Sin(u * 2.0 - 0.25))) * vf;
+            }
+
+            var padFiltered = new float[nLow];
             SweptFilterCircular(pad, padFiltered, FilterKind.Lowpass, padHz, 0.9f);
-            Mix(b, padFiltered, 0.42f);
+            Mix(low, padFiltered, 0.42f);
 
             // ---- Dron: Re1 + Re2 (döngüye tam oturan frekanslar: 36.75 / 73.5 Hz) yavaş nefes alır.
-            for (var i = 0; i < n; i++)
+            for (var i = 0; i < nLow; i++)
             {
-                var t = (double)i / SampleRate;
-                var breathe = 0.75f + 0.25f * Sin(t * (2.0 / length) - 0.25);
-                b[i] += (Sin(t * 36.75) * 0.22f + Sin(t * 73.5) * 0.1f + Sin(t * 110.25) * 0.03f) * breathe;
+                var t = (double)i / SampleRate; // sanal zaman (gerçek zamanın 1/D'si)
+                var breathe = 0.75f + 0.25f * Sin(t * (2.0 * vf / length) - 0.25);
+                low[i] += (Sin(t * (36.75 * vf)) * 0.22f + Sin(t * (73.5 * vf)) * 0.1f + Sin(t * (110.25 * vf)) * 0.03f)
+                          * breathe;
             }
 
             // ---- Boru (kornet/korno) motifi: düşük, yumuşak bakır.
-            var horn = new float[n];
-            HornNote(horn, 4.0f, 1.45f, 146.83f);
-            HornNote(horn, 5.5f, 0.45f, 174.61f);
-            HornNote(horn, 6.0f, 1.9f, 146.83f);
-            HornNote(horn, 8.0f, 1.9f, 116.54f);
-            HornNote(horn, 10.0f, 1.9f, 110.00f);
-            HornNote(horn, 12.0f, 0.95f, 110.00f);
-            HornNote(horn, 13.0f, 0.95f, 138.59f);
-            HornNote(horn, 14.0f, 1.85f, 164.81f);
-            FilterCircular(horn, FilterKind.Lowpass, 950f, 0.8f);
-            Mix(b, horn, 0.3f);
+            var horn = new float[nLow];
+            HornNote(horn, 4.0f, 1.45f, 146.83f, vt);
+            HornNote(horn, 5.5f, 0.45f, 174.61f, vt);
+            HornNote(horn, 6.0f, 1.9f, 146.83f, vt);
+            HornNote(horn, 8.0f, 1.9f, 116.54f, vt);
+            HornNote(horn, 10.0f, 1.9f, 110.00f, vt);
+            HornNote(horn, 12.0f, 0.95f, 110.00f, vt);
+            HornNote(horn, 13.0f, 0.95f, 138.59f, vt);
+            HornNote(horn, 14.0f, 1.85f, 164.81f, vt);
+            FilterCircular(horn, FilterKind.Lowpass, 950f * vf, 0.8f);
+            Mix(low, horn, 0.3f);
+
+            // ---- Hafif hava/gürültü yatağı (700 Hz bant). Seyreltilmiş gürültünün yoğunluğu D kat, bant kazancı
+            // √D kat düşük hesaplanır → seviye tam oranla aynı kalır.
+            var air = WhiteNoise(nLow, ref rng);
+            FilterCircular(air, FilterKind.Bandpass, 700f * vf, 0.6f);
+            Mix(low, air, BandwidthGain(FilterKind.Bandpass, 700f * vf, 0.6f) * 0.012f);
+
+            MixUpsampledCircular(b, low, d);
 
             // ---- Savaş davulu ve trampet: vuruşlar bir kez şablon olarak üretilir, ölçeklenmiş kopyalar karıştırılır.
             var drum = WarDrumTemplate(ref rng);
@@ -467,12 +496,29 @@ namespace Project.Infrastructure.Audio
                     0.04f + 0.16f * u * u);
             }
 
-            // ---- Hafif hava/gürültü yatağı.
-            var air = WhiteNoise(n, ref rng);
-            FilterCircular(air, FilterKind.Bandpass, 700f, 0.6f);
-            Mix(b, air, BandwidthGain(FilterKind.Bandpass, 700f, 0.6f) * 0.012f);
-
             return FinishLoop(b, 0.8f, 1.25f);
+        }
+
+        /// <summary>
+        /// Seyreltilmiş dairesel tamponu doğrusal aradeğerle <paramref name="factor"/> kat örneklemeyle hedefe ekler
+        /// (son örnek ilk örneğe bağlanır → döngü kesintisiz).
+        /// </summary>
+        private static void MixUpsampledCircular(float[] dst, float[] low, int factor)
+        {
+            var nLow = low.Length;
+            if (nLow == 0 || factor < 1)
+                return;
+
+            var inv = 1f / factor;
+            var o = 0;
+            var dl = dst.Length;
+            for (var j = 0; j < nLow && o < dl; j++)
+            {
+                var a = low[j];
+                var step = (low[j + 1 == nLow ? 0 : j + 1] - a) * inv;
+                for (var k = 0; k < factor && o < dl; k++, o++)
+                    dst[o] += a + step * k;
+            }
         }
 
         /// <summary>Akor: her nota için iki hafif kaydırılmış testere dişi (hızlı faz biriktirici), yumuşak atak/salınım.</summary>
@@ -525,9 +571,12 @@ namespace Project.Infrastructure.Audio
             }
         }
 
-        private static void HornNote(float[] b, float start, float duration, float frequency)
+        /// <summary>Boru notası; <paramref name="timeScale"/> &lt; 1 seyreltilmiş (zaman sıkıştırılmış) tampon içindir.</summary>
+        private static void HornNote(float[] b, float start, float duration, float frequency, float timeScale = 1f)
         {
-            Note(b, start, duration, frequency, 0.14f, 0.4f, 0.5f, 1, 0.003f, 4.6f, 0.0035f, true);
+            var fs = 1f / timeScale;
+            Note(b, start * timeScale, duration * timeScale, frequency * fs, 0.14f * timeScale, 0.4f * timeScale, 0.5f, 1,
+                0.003f, 4.6f * fs, 0.0035f, true);
         }
 
         /// <summary>Savaş davulu (taiko benzeri) tek vuruş şablonu.</summary>

@@ -1,0 +1,64 @@
+{
+  "nameEnglish": "Blue Harbour",
+  "grid": {
+    "cellMetres": 100,
+    "columns": "ABCDEFGHIJ",
+    "rows": 10,
+    "north": "+Z"
+  },
+  "sectors": [
+    {
+      "id": "S1",
+      "name": "Kuzey sahil kapısı",
+      "transport": "Kirpi",
+      "center": {
+        "x": 45,
+        "y": 470
+      },
+      "radius": 20,
+      "elevation": 41
+    },
+    {
+      "id": "S2",
+      "name": "Güney han kapısı",
+      "transport": "Kirpi",
+      "center": {
+        "x": 0,
+        "y": -470
+      },
+      "radius": 20,
+      "elevation": 27
+    },
+    {
+      "id": "S3",
+      "name": "Batı teras açıklığı",
+      "transport": "T-70",
+      "center": {
+        "x": -420,
+        "y": -70
+      },
+      "radius": 20,
+      "elevation": 39
+    },
+    {
+      "id": "S4",
+      "name": "Zeytinlik açıklığı",
+      "transport": "T-70",
+      "center": {
+        "x": -190,
+        "y": 405
+      },
+      "radius": 20,
+      "elevation": 48
+    }
+  ],
+  "elevationModel": "inverse-distance-squared; 30 m smoothing; location TargetHeight samples; design estimate only",
+  "roadGradeLimit": 0.25,
+  "lootCounts": {
+    "Low": 2,
+    "Medium": 4,
+    "High": 3,
+    "Military": 1
+  },
+  "surfaceNotes": "Kıyı kasabası, liman ve zeytinlik arasında kısa rotasyonlar. İç sokaklar yakın menzile, sahil yolu uzun görüşe açılır. Deniz mevcut göl primitive’lerinin sınırda kesişen iki su diskiyle temsil edildiği bir tasarım önerisidir; liman yapıları için ayrı üretici gerekir."
+}

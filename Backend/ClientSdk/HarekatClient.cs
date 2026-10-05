@@ -53,6 +53,17 @@ public sealed class HarekatClient : IDisposable
         return body;
     }
 
+    /// <summary>Steam session ticket (hex) ile giriş. Geliştirmede <c>DEV:{steamid}:{persona}</c> kullanılabilir.</summary>
+    public async Task<AuthResult> LoginWithSteamAsync(string ticket, string? personaName = null, string region = "tr", CancellationToken ct = default)
+    {
+        var res = await _http.PostAsJsonAsync("auth/steam", new { ticket, personaName, region }, ct);
+        await EnsureSuccess(res, ct);
+        var body = await res.Content.ReadFromJsonAsync<AuthResult>(_json, ct)
+                   ?? throw new InvalidOperationException("Boş yanıt");
+        SetAccessToken(body.AccessToken);
+        return body;
+    }
+
     public async Task<AuthResult> RefreshAsync(string refreshToken, CancellationToken ct = default)
     {
         var res = await _http.PostAsJsonAsync("auth/refresh", new { refreshToken }, ct);
@@ -119,6 +130,21 @@ public sealed class HarekatClient : IDisposable
         var res = await _http.GetAsync("health", ct);
         await EnsureSuccess(res, ct);
         return await res.Content.ReadAsStringAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<NewsItemInfo>> GetNewsAsync(string? lang = "tr", int take = 20, CancellationToken ct = default)
+    {
+        var q = $"news?take={take}";
+        if (!string.IsNullOrWhiteSpace(lang))
+            q += $"&lang={Uri.EscapeDataString(lang)}";
+        return await _http.GetFromJsonAsync<List<NewsItemInfo>>(q, _json, ct) ?? [];
+    }
+
+    public async Task<ClientVersionInfo> GetClientVersionAsync(string channel = "stable", CancellationToken ct = default)
+    {
+        return await _http.GetFromJsonAsync<ClientVersionInfo>(
+                   $"client/version?channel={Uri.EscapeDataString(channel)}", _json, ct)
+               ?? throw new InvalidOperationException("Sürüm alınamadı");
     }
 
     private static async Task EnsureSuccess(HttpResponseMessage res, CancellationToken ct)
@@ -202,4 +228,27 @@ public sealed class LeaderboardRow
     public int MilitaryRank { get; set; }
     public int Value { get; set; }
     public int Elo { get; set; }
+}
+
+public sealed class NewsItemInfo
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = "";
+    public string Body { get; set; } = "";
+    public string Language { get; set; } = "tr";
+    public string? Author { get; set; }
+    public DateTimeOffset PublishedAt { get; set; }
+    public int SortOrder { get; set; }
+}
+
+public sealed class ClientVersionInfo
+{
+    public string Channel { get; set; } = "stable";
+    public string Version { get; set; } = "";
+    public string PatchUrl { get; set; } = "";
+    public string Sha256 { get; set; } = "";
+    public long PatchSizeBytes { get; set; }
+    public string? ReleaseNotes { get; set; }
+    public bool Mandatory { get; set; }
+    public DateTimeOffset PublishedAt { get; set; }
 }

@@ -89,6 +89,9 @@ namespace Project.Infrastructure.Transport
         /// <summary>Ayrıldıktan sonra yok edilme süresi (sn).</summary>
         public float DestroyDelaySeconds { get; set; } = 40f;
 
+        /// <summary>Varışta hiç yolcu yoksa bırakmadan önce beklenecek süre (sn).</summary>
+        public float EmptyArrivalReleaseSeconds { get; set; } = 3f;
+
         /// <summary>LZ'ye yatay mesafe (m).</summary>
         public float DistanceToLandingZone
         {
@@ -176,6 +179,26 @@ namespace Project.Infrastructure.Transport
                 return transform.eulerAngles.y;
 
             return transform.eulerAngles.y + DisembarkYawLocal[NormalizeSeatIndex(index)];
+        }
+
+        /// <summary>
+        /// Grafiksiz (dedicated server, ör. Windows Server'da -batchmode -nographics) çalışma: görsel model, ses ve toz
+        /// kurulmaz; koltuklar, çarpıştırıcılar ve hareket simülasyonu aynen çalışır.
+        /// </summary>
+        public static bool IsHeadless =>
+            UnityEngine.Application.isBatchMode && SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null;
+
+        /// <summary>Timin etkin (yok edilmemiş) intikal aracı; yoksa null. Tahsis yapmaz.</summary>
+        public static TransportVehicle FindForTeam(int team)
+        {
+            for (var i = ActiveVehicles.Count - 1; i >= 0; i--)
+            {
+                var vehicle = ActiveVehicles[i];
+                if (vehicle != null && vehicle.Team == team)
+                    return vehicle;
+            }
+
+            return null;
         }
 
         // ------------------------------------------------------------------ lifecycle
@@ -325,6 +348,11 @@ namespace Project.Infrastructure.Transport
                     _emptySince = -1f;
                 }
             }
+            else if (now - _arrivalTime >= EmptyArrivalReleaseSeconds)
+            {
+                // Varışta koltukta kimse yoktu (yolcular başka yolla bindi/hiç binmedi): kısa bekleyip ayrıl.
+                RequestRelease();
+            }
 
             if (!_releaseRequested && AutoReleaseSeconds > 0f && now - _arrivalTime >= AutoReleaseSeconds)
                 RequestRelease();
@@ -425,6 +453,9 @@ namespace Project.Infrastructure.Transport
         /// <summary>Döngü sesi ister; GameAudio henüz hazır değilse hazır olunca başlatılır.</summary>
         protected void RequestLoopAudio(SoundId id, float volume, float maxDistance)
         {
+            if (IsHeadless)
+                return;
+
             _loopRequested = true;
             _loopId = id;
             _loopVolume = volume;
@@ -457,7 +488,7 @@ namespace Project.Infrastructure.Transport
 
         private void TryStartLoop()
         {
-            if (!_loopRequested || LoopSource != null || !GameAudio.IsInitialized)
+            if (!_loopRequested || LoopSource != null || !UnityEngine.Application.isPlaying)
                 return;
 
             try
@@ -550,6 +581,33 @@ namespace Project.Infrastructure.Transport
             box.size = size;
             return box;
         }
+
+        /// <summary>
+        /// Park hâlinde NavMesh'i oyan engel (botlar aracın içinden yol bulmasın). Yalnızca duruyorken etkinleştirilir.
+        /// </summary>
+        protected NavMeshObstacle CreateParkingObstacle(Vector3 center, Vector3 size)
+        {
+            var go = new GameObject("NavEngel");
+            go.transform.SetParent(transform, false);
+            var obstacle = go.AddComponent<NavMeshObstacle>();
+            obstacle.shape = NavMeshObstacleShape.Box;
+            obstacle.center = center;
+            obstacle.size = size;
+            obstacle.carving = true;
+            obstacle.carveOnlyStationary = true;
+            obstacle.carvingMoveThreshold = 0.2f;
+            obstacle.carvingTimeToStationary = 0.25f;
+            obstacle.enabled = false;
+            return obstacle;
+        }
+
+        /// <summary>Çekirdek Float3 → Unity Vector3 (NaN/sonsuz değerler 0 olur).</summary>
+        internal static Vector3 ToVector3(Project.Core.Domain.Float3 value)
+        {
+            return new Vector3(Finite(value.X), Finite(value.Y), Finite(value.Z));
+        }
+
+        internal static float Finite(float value) => float.IsNaN(value) || float.IsInfinity(value) ? 0f : value;
 
         /// <summary>Kinematik gövde (çarpıştırıcılar bunun altında; yolcular bunun DIŞINDA — bileşik çarpıştırıcıya karışmaz).</summary>
         internal static Transform CreateKinematicBody(Transform parent)

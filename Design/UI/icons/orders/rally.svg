@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Toplan emri</title>
+  <circle cx="32" cy="32" r="18" stroke="#3D9BFF" stroke-width="3" fill="none"/>
+  <circle cx="32" cy="32" r="5" fill="#3D9BFF"/>
+  <circle cx="18" cy="20" r="4" fill="#ECEBE0"/>
+  <circle cx="46" cy="20" r="4" fill="#ECEBE0"/>
+  <circle cx="18" cy="44" r="4" fill="#ECEBE0"/>
+  <circle cx="46" cy="44" r="4" fill="#ECEBE0"/>
+</svg>

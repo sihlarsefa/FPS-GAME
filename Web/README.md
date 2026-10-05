@@ -1,6 +1,6 @@
-# HAREKÂT Web Portalı (HTML / CSS / JS)
+# HAREKÂT Web Portalı v2 (HTML / CSS / JS)
 
-React yok — **vanilla HTML + CSS + ES modules**. Askeri koyu tema, vurgu rengi `#E30A17`.
+React yok — **vanilla HTML + CSS + ES modules**. JWT API katmanı, yönetici paneli, IIS `web.config`.
 
 ## Çalıştırma
 
@@ -10,8 +10,6 @@ npm run start
 # tarayıcı: http://localhost:5173
 ```
 
-Veya herhangi bir statik sunucu ile `Web/` klasörünü aç.
-
 ## Mock / API
 
 Varsayılan: **mock açık** (`localStorage.harekat_mock` ≠ `false`).
@@ -19,40 +17,71 @@ Varsayılan: **mock açık** (`localStorage.harekat_mock` ≠ `false`).
 ```js
 localStorage.setItem('harekat_mock', 'false');
 localStorage.setItem('harekat_api', 'http://localhost:5080');
+localStorage.setItem('harekat_telemetry', 'http://localhost:5081');
 location.reload();
 ```
 
-Endpoint'ler Cursor backend ile uyumlu: `/auth/register`, `/auth/login`, `/players/me`, `/squads`, `/matchmaking/queue`, `/leaderboards`, `/health`.
+Typed client: `js/api/` (`endpoints.js`, `client.js`, `session.js`, `types.js`).
+Sözleşme kontrolü: `npm run contracts` (Backend route + DTO snapshot).
 
 ## Sayfalar
 
 | Hash | İçerik |
 |------|--------|
 | `#/` | Ana sayfa |
-| `#/leaderboards` | Sıralamalar |
-| `#/profile` | Giriş/kayıt, rütbe, XP, kariyer |
-| `#/squad` | Tim kur / katıl / kuyruk |
-| `#/arsenal` | Silah kataloğu |
-| `#/map` | Kuzgun Vadisi SVG pafta |
-| `#/patches` | Yama notları |
-| `#/news` | Haberler & rehberler |
-| `#/season` | Sezon / başarımlar / nişanlar |
-| `#/admin` | Sunucu filosu, şüpheliler |
-| `#/player/:name` | Paylaşılabilir oyuncu kartı |
-| `#/match/:id` | Maç detayı |
+| `#/download` | Windows kurulum (yer tutucu), SHA-256, Steam yakında |
+| `#/requirements` | Min / önerilen sistem gereksinimleri |
+| `#/patches` | Yama notları (md → HTML) + RSS |
+| `#/teams` | Tim kimlikleri ve amblemler |
+| `#/login` | Giriş / kayıt (form doğrulama) |
+| `#/profile` | Rütbe, XP, kariyer, son maçlar, en iyi silah |
+| `#/squad` | Tim kur / davet / hazır / WebSocket\|long-poll |
+| `#/matchmaking` | Kuyruk, süre, ETA |
+| `#/leaderboards` | Sezon filtresi + sayfalama |
+| `#/match/:id` | Tim sıralaması, kill feed, SVG iniş/ölüm |
+| `#/achievements` | Başarım kataloğu (50+) |
+| `#/admin` | Rol tabanlı yönetim paneli |
+| `#/compare` | Oyuncu karşılaştırma |
+| `#/archive` | Sezon arşivi |
+| `#/news` | Markdown → statik haber |
+
+## İçerik derleme
+
+- Haberler: `content/news/*.md` → `npm run news`
+- Yamalar: `content/patchnotes/*.md` → `npm run patchnotes` (HTML JSON + `rss.xml`)
+- Statik veri: `content/data/{download,sysreq,teams,achievements}.json`
+
+## IIS (Windows Server)
+
+1. IIS + **URL Rewrite** + **ARR** kur.
+2. `Web/dist` (veya `Web/`) klasörünü site kökü yap.
+3. `web.config` ile:
+   - `/api/*` → `http://localhost:5080/{path}` (Harekat.Api)
+   - `/telemetry/*` → `http://localhost:5081/{path}`
+   - `/hubs/*` → lobby WebSocket proxy
+   - SPA fallback → `index.html`
+   - CSP, HSTS, sıkıştırma, statik önbellek
+4. ARR’da “Enable proxy” ve WebSocket desteğini aç.
+5. HTTPS bağlayıcı + HSTS (prod).
+6. Application pool: **No Managed Code** (statik site).
 
 ## Komutlar
 
 ```bash
 npm run lint
 npm run test
-npm run build   # → Web/dist
+npm run build      # → Web/dist (+ news + patchnotes/RSS)
+npm run contracts
+npm run news
+npm run patchnotes
 ```
 
-## PWA
+## i18n / tema / PWA
 
-`manifest.webmanifest` + `sw.js` ile çevrimdışı önbellek.
+- TR/EN: `i18n/*.json`, sağ üst dil düğmesi
+- Koyu/açık tema: `harekat_theme`
+- PWA: `manifest.webmanifest` + `sw.js` (push iskeleti — tim daveti)
 
-## i18n
+## Erişilebilirlik
 
-TR/EN — sağ üst dil düğmesi (`harekat_lang`).
+Skip link, odak halkaları, ARIA progressbar/status, klavye ile gezinme, kontrast tokenları.

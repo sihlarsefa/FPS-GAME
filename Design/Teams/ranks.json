@@ -1,0 +1,140 @@
+{
+  "schema": "harekat.ranks.v1",
+  "source_enum": "MilitaryRank",
+  "note": "Özgün stilize nişanlar; resmi arma kopyası değil. Dosya adları ASCII kebab-case.",
+  "ranks": [
+    {
+      "index": 0,
+      "enum": "Er",
+      "file": "ranks/er.svg",
+      "name_tr": "Er",
+      "category": "enlisted"
+    },
+    {
+      "index": 1,
+      "enum": "Onbasi",
+      "file": "ranks/onbasi.svg",
+      "name_tr": "Onbaşı",
+      "category": "enlisted"
+    },
+    {
+      "index": 2,
+      "enum": "Cavus",
+      "file": "ranks/cavus.svg",
+      "name_tr": "Çavuş",
+      "category": "enlisted"
+    },
+    {
+      "index": 3,
+      "enum": "SozlesmeliEr",
+      "file": "ranks/sozlesmeli-er.svg",
+      "name_tr": "Sözleşmeli Er",
+      "category": "enlisted"
+    },
+    {
+      "index": 4,
+      "enum": "UzmanOnbasi",
+      "file": "ranks/uzman-onbasi.svg",
+      "name_tr": "Uzman Onbaşı",
+      "category": "specialist"
+    },
+    {
+      "index": 5,
+      "enum": "UzmanCavus",
+      "file": "ranks/uzman-cavus.svg",
+      "name_tr": "Uzman Çavuş",
+      "category": "specialist"
+    },
+    {
+      "index": 6,
+      "enum": "AstsubayCavus",
+      "file": "ranks/astsubay-cavus.svg",
+      "name_tr": "Astsubay Çavuş",
+      "category": "nco"
+    },
+    {
+      "index": 7,
+      "enum": "AstsubayKidemliCavus",
+      "file": "ranks/astsubay-kidemli-cavus.svg",
+      "name_tr": "Astsubay Kıdemli Çavuş",
+      "category": "nco"
+    },
+    {
+      "index": 8,
+      "enum": "AstsubayUstcavus",
+      "file": "ranks/astsubay-ustcavus.svg",
+      "name_tr": "Astsubay Üstçavuş",
+      "category": "nco"
+    },
+    {
+      "index": 9,
+      "enum": "AstsubayKidemliUstcavus",
+      "file": "ranks/astsubay-kidemli-ustcavus.svg",
+      "name_tr": "Astsubay Kıdemli Üstçavuş",
+      "category": "nco"
+    },
+    {
+      "index": 10,
+      "enum": "AstsubayBascavus",
+      "file": "ranks/astsubay-bascavus.svg",
+      "name_tr": "Astsubay Başçavuş",
+      "category": "nco"
+    },
+    {
+      "index": 11,
+      "enum": "AstsubayKidemliBascavus",
+      "file": "ranks/astsubay-kidemli-bascavus.svg",
+      "name_tr": "Astsubay Kıdemli Başçavuş",
+      "category": "nco"
+    },
+    {
+      "index": 12,
+      "enum": "Astegmen",
+      "file": "ranks/astegmen.svg",
+      "name_tr": "Asteğmen",
+      "category": "officer"
+    },
+    {
+      "index": 13,
+      "enum": "Tegmen",
+      "file": "ranks/tegmen.svg",
+      "name_tr": "Teğmen",
+      "category": "officer"
+    },
+    {
+      "index": 14,
+      "enum": "Ustegmen",
+      "file": "ranks/ustegmen.svg",
+      "name_tr": "Üsteğmen",
+      "category": "officer"
+    },
+    {
+      "index": 15,
+      "enum": "Yuzbasi",
+      "file": "ranks/yuzbasi.svg",
+      "name_tr": "Yüzbaşı",
+      "category": "officer"
+    },
+    {
+      "index": 16,
+      "enum": "Binbasi",
+      "file": "ranks/binbasi.svg",
+      "name_tr": "Binbaşı",
+      "category": "officer"
+    },
+    {
+      "index": 17,
+      "enum": "Yarbay",
+      "file": "ranks/yarbay.svg",
+      "name_tr": "Yarbay",
+      "category": "officer"
+    },
+    {
+      "index": 18,
+      "enum": "Albay",
+      "file": "ranks/albay.svg",
+      "name_tr": "Albay",
+      "category": "officer"
+    }
+  ]
+}

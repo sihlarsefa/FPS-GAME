@@ -35,7 +35,7 @@ public class AuthAndMatchFlowTests
                 }).Build());
 
         var auth = new AuthService(players, hasher, jwt, new FakeEmailService(NullLogger<FakeEmailService>.Instance),
-            mod, uow, NullLogger<AuthService>.Instance);
+            mod, uow, new Harekat.Infrastructure.Auth.PassThroughSteamTicketValidator(), NullLogger<AuthService>.Instance);
         var squads = new SquadService(squadsRepo, players, uow, NullLogger<SquadService>.Instance);
         var mm = new MatchmakingService(tickets, squadsRepo, players, matches, serversRepo, seasons, uow, NullLogger<MatchmakingService>.Instance);
         var ach = new AchievementService();
@@ -146,6 +146,23 @@ public class AuthAndMatchFlowTests
     }
 
     [Fact]
+    public async Task SteamLogin_CreatesAndReusesAccount()
+    {
+        var (auth, _, _, _, _, store) = CreateServices();
+        var first = await auth.LoginWithSteamAsync(new SteamAuthRequest("DEV:76561198000000001:MaviAsker", "MaviAsker"));
+        first.AccessToken.Should().NotBeNullOrEmpty();
+        first.Player.Username.Should().Be("MaviAsker");
+
+        var entity = store.Players.Values.Single(p => p.Id == first.Player.Id);
+        entity.SteamId.Should().Be(76561198000000001UL);
+        entity.EmailVerified.Should().BeTrue();
+
+        var second = await auth.LoginWithSteamAsync(new SteamAuthRequest("DEV:76561198000000001"));
+        second.Player.Id.Should().Be(first.Player.Id);
+        store.Players.Should().HaveCount(1);
+    }
+
+    [Fact]
     public async Task Friendship_RequestAndAccept()
     {
         var store = new InMemoryStore();
@@ -160,7 +177,7 @@ public class AuthAndMatchFlowTests
             }).Build());
         var mod = new MemoryModerationRepository(store);
         var auth = new AuthService(players, hasher, jwt, new FakeEmailService(NullLogger<FakeEmailService>.Instance),
-            mod, uow, NullLogger<AuthService>.Instance);
+            mod, uow, new Harekat.Infrastructure.Auth.PassThroughSteamTicketValidator(), NullLogger<AuthService>.Instance);
         var service = new FriendshipService(friends, players, uow);
 
         var a = await auth.RegisterAsync(new RegisterRequest("Friend1", "f1@t.com", "password123"));

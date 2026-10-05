@@ -5,6 +5,7 @@ namespace Harekat.Application.Dtos;
 
 public sealed record RegisterRequest(string Username, string Email, string Password, string? Region = "tr");
 public sealed record LoginRequest(string Username, string Password);
+public sealed record SteamAuthRequest(string Ticket, string? PersonaName = null, string? Region = "tr");
 public sealed record AuthResponse(string AccessToken, string RefreshToken, DateTimeOffset ExpiresAt, PlayerDto Player);
 public sealed record RefreshRequest(string RefreshToken);
 public sealed record VerifyEmailRequest(string Token);
@@ -55,6 +56,9 @@ public sealed record MatchTeamDto(Guid SquadId, string SquadName, IReadOnlyList<
 public sealed record RegisterServerRequest(string Host, int Port, string Region, string ServerKey, int MaxPlayers = 100);
 public sealed record ServerHeartbeatRequest(Guid ServerId, string ServerKey, int CurrentPlayers, string Status);
 public sealed record ServerDto(Guid Id, string Endpoint, string Region, string Status, int CurrentPlayers, int MaxPlayers);
+public sealed record ClaimMatchRequest(string Host, int Port, string ServerKey, string? Region = null, int MaxPlayers = 100);
+public sealed record ClaimMatchResponse(MatchDto Match, Guid ServerId, string Endpoint);
+public sealed record ReleaseServerRequest(Guid ServerId, string ServerKey);
 
 public sealed record PlayerMatchResultDto(
     Guid PlayerId,
@@ -90,3 +94,42 @@ public sealed record MutePlayerRequest(Guid PlayerId, int DurationHours, string?
 
 public sealed record LobbyChatMessage(Guid SquadId, Guid SenderId, string SenderName, string Message, DateTimeOffset SentAt);
 public sealed record ReadyStatusDto(Guid SquadId, Guid PlayerId, bool IsReady, bool AllReady);
+
+// ——— Client / Launcher (F3-8) ———
+public sealed record NewsItemDto(
+    Guid Id,
+    string Title,
+    string Body,
+    string Language,
+    string? Author,
+    DateTimeOffset PublishedAt,
+    int SortOrder);
+
+public sealed record UpsertNewsRequest(
+    string Title,
+    string Body,
+    string? Language = "tr",
+    string? Author = null,
+    bool IsPublished = true,
+    int SortOrder = 0,
+    DateTimeOffset? PublishedAt = null);
+
+public sealed record ClientVersionDto(
+    string Channel,
+    string Version,
+    string PatchUrl,
+    string Sha256,
+    long PatchSizeBytes,
+    string? ReleaseNotes,
+    bool Mandatory,
+    DateTimeOffset PublishedAt);
+
+public sealed record UpsertClientVersionRequest(
+    string Version,
+    string PatchUrl,
+    string Sha256,
+    long? PatchSizeBytes = null,
+    string? ReleaseNotes = null,
+    bool Mandatory = false,
+    string? Channel = "stable");
+

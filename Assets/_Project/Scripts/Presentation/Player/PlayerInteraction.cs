@@ -23,8 +23,12 @@ namespace Project.Presentation.Player
         private const string DisembarkPrompt = "[F] Araçtan in";
         private const string ExitVehiclePrompt = "[F] Araçtan in";
         private const string EnterVehiclePrompt = "[F] Kirpi'yi kullan";
+        private const int MaxCountdownSeconds = 9;
 
         private static readonly Func<LootPickupComponent, bool> PickableFilter = IsPickable;
+
+        /// <summary>"[F] Araçtan in (n)" — otomatik iniş geri sayımı; kare başına string üretmemek için önceden kurulur.</summary>
+        private static readonly string[] DisembarkCountdownPrompts = BuildCountdownPrompts();
 
         private readonly PlayerController _owner;
 
@@ -53,7 +57,9 @@ namespace Project.Presentation.Player
             {
                 _lootTarget = null;
                 _vehicleTarget = null;
-                _prompt = _owner.CanDisembark ? DisembarkPrompt : string.Empty;
+                _promptLoot = null;
+                _promptLootText = null;
+                _prompt = _owner.CanDisembark ? DisembarkPromptFor(_owner.AutoDisembarkRemaining) : string.Empty;
                 if (input.Interact && _owner.CanDisembark)
                     _owner.Disembark();
                 return;
@@ -187,7 +193,7 @@ namespace Project.Presentation.Player
                 {
                     _promptLoot = _lootTarget;
                     _promptLootText = text;
-                    _prompt = string.IsNullOrEmpty(text) ? KeyPrefix + "Al" : KeyPrefix + text;
+                    _prompt = FormatLootPrompt(text);
                 }
 
                 return;
@@ -196,6 +202,37 @@ namespace Project.Presentation.Player
             _promptLoot = null;
             _promptLootText = null;
             _prompt = _vehicleTarget != null ? EnterVehiclePrompt : string.Empty;
+        }
+
+        /// <summary>Eşya istemi: LootPickupComponent metni zaten "[F] ... al" biçimindedir; değilse tuş ön eki eklenir.</summary>
+        private static string FormatLootPrompt(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return KeyPrefix + "Al";
+
+            return text.StartsWith("[", StringComparison.Ordinal) ? text : KeyPrefix + text;
+        }
+
+        private static string DisembarkPromptFor(float remainingSeconds)
+        {
+            if (remainingSeconds < 0f)
+                return DisembarkPrompt;
+
+            var whole = Mathf.CeilToInt(remainingSeconds);
+            if (whole <= 0)
+                return DisembarkPrompt;
+
+            return DisembarkCountdownPrompts[Mathf.Min(whole, MaxCountdownSeconds)];
+        }
+
+        private static string[] BuildCountdownPrompts()
+        {
+            var prompts = new string[MaxCountdownSeconds + 1];
+            prompts[0] = DisembarkPrompt;
+            for (var i = 1; i <= MaxCountdownSeconds; i++)
+                prompts[i] = DisembarkPrompt + " (" + i + ")";
+
+            return prompts;
         }
     }
 }

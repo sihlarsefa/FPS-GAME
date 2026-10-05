@@ -389,6 +389,13 @@ namespace Project.Infrastructure.AI
             LastHeardTime = Mathf.Max(LastHeardTime, heardTime);
             HeardPosition = heardPosition;
 
+            // Görsel temas yoksa duyulan atış son bilinen düşman konumu olur.
+            if (Target == null && now - LastSeenTime > 2f)
+            {
+                LastKnownEnemyPosition = heardPosition;
+                HasLastKnownEnemyPosition = true;
+            }
+
             // Hedef yokken yakındaki silah sesine kısaca kulak kabart.
             if (Target == null && distance < 60f && now > AlertUntil)
             {

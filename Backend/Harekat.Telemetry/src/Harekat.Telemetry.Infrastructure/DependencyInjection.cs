@@ -24,6 +24,20 @@ public static class DependencyInjection
         services.AddSingleton<IHeatmapImageRenderer, HeatmapPngRenderer>();
         services.AddSingleton<IPerformanceMetrics, InMemoryPerformanceMetrics>();
 
+        var clientErrorProvider = configuration["Storage:Provider"] ?? "InMemory";
+        var hasSql = !string.IsNullOrWhiteSpace(configuration.GetConnectionString("SqlServer"))
+                     || !string.IsNullOrWhiteSpace(configuration["Storage:SqlServer"]);
+        if (string.Equals(clientErrorProvider, "SqlServer", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(clientErrorProvider, "MSSQL", StringComparison.OrdinalIgnoreCase)
+            || (hasSql && string.Equals(clientErrorProvider, "Auto", StringComparison.OrdinalIgnoreCase)))
+        {
+            services.AddSingleton<IClientErrorStore, SqlServerClientErrorStore>();
+        }
+        else
+        {
+            services.AddSingleton<IClientErrorStore, InMemoryClientErrorStore>();
+        }
+
         var streamBackend = configuration["Streaming:Backend"] ?? "InMemory";
         services.AddSingleton<IStreamBackend>(sp => streamBackend.ToLowerInvariant() switch
         {

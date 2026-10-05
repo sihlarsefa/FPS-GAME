@@ -1,0 +1,16 @@
+{
+  "name": "harekat-sql-reports",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "report": "node report.mjs",
+    "lint": "node --check report.mjs && node --check lib/sample-data.mjs && node --check lib/html.mjs && node --check lib/svg.mjs && node --check lib/runner.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "mssql": "^11.0.1"
+  }
+}

@@ -35,6 +35,15 @@ namespace Project.Infrastructure.World
         /// <summary>Varsayılan ajan tipinin (0) kopyası, HAREKÂT ölçüleriyle.</summary>
         public static NavMeshBuildSettings CreateSettings()
         {
+            return CreateSettings(VoxelSize);
+        }
+
+        /// <summary>Verilen voksel boyuyla ayarlar (0.08..0.5 m; ajan yarıçapının ≥ 2 voksel olması önerilir).</summary>
+        public static NavMeshBuildSettings CreateSettings(float voxelSize)
+        {
+            if (float.IsNaN(voxelSize) || voxelSize <= 0f)
+                voxelSize = VoxelSize;
+            voxelSize = Mathf.Clamp(voxelSize, 0.08f, 0.5f);
             var settings = UnityEngine.AI.NavMesh.GetSettingsByID(0);
             settings.agentTypeID = 0;
             settings.agentRadius = AgentRadius;
@@ -42,7 +51,7 @@ namespace Project.Infrastructure.World
             settings.agentSlope = AgentSlope;
             settings.agentClimb = AgentClimb;
             settings.overrideVoxelSize = true;
-            settings.voxelSize = VoxelSize;
+            settings.voxelSize = voxelSize;
             settings.overrideTileSize = true;
             settings.tileSize = TileSize;
             settings.minRegionArea = MinRegionArea;
@@ -60,6 +69,13 @@ namespace Project.Infrastructure.World
         /// (istisna fırlatmaz).
         /// </summary>
         public static NavMeshData Bake(Bounds bounds, Terrain terrain, int layerMask, IReadOnlyList<NavMeshBuildSource> extraSources)
+        {
+            return Bake(bounds, terrain, layerMask, extraSources, VoxelSize);
+        }
+
+        /// <summary>Ek kaynaklar + voksel boyu ile pişirir. Başarısızsa null (istisna fırlatmaz).</summary>
+        public static NavMeshData Bake(Bounds bounds, Terrain terrain, int layerMask, IReadOnlyList<NavMeshBuildSource> extraSources,
+            float voxelSize)
         {
             var sources = new List<NavMeshBuildSource>(1024);
             try
@@ -94,7 +110,7 @@ namespace Project.Infrastructure.World
                 return null;
             }
 
-            var settings = CreateSettings();
+            var settings = CreateSettings(voxelSize);
             var report = settings.ValidationReport(bounds);
             if (report != null)
             {

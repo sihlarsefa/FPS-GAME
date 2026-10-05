@@ -114,6 +114,13 @@ app.MapPost("/auth/login", async (LoginRequest req, AuthService auth, HttpContex
     return Results.Ok(await auth.LoginAsync(req, ip));
 }).WithTags("Auth").AllowAnonymous();
 
+app.MapPost("/auth/steam", async (SteamAuthRequest req, AuthService auth, HttpContext ctx) =>
+{
+    using var _ = perf.Track("auth.steam");
+    var ip = ctx.Connection.RemoteIpAddress?.ToString();
+    return Results.Ok(await auth.LoginWithSteamAsync(req, ip));
+}).WithTags("Auth").AllowAnonymous();
+
 app.MapPost("/auth/refresh", async (RefreshRequest req, AuthService auth) =>
     Results.Ok(await auth.RefreshAsync(req))).WithTags("Auth").AllowAnonymous();
 
@@ -199,6 +206,25 @@ app.MapPost("/servers/heartbeat", async (ServerHeartbeatRequest req, GameServerS
 
 app.MapGet("/servers", async (GameServerService servers) =>
     Results.Ok(await servers.ListAsync())).WithTags("Servers").AllowAnonymous();
+
+app.MapGet("/servers/by-host/{host}", async (string host, GameServerService servers) =>
+    Results.Ok(await servers.ListByHostAsync(host))).WithTags("Servers").AllowAnonymous();
+
+app.MapPost("/servers/release", async (ReleaseServerRequest req, GameServerService servers) =>
+{
+    await servers.ReleaseAsync(req.ServerId, req.ServerKey);
+    return Results.Ok(new { released = true });
+}).WithTags("Servers").AllowAnonymous();
+
+// ServerManager: bekleyen maç tahsisi
+app.MapGet("/matches/pending-allocation", async (string? region, MatchAllocationService alloc) =>
+    Results.Ok(await alloc.ListPendingAsync(region))).WithTags("Servers").AllowAnonymous();
+
+app.MapPost("/matches/{id:guid}/claim", async (Guid id, ClaimMatchRequest req, MatchAllocationService alloc) =>
+    Results.Ok(await alloc.ClaimAsync(id, req))).WithTags("Servers").AllowAnonymous();
+
+app.MapGet("/matchmaking/queue-depth", async (MatchAllocationService alloc) =>
+    Results.Ok(new { depth = await alloc.QueueDepthAsync() })).WithTags("Matchmaking").AllowAnonymous();
 
 // ——— Match result (server key) ———
 app.MapPost("/matches/{id:guid}/result", async (
@@ -287,6 +313,31 @@ app.MapPost("/moderation/mute", async (MutePlayerRequest req, ModerationService 
 
 app.MapGet("/moderation/reports", async (ModerationService mod) =>
     Results.Ok(await mod.GetOpenReportsAsync())).WithTags("Moderation").RequireAuthorization("Moderator");
+
+// ——— Client / Launcher (F3-8) ———
+app.MapGet("/news", async (string? lang, int? take, ClientContentService content) =>
+    Results.Ok(await content.ListNewsAsync(lang, take ?? 20))).WithTags("Client").AllowAnonymous();
+
+app.MapGet("/client/version", async (string? channel, ClientContentService content) =>
+    Results.Ok(await content.GetVersionAsync(channel))).WithTags("Client").AllowAnonymous();
+
+app.MapGet("/admin/news", async (int? take, ClientContentService content) =>
+    Results.Ok(await content.ListAllNewsAdminAsync(take ?? 50))).WithTags("Admin").RequireAuthorization("Admin");
+
+app.MapPost("/admin/news", async (UpsertNewsRequest req, ClientContentService content) =>
+    Results.Ok(await content.CreateNewsAsync(req))).WithTags("Admin").RequireAuthorization("Admin");
+
+app.MapPut("/admin/news/{id:guid}", async (Guid id, UpsertNewsRequest req, ClientContentService content) =>
+    Results.Ok(await content.UpdateNewsAsync(id, req))).WithTags("Admin").RequireAuthorization("Admin");
+
+app.MapDelete("/admin/news/{id:guid}", async (Guid id, ClientContentService content) =>
+{
+    await content.DeleteNewsAsync(id);
+    return Results.Ok(new { deleted = true });
+}).WithTags("Admin").RequireAuthorization("Admin");
+
+app.MapPut("/admin/client/version", async (UpsertClientVersionRequest req, ClientContentService content) =>
+    Results.Ok(await content.UpsertVersionAsync(req))).WithTags("Admin").RequireAuthorization("Admin");
 
 app.MapHub<LobbyHub>("/hubs/lobby");
 

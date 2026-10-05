@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { parseCsv, scanCSharp, placeholders, validate, diffCatalog } from '../lib/core.mjs';
+import { fontCoverage, legacyRuntimeLikelyGaps, classifyChar } from '../lib/font.mjs';
+const row = { key: 'hud.ammo.reload', tr: '{0} mermi', en: '{0} ammo', de: '{0} Munition', az: '{0} mərmi', ar: '{0} طلقة' };
+test('CSV handles BOM, quoted commas, escaped quotes, multiline and CRLF', () => { assert.deepEqual(parseCsv('\ufeffa,b\r\n"a,b","line\n""quote"""\r\n'), [{a:'a,b',b:'line\n"quote"'}]); assert.throws(() => parseCsv('a,b\n"open,b')); });
+test('Composite placeholders preserve multiplicity, alignment and escaped braces', () => { assert.deepEqual(placeholders('{{ammo}} {0,-3:N0} {0}').tokens, ['0','0']); assert.equal(placeholders('{0').invalid,true); const r = {...row,en:'ammo'}; assert.equal(validate([r]).errors.length,1); assert.equal(validate([row]).errors.length,0); });
+test('Missing any of five translations and duplicate keys fail', () => { assert.match(validate([{...row,ar:''}]).errors.join(),/missing translation/); assert.match(validate([row,row]).errors.join(),/duplicate key/); });
+test('Lexical scanner excludes comments/logs/chars and decodes strings', () => { const s = '// "Türkçe yorum"\nvar x = "Yükleniyor\\nBekle";\nvar y = @"Çıkış ""evet""";\nDebug.Log("Özel bilgi");\n/* "Gizli" */'; const a = scanCSharp(s,'Assets/UI.cs'); assert.equal(a.length,2); assert.equal(a[0].text,'Yükleniyor\nBekle'); assert.equal(a[1].text,'Çıkış "evet"'); assert.equal(a[0].line,2); });
+test('Known ASCII strings and raw/interpolated literals retained for review', () => { const s = 'var a="{0} mermi"; var b=$"{x.ToString("N0")} kişi"; var c="""Türkçe""";'; const a = scanCSharp(s,'Assets/UI.cs',[row]); assert.equal(a.length,3); assert.deepEqual(a[0].keys,['hud.ammo.reload']); assert.equal(a[1].interpolated,true); assert.equal(a[2].raw,true); });
+test('Diff does not delete unmatched translations automatically', () => { const e=scanCSharp('var a="Yeni görev";','Assets/UI.cs'); const d=diffCatalog(e,[row],[{id:'removed'}]); assert.equal(d.newTexts.length,1); assert.deepEqual(d.unreferencedKeys,['hud.ammo.reload']); assert.equal(d.removedSinceSnapshot.length,1); });
+test('Reject malformed or unsupported fonts instead of guessing coverage', () => { assert.throws(() => fontCoverage(Buffer.from('bad'), ['ğ']),/Truncated/); assert.throws(() => fontCoverage(Buffer.alloc(12), ['ğ']),/Expected/); });
+test('LegacyRuntime heuristic flags Arabic and AZ schwa, keeps Turkish Latin', () => {
+  assert.equal(classifyChar('ش'), 'arabic');
+  assert.equal(classifyChar('Ə'), 'azerbaijani-ext');
+  assert.equal(classifyChar('ğ'), 'turkish-latin');
+  const g = legacyRuntimeLikelyGaps(['A', 'ğ', 'Ə', 'ش', '؟']);
+  assert.deepEqual(g.likelyMissing.sort(), ['Ə', 'ش', '؟'].sort());
+  assert.match(g.recommendation, /Noto/);
+});

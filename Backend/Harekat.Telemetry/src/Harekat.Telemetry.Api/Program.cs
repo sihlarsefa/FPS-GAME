@@ -18,6 +18,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddTelemetryApplication();
 builder.Services.AddTelemetryInfrastructure(builder.Configuration);
+builder.Services.Configure<Harekat.Telemetry.Application.Services.ClientErrorRateLimitOptions>(
+    builder.Configuration.GetSection("ClientErrors:RateLimit"));
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
@@ -141,6 +143,26 @@ app.MapGet("/rules", (IRuleProvider rules) =>
 
 app.MapGet("/metrics/perf", (IPerformanceMetrics metrics) => Results.Ok(metrics.Snapshot()))
     .WithTags("Sistem");
+
+app.MapPost("/client-errors", async (ClientErrorRequest request, ClientErrorService errors, HttpContext http, CancellationToken ct) =>
+{
+    var ip = http.Connection.RemoteIpAddress?.ToString();
+    var (accepted, dto, error) = await errors.IngestAsync(request, ip, ct);
+    if (!accepted && error == "rate_limited")
+    {
+        http.Response.Headers.RetryAfter = "60";
+        return Results.Json(new { error = "rate_limited", message = "Çok fazla istek." }, statusCode: StatusCodes.Status429TooManyRequests);
+    }
+    if (!accepted)
+        return Results.BadRequest(new { error = error ?? "invalid", message = "Geçersiz hata raporu." });
+    return Results.Created($"/client-errors/{dto!.Id}", dto);
+}).WithTags("İstemci Hataları").WithName("IngestClientError");
+
+app.MapGet("/client-errors", async (ClientErrorService errors, int? skip, int? take, CancellationToken ct) =>
+{
+    var list = await errors.ListAsync(skip ?? 0, take ?? 50, ct);
+    return Results.Ok(list);
+}).WithTags("İstemci Hataları").WithName("ListClientErrors");
 
 app.MapPost("/debug/bench", async (EventIngestionService ingestion, CancellationToken ct) =>
 {

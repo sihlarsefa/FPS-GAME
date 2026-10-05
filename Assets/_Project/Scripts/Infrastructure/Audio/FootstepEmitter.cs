@@ -44,8 +44,8 @@ namespace Project.Infrastructure.Audio
         public float CrouchHearingScale = 0.45f;
         public float ProneHearingScale = 0.3f;
 
-        [Header("Algılama")]
         /// <summary>Motor yoksa bu yatay hızın üstü koşu sayılır (m/s).</summary>
+        [Header("Algılama")]
         public float SprintSpeedThreshold = 6.2f;
 
         /// <summary>Bu yatay hızın üstü yürüme sayılmaz (araç, itilme).</summary>
@@ -141,13 +141,22 @@ namespace Project.Infrastructure.Audio
             _combatant = GetComponentInParent<Combatant>();
             _controller = GetComponentInParent<CharacterController>();
             _agent = GetComponentInParent<NavMeshAgent>();
-            _resolvedAny = _motor != null || _combatant != null || _controller != null || _agent != null;
+            // Yalnızca bir hareket kaynağı (motor/ajan/kontrolcü) bulununca aramayı bırak: bileşen, hareket
+            // sistemi eklenmeden önce eklenmiş olabilir (Combatant tek başına yerde olup olmadığını söylemez).
+            _resolvedAny = _motor != null || _controller != null || _agent != null;
             _resolveAttempts++;
             _nextResolveTime = Time.unscaledTime + ResolveRetryInterval;
         }
 
         private void Update()
         {
+            // Başsız sunucuda (GameAudio kapalı) hiçbir iş yapma.
+            if (!GameAudio.Enabled)
+            {
+                _hasLastPosition = false;
+                return;
+            }
+
             if (!_resolvedAny && _resolveAttempts < MaxResolveAttempts && Time.unscaledTime >= _nextResolveTime)
                 Resolve();
 

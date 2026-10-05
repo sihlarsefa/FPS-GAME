@@ -245,6 +245,95 @@ public sealed class GameServerService
         var all = await _servers.GetAllAsync(ct);
         return all.Select(Mapper.ToDto).ToList();
     }
+
+    public async Task<IReadOnlyList<ServerDto>> ListByHostAsync(string host, CancellationToken ct = default)
+    {
+        var all = await _servers.GetByHostAsync(host, ct);
+        return all.Select(Mapper.ToDto).ToList();
+    }
+
+    public async Task ReleaseAsync(Guid serverId, string serverKey, CancellationToken ct = default)
+    {
+        var server = await _servers.GetByIdAsync(serverId, ct)
+                     ?? throw new AppException("Sunucu bulunamadı.", 404, ErrorCodes.NotFound);
+        if (!_hasher.Verify(serverKey, server.ServerKeyHash))
+            throw new AppException("Geçersiz server key.", 401, ErrorCodes.Unauthorized);
+
+        server.Status = GameServerStatus.Ready;
+        server.CurrentMatchId = null;
+        server.CurrentPlayers = 0;
+        server.LastHeartbeatAt = DateTimeOffset.UtcNow;
+        await _servers.UpdateAsync(server, ct);
+        await _uow.SaveChangesAsync(ct);
+    }
+}
+
+public sealed class MatchAllocationService
+{
+    private readonly IMatchRepository _matches;
+    private readonly IGameServerRepository _servers;
+    private readonly IPasswordHasher _hasher;
+    private readonly IUnitOfWork _uow;
+
+    public MatchAllocationService(
+        IMatchRepository matches,
+        IGameServerRepository servers,
+        IPasswordHasher hasher,
+        IUnitOfWork uow)
+    {
+        _matches = matches;
+        _servers = servers;
+        _hasher = hasher;
+        _uow = uow;
+    }
+
+    public async Task<IReadOnlyList<MatchDto>> ListPendingAsync(string? region, CancellationToken ct = default)
+    {
+        var list = await _matches.GetPendingAllocationAsync(region, ct);
+        return list.Select(Mapper.ToDto).ToList();
+    }
+
+    public async Task<int> QueueDepthAsync(CancellationToken ct = default) =>
+        await _matches.CountQueuedTicketsAsync(ct);
+
+    /// <summary>
+    /// ServerManager bir Allocating maçı sahiplenir: port tahsis eder, GameServer kaydı oluşturur.
+    /// </summary>
+    public async Task<ClaimMatchResponse> ClaimAsync(Guid matchId, ClaimMatchRequest request, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.ServerKey) || request.ServerKey.Length < 16)
+            throw new AppException("Server key en az 16 karakter olmalı.", 400, ErrorCodes.Validation);
+        if (request.Port is < 7777 or > 7900)
+            throw new AppException("Port 7777–7900 aralığında olmalı.", 400, ErrorCodes.Validation);
+
+        var match = await _matches.GetByIdAsync(matchId, ct)
+                    ?? throw new AppException("Maç bulunamadı.", 404, ErrorCodes.NotFound);
+
+        if (match.Status != MatchStatus.Allocating && match.GameServerId is not null)
+            throw new AppException("Maç zaten tahsis edilmiş.", 409, ErrorCodes.Conflict);
+
+        var server = new GameServer
+        {
+            Host = request.Host,
+            Port = request.Port,
+            Region = string.IsNullOrWhiteSpace(request.Region) ? match.Region : request.Region.ToLowerInvariant(),
+            ServerKeyHash = _hasher.Hash(request.ServerKey),
+            MaxPlayers = request.MaxPlayers,
+            Status = GameServerStatus.Allocated,
+            CurrentMatchId = match.Id,
+            LastHeartbeatAt = DateTimeOffset.UtcNow
+        };
+
+        match.GameServerId = server.Id;
+        match.ServerEndpoint = server.Endpoint;
+        match.Status = MatchStatus.Starting;
+        match.StartedAt ??= DateTimeOffset.UtcNow;
+
+        await _servers.AddAsync(server, ct);
+        await _matches.UpdateAsync(match, ct);
+        await _uow.SaveChangesAsync(ct);
+        return new ClaimMatchResponse(Mapper.ToDto(match), server.Id, server.Endpoint);
+    }
 }
 
 public sealed class LeaderboardService

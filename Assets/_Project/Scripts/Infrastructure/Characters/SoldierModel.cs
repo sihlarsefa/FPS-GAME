@@ -44,6 +44,10 @@ namespace Project.Infrastructure.Characters
         private const float DeathDuration = 0.6f;
         private const float EquipmentPollInterval = 0.5f;
         private const int MaxCachedWeapons = 6;
+        private const float MaxArmReach = 0.535f;
+        private const float OffscreenUpdateInterval = 0.1f;
+        private const string LeftHandAnchorName = "LeftHand";
+        private const string RightHandAnchorName = "RightHand";
 
         private static readonly Quaternion BoneToZ = Quaternion.Euler(-90f, 0f, 0f);
 
@@ -69,6 +73,12 @@ namespace Project.Infrastructure.Characters
             public HoldKind Kind;
             public float LeftHandReach;
             public float LastUsed;
+
+            /// <summary>Silah fabrikasının sol/sağ el bileği bağlantıları (silah kökü uzayında), varsa.</summary>
+            public bool HasLeftGrip;
+            public Vector3 LeftGrip;
+            public bool HasRightGrip;
+            public Vector3 RightGrip;
         }
 
         private sealed class Variant
@@ -185,6 +195,12 @@ namespace Project.Infrastructure.Characters
         private int _rankApplied = -1;
         private float _pollTimer;
         private bool _ownerEquipmentFailed;
+        private WeaponDefinitionData _lastOwnerWeapon;
+        private bool _ownerWeaponFailed;
+
+        // Ekran dışı seyreltme
+        private Renderer _visibilityProbe;
+        private float _pendingDt;
 
         // Ölüm
         private bool _dead;
@@ -268,6 +284,17 @@ namespace Project.Infrastructure.Characters
         /// <summary>Sahip ölünce otomatik ölüm düşüşü oynat.</summary>
         public bool AutoPlayDeath { get; set; } = true;
 
+        /// <summary>
+        /// Sahibin envanterindeki etkin silah değişince modeli otomatik olarak o silahı tutar hale getirir.
+        /// Açık <see cref="HoldWeapon"/> çağrıları, envanterdeki etkin silah bir sonraki değişene kadar geçerli kalır.
+        /// </summary>
+        public bool AutoSyncWeapon { get; set; } = true;
+
+        /// <summary>
+        /// Hiçbir kamera (gölge dahil) tarafından çizilmiyorsa poz güncellemesi ~10 Hz'e seyreltilir (vuruş kutuları yine izlenir).
+        /// </summary>
+        public bool ThrottleWhenOffscreen { get; set; } = true;
+
         // ------------------------------------------------------------------ Kurulum
 
         /// <summary>
@@ -326,9 +353,13 @@ namespace Project.Infrastructure.Characters
                 SetEquipment(1, 1, 1);
 
             if (owner != null)
+            {
                 SetRank(owner.Rank);
+                SyncWeaponFromOwner();
+            }
 
-            ComputeArmIk(HoldKind.None, 0f);
+            if (_current == null)
+                ComputeArmIk(null);
             ApplyPose(0f);
         }
 
@@ -507,8 +538,9 @@ namespace Project.Infrastructure.Characters
             // Gövde
             Part("Abdomen", _spine, CharacterMeshes.Frustum("abdomen", 0f, 0.21f, new Vector2(0.31f, 0.2f), new Vector2(0.34f, 0.21f)), m.Camo,
                 Vector3.zero);
-            Part("ChestShape", Chest, CharacterMeshes.Frustum("chest", 0f, 0.27f, new Vector2(0.35f, 0.21f), new Vector2(0.43f, 0.22f)), m.Camo,
-                Vector3.zero);
+            var chestShape = Part("ChestShape", Chest, CharacterMeshes.Frustum("chest", 0f, 0.27f, new Vector2(0.35f, 0.21f), new Vector2(0.43f, 0.22f)),
+                m.Camo, Vector3.zero);
+            _visibilityProbe = chestShape.GetComponent<Renderer>();
             Part("Collar", Chest, CharacterMeshes.Frustum("collar", 0.24f, 0.3f, new Vector2(0.2f, 0.15f), new Vector2(0.15f, 0.12f)), m.Camo,
                 Vector3.zero, false);
 
@@ -1020,6 +1052,12 @@ namespace Project.Infrastructure.Characters
                 }
             }
 
+            if (held != null && held == _current)
+            {
+                held.LastUsed = Time.time;
+                return;
+            }
+
             if (held == null)
             {
                 held = CreateWeaponVisual(weapon, key);
@@ -1031,6 +1069,33 @@ namespace Project.Infrastructure.Characters
             }
 
             SetCurrentWeapon(held);
+        }
+
+        /// <summary>Sahibin envanterindeki etkin silah değiştiyse onu ele al (ölüyken yapılmaz — envanter yere düşer).</summary>
+        private void SyncWeaponFromOwner()
+        {
+            if (!AutoSyncWeapon || _owner == null || _dead || _ownerWeaponFailed)
+                return;
+
+            try
+            {
+                if (!_owner.IsAlive)
+                    return;
+
+                var inventory = _owner.Inventory;
+                var active = inventory != null ? inventory.ActiveWeapon : null;
+                var definition = active != null ? active.Definition : null;
+                if (ReferenceEquals(definition, _lastOwnerWeapon))
+                    return;
+
+                _lastOwnerWeapon = definition;
+                HoldWeapon(definition);
+            }
+            catch (Exception e)
+            {
+                _ownerWeaponFailed = true;
+                Debug.LogWarning("[SoldierModel] Envanterden etkin silah okunamadı: " + e.Message);
+            }
         }
 
         private HeldWeapon CreateWeaponVisual(WeaponDefinitionData weapon, string key)
@@ -1048,28 +1113,36 @@ namespace Project.Infrastructure.Characters
             {
                 Debug.LogWarning("[SoldierModel] Silah modeli kurulamadı (" + key + "), basit model kullanılıyor: " + e.Message);
                 if (root != null)
-                    Destroy(root);
+                    SafeDestroy(root);
                 root = null;
             }
 
             if (root != null && root.GetComponentInChildren<Renderer>(true) == null)
             {
                 // Görseli olmayan model (fabrika henüz hazır değil) — basit modele düş.
-                Destroy(root);
+                SafeDestroy(root);
                 root = null;
             }
 
+            var fromFactory = root != null;
             if (root == null)
                 root = BuildFallbackWeapon(kind, out muzzle);
 
+            // Model uzayı sözleşmesi: orijin kabzanın üstü, +Z namlu → yuvaya sıfır konum/dönüşle oturur.
             var t = root.transform;
             if (t.parent != WeaponSocket)
                 t.SetParent(WeaponSocket, false);
+            t.localPosition = Vector3.zero;
+            t.localRotation = Quaternion.identity;
 
-            // Görsel silahın collider'ı olmamalı (mermiler ve hareket etkilenmesin).
+            // Görsel silahın collider'ı olmamalı (mermiler ve hareket etkilenmesin). Destroy kare sonunda işlediği
+            // için önce hemen kapatılır.
             var colliders = root.GetComponentsInChildren<Collider>(true);
             for (var i = 0; i < colliders.Length; i++)
-                Destroy(colliders[i]);
+            {
+                colliders[i].enabled = false;
+                SafeDestroy(colliders[i]);
+            }
 
             GameLayers.SetLayerRecursively(root, _visualLayer);
             var renderers = root.GetComponentsInChildren<Renderer>(true);
@@ -1079,7 +1152,6 @@ namespace Project.Infrastructure.Characters
                 RegisterRenderer(renderers[i]);
             }
 
-            root.SetActive(false);
             var held = new HeldWeapon
             {
                 Key = key,
@@ -1088,8 +1160,64 @@ namespace Project.Infrastructure.Characters
                 Kind = kind,
                 LeftHandReach = LeftHandReachFor(weapon.Category)
             };
+
+            if (fromFactory)
+            {
+                // Fabrikanın el bileği bağlantıları varsa eller tam kabzaya / el kundağına oturur.
+                var left = FindDescendant(t, LeftHandAnchorName);
+                if (left != null)
+                {
+                    held.HasLeftGrip = true;
+                    held.LeftGrip = ClampGrip(t.InverseTransformPoint(left.position));
+                }
+
+                var right = FindDescendant(t, RightHandAnchorName);
+                if (right != null)
+                {
+                    held.HasRightGrip = true;
+                    held.RightGrip = ClampGrip(t.InverseTransformPoint(right.position));
+                }
+            }
+
+            root.SetActive(false);
             _weapons.Add(held);
             return held;
+        }
+
+        /// <summary>Hatalı bağlantıların kolları koparmaması için makul sınırlar (m).</summary>
+        private static Vector3 ClampGrip(Vector3 p)
+        {
+            return new Vector3(Mathf.Clamp(p.x, -0.15f, 0.15f), Mathf.Clamp(p.y, -0.2f, 0.15f), Mathf.Clamp(p.z, -0.25f, 0.7f));
+        }
+
+        private static Transform FindDescendant(Transform root, string name)
+        {
+            if (root == null)
+                return null;
+
+            for (var i = 0; i < root.childCount; i++)
+            {
+                var child = root.GetChild(i);
+                if (child.name == name)
+                    return child;
+
+                var found = FindDescendant(child, name);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        private static void SafeDestroy(UnityEngine.Object obj)
+        {
+            if (obj == null)
+                return;
+
+            if (UnityEngine.Application.isPlaying)
+                Destroy(obj);
+            else
+                DestroyImmediate(obj);
         }
 
         private static float LeftHandReachFor(WeaponCategory category)
@@ -1160,7 +1288,7 @@ namespace Project.Infrastructure.Characters
                 if (w.Root != null)
                 {
                     RemoveRenderersUnder(w.Root.transform);
-                    Destroy(w.Root);
+                    SafeDestroy(w.Root);
                 }
             }
         }
@@ -1185,7 +1313,7 @@ namespace Project.Infrastructure.Characters
             if (held == null)
             {
                 _hold = HoldKind.None;
-                ComputeArmIk(HoldKind.None, 0f);
+                ComputeArmIk(null);
                 return;
             }
 
@@ -1194,29 +1322,35 @@ namespace Project.Infrastructure.Characters
             if (held.Root != null)
                 held.Root.SetActive(!_dead);
 
-            ComputeArmIk(held.Kind, held.LeftHandReach);
+            ComputeArmIk(held);
         }
 
-        /// <summary>Tutuş türüne göre kolların IK pozunu (ArmsPivot uzayında) bir kez hesaplar.</summary>
-        private void ComputeArmIk(HoldKind kind, float leftReach)
+        /// <summary>
+        /// Tutuş türüne göre kolların IK pozunu (ArmsPivot uzayında) silah başına bir kez hesaplar. Silah fabrikası el
+        /// bağlantıları verdiyse bilekler oraya, yoksa kategoriye göre tahmini noktalara gider. Sol el uzanamıyorsa
+        /// el kundağı boyunca geriye kaydırılır.
+        /// </summary>
+        private void ComputeArmIk(HeldWeapon held)
         {
             if (WeaponSocket == null)
                 return;
 
+            var kind = held != null ? held.Kind : HoldKind.None;
             Vector3 socket;
             Vector3 rightWrist;
             Vector3 leftWrist;
             if (kind == HoldKind.Pistol)
             {
                 socket = new Vector3(0.04f, 0.0f, 0.4f);
-                rightWrist = socket + new Vector3(0f, -0.035f, -0.03f);
-                leftWrist = socket + new Vector3(-0.035f, -0.05f, -0.02f);
+                rightWrist = socket + (held.HasRightGrip ? held.RightGrip : new Vector3(0f, -0.035f, -0.03f));
+                leftWrist = socket + (held.HasLeftGrip ? held.LeftGrip : new Vector3(-0.035f, -0.05f, -0.02f));
             }
             else
             {
                 socket = new Vector3(0.1f, -0.08f, 0.22f);
-                rightWrist = socket + new Vector3(0.0f, -0.035f, -0.035f);
-                leftWrist = socket + new Vector3(-0.03f, -0.005f, Mathf.Max(0.12f, leftReach));
+                var reach = held != null ? held.LeftHandReach : 0.21f;
+                rightWrist = socket + (held != null && held.HasRightGrip ? held.RightGrip : new Vector3(0.0f, -0.035f, -0.035f));
+                leftWrist = socket + (held != null && held.HasLeftGrip ? held.LeftGrip : new Vector3(-0.03f, -0.005f, Mathf.Max(0.12f, reach)));
             }
 
             _socketRest = socket;
@@ -1225,6 +1359,13 @@ namespace Project.Infrastructure.Characters
 
             var rightShoulder = new Vector3(ShoulderX, 0f, 0f);
             var leftShoulder = new Vector3(-ShoulderX, 0f, 0f);
+
+            // Uzun silahlarda el kundağı omuzdan erişilemeyecek kadar öndeyse eli namlu ekseni boyunca geri çek.
+            var minZ = socket.z + 0.06f;
+            for (var i = 0; i < 48 && leftWrist.z > minZ && (leftWrist - leftShoulder).sqrMagnitude > MaxArmReach * MaxArmReach; i++)
+                leftWrist.z -= 0.01f;
+            for (var i = 0; i < 48 && rightWrist.z > 0f && (rightWrist - rightShoulder).sqrMagnitude > MaxArmReach * MaxArmReach; i++)
+                rightWrist.z -= 0.01f;
             SolveTwoBone(rightShoulder, rightWrist, rightShoulder + new Vector3(0.3f, -0.4f, -0.2f), UpperArmLength, ForearmLength, -1f,
                 out _ikRightShoulder, out _ikRightElbow);
             SolveTwoBone(leftShoulder, leftWrist, leftShoulder + new Vector3(-0.3f, -0.45f, -0.05f), UpperArmLength, ForearmLength, -1f,
@@ -1479,6 +1620,19 @@ namespace Project.Infrastructure.Characters
             if (dt > 0.1f)
                 dt = 0.1f;
 
+            // Yere yatmış ceset: poz sabittir, güncelleme gerekmez (ResetPose ile yeniden başlar).
+            if (_dead && _deathTime > DeathDuration + 0.6f)
+                return;
+
+            // Ekranda değilse (hiçbir kamera, gölge dahil, çizmiyorsa) ~10 Hz güncelle; ölüm düşüşü her zaman akıcıdır.
+            _pendingDt += dt;
+            if (ThrottleWhenOffscreen && !_dead && _visibilityProbe != null && !_visibilityProbe.isVisible &&
+                _pendingDt < OffscreenUpdateInterval)
+                return;
+
+            dt = Mathf.Min(_pendingDt, 0.1f);
+            _pendingDt = 0f;
+
             _pollTimer -= dt;
             if (_pollTimer <= 0f)
             {
@@ -1492,6 +1646,9 @@ namespace Project.Infrastructure.Characters
 
                 RepairHitboxLayers();
             }
+
+            if (_owner != null)
+                SyncWeaponFromOwner();
 
             ApplyPose(dt);
         }

@@ -309,9 +309,10 @@ namespace Project.Infrastructure.World
                     continue;
 
                 var profile = d <= inner ? bed : bed + (d - inner) * RiverBankSlope;
-                var h = TerrainNoise.SmoothMin(Heights[i], profile, 1.2f);
-                // Kanal dışındaki kıyı su seviyesinin altına inmesin (su şeridi havada kalmasın).
-                h = Mathf.Max(h, Mathf.Min(profile, w + 1.5f));
+                var original = Heights[i];
+                var h = TerrainNoise.SmoothMin(original, profile, 1.2f);
+                // Kanal dışındaki kıyı su seviyesinin altına inmesin (su şeridi havada kalmasın); zaten alçak hücreler korunur.
+                h = Mathf.Max(h, Mathf.Min(Mathf.Min(profile, w + 1.5f), original));
                 Heights[i] = h;
             }
         }
@@ -330,17 +331,33 @@ namespace Project.Infrastructure.World
                 var inner = lake.Radius * 0.5f;
                 var k = (Mathf.Max(0.2f, lake.Depth) + 2f) / Mathf.Max(1f, lake.Radius - inner);
                 var reach = lake.Radius + 40f;
-                ForEachInRect(lake.Center.x - reach, lake.Center.y - reach, lake.Center.x + reach, lake.Center.y + reach, (i, x, z) =>
+                var lakeIndex = l;
+                var rect = reach * MaxLakeShoreScale;
+                ForEachInRect(lake.Center.x - rect, lake.Center.y - rect, lake.Center.x + rect, lake.Center.y + rect, (i, x, z) =>
                 {
-                    var d = Vector2.Distance(new Vector2(x, z), lake.Center);
+                    // Doğal kıyı: yarıçap açıya göre ±%15 dalgalanır.
+                    var d = Vector2.Distance(new Vector2(x, z), lake.Center) / LakeShoreScale(lakeIndex, x - lake.Center.x, z - lake.Center.y);
                     if (d > reach)
                         return;
                     var profile = d <= inner ? bed : bed + (d - inner) * k;
-                    var h = TerrainNoise.SmoothMin(Heights[i], profile, 1.5f);
-                    h = Mathf.Max(h, Mathf.Min(profile, w + 1.2f));
+                    var original = Heights[i];
+                    var h = TerrainNoise.SmoothMin(original, profile, 1.5f);
+                    // Kıyı su seviyesinin altına inmesin — ama zaten daha alçak olan hücreleri (dere yatağı) yükseltme.
+                    h = Mathf.Max(h, Mathf.Min(Mathf.Min(profile, w + 1.2f), original));
                     Heights[i] = h;
                 });
             }
+        }
+
+        /// <summary>Göletin en büyük kıyı ölçeği (yarıçap çarpanı) — su yüzeyi bu kadar geniş tutulmalı.</summary>
+        public const float MaxLakeShoreScale = 1.15f;
+
+        /// <summary>Gölet kıyı yarıçap çarpanı (0.85..1.15), merkeze göre yön (dx, dz) için.</summary>
+        public float LakeShoreScale(int lakeIndex, float dx, float dz)
+        {
+            var angle = Mathf.Atan2(dz, dx);
+            var n = _noise.Perlin(Mathf.Cos(angle) * 1.4f + lakeIndex * 7.3f + 50f, Mathf.Sin(angle) * 1.4f - lakeIndex * 3.1f + 50f);
+            return Mathf.Clamp(1f + 0.16f * n, 2f - MaxLakeShoreScale, MaxLakeShoreScale);
         }
 
         // ================================================================== Temel yükseklik
@@ -777,6 +794,8 @@ namespace Project.Infrastructure.World
 
         private void FinalizeHeights()
         {
+            KeepRelayHillHighest();
+
             var max = 0f;
             var top = Layout.MaxHeight - 1f;
             for (var i = 0; i < Heights.Length; i++)
@@ -788,6 +807,53 @@ namespace Project.Infrastructure.World
             }
 
             MaxTerrainHeight = max;
+        }
+
+        /// <summary>
+        /// Röle Tepesi haritanın en yüksek noktası kalsın: tepe çevresi dışında, tepe düzlüğünün 3 m altını aşan sırtlar yumuşakça
+        /// bastırılır (tanh dizi; kar çizgisi ve sırt silueti korunur).
+        /// </summary>
+        private void KeepRelayHillHighest()
+        {
+            LocationSpec relay = null;
+            for (var i = 0; i < Layout.Locations.Count; i++)
+            {
+                if (Layout.Locations[i] != null && Layout.Locations[i].Kind == LocationKind.RelayHill)
+                {
+                    relay = Layout.Locations[i];
+                    break;
+                }
+            }
+
+            if (relay == null || relay.TargetHeight <= 0f)
+                return;
+
+            const float band = 8f;
+            var limit = relay.TargetHeight - 3f;
+            var knee = limit - band;
+            var protect = Mathf.Max(relay.Radius, relay.FlattenRadius) * 1.5f;
+            var inner = protect * 0.6f;
+            var res = Resolution;
+            for (var iz = 0; iz < res; iz++)
+            {
+                var dz = WorldZ(iz) - relay.Center.y;
+                for (var ix = 0; ix < res; ix++)
+                {
+                    var i = iz * res + ix;
+                    var h = Heights[i];
+                    if (h <= knee)
+                        continue;
+
+                    var dx = WorldX(ix) - relay.Center.x;
+                    var d = Mathf.Sqrt(dx * dx + dz * dz);
+                    var t = TerrainNoise.SmoothStep(inner, protect, d);
+                    if (t <= 0f)
+                        continue;
+
+                    var compressed = knee + band * Tanh((h - knee) / band);
+                    Heights[i] = Mathf.Lerp(h, compressed, t);
+                }
+            }
         }
 
         private delegate void CellAction(int index, float x, float z);

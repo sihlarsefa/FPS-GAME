@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12. İlerleme Sistemi · HAREKÂT Kılavuz</title>
+<meta name="description" content="12. İlerleme Sistemi">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">12. İlerleme Sistemi</span></li></ol></nav>
+<h1>12. İlerleme Sistemi</h1><div class="prose"><h2>12. İlerleme Sistemi</h2>
+<p>Kaynak: <code>CareerStatsService</code> / <code>SettingsService</code> XP sabitleri, <code>RankCatalog</code>.</p>
+<h3>12.1 Maç sonu XP</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Kaynak</th><th scope="col">XP</th></tr></thead><tbody><tr><td>Öldürme</td><td>100</td></tr><tr><td>Kafa isabeti (bonus)</td><td>+25</td></tr><tr><td>Geçilen rakip tim</td><td>150 × (TeamCount − placement)</td></tr><tr><td>Zafer</td><td>1000</td></tr></tbody></table></div>
+<p>Örnek: 4 timlik maçta 2. sıra, 5 kill, 1 HS →   <code>5×100 + 25 + 150×(4−2) = 500+25+300 = 825</code> (+galibiyet yok).</p>
+<h3>12.2 Rütbe ilerlemesi</h3>
+<p>Toplam XP → <code>RankForExperience</code> (eşikler <a href="../rehber/03-rutbeler-komuta.html">03-rutbeler-komuta.md</a>).   HUD: mevcut rütbe, sonraki eşiğe ilerleme çubuğu (<code>ProgressToNextRank</code>).</p>
+<h3>12.3 Kariyer istatistikleri (hedef)</h3>
+<ul>
+<li>Maç / galibiyet / top 2  </li>
+<li>Kill, death, HS oranı  </li>
+<li>En çok kullanılan silah  </li>
+<li>Topçu çağrıları / isabetli destek (gelecek metrik)  </li>
+<li>Favori rol</li>
+</ul>
+<h3>12.4 Sezon (gelecek)</h3>
+<ul>
+<li>Sezonluk nişan / kamuflaj (kozmetik)  </li>
+<li>Soft reset yok; rütbe kalıcı, sezon rozeti eklenir  </li>
+</ul>
+<h3>12.5 Eğitim ödülü</h3>
+<p>Poligon görevleri küçük XP verir (spam önleme: günlük tavan) — <a href="../rehber/21-ilk-10-dk-tutorial.html">21-ilk-10-dk-tutorial.md</a>.</p></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

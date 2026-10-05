@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Takip emri</title>
+  <circle cx="32" cy="20" r="8" fill="#3D9BFF"/>
+  <path d="M20 52c0-8 5-14 12-14s12 6 12 14" stroke="#3D9BFF" stroke-width="3" fill="none"/>
+  <path d="M44 28l10 6-10 6" fill="#F2A900"/>
+</svg>

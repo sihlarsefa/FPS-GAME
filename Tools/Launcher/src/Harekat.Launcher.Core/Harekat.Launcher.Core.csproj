@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Platformdan bağımsız launcher mantığı: API istemcisi, sürüm karşılaştırma,
+    yama indirme + SHA-256 doğrulama, güvenli kurulum/geri alma, oyun başlatma argümanları.
+    WinForms kabuğu (Harekat.Launcher) ve testler buna referans verir.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Harekat.Launcher.Core</RootNamespace>
+    <AssemblyName>Harekat.Launcher.Core</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Harekat.Launcher.Tests" />
+  </ItemGroup>
+
+</Project>

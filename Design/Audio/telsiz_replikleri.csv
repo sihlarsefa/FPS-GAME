@@ -1,0 +1,226 @@
+anahtar,durum,konusan_rol,metin_tr,metin_en,ton,sure_sn
+contact_front,temas,Rifleman,Temas! Önümüzde!,Contact! Front!,acil,1.2
+contact_rear,temas,Rifleman,Temas! Arkadan!,Contact! Rear!,acil,1.2
+contact_left,temas,Rifleman,Temas! Sol kanat!,Contact! Left flank!,acil,1.3
+contact_right,temas,Rifleman,Temas! Sağ kanat!,Contact! Right flank!,acil,1.3
+contact_clock2_200,temas,Marksman,"Temas! Saat iki yönü, iki yüz metre!","Contact! Two o'clock, two hundred meters!",gergin,2.4
+contact_clock10_150,temas,Marksman,"Temas! Saat on, yüz elli metre!","Contact! Ten o'clock, one-fifty!",gergin,2.2
+contact_clock12_300,temas,Marksman,"Temas! Saat on iki, üç yüz metre, tek nişancı!","Contact! Twelve o'clock, three hundred, single shooter!",gergin,2.8
+contact_clock4_80,temas,Rifleman,"Temas! Saat dört, seksen metre, yakın!","Contact! Four o'clock, eighty meters, close!",acil,2.3
+contact_clock8_120,temas,MachineGunner,"Temas! Saat sekiz, yüz yirmi!","Contact! Eight o'clock, one-twenty!",gergin,2.0
+contact_building,temas,Grenadier,Temas! Bina içinde hareket!,Contact! Movement inside the building!,gergin,2.0
+contact_rooftop,temas,Marksman,Temas! Çatıda silüet!,Contact! Silhouette on the rooftop!,gergin,1.8
+contact_vehicle,temas,Radioman,Temas! Araç sesi yaklaşıyor!,Contact! Vehicle noise inbound!,gergin,2.0
+contact_multiple,temas,Leader,"Temas! Çoklu hedef, yayılın!","Contact! Multiple targets, spread out!",komuta,2.2
+contact_suppressed,temas,Rifleman,Bastırılıyoruz! Kafamı kaldıramıyorum!,We're suppressed! Can't lift my head!,acil,2.4
+contact_lost,temas,Marksman,"Hedef kayboldu, tarıyorum.","Target lost, scanning.",sakin,1.8
+contact_confirmed_kill,temas,Marksman,"Hedef düştü, teyit.","Target down, confirmed.",sakin,1.6
+contact_near_tree,temas,Rifleman,Temas! Ağaç hattında!,Contact! Along the tree line!,gergin,1.6
+contact_ridge,temas,Marksman,Temas! Sırtta iki kişi!,Contact! Two on the ridge!,gergin,1.8
+contact_bridge,temas,MachineGunner,Temas! Köprü başında!,Contact! At the bridgehead!,acil,1.5
+contact_quarry,temas,Rifleman,Temas! Taş ocağı yönü!,Contact! Toward the quarry!,gergin,1.7
+reload_mag,sarjor,Rifleman,Şarjör!,Reloading!,gergin,0.8
+reload_mag_cover,sarjor,Rifleman,Şarjör! Örtü altında!,Reloading! Under cover!,gergin,1.5
+reload_last_mag,sarjor,Rifleman,Son şarjör!,Last mag!,acil,1.0
+reload_empty,sarjor,MachineGunner,"Mermi bitti, dolduruyorum!","I'm dry, reloading!",acil,1.8
+reload_mg_belt,sarjor,MachineGunner,Kemer! Kısa ara!,Belt change! Brief pause!,gergin,1.6
+reload_sniper,sarjor,Marksman,"Dolduruyorum, gözünüz üzerimde olsun.","Reloading, keep eyes on.",sakin,2.2
+reload_pistol,sarjor,Leader,Tabanca şarjörü!,Pistol mag!,gergin,1.0
+reload_need_ammo,sarjor,Rifleman,"Mermi lazım, kimde var?","Need ammo, who has some?",gergin,1.8
+reload_ammo_here,sarjor,Medic,"Burada mermi, al!","Ammo here, take it!",sakin,1.4
+reload_done,sarjor,Rifleman,"Doldum, hazır!","Back up, ready!",sakin,1.2
+reload_cover_me,sarjor,Grenadier,"Örtün beni, şarjör!","Cover me, reloading!",gergin,1.5
+reload_smoke_first,sarjor,Medic,"Sis atıyorum, sonra doldur!","Smoke out, then reload!",komuta,2.0
+wound_hit,yaralanma,Rifleman,Vuruldum!,I'm hit!,acil,0.9
+wound_hit_arm,yaralanma,Rifleman,Koluma yedim!,Hit in the arm!,acil,1.1
+wound_hit_leg,yaralanma,Rifleman,Bacağım! Yürüyemiyorum!,Leg! Can't walk!,acil,1.6
+wound_bleeding,yaralanma,Rifleman,"Kanıyorum, sargı lazım!","Bleeding, need a bandage!",acil,1.8
+wound_armor_broke,yaralanma,MachineGunner,Zırh gitti!,Armor's gone!,gergin,1.0
+wound_helmet,yaralanma,Leader,"Kaska isabet, sersemledim!","Helmet hit, dizzy!",gergin,1.8
+wound_down_but_up,yaralanma,Rifleman,Yere düştüm ama ayağa kalkıyorum!,Went down but I'm up!,acil,2.0
+wound_critical,yaralanma,Rifleman,Kritik! Dayanamıyorum!,Critical! Fading!,acil,1.6
+wound_still_fighting,yaralanma,Grenadier,Vuruldum ama ateş ediyorum!,Hit but still shooting!,gergin,1.8
+wound_need_cover,yaralanma,Marksman,"Vuruldum, örtüye çekiliyorum!","Hit, moving to cover!",acil,1.9
+medic_call,sihhiye,Rifleman,Sıhhiye! Sıhhiye buraya!,Medic! Medic here!,acil,1.6
+medic_call_urgent,sihhiye,Leader,"Sıhhiyeci, komutanım yaralı — hayır, ben yaralıyım!","Medic, I'm hit!",acil,2.2
+medic_coming,sihhiye,Medic,Geliyorum! Sis atın!,Coming! Throw smoke!,komuta,1.6
+medic_hold,sihhiye,Medic,"Dayan, sarıyorum!","Hold on, bandaging!",sakin,1.5
+medic_kit,sihhiye,Medic,İlk yardım uyguluyorum!,Applying first aid!,sakin,1.6
+medic_clear,sihhiye,Medic,"Temiz, ayağa kalkabilirsin.","Clear, you can stand.",sakin,1.8
+medic_out_of_supplies,sihhiye,Medic,Tıbbi stok azaldı!,Medical supplies low!,gergin,1.5
+medic_drag,sihhiye,Medic,"Sürükleyeceğim, örtün!","I'll drag him, cover us!",acil,1.8
+medic_zone,sihhiye,Medic,"Zone geliyor, hızlı sar!","Zone incoming, patch fast!",acil,1.9
+medic_self,sihhiye,Rifleman,Kendimi sarıyorum!,Bandaging myself!,gergin,1.3
+medic_boost,sihhiye,Medic,"Ağrı kesici, al bunu!","Painkiller, take this!",sakin,1.5
+medic_priority,sihhiye,Leader,Sıhhiye öncelik telsizciye!,Medic priority on the radioman!,komuta,2.0
+order_follow_ack_rifle,emir_onay,Rifleman,"Anlaşıldı komutanım, takipteyiz!","Copy, sir, we're following!",onay,2.0
+order_follow_ack_mg,emir_onay,MachineGunner,Takipteyiz çavuşum!,"Following, sergeant!",onay,1.5
+order_follow_ack_mark,emir_onay,Marksman,"Takipteyim, mesafe koruyorum.","Following, holding distance.",sakin,1.9
+order_follow_ack_med,emir_onay,Medic,"Anlaşıldı, arkadan geliyorum.","Copy, coming from the rear.",onay,1.8
+order_hold_ack_rifle,emir_onay,Rifleman,Mevzi alındı komutanım!,"Holding position, sir!",onay,1.6
+order_hold_ack_mg,emir_onay,MachineGunner,"Mevzideyim, sektörü tarıyorum.","In position, scanning sector.",sakin,2.0
+order_hold_ack_gren,emir_onay,Grenadier,"Bekliyorum, hazırım.","Holding, ready.",onay,1.4
+order_hold_ack_radio,emir_onay,Radioman,"Mevzi tamam, telsiz açık.","Hold set, radio up.",onay,1.7
+order_attack_ack_rifle,emir_onay,Rifleman,Taarruz! İleri!,Attack! Moving up!,acil,1.3
+order_attack_ack_mg,emir_onay,MachineGunner,Baskı ateşi açıyorum!,Laying down fire!,acil,1.5
+order_attack_ack_gren,emir_onay,Grenadier,"Bomba hazır, giriyorum!","Frag ready, going in!",acil,1.6
+order_attack_ack_mark,emir_onay,Marksman,"Hedefi kilitledim, destekliyorum.","Target locked, supporting.",gergin,2.0
+order_regroup_ack_rifle,emir_onay,Rifleman,Toplanıyoruz komutanım!,"Regrouping, sir!",onay,1.5
+order_regroup_ack_med,emir_onay,Medic,Toplanma noktasına geliyorum!,Moving to rally!,onay,1.6
+order_regroup_ack_mg,emir_onay,MachineGunner,"Anlaşıldı, birleşiyoruz.","Copy, linking up.",onay,1.5
+order_follow_leader,emir_onay,Leader,"Tim, beni takip et!","Squad, on me!",komuta,1.4
+order_hold_leader,emir_onay,Leader,"Mevzi al, bekle!","Hold position, wait!",komuta,1.4
+order_attack_leader,emir_onay,Leader,İşaretli noktaya taarruz!,Assault the marked point!,komuta,1.7
+order_regroup_leader,emir_onay,Leader,Toplan! Benim yanıma!,Regroup! On me!,komuta,1.4
+order_wilco_short,emir_onay,Rifleman,Anlaşıldı!,Wilco!,onay,0.8
+order_wilco_sir,emir_onay,Rifleman,Emredersiniz komutanım!,Yes sir!,onay,1.2
+order_neg_busy,emir_onay,Marksman,"Şu an nişan alıyorum, saniye!","Engaging, one second!",gergin,1.8
+cmd_takeover,komuta_devri,Rifleman,"Komuta bende! Tim, beni takip et!","I have command! Squad, on me!",komuta,2.2
+cmd_takeover_mg,komuta_devri,MachineGunner,Komuta bende! Mevzi alın!,I have command! Hold positions!,komuta,2.0
+cmd_takeover_mark,komuta_devri,Marksman,"Komuta bende. Sakin, dinleyin.","I have command. Stay calm, listen.",komuta,2.2
+cmd_leader_down,komuta_devri,Medic,Komutan düştü! Komuta devri!,Leader down! Command transfer!,acil,1.8
+cmd_ack_new,komuta_devri,Grenadier,"Anlaşıldı, yeni komutanı takip!","Copy, following new lead!",onay,1.8
+cmd_radio_priority,komuta_devri,Radioman,"Telsiz hazır, emir bekliyorum.","Radio ready, awaiting orders.",sakin,1.9
+cmd_stabilize,komuta_devri,Leader,Komuta sabit. Rapor verin!,Command stable. Report!,komuta,1.6
+cmd_senior_rank,komuta_devri,Leader,Rütbemle komutayı alıyorum.,Taking command by seniority.,komuta,1.8
+arty_request,topcu,Radioman,Topçu! Hedef koordinatı gönderiyorum!,Artillery! Sending target grid!,komuta,2.2
+arty_ready,topcu,Radioman,"Atış için hazır, hedef koordinatı alındı.","Ready to fire, target grid received.",komuta,2.4
+arty_confirm,topcu,Leader,"Topçu onayı verildi, ateş!","Artillery approved, fire!",komuta,1.8
+arty_danger_close,topcu,Radioman,Dikkat! Yakın destek ateşi!,Warning! Danger-close fire!,acil,1.8
+arty_inbound,topcu,Radioman,"Mermi yolda, örtüye!","Rounds inbound, take cover!",acil,1.7
+arty_splash,topcu,Marksman,İsabet! Hedef bölgesi duman!,Splash! Target area smoking!,gergin,1.9
+arty_adjust,topcu,Radioman,Düzeltme: yüz metre kuzey!,Adjust: one hundred north!,komuta,1.8
+arty_denied_zone,topcu,Radioman,Topçu yok — zone/uygun değil!,No artillery — zone/unavailable!,gergin,2.0
+arty_out,topcu,Radioman,Topçu hakkı bitti!,Artillery allotment spent!,gergin,1.4
+arty_mark,topcu,Leader,"Telsizci, şu noktayı işaretle!","Radioman, mark that point!",komuta,1.8
+arty_clear,topcu,Medic,"Sıhhiye alanı temiz, ateş serbest!","Aid area clear, fire free!",komuta,2.0
+arty_abort,topcu,Leader,İptal! Dost kuvvet yakın!,Abort! Friendlies close!,acil,1.6
+zone_warning,alan_daralma,Leader,Harekât alanı daralıyor! Hareket!,AO shrinking! Move!,acil,2.0
+zone_warning_far,alan_daralma,Radioman,"Zone geliyor, iki dakika!","Zone incoming, two minutes!",gergin,1.8
+zone_edge,alan_daralma,Rifleman,"Kenardayım, yanıyorum!","On the edge, taking damage!",acil,1.6
+zone_inside_safe,alan_daralma,Marksman,"Güvenli alanda, tarıyorum.","Inside safe, scanning.",sakin,1.7
+zone_cut_off,alan_daralma,MachineGunner,"Tim bölündü, zone arada!","Squad split, zone between us!",acil,2.0
+zone_vehicle_rush,alan_daralma,Leader,"Kirpi'ye bin, zone kaçıracak!","Mount Kirpi, beat the zone!",komuta,2.0
+zone_final,alan_daralma,Leader,Son çember! Sıkı tutunun!,Final circle! Hold tight!,komuta,1.8
+zone_smoke_path,alan_daralma,Medic,"Sis koridoru açıyorum, geçin!","Smoke corridor, move through!",komuta,2.0
+heli_inbound,intikal,Radioman,"Helikopter yaklaşıyor, iniş sahası temizleyin!","Helicopter inbound, clear LZ!",komuta,2.4
+heli_touchdown,intikal,Leader,"İndik! Dağılın, örtü alın!","Touchdown! Spread, take cover!",komuta,2.0
+heli_hot_lz,intikal,Rifleman,Sıcak iniş! Temas var!,Hot LZ! Contact!,acil,1.6
+heli_board,intikal,Leader,Bin! Kapı kapanıyor!,Board! Door closing!,acil,1.4
+heli_exfil,intikal,Radioman,Tahliye helikopteri yolda!,Exfil bird inbound!,gergin,1.6
+kirpi_mount,intikal,Leader,"Kirpi'ye binin, emniyet kemeri!","Mount Kirpi, seat belts!",komuta,1.8
+kirpi_moving,intikal,Rifleman,Araç hareket ediyor!,Vehicle moving!,sakin,1.2
+kirpi_stop,intikal,Leader,Dur! İnme emri bekleyin!,Stop! Wait for dismount!,komuta,1.7
+kirpi_dismount,intikal,Leader,İnin! Saat üç yönüne dağılın!,Dismount! Spread three o'clock!,komuta,2.0
+kirpi_under_fire,intikal,MachineGunner,Araç ateş altında! Hızlan!,Vehicle under fire! Gun it!,acil,1.8
+kirpi_blocked,intikal,Rifleman,"Yol kapalı, alternatif rota!","Road blocked, alternate route!",gergin,1.8
+kirpi_arrive_fob,intikal,Radioman,İleri üsse vardık.,Arrived at the FOB.,sakin,1.4
+transport_ready,intikal,Leader,"İntikal hazır, tim kontrol!","Transport ready, squad check!",komuta,1.8
+transport_go,intikal,Leader,Gidiyoruz!,We're moving!,komuta,0.9
+enemy_down,sonuc,Marksman,Düşman elendi!,Enemy eliminated!,sakin,1.2
+enemy_down_multi,sonuc,MachineGunner,İki düşman düştü!,Two enemies down!,gergin,1.4
+enemy_squad_weak,sonuc,Leader,"Karşı tim zayıfladı, baskı!","Enemy squad weakened, press!",komuta,2.0
+friendly_down,sonuc,Medic,Dost düştü! İşaretliyorum!,Friendly down! Marking!,acil,1.7
+squad_wiped_enemy,sonuc,Radioman,Karşı tim elendi!,Enemy squad wiped!,gergin,1.4
+squad_wiped_us,sonuc,Leader,Tim elendi… bir sonraki harekât.,Squad wiped… next op.,agir,2.2
+last_standing,sonuc,Rifleman,Timden son kalan benim!,Last one standing from the squad!,gergin,1.8
+victory,sonuc,Leader,Zafer! Tim ayakta!,Victory! Squad still standing!,zafer,1.8
+victory_radio,sonuc,Radioman,"Harekât tamam, üsse rapor!","Op complete, report to base!",zafer,1.9
+victory_medic,sonuc,Medic,"Yaşayanlar var, zafer bizim!","Survivors secure, victory ours!",zafer,2.0
+ace_call,sonuc,Marksman,Temizledim sektörü.,Sector cleared.,sakin,1.3
+threat_cleared,sonuc,Grenadier,Tehdit temiz!,Threat clear!,sakin,1.0
+addr_sir_report,hitap,Rifleman,"Komutanım, sektör temiz.","Sir, sector clear.",sakin,1.5
+addr_sir_request,hitap,Medic,"Komutanım, tıbbi durum kritik.","Sir, medical status critical.",gergin,1.9
+addr_sgt_ack,hitap,Rifleman,"Çavuşum, anlaşıldı!","Sergeant, copy!",onay,1.2
+addr_sgt_ammo,hitap,Rifleman,"Çavuşum, mermi paylaşır mısınız?","Sergeant, spare ammo?",sakin,1.8
+addr_lt_call,hitap,Radioman,"Teğmenim, topçu hattı açık.","Lieutenant, arty net is up.",sakin,1.9
+addr_captain,hitap,Leader,Yüzbaşım — tatbikat komuta net.,Captain — exercise command clear.,sakin,2.0
+addr_respect_down,hitap,Medic,"Komutanım düştü, saygıyla… komuta devam.",Sir is down… command continues.,agir,2.4
+addr_informal_team,hitap,Grenadier,"Tim, bomba atıyorum, geri!","Squad, frag out, back!",acil,1.7
+tac_flank_left,taktik,Leader,Sol kanattan dönün!,Flank left!,komuta,1.2
+tac_flank_right,taktik,Leader,Sağdan çevirin!,Flank right!,komuta,1.2
+tac_grenade_out,taktik,Grenadier,Bomba gidiyor!,Frag out!,acil,1.0
+tac_smoke_out,taktik,Medic,Sis atıldı!,Smoke out!,gergin,1.0
+tac_flash_clear,taktik,Grenadier,Oda temizleniyor!,Clearing room!,acil,1.2
+tac_hold_fire,taktik,Leader,Ateş kes! Dost geçiyor!,Cease fire! Friendly crossing!,acil,1.8
+tac_weapons_free,taktik,Leader,Ateş serbest!,Weapons free!,komuta,1.0
+tac_silent,taktik,Marksman,Sessiz ilerleyin.,Move quiet.,sakin,1.2
+tac_sprint,taktik,Leader,Koş! Açık alandasınız!,Sprint! You're in the open!,acil,1.6
+tac_prone,taktik,Marksman,"Yüzüstü, silüet kırma!","Go prone, break silhouette!",komuta,1.7
+tac_crouch,taktik,Rifleman,"Eğil, pencere altı!","Crouch, under the window!",gergin,1.5
+tac_watch_roof,taktik,Marksman,Çatıları izleyin!,Watch the roofs!,gergin,1.3
+tac_loot_fast,taktik,Rifleman,"Hızlı yağma, oturmayın!","Loot fast, don't linger!",gergin,1.6
+tac_share_armor,taktik,Leader,"Zırh paylaşın, zayıf halka olmasın!","Share armor, no weak links!",komuta,2.2
+tac_ping_enemy,taktik,Radioman,Haritada işaretledim!,Marked on the map!,sakin,1.3
+tac_need_eyes,taktik,Leader,"Keskin, gözün lazım!","Marksman, need your eyes!",komuta,1.5
+tac_suppress,taktik,MachineGunner,"Bastırıyorum, geçin!","Suppressing, push through!",acil,1.5
+tac_breach,taktik,Grenadier,Kapıyı kırıyorum!,Breaching!,acil,1.1
+tac_stairwell,taktik,Rifleman,Merdiven boşluğu tehdit!,Stairwell threat!,gergin,1.4
+tac_basement,taktik,Grenadier,Bodrumda ses var!,Noise in the basement!,gergin,1.4
+tac_water,taktik,Rifleman,"Dereye iniyorum, ses maskeler.","Entering the creek, sound masks.",sakin,2.0
+tac_night_light,taktik,Leader,"Feneri kapatın, ifşa!","Lights off, you're lit up!",acil,1.7
+tac_nvg,taktik,Marksman,"Gece görüşü açık, yavaş.","NVG on, slow.",sakin,1.5
+tac_check_corner,taktik,Rifleman,Köşe temiz.,Corner clear.,sakin,1.0
+tac_reloading_enemy,taktik,Marksman,"Düşman şarjör değiştiriyor, şimdi!","Enemy reloading, now!",acil,2.0
+tac_sniper_threat,taktik,Medic,"Keskin tehdidi var, koşmayın!","Sniper threat, don't run!",acil,1.9
+tac_mg_nest,taktik,MachineGunner,"Yuva kurdum, sektör kilit.","Nest set, sector locked.",sakin,1.8
+tac_rally_tree,taktik,Leader,Toplanma: büyük çam!,Rally: big pine!,komuta,1.4
+tac_rally_bridge,taktik,Leader,Toplanma: köprü güneyi!,Rally: south of bridge!,komuta,1.6
+tac_rally_quarry,taktik,Leader,Toplanma: ocak girişi!,Rally: quarry entrance!,komuta,1.5
+tac_push_fob,taktik,Leader,İleri üsse baskı!,Pressure the FOB!,komuta,1.3
+tac_hold_dam,taktik,Leader,Barajı tutun!,Hold the dam!,komuta,1.2
+tac_village_cqb,taktik,Grenadier,"Köy CQB, bomba hazır!","Village CQB, frags ready!",gergin,1.7
+tac_coast_waves,taktik,Radioman,"Sahilde dalga maskeliyor, dikkat ayak!",Waves mask sound on beach — watch footfalls!,sakin,2.4
+tac_snow_track,taktik,Marksman,"Kar izi bırakıyoruz, rota değiştir.","Leaving snow tracks, change route.",sakin,2.2
+tac_wind_loud,taktik,Leader,"Rüzgâr yüksek, ses gider — yine de fısıltı!","Wind is loud, sound carries — still whisper!",komuta,2.4
+tac_generator_mask,taktik,Rifleman,"Jeneratör örtüyor, yaklaş!","Generator masks us, close in!",gergin,1.9
+tac_boat_noise,taktik,Radioman,Limanda gövde sesi — dost mu?,Hull noise at harbor — friendly?,gergin,2.0
+tac_olive_grove,taktik,Marksman,"Zeytinlikte hareket, yavaş.","Movement in the olive grove, slow.",sakin,1.9
+tac_radar_hum,taktik,Radioman,"Radar uğultusu, iç mekân LP.","Radar hum, indoor low-pass.",sakin,1.8
+status_good,genel,Rifleman,Durumum iyi.,I'm good.,sakin,0.9
+status_low_hp,genel,Rifleman,Canım düşük!,HP low!,acil,1.0
+status_low_armor,genel,Rifleman,Zırhım zayıf.,Armor weak.,gergin,1.1
+status_ready,genel,MachineGunner,Hazırım.,Ready.,sakin,0.7
+status_waiting,genel,Marksman,Emir bekliyorum.,Awaiting orders.,sakin,1.1
+loot_weapon,genel,Rifleman,İyi silah buldum!,Found a solid weapon!,sakin,1.3
+loot_meds,genel,Medic,Tıbbi yağma burada!,Med loot here!,sakin,1.3
+loot_radio_kit,genel,Radioman,Telsiz takviyesi aldım.,Grabbed radio kit.,sakin,1.4
+loot_share,genel,Leader,"Fazlayı bırakın, tim güçlensin!","Drop extras, strengthen the squad!",komuta,2.0
+ping_go,genel,Leader,İşaretime gelin!,Come to my ping!,komuta,1.2
+ping_danger,genel,Marksman,"Tehlikeli bölge, işaretli!",Danger zone marked!,gergin,1.4
+ping_loot,genel,Rifleman,Yağma noktası!,Loot point!,sakin,1.0
+ack_roger,genel,Rifleman,Anlaşıldı.,Roger.,onay,0.7
+ack_negative,genel,Radioman,"Olumsuz, hat meşgul.","Negative, net busy.",gergin,1.4
+ack_standby,genel,Leader,Beklemede kalın.,Stand by.,komuta,1.0
+ack_moving,genel,Rifleman,Hareket ediyorum.,Moving.,sakin,0.9
+ack_stopping,genel,Rifleman,Duruyorum.,Stopping.,sakin,0.8
+spot_dog,genel,Rifleman,"Köpek havladı, ifşa riski!","Dog barked, compromise risk!",gergin,1.7
+spot_footsteps,genel,Marksman,"Ayak sesi, yakın!","Footsteps, close!",acil,1.3
+spot_reload_sound,genel,Marksman,Şarjör sesi duydum!,Heard a mag change!,gergin,1.4
+spot_rotor,genel,Radioman,"Rotor sesi, gökyüzünü tarayın!","Rotor noise, scan sky!",gergin,1.8
+spot_engine,genel,Rifleman,"Motor sesi, yol hattı!","Engine noise, road line!",gergin,1.6
+cheer_push,genel,Leader,"İyi iş, baskıyı sürdür!","Good work, keep pressure!",zafer,1.6
+cheer_save,genel,Medic,"Kurtardım seni, ayağa!","Saved you, get up!",sakin,1.5
+warn_friendly_fire,genel,Leader,Dost ateşi! Kontrol!,Friendly fire! Check fire!,acil,1.5
+warn_mine_concept,genel,Grenadier,"Tuzak ihtimali, yavaş!","Possible trap, slow!",gergin,1.5
+count_alive,genel,Radioman,Tim: kaç kişi ayakta?,Squad: how many up?,sakin,1.5
+count_reply,genel,Rifleman,Ben ayaktayım!,I'm up!,sakin,0.9
+count_reply_2,genel,MachineGunner,Makine burada!,MG here!,sakin,0.9
+count_reply_3,genel,Marksman,Keskin burada!,Marksman here!,sakin,1.0
+intro_op,genel,Leader,"Harekât başlıyor, disiplin!","Op starting, discipline!",komuta,1.6
+outro_good,genel,Leader,"Temiz iş, toplanın.","Clean work, form up.",sakin,1.4
+map_kuzgun_village,harita,Leader,"Kuzgun Köyü'ne giriyoruz, CQB!","Entering Kuzgun Village, CQB!",komuta,2.0
+map_kuzgun_quarry,harita,Marksman,"Taş ocağı açık, uzun hat!","Quarry is open, long lines!",gergin,1.9
+map_kuzgun_dam,harita,MachineGunner,"Baraj kontrol, su sesi yüksek!","Dam control, water loud!",sakin,1.9
+map_kuzgun_fob,harita,Radioman,İleri üs görünürde!,FOB in sight!,gergin,1.3
+map_kuzgun_relay,harita,Marksman,"Röle tepesindeyiz, rüzgâr sert!","On Relay Hill, wind hard!",sakin,2.0
+map_kuzgun_night,harita,Leader,"Gece disiplini: fısıltı, fener kapalı!","Night discipline: whisper, lights off!",komuta,2.3
+map_ayaz_ridge,harita,Marksman,"Ayaz sırtı, rüzgâr yönlü!","Ayaz ridge, directional wind!",sakin,1.9
+map_ayaz_radar,harita,Radioman,Radar üssü uğultusu var.,Radar base hum present.,sakin,1.7
+map_ayaz_snow,harita,Rifleman,"Kar ayak sesi net, yavaş!","Snow footsteps clear, slow!",gergin,1.8
+map_ayaz_pass,harita,Leader,"Geçitte yankı var, ateş kısa!","Echo in the pass, keep bursts short!",komuta,2.2
+map_mavi_harbor,harita,Leader,"Limana giriyoruz, halat sesine aldanmayın!","Entering harbor, ignore rope noise!",komuta,2.3
+map_mavi_beach,harita,Rifleman,"Sahilde dalga, ayak yine duyulur!",Beach waves — footfalls still audible!,gergin,2.1
+map_mavi_olive,harita,Marksman,Zeytinlik örtüsü iyi.,Olive grove cover is good.,sakin,1.6
+map_mavi_lighthouse,harita,Radioman,Fener tepesi rüzgârlı!,Lighthouse top is windy!,sakin,1.5
+map_mavi_town,harita,Grenadier,Kıyı kasabası dar sokak!,"Coast town, narrow streets!",gergin,1.7

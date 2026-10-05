@@ -1,0 +1,21 @@
+{
+    "name": "Project.Online",
+    "rootNamespace": "Project.Online",
+    "references": [
+        "Project.Core",
+        "Project.Application",
+        "Project.Infrastructure",
+        "Project.Presentation",
+        "Unity.InputSystem",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

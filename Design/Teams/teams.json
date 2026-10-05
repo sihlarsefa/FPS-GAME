@@ -1,0 +1,110 @@
+{
+  "schema": "harekat.teams.v1",
+  "note": "Özgün kurgu tim kimlikleri. Resmi TSK armaları kopyalanmaz.",
+  "teams": [
+    {
+      "id": "kartal",
+      "name_tr": "Kartal Timi",
+      "name_en": "Eagle Squad",
+      "primary": "#1B3A5C",
+      "secondary": "#F2A900",
+      "accent": "#E30A17",
+      "armband": "#3D9BFF",
+      "slogan_tr": "Yüksekten bak, net vur.",
+      "slogan_en": "Look high, strike clean.",
+      "story_tr": "Kuzgun Vadisi intikallerinde gözcü ve keskin nişancı çiftleriyle tanınır. Tatbikat brifinglerinde “üst kot avantajı” diye anılır; dağ sırtında mevzi kurup timi aşağıya yönlendirir.",
+      "story_en": "Known for scout–sniper pairs on Kuzgun Valley insertions. Briefings call them the high-ground specialists; they hold ridges and guide the squad below."
+    },
+    {
+      "id": "bozkurt",
+      "name_tr": "Bozkurt Timi",
+      "name_en": "Gray Wolf Squad",
+      "primary": "#2A2E32",
+      "secondary": "#C9CFD4",
+      "accent": "#F2A900",
+      "armband": "#8A9199",
+      "slogan_tr": "İz peşinde, birlik içinde.",
+      "slogan_en": "On the trail, as one pack.",
+      "story_tr": "Gece yürüyüşü ve sessiz yaklaşmada uzmanlaşmış kurgu birimi. Mavi kuvvet senaryolarında “iz sür, temas kur, geri çekil” döngüsüyle diğer timlere yol açar.",
+      "story_en": "A fictional night-movement unit. In blue-force scenarios they run track–contact–withdraw cycles to open lanes for other squads."
+    },
+    {
+      "id": "simsek",
+      "name_tr": "Şimşek Timi",
+      "name_en": "Lightning Squad",
+      "primary": "#0D2137",
+      "secondary": "#2E8BC0",
+      "accent": "#ECEBE0",
+      "armband": "#2E8BC0",
+      "slogan_tr": "Ani vuruş, temiz çıkış.",
+      "slogan_en": "Sudden strike, clean exit.",
+      "story_tr": "Hızlı baskın ve araç üstü intikal senaryolarının favorisi. Kirpi konvoyunda öncü rolü alır; temas sonrası mevzi değişimini saniyeler içinde tamamlar.",
+      "story_en": "Favored for rapid raids and vehicle insertions. Often leads Kirpi convoys and relocates within seconds after contact."
+    },
+    {
+      "id": "yildirim",
+      "name_tr": "Yıldırım Timi",
+      "name_en": "Thunderbolt Squad",
+      "primary": "#161A11",
+      "secondary": "#F2A900",
+      "accent": "#E30A17",
+      "armband": "#F2A900",
+      "slogan_tr": "Gökten iner, zeminde kalır.",
+      "slogan_en": "Drops from the sky, holds the ground.",
+      "story_tr": "T-70 helikopter indirme tatbikatlarında isim yapmış. İniş bölgesini dakikalar içinde güvence altına alır; topçu isteğinde koordinat disiplinine önem verir.",
+      "story_en": "Famous in T-70 heli-drop drills. Secures LZs in minutes and treats artillery grid discipline as non-negotiable."
+    },
+    {
+      "id": "kilic",
+      "name_tr": "Kılıç Timi",
+      "name_en": "Sword Squad",
+      "primary": "#23291B",
+      "secondary": "#8A9199",
+      "accent": "#E30A17",
+      "armband": "#E30A17",
+      "slogan_tr": "Keskin hat, net emir.",
+      "slogan_en": "Sharp line, clear order.",
+      "story_tr": "Yakın muharebe ve yapı temizliği senaryolarında öne çıkar. Komuta zincirine sıkı bağlıdır; F1–F4 emirlerini “anlaşıldı” ile saniyede onaylar.",
+      "story_en": "Leads CQB and structure-clear scenarios. Tight chain-of-command culture; confirms F1–F4 orders instantly."
+    },
+    {
+      "id": "kaplan",
+      "name_tr": "Kaplan Timi",
+      "name_en": "Tiger Squad",
+      "primary": "#1A120C",
+      "secondary": "#D4722A",
+      "accent": "#F2A900",
+      "armband": "#D4722A",
+      "slogan_tr": "Sessiz av, güçlü baskı.",
+      "slogan_en": "Quiet hunt, heavy press.",
+      "story_tr": "Orman ve çalı örtüsünde pusu kurgu birimi. Düşman intikal yollarını keser; son dairede baskıyı artırmak için “kaplan hattı” diye anılır.",
+      "story_en": "Ambush specialists in forest cover. Cuts enemy approach routes; late-circle pressure plays are nicknamed the tiger line."
+    },
+    {
+      "id": "pars",
+      "name_tr": "Pars Timi",
+      "name_en": "Leopard Squad",
+      "primary": "#3A3428",
+      "secondary": "#C4A574",
+      "accent": "#ECEBE0",
+      "armband": "#C4A574",
+      "slogan_tr": "Dağ geçidi bizim.",
+      "slogan_en": "The mountain pass is ours.",
+      "story_tr": "Ayaz Geçidi tarzı yüksek kot ve dar boğazlarda uzman. Taş ve kar zemininde hareket ekonomisiyle bilinir; uzun menzilli temaslarda sabırlıdır.",
+      "story_en": "Specialists for high passes and narrow draws like Ayaz Gecidi. Efficient on rock and snow; patient in long-range contact."
+    },
+    {
+      "id": "atmaca",
+      "name_tr": "Atmaca Timi",
+      "name_en": "Sparrowhawk Squad",
+      "primary": "#2A3520",
+      "secondary": "#7C816E",
+      "accent": "#C3B07A",
+      "armband": "#5FC84E",
+      "slogan_tr": "Kanatta göz, yerde karar.",
+      "slogan_en": "Eye on the wing, decision on the ground.",
+      "story_tr": "Keşif–gözetleme ve telsiz rölesi senaryolarında öne çıkar. Harita işaretlerini erken açar; müttefik timlere “görüş hattı” bilgisi taşır.",
+      "story_en": "Excels at recon–overwatch and radio-relay drills. Opens map marks early and feeds line-of-sight intel to allied squads."
+    }
+  ]
+}

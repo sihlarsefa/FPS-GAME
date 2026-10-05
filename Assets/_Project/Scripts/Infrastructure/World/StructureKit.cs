@@ -67,6 +67,33 @@ namespace Project.Infrastructure.World
 
         private static Mesh _unitCube;
         private static Mesh _unitCylinder;
+        private static bool? _collidersOnly;
+
+        /// <summary>
+        /// Başsız (headless) sunucu kipi: yapılar yalnızca çarpıştırıcı + fizik malzemesiyle üretilir (MeshFilter/MeshRenderer yok).
+        /// Çarpışma geometrisi istemcidekiyle birebir aynıdır (aynı tohum → aynı yapı). Varsayılan: UNITY_SERVER derlemelerinde
+        /// (Windows/Linux Dedicated Server) ve grafik aygıtı olmayan oyuncu derlemelerinde (-batchmode -nographics) açık,
+        /// editörde kapalı. Dünya üretiminden önce elle de ayarlanabilir.
+        /// </summary>
+        public static bool CollidersOnly
+        {
+            get
+            {
+                if (!_collidersOnly.HasValue)
+                {
+#if UNITY_SERVER
+                    _collidersOnly = true;
+#elif UNITY_EDITOR
+                    _collidersOnly = false;
+#else
+                    _collidersOnly = SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
+#endif
+                }
+
+                return _collidersOnly.Value;
+            }
+            set => _collidersOnly = value;
+        }
         private static readonly PhysicsMaterial[] SurfaceMaterials = new PhysicsMaterial[8];
 
         /// <summary>1 m küp (merkezde, yüz başına 0..1 UV).</summary>
@@ -252,6 +279,9 @@ namespace Project.Infrastructure.World
             return Mathf.Max(0.3f, rise) / Mathf.Tan(angleDegrees * Mathf.Deg2Rad);
         }
 
+        /// <summary>XZ yönünün yaw açısı (derece; +Z = 0, +X = 90).</summary>
+        public static float YawOf(Vector3 direction) => Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+
         internal static Vector3 Abs(Vector3 v) => new Vector3(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
 
         private static GameObject CreateRendererObject(Transform parent, string name, Vector3 localPosition, Quaternion localRotation,
@@ -259,6 +289,8 @@ namespace Project.Infrastructure.World
         {
             var go = CreateGroup(parent, name, localPosition, localRotation);
             go.transform.localScale = scale;
+            if (CollidersOnly)
+                return go;
             var mf = go.AddComponent<MeshFilter>();
             mf.sharedMesh = mesh;
             var mr = go.AddComponent<MeshRenderer>();
@@ -282,7 +314,7 @@ namespace Project.Infrastructure.World
 
         private sealed class Bucket
         {
-            public readonly MaterialId Material;
+            public MaterialId Material;
             public readonly List<Vector3> Vertices = new List<Vector3>(256);
             public readonly List<Vector3> Normals = new List<Vector3>(256);
             public readonly List<Vector2> Uvs = new List<Vector2>(256);
@@ -294,6 +326,18 @@ namespace Project.Infrastructure.World
             public Bucket(MaterialId material)
             {
                 Material = material;
+            }
+
+            public void Reset(MaterialId material)
+            {
+                Material = material;
+                Vertices.Clear();
+                Normals.Clear();
+                Uvs.Clear();
+                Triangles.Clear();
+                Boxes.Clear();
+                Rotated.Clear();
+                Convex.Clear();
             }
         }
 
@@ -320,6 +364,7 @@ namespace Project.Infrastructure.World
         }
 
         private readonly List<Bucket> _buckets = new List<Bucket>();
+        private readonly List<Bucket> _pool = new List<Bucket>();
         private readonly Dictionary<int, Bucket> _lookup = new Dictionary<int, Bucket>();
         private Vector3 _min;
         private Vector3 _max;
@@ -352,8 +397,11 @@ namespace Project.Infrastructure.World
             }
         }
 
+        /// <summary>Tüm parçaları siler; kova listeleri yeniden kullanılmak üzere havuza alınır (tekrarlı üretimde GC yok).</summary>
         public void Clear()
         {
+            for (var i = 0; i < _buckets.Count; i++)
+                _pool.Add(_buckets[i]);
             _buckets.Clear();
             _lookup.Clear();
             _hasBounds = false;
@@ -717,6 +765,13 @@ namespace Project.Infrastructure.World
 
             RampCollider(bottom, yawDegrees, width, rise, run, material);
 
+            // Taban seviyesinin altına uzanan blok (sahanlıktan inen kollarda zemine kadar dolu gövde)
+            if (extendBelow > 0.05f)
+            {
+                var local = new Vector3(0f, -extendBelow * 0.5f, run * 0.5f);
+                ColliderBox(bottom + rot * local, new Vector3(width, extendBelow, run), rot, material);
+            }
+
             // Bloğun alt kısmını dolduran kutular (rampa yüzeyinin altında kalır)
             for (var j = 1; j <= 2; j++)
             {
@@ -735,6 +790,14 @@ namespace Project.Infrastructure.World
         /// </summary>
         public void OpenStairs(Vector3 bottom, float yawDegrees, float width, float rise, float run, MaterialId treadMaterial,
             MaterialId frameMaterial, bool railings)
+            => OpenStairs(bottom, yawDegrees, width, rise, run, treadMaterial, frameMaterial, railings, railings);
+
+        /// <summary>
+        /// Açık merdiven; korkuluk tarafları ayrı seçilir. railNegX / railPosX: merdivenin yerel -X / +X kenarı
+        /// (yerel +Z çıkış yönüdür; yaw 0'da -X batı kenarıdır).
+        /// </summary>
+        public void OpenStairs(Vector3 bottom, float yawDegrees, float width, float rise, float run, MaterialId treadMaterial,
+            MaterialId frameMaterial, bool railNegX, bool railPosX)
         {
             if (rise < 0.05f || run < 0.05f || width < 0.2f)
                 return;
@@ -766,11 +829,10 @@ namespace Project.Infrastructure.World
 
             RampCollider(bottom, yawDegrees, width, rise, run, treadMaterial, 0.12f);
 
-            if (!railings)
-                return;
-
             for (var s = -1; s <= 1; s += 2)
             {
+                if ((s < 0 && !railNegX) || (s > 0 && !railPosX))
+                    continue;
                 var x = side * s;
                 var railMid = mid + rot * new Vector3(x, 0f, 0f) + Vector3.up * 0.95f;
                 Box(railMid, new Vector3(0.05f, 0.05f, length), slopeRot, frameMaterial, StructureCollider.None);
@@ -948,9 +1010,100 @@ namespace Project.Infrastructure.World
                 Disc(bucket, center + Vector3.up * (Mathf.Sin(lat) * radius * heightScale), Quaternion.identity, Mathf.Cos(lat) * radius, segments, false);
             }
 
-            if (collider != StructureCollider.None)
+            if (collider == StructureCollider.None)
+                return;
+
+            // Konveks gövde sınırları (≤ 255 çokgen) için düşük çözünürlüklü ayrı çarpışma ağı.
+            if (segments > 12 || rings > 4)
+                bucket.Convex.Add(LowResSphereCollider(center, radius, latFrom, latTo, heightScale, Mathf.Min(segments, 12), Mathf.Min(rings, 4)));
+            else
                 AddConvexFromRange(bucket, v0, t0);
         }
+
+        private static Mesh LowResSphereCollider(Vector3 center, float radius, float latFrom, float latTo, float heightScale, int segments, int rings)
+        {
+            var cols = segments + 1;
+            var verts = new Vector3[(rings + 1) * cols];
+            for (var r = 0; r <= rings; r++)
+            {
+                var lat = Mathf.Lerp(latFrom, latTo, r / (float)rings) * Mathf.Deg2Rad;
+                var y = Mathf.Sin(lat) * radius * heightScale;
+                var rr = Mathf.Cos(lat) * radius;
+                for (var i = 0; i <= segments; i++)
+                {
+                    var a = i / (float)segments * Mathf.PI * 2f;
+                    verts[r * cols + i] = center + new Vector3(Mathf.Cos(a) * rr, y, Mathf.Sin(a) * rr);
+                }
+            }
+
+            var tris = new int[rings * segments * 6];
+            var t = 0;
+            for (var r = 0; r < rings; r++)
+            {
+                for (var i = 0; i < segments; i++)
+                {
+                    var a = r * cols + i;
+                    tris[t++] = a;
+                    tris[t++] = a + cols + 1;
+                    tris[t++] = a + 1;
+                    tris[t++] = a;
+                    tris[t++] = a + cols;
+                    tris[t++] = a + cols + 1;
+                }
+            }
+
+            var mesh = new Mesh { name = "KonveksKubbe" };
+            mesh.vertices = verts;
+            mesh.triangles = tris;
+            mesh.RecalculateBounds();
+            return mesh;
+        }
+
+        /// <summary>Hazır bir ağı konveks çarpıştırıcı olarak ekler (görsel yok).</summary>
+        public void ConvexCollider(Mesh mesh, MaterialId material)
+        {
+            if (mesh == null || mesh.vertexCount < 4)
+                return;
+            GetBucket(material).Convex.Add(mesh);
+            var b = mesh.bounds;
+            Encapsulate(b.min);
+            Encapsulate(b.max);
+        }
+
+        // ================================================================== Moloz
+
+        /// <summary>
+        /// Moloz yığını: rastgele dönük kırık bloklar (görsel) + yığını kaplayan tek, alçak eksene hizalı çarpıştırıcı.
+        /// center: zemin noktası. Döndürülen değer yığının yaklaşık yüksekliğidir.
+        /// </summary>
+        public float Rubble(Vector3 center, float radius, int pieces, MaterialId material, System.Random rng, bool collider = true)
+        {
+            if (rng == null || pieces <= 0 || radius < 0.05f)
+                return 0f;
+
+            var top = 0f;
+            for (var i = 0; i < pieces; i++)
+            {
+                var a = (float)rng.NextDouble() * Mathf.PI * 2f;
+                var d = Mathf.Sqrt((float)rng.NextDouble()) * radius * (1f - 0.3f * i / Mathf.Max(1, pieces));
+                var size = new Vector3(Lerp(rng, 0.2f, 0.7f), Lerp(rng, 0.12f, 0.45f), Lerp(rng, 0.2f, 0.6f)) * Mathf.Lerp(1f, 0.7f, d / radius);
+                var heightBias = (1f - d / radius) * 0.35f;
+                var pos = center + new Vector3(Mathf.Cos(a) * d, size.y * 0.3f + heightBias, Mathf.Sin(a) * d);
+                var rot = Quaternion.Euler(Lerp(rng, -25f, 25f), Lerp(rng, 0f, 360f), Lerp(rng, -25f, 25f));
+                Box(pos, size, rot, material, StructureCollider.None);
+                top = Mathf.Max(top, pos.y - center.y + size.y * 0.5f);
+            }
+
+            if (collider)
+            {
+                var h = Mathf.Clamp(top * 0.65f, 0.15f, 0.6f);
+                ColliderBox(center + Vector3.up * (h * 0.5f - 0.05f), new Vector3(radius * 1.3f, h + 0.1f, radius * 1.3f), Quaternion.identity, material);
+            }
+
+            return top;
+        }
+
+        private static float Lerp(System.Random rng, float a, float b) => a + (b - a) * (float)rng.NextDouble();
 
         /// <summary>Yarım küre kubbe (center = taban merkezi).</summary>
         public void Dome(Vector3 baseCenter, float radius, int segments, MaterialId material,
@@ -1091,10 +1244,11 @@ namespace Project.Infrastructure.World
                 return 0;
 
             var created = 0;
+            var visuals = !StructureKit.CollidersOnly;
             for (var i = 0; i < _buckets.Count; i++)
             {
                 var bucket = _buckets[i];
-                var hasMesh = bucket.Triangles.Count > 0;
+                var hasMesh = visuals && bucket.Triangles.Count > 0;
                 var hasColliders = bucket.Boxes.Count > 0 || bucket.Rotated.Count > 0 || bucket.Convex.Count > 0;
                 if (!hasMesh && !hasColliders)
                     continue;
@@ -1166,7 +1320,17 @@ namespace Project.Infrastructure.World
             var key = (int)material;
             if (!_lookup.TryGetValue(key, out var bucket))
             {
-                bucket = new Bucket(material);
+                if (_pool.Count > 0)
+                {
+                    bucket = _pool[_pool.Count - 1];
+                    _pool.RemoveAt(_pool.Count - 1);
+                    bucket.Reset(material);
+                }
+                else
+                {
+                    bucket = new Bucket(material);
+                }
+
                 _lookup.Add(key, bucket);
                 _buckets.Add(bucket);
             }

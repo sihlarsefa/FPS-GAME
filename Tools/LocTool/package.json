@@ -1,0 +1,4 @@
+{
+  "name": "harekat-loc-tool", "private": true, "type": "module", "engines": {"node": ">=20"},
+  "scripts": {"extract": "node cli.mjs extract", "diff": "node cli.mjs diff", "validate": "node cli.mjs validate", "export": "node cli.mjs export", "font": "node cli.mjs font", "build": "node cli.mjs build", "lint": "node --check cli.mjs && node --check lib/core.mjs && node --check lib/font.mjs", "test": "node --test test/*.test.mjs"}
+}

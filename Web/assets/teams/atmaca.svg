@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Atmaca Timi">
+  <title>Atmaca Timi — özgün stilize amblem</title>
+  <circle cx="64" cy="64" r="60" fill="#2A3520" stroke="#7C816E" stroke-width="3"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#7C816E" stroke-width="1" opacity="0.45"/>
+  <path d="M64 30c-2 10-4 20-2 34 8-6 18-8 28-6-8-12-16-22-26-28z" fill="#7C816E"/>
+  <path d="M64 30c2 10 4 20 2 34-8-6-18-8-28-6 8-12 16-22 26-28z" fill="#C3B07A"/>
+  <path d="M58 62l6 28 6-28" fill="#7C816E"/>
+  <circle cx="70" cy="44" r="2" fill="#2A3520"/>
+  <path d="M72 48l10 4" stroke="#C3B07A" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="64" cy="104" r="6" fill="#7C816E"/>
+  <circle cx="65.8" cy="103.64" r="4.2" fill="#2A3520"/>
+  <polygon points="70.9,104 67.3,101.9 69.1,104 67.3,106.1" fill="#7C816E"/>
+</svg>

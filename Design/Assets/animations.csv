@@ -1,0 +1,33 @@
+durum,mixamo_animasyon_adi,in_place,notlar
+idle,Rifle Idle,evet,Asker 3P tüfek idle. Humanoid; Root Y/Rot Bake; XZ Bake in-place; Loop On; Scale 1.
+idle_pistol,Pistol Idle,evet,Tabanca idle; aynı Avatar.
+walk,Walking,evet,Walk forward in-place Mixamo. Foot IK On.
+walk_back,Walking Backwards,evet,Geri yürüme.
+walk_left,Left Strafe Walking,evet,Sol strafe.
+walk_right,Right Strafe Walking,evet,Sağ strafe.
+run,Rifle Run,evet,Koşu tüfekli Loop On.
+sprint,Sprint,evet,Sprint; stamina hız.
+crouch_idle,Crouching Idle,evet,Eğilme idle.
+crouch_walk,Crouched Walking,evet,Eğilerek yürüme.
+prone_idle,Prone Idle / Lying Idle,evet,Yüzüstü idle; Mixamo sınırlı → Lying Idle + tüfek overlay.
+prone_crawl,Zombie Crawl Forward (uyarlama),evet,Prone crawl; hız düşür; askeri retarget. Asset Store military pack alternatif.
+rifle_aim,Rifle Aiming Idle,evet,Nişan idle ADS blend.
+rifle_fire,Firing Rifle,evet,Ateş upper-body mask.
+reload,Rifle Reload,hayır,Şarjör; arms+spine mask; süre WeaponDefinition.
+reload_pistol,Pistol Reload,hayır,Tabanca şarjör.
+grenade_throw,Throwing,hayır,El bombası; pin+throw event.
+death_front,Rifle Death From Front,hayır,Ön ölüm Loop Off.
+death_back,Death From Back,hayır,Arka ölüm.
+hit_react,Hit Reaction,hayır,Kısa upper-body.
+sitting_vehicle,Sitting,evet,Kirpi/T-70 koltuk; pelvis pin.
+enter_vehicle,Entering Car,hayır,Binme opsiyonel.
+exit_vehicle,Exiting Car,hayır,İnme opsiyonel.
+jump,Jump,hayır,Zıplama.
+land,Falling To Landing,hayır,İniş.
+fps_hands_idle,Asset Store FPS Anim Pack — Idle,—,Viewmodel Generic rig (Humanoid değil). Scale 1.
+fps_hands_fire,Asset Store FPS pack — Fire/Recoil,—,Viewmodel ateş/recoil.
+fps_hands_reload,Asset Store FPS pack — Reload,—,Event MagOut/MagIn/Bolt → SoundId.
+fps_hands_ads,Asset Store FPS pack — Aim In/Out,—,ADS geçiş.
+fps_hands_grenade,Asset Store FPS pack — Grenade,—,FPP bomba.
+mixamo_pipeline,FBX for Unity (with skin),—,Scale 1 Humanoid; Avatar paylaş; Compression Optimal error 0.5–1.
+asset_store_body_alt,Military Character Animset Pro,—,Prone/crawl ücretli set $40–100; Steam Standard genelde yeter.

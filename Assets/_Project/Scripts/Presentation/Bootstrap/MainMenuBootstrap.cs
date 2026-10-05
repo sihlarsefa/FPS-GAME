@@ -9,6 +9,7 @@ namespace Project.Presentation.Bootstrap
     /// Ana menü sahnesinin giriş noktası: oturumu (ayarlar/kariyer) hazırlar, önceki maçtan kalan durumu temizler, sesi ve
     /// menü görünümünü (sıcak post-processing, atmosfer) başlatır; 3B dekoru (<see cref="MenuBackdrop"/>) ve menü
     /// arayüzünü (<see cref="MainMenuController"/>) kurar. İmleç serbesttir.
+    /// Adanmış sunucu (Windows Dedicated Server, başsız) build'inde menü kurulmaz; doğrudan harekât sahnesi yüklenir.
     /// </summary>
     [DefaultExecutionOrder(-500)]
     [DisallowMultipleComponent]
@@ -16,6 +17,7 @@ namespace Project.Presentation.Bootstrap
     {
         private MenuBackdrop _backdrop;
         private MainMenuController _menu;
+        private bool _server;
 
         public MenuBackdrop Backdrop => _backdrop;
         public MainMenuController Menu => _menu;
@@ -29,6 +31,13 @@ namespace Project.Presentation.Bootstrap
             if (GameContext.IsReady)
                 GameContext.Clear();
 
+            _server = ServerRuntime.IsDedicatedServer;
+            if (_server)
+            {
+                Debug.Log("[Sunucu] Ana menü atlanıyor — harekât sahnesi yükleniyor.");
+                return;
+            }
+
             var quality = GameSession.Settings != null ? GameSession.Settings.Current.QualityLevel : 2;
             BootstrapUtility.InitializeEngineSystems(PostProcessing.Look.Menu, quality, false);
             BootstrapUtility.ReleaseCursor();
@@ -36,6 +45,13 @@ namespace Project.Presentation.Bootstrap
 
         private void Start()
         {
+            if (_server)
+            {
+                // Awake'te değil Start'ta: sahnenin ilk karesi tamamlanmadan ikinci yükleme başlatılmasın.
+                GameSession.StartOperation();
+                return;
+            }
+
             var sceneCameras = Camera.allCameras;
 
             _backdrop = FindAnyObjectByType<MenuBackdrop>();
@@ -61,6 +77,9 @@ namespace Project.Presentation.Bootstrap
 
         private void Update()
         {
+            if (_server)
+                return;
+
             // Menüde imleç her zaman serbest (başka bir sistem kilitlemiş olabilir).
             if (Cursor.lockState != CursorLockMode.None || !Cursor.visible)
                 BootstrapUtility.ReleaseCursor();

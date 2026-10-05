@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JNG-90 · HAREKÂT Kılavuz</title>
+<meta name="description" content="JNG-90 istatistikleri">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">Silahlar</a></li><li><span aria-current="page">JNG-90</span></li></ol></nav>
+
+<h1>JNG-90</h1>
+<p class="meta">Keskin Nişancı · <code>Jng90</code></p>
+<div class="table-scroll"><table><tbody><tr><th scope="row">Hasar</th><td>90</td></tr><tr><th scope="row">Şarjör</th><td>5</td></tr><tr><th scope="row">RPM</th><td>42.9</td></tr><tr><th scope="row">Ateş aralığı</th><td>1.4 sn</td></tr><tr><th scope="row">Doldurma</th><td>3.4 sn</td></tr><tr><th scope="row">Menzil</th><td>1000 m</td></tr><tr><th scope="row">Mermi</th><td>7.62 mm</td></tr><tr><th scope="row">Kafa çarpanı</th><td>2.5</td></tr><tr><th scope="row">Menzil düşüşü</th><td>200 → 800 m</td></tr><tr><th scope="row">Min hasar faktörü</th><td>0.8</td></tr><tr><th scope="row">Saçma</th><td>—</td></tr></tbody></table></div>
+<section>
+  <h2>Öldürme süresi (zırhsız gövde)</h2>
+  <p>BalanceCalc <code>ttk.csv</code> — armor 0, helmet 0, zone=body.</p>
+  <div class="table-scroll"><table>
+<thead><tr><th scope="col">Mesafe (m)</th><th scope="col">Vuruş</th><th scope="col">TTK (sn)</th><th scope="col">Hasar/atış</th><th scope="col">DPS</th></tr></thead>
+<tbody><tr><td>10.0</td><td>2</td><td>1.4</td><td>90.0</td><td>71.429</td></tr><tr><td>50.0</td><td>2</td><td>1.4</td><td>90.0</td><td>71.429</td></tr><tr><td>100.0</td><td>2</td><td>1.4</td><td>90.0</td><td>71.429</td></tr><tr><td>200.0</td><td>2</td><td>1.4</td><td>90.0</td><td>71.429</td></tr><tr><td>300.0</td><td>2</td><td>1.4</td><td>87.0</td><td>71.429</td></tr></tbody>
+</table></div>
+</section>
+<section>
+  <h2>Kullanım ipuçları</h2>
+  <p><strong>Rol:</strong> Keskin nişancı birincil.</p>
+  <ul class="plus"><li>90 hasar, 2.5× kafa, 6×.</li></ul>
+  <ul class="minus"><li>Bolt, 5 mermi, yavaş doldurma.</li></ul>
+</section>
+<p><a href="index.html">← Tüm silahlar</a> · <a href="../karsilastir.html?a=Jng90">Karşılaştır</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

@@ -123,7 +123,8 @@ namespace Project.Presentation.UI
             {
                 try
                 {
-                    return SceneManager.GetActiveScene().handle;
+                    // Scene.GetHashCode sahne tutamacından türetilir (Unity 6.6'da SceneHandle → int dönüşümü kaldırıldı).
+                    return SceneManager.GetActiveScene().GetHashCode();
                 }
                 catch (Exception)
                 {

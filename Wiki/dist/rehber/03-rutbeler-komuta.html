@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. TSK Rütbeleri ve Komuta Zinciri · HAREKÂT Kılavuz</title>
+<meta name="description" content="3. TSK Rütbeleri ve Komuta Zinciri">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">3. TSK Rütbeleri ve Komuta Zinciri</span></li></ol></nav>
+<h1>3. TSK Rütbeleri ve Komuta Zinciri</h1><div class="prose"><h2>3. TSK Rütbeleri ve Komuta Zinciri</h2>
+<p>Kaynak: <code>MilitaryRank</code>, <code>RankCatalog</code>, <code>ChainOfCommandService</code> (sözleşme).</p>
+<h3>3.1 Rütbe listesi (küçükten büyüğe)</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Enum</th><th scope="col">Tam ad</th><th scope="col">Kısa</th><th scope="col">Sınıf</th><th scope="col">XP eşiği</th></tr></thead><tbody><tr><td>Er</td><td>Er</td><td>Er</td><td>Er/Erbaş</td><td>0</td></tr><tr><td>Onbasi</td><td>Onbaşı</td><td>Onb.</td><td>Er/Erbaş</td><td>500</td></tr><tr><td>Cavus</td><td>Çavuş</td><td>Çvş.</td><td>Er/Erbaş</td><td>1 200</td></tr><tr><td>SozlesmeliEr</td><td>Sözleşmeli Er</td><td>Sözl.Er</td><td>Er/Erbaş</td><td>2 200</td></tr><tr><td>UzmanOnbasi</td><td>Uzman Onbaşı</td><td>Uzm.Onb.</td><td>Uzman Erbaş</td><td>3 500</td></tr><tr><td>UzmanCavus</td><td>Uzman Çavuş</td><td>Uzm.Çvş.</td><td>Uzman Erbaş</td><td>5 200</td></tr><tr><td>AstsubayCavus</td><td>Astsubay Çavuş</td><td>Astsb.Çvş.</td><td>Astsubay</td><td>7 500</td></tr><tr><td>AstsubayKidemliCavus</td><td>Astsubay Kıdemli Çavuş</td><td>Astsb.Kd.Çvş.</td><td>Astsubay</td><td>10 000</td></tr><tr><td>AstsubayUstcavus</td><td>Astsubay Üstçavuş</td><td>Astsb.Üçvş.</td><td>Astsubay</td><td>13 000</td></tr><tr><td>AstsubayKidemliUstcavus</td><td>Astsubay Kıdemli Üstçavuş</td><td>Astsb.Kd.Üçvş.</td><td>Astsubay</td><td>16 500</td></tr><tr><td>AstsubayBascavus</td><td>Astsubay Başçavuş</td><td>Astsb.Bçvş.</td><td>Astsubay</td><td>20 500</td></tr><tr><td>AstsubayKidemliBascavus</td><td>Astsubay Kıdemli Başçavuş</td><td>Astsb.Kd.Bçvş.</td><td>Astsubay</td><td>25 000</td></tr><tr><td>Astegmen</td><td>Asteğmen</td><td>Asteğmen</td><td>Subay</td><td>30 000</td></tr><tr><td>Tegmen</td><td>Teğmen</td><td>Teğmen</td><td>Subay</td><td>36 000</td></tr><tr><td>Ustegmen</td><td>Üsteğmen</td><td>Üsteğmen</td><td>Subay</td><td>43 000</td></tr><tr><td>Yuzbasi</td><td>Yüzbaşı</td><td>Yzb.</td><td>Subay</td><td>51 000</td></tr><tr><td>Binbasi</td><td>Binbaşı</td><td>Bnb.</td><td>Subay</td><td>62 000</td></tr><tr><td>Yarbay</td><td>Yarbay</td><td>Yb.</td><td>Subay</td><td>75 000</td></tr><tr><td>Albay</td><td>Albay</td><td>Alb.</td><td>Subay</td><td>90 000</td></tr></tbody></table></div>
+<p>Sınıflar: Er/Erbaş → Uzman Erbaş → Astsubay → Subay.</p>
+<h3>3.2 Maç içi tim rütbe dağılımı</h3>
+<p><code>RankForTeamSlot</code> (kayıt sırası kıdemle uyumlu):</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Slot</th><th scope="col">Tipik rütbe</th></tr></thead><tbody><tr><td>0 (komutan)</td><td>%60 Yüzbaşı / %40 Üsteğmen</td></tr><tr><td>1</td><td>Astsb.Kd.Çvş. veya Astsb.Üçvş.</td></tr><tr><td>2–3</td><td>Uzman Çavuş</td></tr><tr><td>4–5</td><td>Uzm.Onb. veya Sözl.Er</td></tr><tr><td>6–9</td><td>Sözl.Er / Çvş. / Onb. / Er</td></tr></tbody></table></div>
+<p>Görünen ad: <code>RankCatalog.FormatName</code> → örn. <code>Yzb. Kartal</code>.</p>
+<h3>3.3 Komuta devri</h3>
+<ol>
+<li>Tim, rütbe kıdemine göre sıralanır (büyük enum = kıdemli).  </li>
+<li>Aktif komutan ölür veya maç dışı kalır → <code>CommandTransferredEvent</code>.  </li>
+<li>Yeni komutan: hayattaki en kıdemli üye.  </li>
+<li>AI takipçiler yeni lidere bağlanır.  </li>
+<li>Oyuncu (komutan) ölürse AI zinciri devam eder; oyuncu izler.</li>
+</ol>
+<h3>3.4 Kariyer rütbesi vs maç içi rütbe</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Tür</th><th scope="col">Kaynak</th><th scope="col">Amaç</th></tr></thead><tbody><tr><td>Kariyer</td><td>Toplam XP → <code>RankForExperience</code></td><td>Profil, nişan, uzun vadeli ilerleme</td></tr><tr><td>Maç içi slot</td><td><code>RankForTeamSlot</code></td><td>Tatbikat komuta hissi, HUD</td></tr></tbody></table></div>
+<p>Kariyer XP kazanımı: <a href="../rehber/12-ilerleme.html">12-ilerleme.md</a>.</p></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

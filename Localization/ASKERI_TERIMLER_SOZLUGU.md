@@ -1,183 +1,131 @@
-# Askeri Terimler Sözlüğü — HAREKÂT (TR / EN)
+# Askeri Terimler Sözlüğü v2 — HAREKÂT (TR / EN / DE / AZ / AR)
 
-Kurgu bağlamı: harekât tatbikatı; Mavi / Kırmızı kuvvetler. Gerçek örgüt adları kullanılmaz.
-İngilizce rütbe karşılıkları **yaklaşık NATO eşdeğeridir**; resmi TSK çevirisi değildir.
+Kurgu: harekât tatbikatı; Mavi / Kırmızı kuvvetler. Gerçek örgüt adları yok.
+EN rütbeleri yaklaşık NATO eşdeğeri; resmi TSK çevirisi değildir.
+Silah model adları (SAR 9, MPT-76…) **çevrilmez**.
 
 ## 1. Rütbeler
 
-| TR | EN (yaklaşık) | Kısa TR |
-|----|---------------|---------|
-| Er | Private | Er |
-| Onbaşı | Corporal | Onb. |
-| Çavuş | Sergeant | Çvş. |
-| Sözleşmeli Er | Contract Private | Sözl.Er |
-| Uzman Onbaşı | Specialist Corporal | Uzm.Onb. |
-| Uzman Çavuş | Specialist Sergeant | Uzm.Çvş. |
-| Astsubay Çavuş | NCO Sergeant | Astsb.Çvş. |
-| Astsubay Kıdemli Çavuş | Senior NCO Sergeant | Astsb.Kd.Çvş. |
-| Astsubay Üstçavuş | Staff Sergeant | Astsb.Üçvş. |
-| Astsubay Kıdemli Üstçavuş | Senior Staff Sergeant | Astsb.Kd.Üçvş. |
-| Astsubay Başçavuş | Master Sergeant | Astsb.Bçvş. |
-| Astsubay Kıdemli Başçavuş | Senior Master Sergeant | Astsb.Kd.Bçvş. |
-| Asteğmen | Second Lieutenant | Asteğmen |
-| Teğmen | Lieutenant | Teğmen |
-| Üsteğmen | First Lieutenant (DE: Oberleutnant) | Üsteğmen |
-| Yüzbaşı | Captain | Yzb. |
-| Binbaşı | Major | Bnb. |
-| Yarbay | Lieutenant Colonel | Yb. |
-| Albay | Colonel | Alb. |
-
-### Rütbe sınıfları
-
-| TR | EN |
-|----|-----|
-| Er/Erbaş | Enlisted |
-| Uzman Erbaş | Specialist Enlisted |
-| Astsubay | Non-Commissioned Officer (NCO) |
-| Subay | Officer |
+| TR | EN | DE | AZ | AR | Kısa TR |
+|----|----|----|----|----|---------|
+| Er | Private | Soldat | Əsgər | جندي | Er |
+| Onbaşı | Corporal | Gefreiter | Onbaşı | عريف | Onb. |
+| Çavuş | Sergeant | Unteroffizier | Çavuş | رقيب | Çvş. |
+| Sözleşmeli Er | Contract Private | Zeitsoldat | Müqaviləli əsgər | جندي متعاقد | Sözl.Er |
+| Uzman Onbaşı | Specialist Corporal | Fach-Gefreiter | Peşəkar onbaşı | عريف متخصص | Uzm.Onb. |
+| Uzman Çavuş | Specialist Sergeant | Fachunteroffizier | Peşəkar çavuş | رقيب متخصص | Uzm.Çvş. |
+| Astsubay Çavuş | NCO Sergeant | Stabsunteroffizier | Kiçik çavuş | رقيب صف | Astsb.Çvş. |
+| Astsubay Kıdemli Çavuş | Senior NCO Sergeant | Oberstabsunteroffizier | Baş kiçik çavuş | رقيب صف أول | Astsb.Kd.Çvş. |
+| Astsubay Üstçavuş | Staff Sergeant | Feldwebel | Başçavuş | رقيب أول | Astsb.Üçvş. |
+| Astsubay Kıdemli Üstçavuş | Senior Staff Sergeant | Oberfeldwebel | Baş başçavuş | رقيب أول أقدم | Astsb.Kd.Üçvş. |
+| Astsubay Başçavuş | Master Sergeant | Hauptfeldwebel | Başçavuş | رقيب أول رئيسي | Astsb.Bçvş. |
+| Astsubay Kıdemli Başçavuş | Senior Master Sergeant | Stabsfeldwebel | Baş başçavuş | رقيب أول رئيسي أقدم | Astsb.Kd.Bçvş. |
+| Asteğmen | Second Lieutenant | Leutnant | Asteğmen | ملازم ثان | Asteğmen |
+| Teğmen | Lieutenant | Leutnant | Leytenant | ملازم | Teğmen |
+| Üsteğmen | First Lieutenant | Oberleutnant | Baş leytenant | ملازم أول | Üsteğmen |
+| Yüzbaşı | Captain | Hauptmann | Kapitan | نقيب | Yzb. |
+| Binbaşı | Major | Major | Mayor | رائد | Bnb. |
+| Yarbay | Lieutenant Colonel | Oberstleutnant | Polkovnik-leytenant | مقدم | Yb. |
+| Albay | Colonel | Oberst | Polkovnik | عقيد | Alb. |
 
 ## 2. Tim rolleri
 
-| TR | EN | Kısa |
-|----|-----|------|
-| Tim Komutanı | Squad Leader | KMT / SL |
-| Piyade | Rifleman | PYD |
-| Keskin Nişancı | Marksman / Sniper role | KN |
-| Makineli Tüfekçi | Machine Gunner | MAK |
-| Sıhhiyeci | Medic | SHH |
-| Telsizci | Radioman | TEL |
-| Bombacı | Grenadier | BMB |
-| Asker | Soldier | AS |
+| TR | EN | DE | AZ | AR | Kısa |
+|----|----|----|----|----|------|
+| Tim Komutanı | Squad Leader | Truppführer | Tim komandiri | قائد الفريق | KMT |
+| Piyade | Rifleman | Schütze | Piyada | رامي | PYD |
+| Keskin Nişancı | Marksman | Scharfschütze | Dəqiq atıcı | قناص | KN |
+| Makineli Tüfekçi | Machine Gunner | MG-Schütze | Pulemyotçu | مدفعي رشاش | MAK |
+| Sıhhiyeci | Medic | Sanitäter | Sanitar | ممرض ميداني | SHH |
+| Telsizci | Radioman | Funker | Rabitəçi | لاسلكي | TEL |
+| Bombacı | Grenadier | Grenadier | Qumbaracı | قاذف قنابل | BMB |
+| Asker | Soldier | Soldat | Əsgər | جندي | AS |
 
 ## 3. Emirler ve taktik
 
-| TR | EN |
-|----|-----|
-| Emir | Order |
-| Mevzi al / Mevzi tut | Hold position |
-| Taarruz | Assault / Attack |
-| Toplan | Rally |
-| Takip | Follow |
-| Keşif | Reconnaissance |
-| Siper | Cover |
-| Kanat / dolanma | Flank |
-| İntikal | Insertion / Movement to contact |
-| İniş bölgesi (LZ) | Landing zone |
-| İndirme noktası | Drop / disembark point |
-| Harekât alanı | Area of operations (AO) |
-| Bölge (zone) | Safe zone / play zone |
-| İşaret | Marker / waypoint |
-| Menzil | Range |
-| Yakın atış (danger close) | Danger close |
+| TR | EN | DE | AZ | AR |
+|----|----|----|----|-----|
+| Mevzi al / tut | Hold position | Stellung halten | Mövqe tut | ثبّت الموقع |
+| Taarruz | Assault | Angriff | Hücum | هجوم |
+| Toplan | Rally | Sammeln | Toplan | تجمع |
+| Takip | Follow | Folgen | İzlə | تابع |
+| Keşif | Reconnaissance | Aufklärung | Kəşfiyyat | استطلاع |
+| İntikal | Insertion | Verlegung | Yerdəyişmə | انتقال |
+| İniş bölgesi (LZ) | Landing zone | Landezone | Eniş zonası | منطقة هبوط |
+| Harekât alanı | Area of operations | Operationsgebiet | Əməliyyat sahəsi | منطقة العمليات |
+| Bölge (zone) | Safe zone | Zone | Zona | المنطقة الآمنة |
+| Nişan noktası | Aim point | Zielpunkt | Nişan nöqtəsi | نقطة التصويب |
 
-## 4. Topçu ve ateş desteği
+## 4. Topçu
 
-| TR | EN |
-|----|-----|
-| Topçu desteği | Artillery support |
-| Topçu ateşi | Artillery fire |
-| Atışlar yolda | Rounds inbound |
-| Telsiz | Radio |
-| Nişan noktası | Aim point |
+| TR | EN | DE | AZ | AR |
+|----|----|----|----|-----|
+| Topçu desteği | Artillery support | Artillerieunterstützung | Artilleriya dəstəyi | دعم المدفعية |
+| Atışlar yolda | Rounds inbound | Geschosse unterwegs | Atışlar yoldadır | القذائف في الطريق |
+| Telsiz | Radio | Funk | Rabitə | لاسلكي |
 
 ## 5. Silah sınıfları
 
-| TR | EN |
-|----|-----|
-| Tabanca | Pistol |
-| Hafif makineli | SMG |
-| Piyade tüfeği | Assault rifle |
-| Nişancı tüfeği | Designated marksman rifle (DMR) |
-| Keskin nişancı (silah) | Sniper rifle |
-| Makineli tüfek | Light machine gun (LMG) |
-| Pompalı | Shotgun |
-| Yakın dövüş | Melee |
-| Şarjör | Magazine |
-| Namlu | Barrel |
-| Nişangâh / dürbün | Sight / optic |
-| Atış modu | Fire mode |
-| Otomatik / seri / tek atış | Automatic / burst / semi-auto |
+| TR | EN | DE | AZ | AR |
+|----|----|----|----|-----|
+| Tabanca | Pistol | Pistole | Tapança | مسدس |
+| Hafif makineli | SMG | MP | Yüngül pulemyot | رشاش خفيف |
+| Piyade tüfeği | Assault rifle | Sturmgewehr | Hücum tüfəngi | بندقية هجومية |
+| Nişancı tüfeği | DMR | Präzisionsgewehr | Dəqiq tüfəng | بندقية قنص خفيفة |
+| Keskin nişancı | Sniper rifle | Scharfschützengewehr | Snayper tüfəngi | بندقية قنص |
+| Makineli tüfek | LMG | Maschinengewehr | Pulemyot | رشاش |
+| Pompalı | Shotgun | Schrotflinte | Ov tüfəngi | بندقية خرطوش |
+| Şarjör | Magazine | Magazin | Daraq | مخزن |
 
 ### Silah adları (çevrilmez)
 
 SAR 9, Canik TP9, SAR 109T, MPT-55, MPT-76, G3A7, KNT-76, JNG-90, PMT-76, Escort.
 
-## 6. Teçhizat ve sağlık
+## 6. Teçhizat
 
-| TR | EN |
-|----|-----|
-| Çelik yelek | Armor vest |
-| Kask | Helmet |
-| Sırt çantası | Backpack |
-| Mühimmat / mermi | Ammunition / ammo |
-| Sargı bezi | Bandage |
-| İlk yardım çantası | First aid kit |
-| Sıhhiye çantası | Med kit |
-| Takviye | Boost |
-| El bombası | Frag grenade |
-| Sis bombası | Smoke grenade |
-| Envanter | Inventory |
-| Ganimet / loot | Loot |
+| TR | EN | DE | AZ | AR |
+|----|----|----|----|-----|
+| Çelik yelek | Armor vest | Schutzweste | Zirehli jilet | سترة واقية |
+| Kask | Helmet | Helm | Dəbilqə | خوذة |
+| Sırt çantası | Backpack | Rucksack | Çanta | حقيبة |
+| Sargı bezi | Bandage | Verband | Sarğı | ضمادة |
+| İlk yardım | First aid | Erste Hilfe | İlk yardım | إسعاف أولي |
+| El bombası | Frag grenade | Handgranate | Əl qumbarası | قنبلة يدوية |
+| Sis bombası | Smoke grenade | Nebelgranate | Tüstü qumbarası | قنبلة دخان |
 
-## 7. Araçlar ve intikal
+## 7. Araçlar
 
-| TR | EN |
-|----|-----|
-| Helikopter (T-70) | Helicopter (T-70) |
-| Zırhlı araç (Kirpi) | Armored vehicle / APC (Kirpi) |
-| Araçtan in | Disembark |
-| Araca bin | Board vehicle |
-| Karargâh | Headquarters (HQ) |
-| Atış poligonu | Firing range / training range |
+| TR | EN | DE | AZ | AR |
+|----|----|----|----|-----|
+| Helikopter (T-70) | Helicopter (T-70) | Hubschrauber (T-70) | Helikopter (T-70) | مروحية (T-70) |
+| Zırhlı (Kirpi) | APC (Kirpi) | Transportpanzer (Kirpi) | Zirehli (Kirpi) | مدرعة (Kirpi) |
+| Karargâh | Headquarters | Hauptquartier | Qərargah | المقر |
+| Atış poligonu | Firing range | Schießstand | Atış poligonu | ميدان رماية |
 
-## 8. Kuvvetler ve maç dili
+## 8. Maç dili
 
-| TR | EN |
-|----|-----|
-| HAREKÂT | HAREKÂT (brand; do not translate) |
-| Harekât | Operation |
-| Tim | Squad |
-| Mavi kuvvet | Blue force |
-| Kırmızı kuvvet | Red force |
-| Şehit düştün / KIA | Killed in action |
-| Zafer | Victory |
-| Tatbikat | Drill / exercise |
-| Komando (zorluk) | Commando (difficulty) |
-| Er / Uzman / Komando | Recruit / Specialist / Commando |
+| TR | EN | DE | AZ | AR |
+|----|----|----|----|-----|
+| HAREKÂT | HAREKÂT | HAREKÂT | HƏRƏKAT | حَرَكَات |
+| Tim | Squad | Trupp | Tim | فريق |
+| Mavi kuvvet | Blue force | Blaue Kraft | Mavi qüvvə | القوة الزرقاء |
+| Kırmızı kuvvet | Red force | Rote Kraft | Qırmızı qüvvə | القوة الحمراء |
+| Şehit düştün | KIA | Gefallen | Şəhid oldun | سقطت في المعركة |
+| Zafer | Victory | Sieg | Qələbə | نصر |
+| Kuzgun Vadisi | Raven Valley | Rabental | Qarğa Vadisi | وادي الغراب |
 
-## 9. Harita — Kuzgun Vadisi
+## 9. UI kısaltmaları
 
-| TR | EN |
-|----|-----|
-| Kuzgun Vadisi | Raven Valley |
-| Kuzgun Köyü | Raven Village |
-| Yamaç Köyü | Slope Village |
-| Sınır Karakolu | Border outpost |
-| İleri Üs Bölgesi | Forward operating base (FOB) |
-| Taş Ocağı | Quarry |
-| Kuzgun Barajı | Raven Dam |
-| Röle Tepesi | Relay Hill |
-| Çam Sırtı | Pine Ridge |
-| Ağıl | Livestock pen / farmstead |
-| Yıkık Köy | Ruined village |
-| Gözetleme noktası | Observation post |
-
-## 10. UI kısaltmaları
-
-| TR | EN |
-|----|-----|
-| DEVAM ET | Resume |
-| AYARLAR | Settings |
-| ANA MENÜ | Main menu |
-| VAZGEÇ | Cancel |
-| UYGULA | Apply |
-| VARSAYILAN | Defaults |
-| GERİ | Back |
-| DURAKLATILDI | Paused |
-| Yükleniyor | Loading |
+| TR | EN | DE | AZ | AR |
+|----|----|----|----|-----|
+| DEVAM ET | Resume | FORTSETZEN | DAVAM ET | متابعة |
+| AYARLAR | Settings | EINSTELLUNGEN | PARAMETRLƏR | الإعدادات |
+| ANA MENÜ | Main menu | HAUPTMENÜ | ƏSAS MENYU | القائمة الرئيسية |
+| VAZGEÇ | Cancel | ABBRECHEN | LƏĞV ET | إلغاء |
+| DURAKLATILDI | Paused | PAUSIERT | DAYANDIRILDI | متوقف |
 
 ## Notlar
 
-- `Şehit düştün` oyun içi KIA mesajıdır; İngilizce arayüzde `YOU WERE KILLED IN ACTION` tercih edilir.
-- Almanca / Azerbaycan Türkçesi / Arapça sütunlar `strings.csv` içinde; bu sözlük TR↔EN otoritesidir.
-- Yeni terim eklerken önce bu sözlüğe, sonra `strings.csv` anahtarına yazın.
+- Otorite: bu sözlük + `strings.csv`. Çelişkide CSV güncellenir, sözlük senkron tutulur.
+- Yeni terim: sözlük → `KEY_NAMING.md` öneki → CSV → `npm run validate`.
+- Arapça HUD: `reports/RTL_ARAYUZ_RISKLERI.md`.

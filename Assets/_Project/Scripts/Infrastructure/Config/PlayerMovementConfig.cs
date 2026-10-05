@@ -10,8 +10,11 @@ namespace Project.Infrastructure.Config
     [CreateAssetMenu(fileName = "PlayerMovementConfig", menuName = "Project/Player Movement Config")]
     public sealed class PlayerMovementConfig : ScriptableObject
     {
-        /// <summary>Veri sürümü: eski prototip değerlerini (5/8/2.5 m/s, 2 m boy) yeni varsayılanlara taşımak için.</summary>
-        public const int CurrentDataVersion = 2;
+        /// <summary>
+        /// Veri sürümü: eski prototip değerlerini (5/8/2.5 m/s, 2 m boy) yeni varsayılanlara taşımak için (v2), yakınlaştırma
+        /// hassasiyet ölçeklemesini açmak için (v3).
+        /// </summary>
+        public const int CurrentDataVersion = 3;
 
         [Header("Speed (m/s)")]
         public float walkSpeed = 4.6f;
@@ -56,9 +59,10 @@ namespace Project.Infrastructure.Config
         public float minPitch = -85f;
         public float maxPitch = 85f;
 
-        [Tooltip("Kamera yakınlaştırmada hassasiyeti FOV oranıyla kendisi ölçeklesin. Kapalı (varsayılan): çağıran taraf " +
-                 "(PlayerController) nişan/dürbün çarpanını SetSensitivity ile verir; pitch ve yaw aynı ölçeği kullanır.")]
-        public bool scaleSensitivityWithZoom;
+        [Tooltip("Açık (varsayılan): kamera, yakınlaştırmada (nişan/dürbün) hassasiyeti gerçek FOV oranıyla " +
+                 "(tan(fov/2)/tan(taban/2)) kendisi ölçekler; çağıran taraf (PlayerController) yalnız ayar hassasiyetini ve " +
+                 "isteğe bağlı nişan çarpanını SetSensitivity ile verir. Kapalı: ölçekleme tamamen çağırana kalır.")]
+        public bool scaleSensitivityWithZoom = true;
 
         [Header("Stance")]
         public float standingHeight = 1.8f;
@@ -234,6 +238,16 @@ namespace Project.Infrastructure.Config
         {
             if (dataVersion >= CurrentDataVersion)
                 return;
+
+            // v3: yakınlaştırma hassasiyet ölçeklemesi kameraya geçti (v2'de varsayılan kapalıydı).
+            if (dataVersion < 3)
+                scaleSensitivityWithZoom = true;
+
+            if (dataVersion >= 2)
+            {
+                dataVersion = CurrentDataVersion;
+                return;
+            }
 
             if (Mathf.Approximately(walkSpeed, 5f) && Mathf.Approximately(sprintSpeed, 8f)
                 && Mathf.Approximately(crouchSpeed, 2.5f))

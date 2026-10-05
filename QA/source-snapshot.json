@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-05",
+  "timezone": "Europe/Istanbul",
+  "sources": {
+    "Assets/_Project/Scripts/Application/Catalogs/WeaponCatalog.cs": "dc9a114ee5f3fe8c944ed85af1318b073fe26a583218a617712dd94b78cf48ba",
+    "Assets/_Project/Scripts/Application/Services/BoostService.cs": "0c9a8c6ba842830859fe4c8b73997d61e0393c056f2f67db19551ab39d0be6ad",
+    "Assets/_Project/Scripts/Application/Services/BotDecisionService.cs": "d306547b21383593debdf1d8c4a7ebed3f97ffad46dec544f1f88957c300f93d",
+    "Assets/_Project/Scripts/Application/Services/DamageCalculator.cs": "6242d2f8f6ecb194e43142cec751667a6189702658d1fc9ac317ed87654e22a8",
+    "Assets/_Project/Scripts/Application/Services/InventoryService.cs": "91dead13bac381a1d7a684b1c88d3eba18d455d1f126f55942e3589a3f3efae2",
+    "Assets/_Project/Scripts/Application/Services/ItemUseService.cs": "bd9c5bd9db08846fa6922c01e909f450b19dd7db6a241be63158a30637b82a91",
+    "Assets/_Project/Scripts/Application/Services/SettingsService.cs": "0d2ac9fa523d275c3ede015b3958b91dcc321443de422913b1f42abde1b6e900",
+    "Assets/_Project/Scripts/Application/Services/SquadOrderService.cs": "3db99c0c3905548f23170875b0e96be8b66dc97dc4de497d4b46e8adce9cf5ba",
+    "Assets/_Project/Scripts/Application/Services/ZoneService.cs": "95fb4fbec9bca508dd2b8dcdfe421928deddf777a7dff9916a5c588f84092ff2",
+    "Assets/_Project/Scripts/Infrastructure/Player/CharacterControllerMotor.cs": "7995ed57bfcad204c09fdd858a9386cff784c63e73d0c10953277b2e85dd577e",
+    "Backend/ClientSdk/HarekatClient.cs": "8de6b94e6354317d608471d9278f2b20294702a040cc7a4717ded8c1c70c079e",
+    "Backend/Harekat.Api/Program.cs": "ca3e0d44adf648eefa43c786158325872818e3a42f7197c41f0273d762dc315e",
+    "Docs/CODEX_FAZ2.md": "f16f1b8f45cc068eea05d395c44b467daed48958a8b391d5718e4e99caad98a6",
+    "Docs/CONTRACTS.md": "aff236fefd8abe5545098dba33703bf854591819b6a93f3601ed851c36a5effa",
+    "Docs/MODUL_SPESIFIKASYONLARI.md": "0e18dc2d7bd37046ea067c89c4e7a2f446adff1bbc9fcbebebeabc6a59e6fb9c",
+    "Tools/BalanceCalc/out/catalog.json": "c515d60abc72de7a4ff2ef15c31d7dffb364778bac622f4b29661f2ca402944f",
+    "Tools/BalanceCalc/out/ttk.csv": "6909575690fcf952d0794b8dbafe7aa858240f78fc94b15bbcae83d8a956fcfe"
+  }
+}

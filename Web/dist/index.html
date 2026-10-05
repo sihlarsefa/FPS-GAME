@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
-  <a class="skip-link" href="#main">İçeriğe geç</a>
+  <a class="skip-link" href="#main" data-i18n="a11y_skip">İçeriğe geç</a>
   <header class="topbar">
     <div class="brand">
       <img src="assets/icons/emblem.svg" alt="" width="36" height="36" />
@@ -24,18 +24,23 @@
       </div>
     </div>
     <nav class="nav" aria-label="Ana menü">
-      <a href="#/" data-route="/">Ana Sayfa</a>
-      <a href="#/leaderboards" data-route="/leaderboards">Sıralamalar</a>
-      <a href="#/profile" data-route="/profile">Profil</a>
-      <a href="#/squad" data-route="/squad">Tim</a>
-      <a href="#/arsenal" data-route="/arsenal">Silahlar</a>
-      <a href="#/map" data-route="/map">Harita</a>
-      <a href="#/patches" data-route="/patches">Yamalar</a>
-      <a href="#/news" data-route="/news">Haberler</a>
-      <a href="#/season" data-route="/season">Sezon</a>
-      <a href="#/admin" data-route="/admin">Yönetim</a>
+      <a href="#/" data-route="/" data-i18n="nav_home">Ana Sayfa</a>
+      <a href="#/leaderboards" data-route="/leaderboards" data-i18n="nav_leaderboards">Sıralamalar</a>
+      <a href="#/login" data-route="/login" data-i18n="nav_login">Giriş</a>
+      <a href="#/profile" data-route="/profile" data-i18n="nav_profile">Profil</a>
+      <a href="#/squad" data-route="/squad" data-i18n="nav_squad">Tim</a>
+      <a href="#/matchmaking" data-route="/matchmaking" data-i18n="nav_matchmaking">Eşleştirme</a>
+      <a href="#/achievements" data-route="/achievements" data-i18n="nav_achievements">Başarımlar</a>
+      <a href="#/arsenal" data-route="/arsenal" data-i18n="nav_arsenal">Silahlar</a>
+      <a href="#/map" data-route="/map" data-i18n="nav_map">Harita</a>
+      <a href="#/compare" data-route="/compare" data-i18n="nav_compare">Karşılaştır</a>
+      <a href="#/archive" data-route="/archive" data-i18n="nav_archive">Arşiv</a>
+      <a href="#/news" data-route="/news" data-i18n="nav_news">Haberler</a>
+      <a href="#/season" data-route="/season" data-i18n="nav_season">Sezon</a>
+      <a href="#/admin" data-route="/admin" data-i18n="nav_admin" id="navAdmin" hidden>Yönetim</a>
     </nav>
     <div class="topbar-actions">
+      <button type="button" id="themeToggle" class="btn ghost" data-i18n-aria="theme_toggle" aria-label="Tema">☀</button>
       <button type="button" id="langToggle" class="btn ghost" aria-label="Dil değiştir">EN</button>
       <span id="mockBadge" class="badge" hidden>MOCK</span>
     </div>
@@ -44,7 +49,7 @@
   <main id="main" class="main" tabindex="-1"></main>
 
   <footer class="footer">
-    <p>HAREKÂT © Tatbikat — Mavi / Kırmızı kuvvetler. Kazanmak için ödeme yok; yalnızca kozmetik.</p>
+    <p data-i18n="footer">HAREKÂT © Tatbikat — Mavi / Kırmızı kuvvetler. Kazanmak için ödeme yok; yalnızca kozmetik.</p>
     <p><span id="apiStatus">API: —</span></p>
   </footer>
 

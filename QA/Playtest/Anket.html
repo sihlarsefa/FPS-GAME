@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HAREKÂT — Playtest Anketi</title>
+  <style>
+    :root {
+      --bg: #1a1f16;
+      --panel: #242b1c;
+      --ink: #e8ecd9;
+      --muted: #9aa48a;
+      --accent: #e30a17;
+      --line: #3a4430;
+      --ok: #6b8f3a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #2c351f, var(--bg));
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 4rem;
+    }
+    h1 { font-size: 1.6rem; margin: 0 0 0.35rem; letter-spacing: 0.02em; }
+    .lead { color: var(--muted); margin-bottom: 1.5rem; }
+    fieldset {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 6px;
+      margin: 0 0 1rem;
+      padding: 1rem 1rem 0.75rem;
+    }
+    legend { padding: 0 0.4rem; color: var(--accent); font-weight: 600; }
+    label { display: block; margin: 0.65rem 0 0.25rem; font-size: 0.95rem; }
+    .hint { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.5rem; }
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #151910;
+      color: var(--ink);
+      font: inherit;
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+    }
+    .scale label {
+      margin: 0;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.45rem 0.2rem;
+      cursor: pointer;
+      background: #151910;
+    }
+    .scale input { position: absolute; opacity: 0; pointer-events: none; }
+    .scale label:has(input:checked) {
+      border-color: var(--accent);
+      background: #3a1518;
+    }
+    .scale .cap { display: block; font-size: 0.7rem; color: var(--muted); }
+    .row-check { display: flex; gap: 0.5rem; align-items: flex-start; margin: 0.75rem 0; }
+    .row-check input { margin-top: 0.25rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 4px;
+      padding: 0.7rem 1.1rem;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+    }
+    button.secondary { background: #3a4430; }
+    #status { margin-top: 1rem; color: var(--ok); min-height: 1.4em; }
+    #status.err { color: #ff8a7a; }
+    pre {
+      background: #10140c;
+      border: 1px solid var(--line);
+      padding: 0.75rem;
+      overflow: auto;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      display: none;
+    }
+    pre.show { display: block; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>HAREKÂT Playtest Anketi</h1>
+    <p class="lead">Anonim geri bildirim. Gerçek ad / e-posta istemeyiz. Çıktı JSON olarak indirilir (<code>anket-schema.json</code> ile uyumlu).</p>
+
+    <form id="survey" novalidate>
+      <fieldset>
+        <legend>Oturum</legend>
+        <label for="buildId">Build kimliği *</label>
+        <input id="buildId" name="buildId" required maxlength="120" placeholder="ör. 0.2.0-abc123" />
+        <label for="sessionId">Oturum kodu</label>
+        <input id="sessionId" name="sessionId" maxlength="80" placeholder="ör. 2026-10-05-A" />
+        <label for="playerTag">Takma ad (isteğe bağlı)</label>
+        <input id="playerTag" name="playerTag" maxlength="40" />
+        <label for="platform">Platform *</label>
+        <select id="platform" name="platform" required>
+          <option value="windows-client">Windows istemci</option>
+          <option value="macos-editor">macOS Editör</option>
+          <option value="other">Diğer</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Puanlar (1–5) *</legend>
+        <p class="hint">1 = çok kötü · 5 = çok iyi</p>
+        <div data-rating="controls_clarity" data-label="Kontroller netliği"></div>
+        <div data-rating="squad_orders" data-label="Tim emirleri (F1–F4)"></div>
+        <div data-rating="hud_readability" data-label="HUD okunabilirliği"></div>
+        <div data-rating="fairness" data-label="Adalet hissi"></div>
+        <div data-rating="replay_intent" data-label="Tekrar oynama isteği"></div>
+        <div data-rating="perf_feel" data-label="Performans hissi"></div>
+        <div data-rating="insertion" data-label="İntikal / iniş"></div>
+        <div data-rating="inventory" data-label="Envanter / yağma"></div>
+        <div data-rating="zone" data-label="Bölge (zone)"></div>
+        <div data-rating="audio" data-label="Ses karışıklığı (yüksek=iyi)"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Genel</legend>
+        <label for="nps">Arkadaşına tavsiye (0–10)</label>
+        <input id="nps" name="nps" type="number" min="0" max="10" step="1" />
+        <label for="bestMoment">En iyi an</label>
+        <textarea id="bestMoment" name="bestMoment" maxlength="1000"></textarea>
+        <label for="worstMoment">En kötü an</label>
+        <textarea id="worstMoment" name="worstMoment" maxlength="1000"></textarea>
+        <label for="bugs">Hata notları (satır başına bir)</label>
+        <textarea id="bugs" name="bugs" maxlength="4000" placeholder="Örnek: Zone uyarısı geç geldi"></textarea>
+        <label for="freeText">Serbest not</label>
+        <textarea id="freeText" name="freeText" maxlength="2000"></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Onay</legend>
+        <div class="row-check">
+          <input type="checkbox" id="consent" name="consent" required />
+          <label for="consent">Anonim playtest verimin QA özetinde kullanılmasına izin veriyorum. *</label>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">JSON indir</button>
+        <button type="button" class="secondary" id="previewBtn">Önizle</button>
+        <button type="reset" class="secondary">Temizle</button>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+      <pre id="preview" aria-label="JSON önizleme"></pre>
+    </form>
+  </main>
+  <script>
+    const REQUIRED = [
+      "controls_clarity", "squad_orders", "hud_readability",
+      "fairness", "replay_intent", "perf_feel"
+    ];
+    const OPTIONAL = ["insertion", "inventory", "zone", "audio"];
+
+    function mountScales() {
+      document.querySelectorAll("[data-rating]").forEach((el) => {
+        const key = el.getAttribute("data-rating");
+        const label = el.getAttribute("data-label");
+        const title = document.createElement("label");
+        title.textContent = label + (REQUIRED.includes(key) ? " *" : "");
+        el.appendChild(title);
+        const scale = document.createElement("div");
+        scale.className = "scale";
+        scale.setAttribute("role", "radiogroup");
+        scale.setAttribute("aria-label", label);
+        for (let i = 1; i <= 5; i++) {
+          const id = key + "_" + i;
+          const lab = document.createElement("label");
+          lab.htmlFor = id;
+          lab.innerHTML = i + '<span class="cap">' +
+            (i === 1 ? "kötü" : i === 5 ? "iyi" : "") + "</span>";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = key;
+          input.id = id;
+          input.value = String(i);
+          if (REQUIRED.includes(key)) input.required = true;
+          lab.prepend(input);
+          scale.appendChild(lab);
+        }
+        el.appendChild(scale);
+      });
+    }
+
+    function readRating(name) {
+      const el = document.querySelector('input[name="' + name + '"]:checked');
+      return el ? Number(el.value) : null;
+    }
+
+    function buildPayload() {
+      const ratings = {};
+      for (const k of REQUIRED.concat(OPTIONAL)) {
+        const v = readRating(k);
+        if (v != null) ratings[k] = v;
+      }
+      const bugsRaw = document.getElementById("bugs").value
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 10);
+      const npsVal = document.getElementById("nps").value;
+      const payload = {
+        schemaVersion: 1,
+        submittedAt: new Date().toISOString(),
+        buildId: document.getElementById("buildId").value.trim(),
+        sessionId: document.getElementById("sessionId").value.trim() || undefined,
+        playerTag: document.getElementById("playerTag").value.trim() || undefined,
+        platform: document.getElementById("platform").value,
+        consent: document.getElementById("consent").checked,
+        ratings,
+        nps: npsVal === "" ? undefined : Number(npsVal),
+        bestMoment: document.getElementById("bestMoment").value.trim() || undefined,
+        worstMoment: document.getElementById("worstMoment").value.trim() || undefined,
+        bugs: bugsRaw.length ? bugsRaw : undefined,
+        freeText: document.getElementById("freeText").value.trim() || undefined
+      };
+      Object.keys(payload).forEach((k) => {
+        if (payload[k] === undefined) delete payload[k];
+      });
+      return payload;
+    }
+
+    function validate(payload) {
+      if (!payload.buildId) return "Build kimliği zorunlu.";
+      if (!payload.consent) return "Onay kutusu işaretlenmeli.";
+      for (const k of REQUIRED) {
+        if (payload.ratings[k] == null) return "Eksik puan: " + k;
+      }
+      if (payload.nps != null && (payload.nps < 0 || payload.nps > 10 || !Number.isInteger(payload.nps))) {
+        return "NPS 0–10 tamsayı olmalı.";
+      }
+      return null;
+    }
+
+    function download(payload) {
+      const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
+      const a = document.createElement("a");
+      const stamp = payload.submittedAt.replace(/[:.]/g, "-");
+      a.href = URL.createObjectURL(blob);
+      a.download = "anket-sonuc-" + stamp + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    mountScales();
+    const status = document.getElementById("status");
+    const preview = document.getElementById("preview");
+
+    document.getElementById("survey").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const payload = buildPayload();
+      const err = validate(payload);
+      if (err) {
+        status.textContent = err;
+        status.className = "err";
+        return;
+      }
+      download(payload);
+      status.textContent = "JSON indirildi.";
+      status.className = "";
+      preview.textContent = JSON.stringify(payload, null, 2);
+      preview.classList.add("show");
+    });
+
+    document.getElementById("previewBtn").addEventListener("click", () => {
+      const payload = buildPayload();
+      const err = validate(payload);
+      preview.textContent = JSON.stringify(payload, null, 2);
+      preview.classList.add("show");
+      if (err) {
+        status.textContent = "Önizleme (eksik alanlar var): " + err;
+        status.className = "err";
+      } else {
+        status.textContent = "Önizleme hazır.";
+        status.className = "";
+      }
+    });
+  </script>
+</body>
+</html>

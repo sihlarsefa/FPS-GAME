@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. Tim Yapısı ve Roller · HAREKÂT Kılavuz</title>
+<meta name="description" content="2. Tim Yapısı ve Roller">
+<link rel="stylesheet" href="../assets/style.css">
+
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="site-header">
+  <div class="brand">
+    <a href="../index.html" class="logo">HAREKÂT</a>
+    <span class="tag">Oyuncu Kılavuzu</span>
+  </div>
+  <form class="search" role="search" data-search-form>
+    <label class="sr-only" for="q">Ara</label>
+    <input id="q" name="q" type="search" placeholder="Silah, rütbe, lokasyon…" autocomplete="off" data-search-input>
+    <button type="submit">Ara</button>
+    <div class="search-results" data-search-results hidden></div>
+  </form>
+  <button type="button" class="lang-toggle" data-lang-toggle aria-label="Dil değiştir">EN</button>
+</header>
+<nav class="site-nav" aria-label="Ana menü"><a href="../index.html">Ana Sayfa</a><a href="../baslangic.html">Yeni Başlayanlar</a><a href="../silahlar/index.html">Silahlar</a><a href="../rutbeler/index.html">Rütbeler</a><a href="../gorevler/index.html">Görevler</a><a href="../lokasyonlar/index.html">Lokasyonlar</a><a href="../kontroller.html">Kontroller</a><a href="../rehber/index.html">GDD</a><a href="../karsilastir.html">Karşılaştır</a><a href="../harita.html">Harita</a><a href="../yama-notlari.html">Yama Notları</a></nav>
+<main id="icerik" class="content">
+<nav class="crumbs" aria-label="Sayfa yolu"><ol><li><a href="../index.html">Ana Sayfa</a></li><li><a href="index.html">GDD</a></li><li><span aria-current="page">2. Tim Yapısı ve Roller</span></li></ol></nav>
+<h1>2. Tim Yapısı ve Roller</h1><div class="prose"><h2>2. Tim Yapısı ve Roller</h2>
+<p>Kaynak: <code>TeamRole</code>, <code>LoadoutCatalog</code> (SquadSize = 10).</p>
+<h3>2.1 Slot dağılımı</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Slot</th><th scope="col">Rol</th><th scope="col">Kısa kod</th><th scope="col">Görevin özü</th></tr></thead><tbody><tr><td>0</td><td>Tim Komutanı</td><td>KMT</td><td>Emir, yön, MPT-76</td></tr><tr><td>1</td><td>Keskin Nişancı</td><td>KN</td><td>Uzun mesafe, JNG-90</td></tr><tr><td>2</td><td>Makineli Tüfekçi</td><td>MAK</td><td>Baskı ateşi, PMT-76</td></tr><tr><td>3</td><td>Sıhhiyeci</td><td>SHH</td><td>Tıbbi stok, MPT-55</td></tr><tr><td>4</td><td>Telsizci</td><td>TEL</td><td>Topçu çağrısı, MPT-55</td></tr><tr><td>5</td><td>Bombacı</td><td>BMB</td><td>El bombası, G3A7</td></tr><tr><td>6–9</td><td>Piyade</td><td>PYD</td><td>Ana muharebe hattı</td></tr></tbody></table></div>
+<h3>2.2 Rol kartları</h3>
+<h4>Tim Komutanı</h4>
+<ul>
+<li><strong>Silah:</strong> MPT-76 + SAR 9  </li>
+<li><strong>Zırh:</strong> Yelek 2, Kask 2, Çanta 2  </li>
+<li><strong>Stok:</strong> 150×7.62, 30×9mm, 3 sargı, 1 ilk yardım, 1 el bombası, 2 sis  </li>
+<li><strong>Oynanış:</strong> Emir verir (<code>Follow</code>, <code>HoldPosition</code>, <code>Attack</code>, <code>Regroup</code>); harita okur; risk alır ama hayatta kalır.</li>
+</ul>
+<h4>Keskin Nişancı</h4>
+<ul>
+<li><strong>Silah:</strong> JNG-90 + SAR 109T  </li>
+<li><strong>Zırh:</strong> Yelek 1, Kask 2, Çanta 1  </li>
+<li><strong>Stok:</strong> 120×7.62, 120×9mm, 3 sargı, 1 el bombası, 1 sis  </li>
+<li><strong>Oynanış:</strong> Yüksek zemin, köprü ve FOB yaklaşımlarında erken uyarı; yakın mesafede SMG’ye geçer.</li>
+</ul>
+<h4>Makineli Tüfekçi</h4>
+<ul>
+<li><strong>Silah:</strong> PMT-76 + SAR 9  </li>
+<li><strong>Zırh:</strong> Yelek 2, Kask 1, Çanta 2  </li>
+<li><strong>Stok:</strong> 300×7.62, 30×9mm, 3 sargı, 1 el bombası, 1 sis  </li>
+<li><strong>Oynanış:</strong> Koridor ve açık alan baskısı; yavaş hareket / uzun doldurma maliyeti.</li>
+</ul>
+<h4>Sıhhiyeci</h4>
+<ul>
+<li><strong>Silah:</strong> MPT-55 + SAR 9  </li>
+<li><strong>Zırh:</strong> Yelek 1, Kask 1, Çanta 2  </li>
+<li><strong>Stok:</strong> 150×5.56, 30×9mm, 6 sargı, 4 ilk yardım, 2 sıhhiye çantası, 1 ağrı kesici, 1 el bombası, 2 sis  </li>
+<li><strong>Oynanış:</strong> Timin arkasında kalır; sisle can kurtarma alanı açar.</li>
+</ul>
+<h4>Telsizci</h4>
+<ul>
+<li><strong>Silah:</strong> MPT-55 + Canik TP9  </li>
+<li><strong>Zırh:</strong> Yelek 1, Kask 1, Çanta 2  </li>
+<li><strong>Stok:</strong> 150×5.56, 30×9mm, 3 sargı, 1 enerji içeceği, 1 el bombası, 2 sis  </li>
+<li><strong>Oynanış:</strong> Topçu hedefi işaretler; hayatta kalması stratejik önceliktir.</li>
+</ul>
+<h4>Bombacı</h4>
+<ul>
+<li><strong>Silah:</strong> G3A7 + SAR 9  </li>
+<li><strong>Zırh:</strong> Yelek 2, Kask 1, Çanta 2  </li>
+<li><strong>Stok:</strong> 150×7.62, 30×9mm, 3 sargı, <strong>4 el bombası</strong>, 2 sis  </li>
+<li><strong>Oynanış:</strong> Bina temizleme, köprü başı, mevzi kırıcı.</li>
+</ul>
+<h4>Piyade</h4>
+<ul>
+<li><strong>Silah:</strong> Slot çift → MPT-76, tek → MPT-55 + SAR 9  </li>
+<li><strong>Zırh:</strong> Yelek 1, Kask 1, Çanta 1  </li>
+<li><strong>Stok:</strong> 150 ana mermi, 30×9mm, 3 sargı, 1 el bombası, 1 sis  </li>
+<li><strong>Oynanış:</strong> Esnek hat; yağma ve flank.</li>
+</ul>
+<h3>2.3 Emirler (<code>SquadOrder</code>)</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Emir</th><th scope="col">Davranış (bot)</th></tr></thead><tbody><tr><td>Beni takip et</td><td>Lidere yaklaş (başla &gt;8 m, dur &lt;4 m)</td></tr><tr><td>Mevzi al</td><td>Hold; dolaşmaz</td></tr><tr><td>Taarruz</td><td>İşaretli noktaya Assault</td></tr><tr><td>Toplan</td><td>Regroup → lidere Follow kuralları</td></tr></tbody></table></div>
+<p>Öncelik: görünen düşman &gt; bölge dışı &gt; emir (bkz. <a href="../rehber/10-bot-ai.html">10-bot-ai.md</a>).</p></div>
+<p><a href="index.html">← GDD dizini</a></p>
+</main>
+<footer class="site-footer">
+  <p>HAREKÂT — harekât tatbikatı kılavuzu. Mavi / Kırmızı kuvvetler. Veriler GDD ve kataloglardan üretilir.</p>
+  <p lang="en" class="en-note">Player field guide generated from design docs and Unity catalogs.</p>
+</footer>
+<script src="../assets/app.js" type="module"></script>
+</body>
+</html>

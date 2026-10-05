@@ -28,6 +28,13 @@ namespace Project.Infrastructure.DI
         /// <summary>Yerel oyuncunun varsayılan kimliği (tim 0, slot 0).</summary>
         public static readonly PlayerId DefaultLocalPlayerId = new(1);
 
+        /// <summary>
+        /// Online adaptörü için ağ oturumu fabrikası (ör. Netcode istemci/adanmış sunucu oturumu). Atanmışsa
+        /// <see cref="Build(MatchConfig, SettingsService, CareerStatsService, PlayerId)"/> oturumu bununla oluşturur
+        /// (parametre: yerel oyuncu kimliği); null ise ya da hata verirse çevrimdışı oturum (her zaman otorite) kullanılır.
+        /// </summary>
+        public static Func<PlayerId, INetworkSession> NetworkSessionFactory { get; set; }
+
         public static ServiceContainer Build(MatchConfig config, SettingsService settings)
         {
             return Build(config, settings, null, DefaultLocalPlayerId);
@@ -65,10 +72,11 @@ namespace Project.Infrastructure.DI
             container.RegisterSingleton(career);
             container.RegisterSingleton(config);
 
-            // Ağ oturumu (çevrimdışı: her zaman otorite).
-            var network = new OfflineNetworkSession(localPlayerId);
-            container.RegisterSingleton<INetworkSession>(network);
+            // Ağ oturumu (çevrimdışı: her zaman otorite; online adaptörü fabrika ile verir).
+            var network = CreateNetworkSession(localPlayerId);
             container.RegisterSingleton(network);
+            if (network is OfflineNetworkSession offline)
+                container.RegisterSingleton(offline);
 
             // Olay yolu ve rastgelelik. Alt sistemler ayrı tohum akışları kullanır ki biri diğerinin sırasını bozmasın.
             var seed = config.RandomSeed;
@@ -165,6 +173,29 @@ namespace Project.Infrastructure.DI
             }
         }
 
+        private static INetworkSession CreateNetworkSession(PlayerId localPlayerId)
+        {
+            var factory = NetworkSessionFactory;
+            if (factory != null)
+            {
+                try
+                {
+                    var session = factory(localPlayerId);
+                    if (session != null)
+                        return session;
+
+                    UnityEngine.Debug.LogWarning("[GameCompositionRoot] Ağ oturumu fabrikası null döndürdü — çevrimdışı oturum kullanılıyor.");
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogError("[GameCompositionRoot] Ağ oturumu oluşturulamadı — çevrimdışı oturum kullanılıyor: " + e.Message);
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+
+            return new OfflineNetworkSession(localPlayerId);
+        }
+
         private static ISettingsStore CreateStore()
         {
             try
@@ -175,6 +206,13 @@ namespace Project.Infrastructure.DI
             {
                 return null;
             }
+        }
+
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            // Etki alanı yeniden yüklemesi kapalıyken önceki oturumun fabrikası taşınmasın.
+            NetworkSessionFactory = null;
         }
 
         private static void SafeLoad(Action load)

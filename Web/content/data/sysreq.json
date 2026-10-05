@@ -1,0 +1,267 @@
+{
+  "schema": "harekat.web.sysreq.v2",
+  "source": "Marketing/LiveOps/sistem_gereksinimleri_windows.md",
+  "platform": "Windows",
+  "status_tr": "Taslak değerler; build ölçümleriyle güncellenir.",
+  "status_en": "Draft values; updated with build measurements.",
+  "summary_tr": "En az Windows 10 64-bit, 8 GB RAM, GTX 1050 sınıfı. Rahat oyun için 16 GB RAM, RTX 2060 / RX 6600 ve SSD.",
+  "summary_en": "Minimum: Windows 10 64-bit, 8 GB RAM, GTX 1050-class GPU. Recommended: 16 GB RAM, RTX 2060 / RX 6600-class, SSD.",
+  "tiers": [
+    {
+      "id": "minimum",
+      "label_tr": "Minimum",
+      "label_en": "Minimum",
+      "rows": [
+        {
+          "key": "os",
+          "label_tr": "İşletim sistemi",
+          "label_en": "Operating system",
+          "value_tr": "Windows 10 64-bit (21H2 veya üzeri)",
+          "value_en": "Windows 10 64-bit (21H2 or later)"
+        },
+        {
+          "key": "cpu",
+          "label_tr": "İşlemci",
+          "label_en": "Processor",
+          "value_tr": "4 çekirdek — örn. Intel Core i5-2500 / AMD FX-6300 sınıfı veya daha yenisi",
+          "value_en": "4 cores — e.g. Intel Core i5-2500 / AMD FX-6300 class or newer"
+        },
+        {
+          "key": "ram",
+          "label_tr": "Bellek",
+          "label_en": "Memory",
+          "value_tr": "8 GB RAM",
+          "value_en": "8 GB RAM"
+        },
+        {
+          "key": "gpu",
+          "label_tr": "Ekran kartı",
+          "label_en": "Graphics",
+          "value_tr": "DirectX 11 — NVIDIA GTX 1050 / AMD RX 560 sınıfı (3 GB+ VRAM)",
+          "value_en": "DirectX 11 — NVIDIA GTX 1050 / AMD RX 560 class (3 GB+ VRAM)"
+        },
+        {
+          "key": "directx",
+          "label_tr": "DirectX",
+          "label_en": "DirectX",
+          "value_tr": "Sürüm 11",
+          "value_en": "Version 11"
+        },
+        {
+          "key": "storage",
+          "label_tr": "Depolama",
+          "label_en": "Storage",
+          "value_tr": "8 GB boş alan (HDD kabul; SSD önerilir)",
+          "value_en": "8 GB free space (HDD accepted; SSD recommended)"
+        },
+        {
+          "key": "network",
+          "label_tr": "Ağ",
+          "label_en": "Network",
+          "value_tr": "Geniş bant (online için)",
+          "value_en": "Broadband (for online play)"
+        },
+        {
+          "key": "extra",
+          "label_tr": "Ek",
+          "label_en": "Additional",
+          "value_tr": "64-bit OS zorunlu; SSE2",
+          "value_en": "64-bit OS required; SSE2"
+        }
+      ],
+      "target_tr": "1080p, düşük ayar, ~30 FPS; bot / düşük oyuncu yoğunluğu senaryolarında oynanabilir.",
+      "target_en": "1080p, low settings, ~30 FPS; playable in bot / low player-density scenarios."
+    },
+    {
+      "id": "recommended",
+      "label_tr": "Önerilen",
+      "label_en": "Recommended",
+      "rows": [
+        {
+          "key": "os",
+          "label_tr": "İşletim sistemi",
+          "label_en": "Operating system",
+          "value_tr": "Windows 10 veya 11 64-bit (güncel)",
+          "value_en": "Windows 10 or 11 64-bit (up to date)"
+        },
+        {
+          "key": "cpu",
+          "label_tr": "İşlemci",
+          "label_en": "Processor",
+          "value_tr": "6+ çekirdek — örn. Intel Core i5-10400 / AMD Ryzen 5 3600 veya daha iyisi",
+          "value_en": "6+ cores — e.g. Intel Core i5-10400 / AMD Ryzen 5 3600 or better"
+        },
+        {
+          "key": "ram",
+          "label_tr": "Bellek",
+          "label_en": "Memory",
+          "value_tr": "16 GB RAM",
+          "value_en": "16 GB RAM"
+        },
+        {
+          "key": "gpu",
+          "label_tr": "Ekran kartı",
+          "label_en": "Graphics",
+          "value_tr": "NVIDIA RTX 2060 / AMD RX 6600 sınıfı (6 GB+ VRAM)",
+          "value_en": "NVIDIA RTX 2060 / AMD RX 6600 class (6 GB+ VRAM)"
+        },
+        {
+          "key": "directx",
+          "label_tr": "DirectX",
+          "label_en": "DirectX",
+          "value_tr": "12 uyumlu donanım (DX11 yolu da desteklenir)",
+          "value_en": "DirectX 12 capable hardware (DX11 path also supported)"
+        },
+        {
+          "key": "storage",
+          "label_tr": "Depolama",
+          "label_en": "Storage",
+          "value_tr": "12 GB SSD",
+          "value_en": "12 GB SSD"
+        },
+        {
+          "key": "network",
+          "label_tr": "Ağ",
+          "label_en": "Network",
+          "value_tr": "Sabit geniş bant; kablolu tercih",
+          "value_en": "Stable broadband; wired preferred"
+        },
+        {
+          "key": "audio",
+          "label_tr": "Ses",
+          "label_en": "Audio",
+          "value_tr": "Windows ses cihazı / kulaklık (tim koordinasyonu)",
+          "value_en": "Windows audio device / headset (squad coordination)"
+        }
+      ],
+      "target_tr": "1080p, orta–yüksek, ~60 FPS; 10’luk tim online maç.",
+      "target_en": "1080p, medium–high, ~60 FPS; 10-player squad online match."
+    },
+    {
+      "id": "highEnd",
+      "label_tr": "Üst düzey / yayın (opsiyonel)",
+      "label_en": "High-end / streaming (optional)",
+      "rows": [
+        {
+          "key": "cpu",
+          "label_tr": "İşlemci",
+          "label_en": "Processor",
+          "value_tr": "8 çekirdek (yayın + oyun)",
+          "value_en": "8 cores (streaming + gaming)"
+        },
+        {
+          "key": "ram",
+          "label_tr": "Bellek",
+          "label_en": "Memory",
+          "value_tr": "32 GB (OBS + tarayıcı)",
+          "value_en": "32 GB (OBS + browser)"
+        },
+        {
+          "key": "gpu",
+          "label_tr": "Ekran kartı",
+          "label_en": "Graphics",
+          "value_tr": "RTX 3070 / RX 6700 XT veya üzeri",
+          "value_en": "RTX 3070 / RX 6700 XT or better"
+        },
+        {
+          "key": "storage",
+          "label_tr": "Depolama",
+          "label_en": "Storage",
+          "value_tr": "NVMe SSD",
+          "value_en": "NVMe SSD"
+        },
+        {
+          "key": "network",
+          "label_tr": "Ağ",
+          "label_en": "Network",
+          "value_tr": "Upload ≥ 10 Mbps (1080p60 yayın)",
+          "value_en": "Upload ≥ 10 Mbps (1080p60 streaming)"
+        }
+      ]
+    }
+  ],
+  "resolutionMatrix": {
+    "columns_tr": [
+      "Hedef",
+      "Çözünürlük",
+      "Preset",
+      "Donanım bandı"
+    ],
+    "columns_en": [
+      "Goal",
+      "Resolution",
+      "Preset",
+      "Hardware tier"
+    ],
+    "rows": [
+      {
+        "tr": [
+          "Oynanabilir",
+          "1920×1080",
+          "Düşük",
+          "Minimum"
+        ],
+        "en": [
+          "Playable",
+          "1920×1080",
+          "Low",
+          "Minimum"
+        ]
+      },
+      {
+        "tr": [
+          "Rekabet",
+          "1920×1080",
+          "Orta",
+          "Önerilen"
+        ],
+        "en": [
+          "Competitive",
+          "1920×1080",
+          "Medium",
+          "Recommended"
+        ]
+      },
+      {
+        "tr": [
+          "Görsel",
+          "2560×1440",
+          "Yüksek",
+          "Üst düzey"
+        ],
+        "en": [
+          "Visual",
+          "2560×1440",
+          "High",
+          "High-end"
+        ]
+      },
+      {
+        "tr": [
+          "4K",
+          "3840×2160",
+          "Orta/Yüksek",
+          "Üst düzey+"
+        ],
+        "en": [
+          "4K",
+          "3840×2160",
+          "Medium/High",
+          "High-end+"
+        ]
+      }
+    ]
+  },
+  "notes_tr": [
+    "macOS / Linux istemci: desteklenmiyor (geliştirici macOS yalnızca editör).",
+    "Entegre GPU (çok düşük UHD): resmi olarak desteklenmez; garanti yok.",
+    "Çoklu monitör + yüksek DPI: ölçekleme %100 veya %125 ile test edin.",
+    "Antivirus gerçek zamanlı tarama ilk açılışta hitch yapabilir."
+  ],
+  "notes_en": [
+    "macOS / Linux clients: not supported (developer macOS is editor-only).",
+    "Integrated GPUs (very low-end UHD): not officially supported; no guarantee.",
+    "Multi-monitor + high DPI: test with 100% or 125% scaling.",
+    "Antivirus real-time scanning may cause a hitch on first launch."
+  ]
+}

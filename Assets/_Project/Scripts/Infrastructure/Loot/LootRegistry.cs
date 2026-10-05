@@ -21,6 +21,7 @@ namespace Project.Infrastructure.Loot
         private const int MaxConeCandidates = 6;
 
         private static readonly List<LootPickupComponent> _all = new(1024);
+        private static readonly Dictionary<int, LootPickupComponent> _bySpawnId = new(1024);
         private static readonly Dictionary<long, List<LootPickupComponent>> _cells = new(1024);
         private static readonly Stack<List<LootPickupComponent>> _cellListPool = new(64);
         private static readonly RaycastHit[] _hits = new RaycastHit[24];
@@ -28,6 +29,7 @@ namespace Project.Infrastructure.Loot
         private static readonly IComparer<Candidate> CandidateComparer = new CandidateByScore();
 
         private static LootPickupComponent _focused;
+        private static float _externalFocusTime = float.NegativeInfinity;
 
         private readonly struct Candidate
         {
@@ -54,6 +56,22 @@ namespace Project.Infrastructure.Loot
         /// <summary>Yerel oyuncunun şu an baktığı (vurgulanan) eşya.</summary>
         public static LootPickupComponent Focused => _focused != null ? _focused : null;
 
+        /// <summary>
+        /// Odak son 0.35 s içinde dışarıdan (SetFocus) ayarlandıysa true: otomatik odak sürücüsü (LootFocusDriver) bu
+        /// sürede devre dışı kalır, böylece oyuncu etkileşim kodu hangi eşyayı hedeflediyse halka onda görünür.
+        /// </summary>
+        public static bool HasExternalFocusOwner => Time.unscaledTime - _externalFocusTime < 0.35f;
+
+        /// <summary>SpawnId ile kayıtlı eşyayı bulur (ağ eşlemesi / sunucu doğrulaması için).</summary>
+        public static bool TryGet(int spawnId, out LootPickupComponent pickup)
+        {
+            if (spawnId > 0 && _bySpawnId.TryGetValue(spawnId, out pickup) && pickup != null && pickup.SpawnId == spawnId)
+                return true;
+
+            pickup = null;
+            return false;
+        }
+
         /// <summary>Kaydeder ya da (zaten kayıtlıysa) ızgaradaki konumunu günceller.</summary>
         public static void Register(LootPickupComponent pickup)
         {
@@ -71,6 +89,7 @@ namespace Project.Infrastructure.Loot
                     AddToCell(pickup, key);
                 }
 
+                UpdateSpawnId(pickup);
                 return;
             }
 
@@ -78,6 +97,7 @@ namespace Project.Infrastructure.Loot
             pickup.RegisteredPosition = position;
             _all.Add(pickup);
             AddToCell(pickup, key);
+            UpdateSpawnId(pickup);
         }
 
         public static void Unregister(LootPickupComponent pickup)
@@ -86,7 +106,7 @@ namespace Project.Infrastructure.Loot
                 return;
 
             if (ReferenceEquals(_focused, pickup))
-                SetFocus(null);
+                ApplyFocus(null);
 
             if (!IsRegistered(pickup))
             {
@@ -95,6 +115,7 @@ namespace Project.Infrastructure.Loot
             }
 
             RemoveFromCell(pickup);
+            RemoveSpawnId(pickup);
             var index = pickup.RegistryIndex;
             var last = _all.Count - 1;
             if (index != last)
@@ -229,8 +250,18 @@ namespace Project.Infrastructure.Loot
             return FindInCone(origin, direction, Mathf.Min(maxDistance, blockDistance + 0.6f));
         }
 
-        /// <summary>Odak (vurgu) eşyasını ayarlar; parlak halka yalnızca bu eşyada görünür. null → kaldır.</summary>
+        /// <summary>
+        /// Odak (vurgu) eşyasını ayarlar; parlak halka yalnızca bu eşyada görünür. null → kaldır. Oyuncu etkileşim kodu
+        /// her taramada çağırırsa otomatik odak sürücüsü devre dışı kalır.
+        /// </summary>
         public static void SetFocus(LootPickupComponent pickup)
+        {
+            _externalFocusTime = Time.unscaledTime;
+            ApplyFocus(pickup);
+        }
+
+        /// <summary>Odağı ayarlar (sahiplik işaretlemeden; LootFocusDriver kullanır).</summary>
+        internal static void ApplyFocus(LootPickupComponent pickup)
         {
             if (pickup != null && !pickup.IsAvailable)
                 pickup = null;
@@ -252,10 +283,14 @@ namespace Project.Infrastructure.Loot
             {
                 var pickup = _all[i];
                 if (!ReferenceEquals(pickup, null))
+                {
                     pickup.RegistryIndex = -1;
+                    pickup.RegisteredSpawnId = 0;
+                }
             }
 
             _all.Clear();
+            _bySpawnId.Clear();
             foreach (var pair in _cells)
             {
                 pair.Value.Clear();
@@ -264,6 +299,7 @@ namespace Project.Infrastructure.Loot
 
             _cells.Clear();
             _focused = null;
+            _externalFocusTime = float.NegativeInfinity;
             WorldItemVisuals.ShowFocus(null);
         }
 
@@ -381,6 +417,29 @@ namespace Project.Infrastructure.Loot
             return 1;
         }
 
+        private static void UpdateSpawnId(LootPickupComponent pickup)
+        {
+            var id = pickup.SpawnId;
+            if (pickup.RegisteredSpawnId == id)
+                return;
+
+            RemoveSpawnId(pickup);
+            if (id > 0)
+            {
+                _bySpawnId[id] = pickup;
+                pickup.RegisteredSpawnId = id;
+            }
+        }
+
+        private static void RemoveSpawnId(LootPickupComponent pickup)
+        {
+            var id = pickup.RegisteredSpawnId;
+            if (id > 0 && _bySpawnId.TryGetValue(id, out var current) && ReferenceEquals(current, pickup))
+                _bySpawnId.Remove(id);
+
+            pickup.RegisteredSpawnId = 0;
+        }
+
         private static bool IsRegistered(LootPickupComponent pickup)
         {
             var index = pickup.RegistryIndex;
@@ -446,10 +505,12 @@ namespace Project.Infrastructure.Loot
         private static void ResetStatics()
         {
             _all.Clear();
+            _bySpawnId.Clear();
             _cells.Clear();
             _cellListPool.Clear();
             _candidates.Clear();
             _focused = null;
+            _externalFocusTime = float.NegativeInfinity;
         }
     }
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Bozkurt Timi">
+  <title>Bozkurt Timi — özgün stilize amblem</title>
+  <circle cx="64" cy="64" r="60" fill="#2A2E32" stroke="#C9CFD4" stroke-width="3"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#C9CFD4" stroke-width="1" opacity="0.45"/>
+  <path d="M36 70c4-18 14-30 28-34 6 0 10 4 14 4 4-6 10-10 16-8 2 10-2 18-8 24 6 6 8 14 6 22-12-2-24 0-36-4-6 4-12 2-20-4z" fill="#C9CFD4"/>
+  <path d="M52 58l-6-10M72 56l8-12" stroke="#2A2E32" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="58" cy="62" r="2.2" fill="#2A2E32"/>
+  <circle cx="74" cy="60" r="2.2" fill="#2A2E32"/>
+  <path d="M62 70c2 4 6 4 8 0" stroke="#F2A900" stroke-width="2" fill="none"/>
+  <circle cx="64" cy="100" r="6.6" fill="#F2A900"/>
+  <circle cx="65.98" cy="99.6" r="4.62" fill="#2A2E32"/>
+  <polygon points="71.59,100 67.63,97.69 69.61,100 67.63,102.31" fill="#F2A900"/>
+</svg>
