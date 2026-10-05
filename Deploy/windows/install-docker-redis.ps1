@@ -84,23 +84,19 @@ dir $(($redisDir -replace '\\','/'))
 logfile "$((Join-Path $redisDir 'redis.log') -replace '\\','/')"
 "@ | Set-Content $conf -Encoding ASCII
 
-$svc = Get-Service HarekatRedis -ErrorAction SilentlyContinue
-if (-not $svc) {
-    Write-Host 'HarekatRedis Windows servisi oluşturuluyor...' -ForegroundColor Yellow
-    New-Service -Name 'HarekatRedis' `
-        -BinaryPathName "`"$redisExe`" `"$conf`"" `
-        -DisplayName 'HAREKAT Redis' `
-        -Description 'HAREKAT matchmaking / cache Redis' `
-        -StartupType Automatic | Out-Null
+# Redis Windows native service install
+$existing = Get-Service -Name 'HarekatRedis','harekatredis' -ErrorAction SilentlyContinue
+if ($existing) {
+    try { & $redisExe --service-stop --service-name HarekatRedis } catch {}
+    try { & $redisExe --service-uninstall --service-name HarekatRedis } catch {}
+    Start-Sleep -Seconds 1
 }
-
-# Firewall (localhost only bind — yine de port kuralı opsiyonel; dışa açmıyoruz)
-# New-NetFirewallRule ... LocalPort $RedisPort — bilerek yok (sadece 127.0.0.1)
-
-Restart-Service HarekatRedis -Force -ErrorAction SilentlyContinue
+Write-Host 'HarekatRedis servisi (redis-server --service-install)...' -ForegroundColor Yellow
+& $redisExe --service-install $conf --service-name HarekatRedis
+& $redisExe --service-start --service-name HarekatRedis
 Start-Sleep -Seconds 2
-$svc = Get-Service HarekatRedis
-Write-Host ("Redis service: " + $svc.Status)
+$svc = Get-Service -Name 'HarekatRedis','harekatredis' -ErrorAction SilentlyContinue | Select-Object -First 1
+Write-Host ("Redis service: " + $(if ($svc) { $svc.Status } else { 'MISSING' }))
 
 $redisCli = Join-Path $redisDir 'redis-cli.exe'
 if (Test-Path $redisCli) {

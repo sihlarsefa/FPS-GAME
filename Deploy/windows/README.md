@@ -1,7 +1,7 @@
 # Windows Server dağıtım (IIS + SQL Server)
 
-Hedef platform: **Windows Server + IIS + Microsoft SQL Server**.  
-Linux / Docker / Postgres bu yolda kullanılmaz.
+Hedef platform: **Windows Server + IIS + Microsoft SQL Server (+ Docker CE + Redis)**.  
+Yeni Linux sunucu yok; her şey bu Windows makinede.
 
 Canlı hedef: `134.149.201.54` (APP2025)
 
