@@ -61,11 +61,13 @@ if (-not ((& dotnet --list-sdks 2>$null) -match '^10\.')) {
     $env:Path = 'C:\Program Files\dotnet;' + $env:Path
 }
 
+$env:GIT_TERMINAL_PROMPT = '0'
+$env:GCM_INTERACTIVE = 'never'
 if (-not (Test-Path (Join-Path $Repo '.git'))) {
-    git clone --depth 1 $RepoUrl $Repo
+    git -c credential.helper= clone --depth 1 $RepoUrl $Repo
 } else {
-    git -C $Repo fetch --depth 1 origin main
-    git -C $Repo reset --hard origin/main
+    git -C $Repo -c credential.helper= fetch --depth 1 origin main
+    git -C $Repo -c credential.helper= reset --hard origin/main
 }
 
 # Web
@@ -114,8 +116,8 @@ $apiProj = Join-Path $Repo 'Backend\Harekat.Api\Harekat.Api.csproj'
 Import-Module WebAdministration -ErrorAction SilentlyContinue
 $apiSite = 'harekat-api'
 $webSite = 'harekat-web'
-if (Get-Website -Name $apiSite -ErrorAction SilentlyContinue) { Stop-Website $apiSite -ErrorAction SilentlyContinue }
-if (Get-WebAppPool -Name $apiSite -ErrorAction SilentlyContinue) { Stop-WebAppPool $apiSite -ErrorAction SilentlyContinue }
+try { if (Get-Website -Name $apiSite -ErrorAction SilentlyContinue) { Stop-Website $apiSite } } catch {}
+try { if (Test-Path "IIS:\AppPools\$apiSite") { Stop-WebAppPool $apiSite } } catch {}
 Start-Sleep -Seconds 2
 
 dotnet publish $apiProj -c Release -o $ApiOut --self-contained false
