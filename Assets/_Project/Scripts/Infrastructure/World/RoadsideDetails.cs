@@ -5,16 +5,16 @@ using UnityEngine;
 namespace Project.Infrastructure.World
 {
     /// <summary>
-    /// Yol kenarı detayları: ana yolda ahşap elektrik direkleri + sarkan teller, km taşları, uçurum kenarında korkuluk.
+    /// Yol kenarı detayları: ana yolda ahşap elektrik direkleri + katener tel, km taşları, Türkçe tabelalar (bitmap atlas), yanmış araç kasaları, eğimi izleyen korkuluk.
     /// Yol ekseni TerrainModel.RoadProfiles'tan (pürüzsüz Catmull-Rom) okunur. Tek birleşik mesh + az sayıda kutu çarpıştırıcı
-    /// (prop bütçesi RoadsidePlan.Max*). Deterministik (RNG yok); köprü, su, kavşak ve yapılardan kaçınır.
+    /// (prop bütçesi RoadsidePlan.*For(kademe)). Deterministik (RNG yok); köprü, su, kavşak ve yapılardan kaçınır.
     /// </summary>
     public static class RoadsideDetails
     {
         public const string RootName = "YolDetayları";
-        private const int SubWood = 0, SubConcrete = 1, SubMetal = 2, SubWire = 3, SubRed = 4;
+        private const int SubWood = 0, SubConcrete = 1, SubMetal = 2, SubWire = 3, SubRed = 4, SubRust = 5, SubWireChar = SubWire;
         private const float PoleHeight = 7.2f;
-        private const int WireSegments = 6;
+        private const int WireSegments = 8;
 
         public static int Build(MapLayout layout, TerrainModel model, Terrain terrain, Transform parent,
             IReadOnlyList<Bounds> structures)
@@ -23,14 +23,18 @@ namespace Project.Infrastructure.World
                 return 0;
 
             var yOffset = terrain != null ? terrain.transform.position.y : 0f;
-            var builder = new MeshBuilder(5);
+            var builder = new MeshBuilder(6);
+            var signBuilder = new MeshBuilder(1);
             var root = new GameObject(RootName) { layer = GameLayers.Default };
             if (parent != null)
                 root.transform.SetParent(parent, false);
 
+            var tier = QualitySettings.GetQualityLevel();
             var poles = 0;
             var stones = 0;
             var runs = 0;
+            var signs = 0;
+            var wrecks = 0;
             var guardIndex = 0;
             for (var r = 0; r < layout.Roads.Count; r++)
             {
@@ -54,19 +58,31 @@ namespace Project.Infrastructure.World
                 {
                     var side = (r & 1) == 0 ? 1f : -1f;
                     var plan = RoadsidePlan.PlanPoles(samples, width, side,
-                        Mathf.Max(0, RoadsidePlan.MaxPoles - poles), blocked);
+                        Mathf.Max(0, RoadsidePlan.PolesFor(tier) - poles), blocked);
                     BuildPoles(builder, root, plan, terrain, yOffset, model);
                     poles += plan.Count;
 
                     var km = RoadsidePlan.PlanKmStones(samples, width,
-                        Mathf.Max(0, RoadsidePlan.MaxKmStones - stones), blocked);
+                        Mathf.Max(0, RoadsidePlan.KmStonesFor(tier) - stones), blocked);
                     for (var i = 0; i < km.Count; i++)
                         AddKmStone(builder, root, km[i], terrain, yOffset);
                     stones += km.Count;
+
+                    var signPlan = RoadsidePlan.PlanSigns(samples, width, RoadsideSignSet.Count, r,
+                        Mathf.Max(0, RoadsidePlan.SignsFor(tier) - signs), blocked);
+                    for (var i = 0; i < signPlan.Count; i++)
+                        AddSign(builder, signBuilder, root, signPlan[i], terrain, yOffset, model);
+                    signs += signPlan.Count;
+
+                    var wreckPlan = RoadsidePlan.PlanWrecks(samples, width,
+                        Mathf.Max(0, RoadsidePlan.WrecksFor(tier) - wrecks), blocked);
+                    for (var i = 0; i < wreckPlan.Count; i++)
+                        AddWreck(builder, root, wreckPlan[i], terrain, yOffset, model);
+                    wrecks += wreckPlan.Count;
                 }
 
                 var rails = RoadsidePlan.PlanGuardrails(samples, width,
-                    Mathf.Max(0, RoadsidePlan.MaxGuardRuns - runs), model.SampleHeight, blocked);
+                    Mathf.Max(0, RoadsidePlan.GuardRunsFor(tier) - runs), model.SampleHeight, blocked);
                 for (var i = 0; i < rails.Count; i++)
                     AddGuardrail(builder, root, rails[i], guardIndex++);
                 runs += rails.Count;
@@ -86,10 +102,21 @@ namespace Project.Infrastructure.World
                 MaterialLibrary.Get(MaterialId.Concrete),
                 MaterialLibrary.Get(MaterialId.MetalPanel),
                 MaterialLibrary.Get(MaterialId.Black),
-                MaterialLibrary.Get(MaterialId.Red)
+                MaterialLibrary.Get(MaterialId.Red),
+                MaterialLibrary.Get(MaterialId.Rust)
             };
+
+            if (signBuilder.VertexCount > 0)
+            {
+                var signGo = new GameObject("Tabelalar") { layer = GameLayers.Default };
+                signGo.transform.SetParent(root.transform, false);
+                signGo.AddComponent<MeshFilter>().sharedMesh = signBuilder.ToMesh("HK_RoadsideSigns");
+                var signRenderer = signGo.AddComponent<MeshRenderer>();
+                signRenderer.sharedMaterial = MaterialLibrary.Textured(RoadsideSignSet.Atlas(), Color.white, 0.12f);
+            }
+
             StructureKit.MarkStatic(root);
-            return poles + stones + runs;
+            return poles + stones + runs + signs + wrecks;
         }
 
         private static float Ground(TerrainModel model, Terrain terrain, float yOffset, float x, float z)
@@ -140,7 +167,7 @@ namespace Project.Infrastructure.World
             for (var s = 1; s <= WireSegments; s++)
             {
                 var t = s / (float)WireSegments;
-                var p = Vector3.Lerp(a, c, t) + Vector3.down * RoadsidePlan.WireSag(t, sag);
+                var p = Vector3.Lerp(a, c, t) + Vector3.down * RoadsidePlan.CatenaryDrop(t, Vector3.Distance(a, c), sag);
                 var d = p - prev;
                 var len = d.magnitude;
                 if (len > 0.01f)
@@ -164,28 +191,66 @@ namespace Project.Infrastructure.World
             col.size = new Vector3(0.5f, 0.9f, 0.5f);
         }
 
+        private static void AddSign(MeshBuilder b, MeshBuilder signs, GameObject root, RoadsidePost post, Terrain terrain,
+            float yOffset, TerrainModel model)
+        {
+            var y = Ground(model, terrain, yOffset, post.Pos.x, post.Pos.z);
+            RoadsideProps.AddSign(b, SubMetal, signs, new Vector3(post.Pos.x, y, post.Pos.z), post.Yaw, post.Kind);
+            var col = root.AddComponent<BoxCollider>();
+            col.center = new Vector3(post.Pos.x, y + 1.2f, post.Pos.z);
+            col.size = new Vector3(0.3f, 2.4f, 0.3f);
+        }
+
+        private static void AddWreck(MeshBuilder b, GameObject root, RoadsidePost post, Terrain terrain, float yOffset,
+            TerrainModel model)
+        {
+            var y = Ground(model, terrain, yOffset, post.Pos.x, post.Pos.z);
+            var basePos = new Vector3(post.Pos.x, y, post.Pos.z);
+            RoadsideProps.AddWreck(b, SubRust, SubWireChar, basePos, post.Yaw, post.Kind);
+            var go = new GameObject("YanmisArac" + post.Kind) { layer = GameLayers.Default };
+            go.transform.SetParent(root.transform, false);
+            go.transform.SetPositionAndRotation(basePos + Vector3.up * 0.9f, Quaternion.Euler(0f, post.Yaw, 0f));
+            go.AddComponent<BoxCollider>().size = new Vector3(2f, 1.5f, 4.4f);
+        }
+
+        /// <summary>Korkuluk: eğimi izler. Her segment kendi eğim açısıyla döner; direkler yol noktalarında; çarpıştırıcı ~16 m'lik gruplar.</summary>
         private static void AddGuardrail(MeshBuilder b, GameObject root, GuardRun run, int index)
         {
-            var d = run.End - run.Start;
-            var len = d.magnitude;
-            if (len < 0.5f)
+            var path = RoadsidePlan.RunPath(run, 4f);
+            if (path.Count < 2 || Vector3.Distance(run.Start, run.End) < 0.5f)
                 return;
-            var dir = d / len;
-            var rot = Quaternion.LookRotation(dir);
-            var mid = (run.Start + run.End) * 0.5f;
-            MeshFactory.AddBox(b, SubMetal, mid + Vector3.up * 0.7f, new Vector3(0.08f, 0.3f, len), rot);
-            var posts = Mathf.Max(2, Mathf.CeilToInt(len / 4f) + 1);
-            for (var i = 0; i < posts; i++)
+
+            for (var i = 0; i + 1 < path.Count; i++)
             {
-                var p = Vector3.Lerp(run.Start, run.End, i / (float)(posts - 1));
-                MeshFactory.AddBox(b, SubWood, p + Vector3.up * 0.45f, new Vector3(0.12f, 0.9f, 0.12f), rot);
+                var d = path[i + 1] - path[i];
+                var len = d.magnitude;
+                if (len < 0.05f)
+                    continue;
+                var rot = Quaternion.LookRotation(d / len);
+                MeshFactory.AddBox(b, SubMetal, (path[i] + path[i + 1]) * 0.5f + Vector3.up * 0.7f,
+                    new Vector3(0.08f, 0.3f, len + 0.04f), rot);
+                MeshFactory.AddBox(b, SubWood, path[i] + Vector3.up * 0.45f, new Vector3(0.12f, 0.9f, 0.12f), rot);
             }
 
-            var go = new GameObject("Korkuluk" + index) { layer = GameLayers.Default };
-            go.transform.SetParent(root.transform, false);
-            go.transform.SetPositionAndRotation(mid + Vector3.up * 0.6f, rot);
-            var col = go.AddComponent<BoxCollider>();
-            col.size = new Vector3(0.2f, 1.1f, len);
+            var lastDir = path[path.Count - 1] - path[path.Count - 2];
+            if (lastDir.sqrMagnitude > 1e-6f)
+                MeshFactory.AddBox(b, SubWood, path[path.Count - 1] + Vector3.up * 0.45f, new Vector3(0.12f, 0.9f, 0.12f),
+                    Quaternion.LookRotation(lastDir));
+
+            const int chunk = 4;
+            for (var i = 0; i + 1 < path.Count; i += chunk)
+            {
+                var a = path[i];
+                var c = path[Mathf.Min(i + chunk, path.Count - 1)];
+                var d = c - a;
+                var len = d.magnitude;
+                if (len < 0.5f)
+                    continue;
+                var go = new GameObject("Korkuluk" + index + "_" + i) { layer = GameLayers.Default };
+                go.transform.SetParent(root.transform, false);
+                go.transform.SetPositionAndRotation((a + c) * 0.5f + Vector3.up * 0.6f, Quaternion.LookRotation(d / len));
+                go.AddComponent<BoxCollider>().size = new Vector3(0.2f, 1.1f, len);
+            }
         }
 
         private static bool IsBlocked(MapLayout layout, TerrainModel model, IReadOnlyList<Bounds> structures,

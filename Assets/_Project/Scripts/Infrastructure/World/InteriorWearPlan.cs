@@ -28,7 +28,10 @@ namespace Project.Infrastructure.World
             => Mathf.Max(0, Mathf.RoundToInt(Mathf.Max(0f, wallLength) * 0.22f * Density(tier) * RuinMul(ruined)));
 
         /// <summary>Pencere başına zemindeki cam kırığı parçası.</summary>
-        public static int Shards(int tier, bool ruined) => Mathf.RoundToInt(6f * Density(tier) * RuinMul(ruined));
+        public static int Shards(int tier, bool ruined) => Mathf.RoundToInt(3.5f * Density(tier) * RuinMul(ruined));
+
+        /// <summary>Cam kırığı kümesi: ~%75 pencere altında yoğun, kalanı odada seyrek.</summary>
+        public static bool ShardNearWindow(double roll) => roll < 0.75;
 
         /// <summary>Oda başına yerdeki enkaz parçası (sıva/tuğla kırıntısı).</summary>
         public static int Debris(float area, int tier, bool ruined)
@@ -81,5 +84,15 @@ namespace Project.Infrastructure.World
             if (z1 < z0) z0 = z1 = r.center.y;
             return new Vector2(x0 + (x1 - x0) * (float)rng.NextDouble(), z0 + (z1 - z0) * (float)rng.NextDouble());
         }
+    
+        /// <summary>Oda/kat başına kararlı tohum (bina tohumundan): aynı bina her seferinde aynı yıpranmayı üretir.</summary>
+        public static int SeedFor(int buildingSeed, int level, int roomIndex)
+            => unchecked(buildingSeed * 73856093 ^ (level + 1) * 19349663 ^ (roomIndex + 1) * 83492791);
+
+        /// <summary>Asker eşyası türü: 0 şarjör, 1 telsiz, 2 matara, 3 kovan.</summary>
+        public static int ItemKind(int index) => Mathf.Abs(index) % 4;
+
+        /// <summary>Duvar yüzünde kurşun deliği için en az aralık (m): delikler üst üste binmesin.</summary>
+        public const float HoleSpacing = 0.18f;
     }
 }

@@ -8,32 +8,82 @@ namespace Project.Infrastructure.World
     /// <summary>
     /// Oda mobilyalama: yatak, dolap, masa+sandalye, mutfak rafı, kilim, borulu soba, sandık. PropFactory tarzı kutu parçalar,
     /// çarpıştırıcılı + NavMeshObstacle (carve). Ganimet çapalarını InteriorAnchors'a kaydeder.
-    /// ENTEGRASYON: BuildingGenerator.Furnish: oda başına InteriorFurnisher.Furnish(parent, room, floorY, ceilH, kind, seed, doorZones) çağrısı (public hook).
+    /// BuildingGenerator.Furnish (BuildingGeneratorInterior) oda başına bu sınıfı çağırır; ev tipi (köy/konut) odalarda tek mobilya sistemi budur.
     /// </summary>
     public static class InteriorFurnisher
     {
         private static readonly List<FurniturePlacement> Scratch = new List<FurniturePlacement>(16);
 
+        /// <summary>Oda planı: Furnish ile bire bir aynı yerleşim (aynı tohum). BuildingGenerator bunu engel/ganimet kaydı için üretim anında çağırır.</summary>
+        public static int PlanRoom(Rect room, RoomKind kind, int seed, IList<Rect> doorZones, int maxPieces, List<FurniturePlacement> output)
+        {
+            output.Clear();
+            InteriorLayout.Plan(room, kind, new System.Random(seed), doorZones, output);
+            if (maxPieces >= 0 && output.Count > maxPieces)
+            {
+                // Zemin kilimi sayılmaz: engelleyici parçalar öncelikli kalır
+                for (var i = output.Count - 1; i >= 0 && output.Count > maxPieces; i--)
+                {
+                    if (output[i].Kind == FurnitureKind.Rug)
+                        output.RemoveAt(i);
+                }
+
+                if (output.Count > maxPieces)
+                    output.RemoveRange(maxPieces, output.Count - maxPieces);
+            }
+
+            return output.Count;
+        }
+
+        /// <param name="maxPieces">Kalite kademesine bağlı oda başına parça sınırı (PlanRoom ile aynı olmalı).</param>
+        /// <param name="tipChance">Sandalye/masa devrik olasılığı (savaş yorgunu).</param>
+        /// <param name="windowZones">Duvar süsünün kaçınacağı pencere önleri (mobilya yerleşimini etkilemez).</param>
         public static GameObject Furnish(Transform parent, Rect room, float floorY, float ceilingH, RoomKind kind, int seed,
-            IList<Rect> doorZones, bool registerAnchors = true)
+            IList<Rect> doorZones, bool registerAnchors = true, int maxPieces = -1, float tipChance = 0f, IList<Rect> windowZones = null)
         {
             var rng = new System.Random(seed);
-            Scratch.Clear();
-            InteriorLayout.Plan(room, kind, rng, doorZones, Scratch);
+            var tipRng = new System.Random(seed ^ 0x5bd1e995);
+            PlanRoom(room, kind, seed, doorZones, maxPieces, Scratch);
             var group = StructureKit.CreateGroup(parent, "Ic_" + kind, Vector3.zero, Quaternion.identity);
             for (var i = 0; i < Scratch.Count; i++)
             {
                 var p = Scratch[i];
-                var root = StructureKit.CreateGroup(group.transform, p.Kind.ToString(), p.Center(floorY), Quaternion.Euler(0f, p.Yaw, 0f));
                 var s = InteriorLayout.Size(p.Kind);
+                var tipped = tipChance > 0f && (p.Kind == FurnitureKind.Chair || p.Kind == FurnitureKind.Table) && tipRng.NextDouble() < tipChance;
+                var pos = p.Center(floorY);
+                var rot = Quaternion.Euler(0f, p.Yaw, 0f);
+                if (tipped)
+                {
+                    if (p.Kind == FurnitureKind.Table)
+                    {
+                        pos.y += 0.78f;
+                        rot *= Quaternion.Euler(0f, 0f, 180f);
+                    }
+                    else
+                    {
+                        pos.y += s.x * 0.5f;
+                        rot *= Quaternion.Euler(0f, 0f, tipRng.NextDouble() < 0.5 ? 90f : -90f);
+                    }
+                }
+
+                var root = StructureKit.CreateGroup(group.transform, p.Kind.ToString() + (tipped ? "_Devrik" : string.Empty), pos, rot);
                 Build(root.transform, p.Kind, s.x, s.y, ceilingH - 0.0f, rng);
                 if (p.Blocks)
                     AddObstacle(root, s, InteriorLayout.Height(p.Kind));
-                if (registerAnchors)
+                if (registerAnchors && !tipped)
                     RegisterAnchor(root.transform, p.Kind, kind, floorY);
             }
 
-            InteriorDecorBuilder.Decorate(group.transform, room, floorY, ceilingH, kind, seed, doorZones, Scratch);
+            var zones = doorZones;
+            if (windowZones != null && windowZones.Count > 0)
+            {
+                var merged = new List<Rect>(windowZones);
+                if (doorZones != null)
+                    merged.AddRange(doorZones);
+                zones = merged;
+            }
+
+            InteriorDecorBuilder.Decorate(group.transform, room, floorY, ceilingH, kind, seed, zones, Scratch);
             Scratch.Clear();
             return group;
         }

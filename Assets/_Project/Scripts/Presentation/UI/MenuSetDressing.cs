@@ -36,7 +36,7 @@ namespace Project.Presentation.UI
             Safe("Branda", () => BuildTarp(ctx, new Vector3(-4.4f, 0f, 5.4f), 90f));
             Safe("Kovanlar", () => BuildShellsAndCable(ctx, rng));
             Safe("YakitBidonlari", () => BuildFuel(ctx));
-            Safe("GergiHalatlari", () => BuildGuyRopes(ctx));
+            // Gergi halatları kaldırıldı: lobide ince kırmızı lazer çizgisi gibi görünüyordu.
 
             if (_triangles > TriangleBudget)
                 Debug.LogWarning("[MenuSetDressing] Üçgen bütçesi aşıldı: " + _triangles + " > " + TriangleBudget);

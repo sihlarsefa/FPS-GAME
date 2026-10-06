@@ -124,7 +124,7 @@ namespace Project.Application.Catalogs
             Add(new AttachmentDefinition
             {
                 ItemId = ItemIds.VerticalGrip, DisplayName = "Dikey Tutamak", Slot = AttachmentSlot.Grip,
-                RecoilMultiplier = 0.85f, HipSpreadMultiplier = 0.9f, WeightKg = 0.25f, AdsTimeMultiplier = 1.05f, Compatible = new[] { S, A, L, G }
+                VerticalRecoilMultiplier = 0.85f, HipSpreadMultiplier = 0.9f, WeightKg = 0.25f, AdsTimeMultiplier = 1.05f, Compatible = new[] { S, A, L, G }
             });
             Add(new AttachmentDefinition
             {

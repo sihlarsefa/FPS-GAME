@@ -323,14 +323,13 @@ namespace Project.Presentation.UI
 
         // ------------------------------------------------------------------ Projektör direkleri
 
-        /// <summary>Referanstaki iki saha direği: ince direk, parlak lamba kafası, sıcak-beyaz spot + soluk koni.</summary>
+        /// <summary>Referanstaki iki saha direği: ince direk, parlak lamba kafası, sıcak-beyaz spot (ışık konisi mesh'i kaldırıldı: ucuz mavi üçgen görünümü veriyordu).</summary>
         private static void BuildFloodlights(MenuBackdropBuilder.Context ctx)
         {
             try
             {
                 var poleMat = Mat(MaterialId.MetalDark, 0.12f);
                 var lamp = MaterialLibrary.Unlit(new Color(1.6f, 1.45f, 1.15f));
-                var cone = MaterialLibrary.Transparent(new Color(1f, 0.92f, 0.75f, 0.05f), true);
                 var poles = new[] { new Vector3(0.6f, 0f, 15.5f), new Vector3(8.5f, 0f, 12.4f) };
                 for (var i = 0; i < poles.Length; i++)
                 {
@@ -359,18 +358,6 @@ namespace Project.Presentation.UI
                     light.range = 22f;
                     light.spotAngle = 68f;
                     light.shadows = LightShadows.None;
-
-                    // Soluk ışık konisi: çok hafif, sis yıkaması yapmaz.
-                    if (cone != null)
-                    {
-                        var cb = new MeshBuilder(1);
-                        MeshFactory.AddFrustum(cb, 0, head + new Vector3(0f, -h * 0.97f, -1.2f), 3.2f, 0.12f, h * 0.97f, 12, false, false);
-                        cb.SanitizeNonFinite("HK_MenuCone");
-                        var conePrefab = MenuBackdropBuilder.MeshObject("IşıkKonisi" + i, ctx.Root, ctx.Own(cb.ToMesh("HK_MenuCone")), new[] { cone },
-                            Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.Off, false);
-                        if (conePrefab != null)
-                            conePrefab.transform.localPosition = Vector3.zero;
-                    }
                 }
             }
             catch (Exception e)

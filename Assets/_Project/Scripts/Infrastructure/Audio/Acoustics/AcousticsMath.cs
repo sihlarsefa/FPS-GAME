@@ -90,10 +90,8 @@ namespace Project.Infrastructure.Audio
         {
             var p = Profile(c);
             var half = suppressed ? p.HalfCutoffDist * 0.7f : p.HalfCutoffDist;
-            // 30 m içi (kendi atışlarımız dahil) tam parlaklık: süzgeç yok. Sonrası yumuşak hava sönümü.
-            if (distance <= NearOpenDistance)
-                return OpenCutoffHz;
-            var hz = OpenCutoffHz / (1f + (distance - NearOpenDistance) / Mathf.Max(1f, half * 1.5f));
+            // 30 m içi tam parlaklık; sonrası AirAbsorption eğrisi (50 m ~16 kHz, 500 m ~3 kHz), çapa göre ölçekli.
+            var hz = AirAbsorption.CutoffHz(distance, half);
             return Mathf.Clamp(hz, p.MinCutoffHz, OpenCutoffHz);
         }
 

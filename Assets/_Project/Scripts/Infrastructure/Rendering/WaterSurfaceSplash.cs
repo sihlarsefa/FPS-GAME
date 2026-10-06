@@ -71,7 +71,7 @@ namespace Project.Infrastructure.Rendering
         private Material _ringMat;
         private Mesh _quad;
         private int _next;
-        private readonly MaterialPropertyBlock _block = new MaterialPropertyBlock();
+        private MaterialPropertyBlock _block; // alan başlatıcısında oluşturulamaz (Unity CreateImpl kısıtı)
 
         public static void Install(GameObject root, float level)
         {
@@ -143,6 +143,7 @@ namespace Project.Infrastructure.Rendering
                 if (r.Age >= r.Life) { r.Active = false; r.R.enabled = false; continue; }
                 var rad = Mathf.Max(0.05f, WaterSplashMath.RingRadius(r.Age, r.Life, r.MaxRadius));
                 r.T.localScale = new Vector3(rad * 2f, rad * 2f, 1f);
+                if (_block == null) _block = new MaterialPropertyBlock();
                 _block.Clear();
                 _block.SetColor("_Color", new Color(1f, 1f, 1f, 0.55f * WaterSplashMath.RingAlpha(r.Age, r.Life)));
                 r.R.SetPropertyBlock(_block);

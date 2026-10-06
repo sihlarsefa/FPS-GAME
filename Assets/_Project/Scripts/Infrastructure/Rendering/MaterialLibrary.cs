@@ -901,8 +901,8 @@ namespace Project.Infrastructure.Rendering
             Add(L(MaterialId.RotorBlade, Rgb(0.1f, 0.1f, 0.1f), 0.3f).WithDoubleSided());
 
             // Silah
-            Add(L(MaterialId.GunMetal, Rgb(0.5f, 0.5f, 0.52f), 0.62f, 0.9f));
-            Add(L(MaterialId.GunPolymer, Rgb(0.08f, 0.08f, 0.08f), 0.25f));
+            Add(L(MaterialId.GunMetal, Rgb(0.075f, 0.075f, 0.075f), 0.42f, 0.45f));
+            Add(L(MaterialId.GunPolymer, Rgb(0.08f, 0.08f, 0.08f), 0.38f, 0f));
             Add(L(MaterialId.GunWood, Rgb(0.4f, 0.25f, 0.14f), 0.35f, 0f, Detail));
             Add(L(MaterialId.GunTan, Rgb(0.6f, 0.52f, 0.38f), 0.25f));
 

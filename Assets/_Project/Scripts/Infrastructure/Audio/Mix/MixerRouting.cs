@@ -41,7 +41,7 @@ namespace Project.Infrastructure.Audio.HdrMix
 
         /// <summary>Master lowpass kesim frekansı parametresi (mixer'da açık değilse boğma sessizce uygulanmaz).</summary>
         public const string MuffleCutoffParam = "MuffleCutoffHz";
-        // ENTEGRASYON: Editor/Audio/MixerBuilder.cs icinde Master'a Lowpass efekti ekleyip kesim frekansini "MuffleCutoffHz" olarak expose et.
+        // Master lowpass + "MuffleCutoffHz" MixerBuilder.cs tarafından kurulur (SetupAll).
         public const float MuffleOpenHz = 22000f;
         public const float MuffleClosedHz = 1200f;
 

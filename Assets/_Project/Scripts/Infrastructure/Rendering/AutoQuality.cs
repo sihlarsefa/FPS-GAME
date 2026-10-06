@@ -39,6 +39,30 @@ namespace Project.Infrastructure.Rendering
         private bool _dynEnabled = true;
         private float _nextWatchdog;
 
+        /// <summary>Otomatik ekran görüntüsü çekimlerinde (-otoekran*) dinamik ölçek kilitli: kareler tam çözünürlükte kalır.</summary>
+        public static readonly bool CaptureLock = DetectCapture();
+
+        private static bool DetectCapture()
+        {
+            try
+            {
+                foreach (var a in Environment.GetCommandLineArgs())
+                {
+                    if (a.StartsWith("-otoekran", StringComparison.Ordinal))
+                        return true;
+                }
+            }
+            catch (Exception) { }
+            return false;
+        }
+
+        /// <summary>Lobide performans bildirimi gösterilmez (vitrin ekranı temiz kalır).</summary>
+        private static bool InMenu()
+        {
+            try { return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == MemoryJanitorRules.MenuScene; }
+            catch (Exception) { return false; }
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot()
         {
@@ -111,7 +135,7 @@ namespace Project.Infrastructure.Rendering
 
         private void DynamicScaleTick(float dt)
         {
-            if (!_dynEnabled) return;
+            if (!_dynEnabled || CaptureLock) return;
             var tier = QualityTierApplier.LastTier;
             if (tier < 0) return;
             if (tier != _lastTier) { _lastTier = tier; _notch = 0; ResetWindow(); return; }
@@ -131,7 +155,7 @@ namespace Project.Infrastructure.Rendering
             Record(AutoQualityRules.DecisionCsvLine(next > old ? "olcek-dus" : "olcek-geri", tier, next,
                 AutoQualityRules.ScaleFor(PipelineTiers.Get(tier).RenderScale, next), avg));
             var now = Time.unscaledTime;
-            if (AutoQualityRules.ShouldNotifyDynScale(old, next, now, _lastDynNotice))
+            if (!InMenu() && AutoQualityRules.ShouldNotifyDynScale(old, next, now, _lastDynNotice))
             {
                 _lastDynNotice = now;
                 Notified?.Invoke("Performans için çözünürlük ölçeği otomatik düşürüldü");
@@ -151,7 +175,8 @@ namespace Project.Infrastructure.Rendering
             if (_slow.Update(now, snap.FrameCpuMs.P95, snap.Samples, tier))
             {
                 Record(AutoQualityRules.DecisionCsvLine("oneri-kademe", tier, _notch, 0f, snap.FrameCpuMs.P95));
-                Notified?.Invoke(AutoQualityRules.SuggestMessage);
+                if (!InMenu() && !CaptureLock)
+                    Notified?.Invoke(AutoQualityRules.SuggestMessage);
             }
         }
 

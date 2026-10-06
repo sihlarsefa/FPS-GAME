@@ -19,6 +19,23 @@ namespace Project.Tests.EditMode
         }
 
         [Test]
+        public void Table_NoBluePurpleCast()
+        {
+            foreach (var p in GunMaterials.Table)
+            {
+                Assert.IsTrue(p.Albedo.b <= p.Albedo.r + 0.02f && p.Albedo.b <= p.Albedo.g + 0.02f, p.Key);
+                if (p.Key == "steel" || p.Key == "anod" || p.Key == "poly")
+                {
+                    Assert.Less(p.Albedo.r, 0.12f, p.Key);
+                    Assert.LessOrEqual(p.Metallic, 0.5f, p.Key);
+                    Assert.LessOrEqual(p.Smoothness, 0.5f, p.Key);
+                }
+            }
+
+            Assert.AreEqual(0f, GunMaterials.Get("poly").Metallic, 0.001f);
+        }
+
+        [Test]
         public void TanReadsTan()
         {
             var t = GunMaterials.Get("tan").Albedo;

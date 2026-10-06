@@ -73,11 +73,11 @@ namespace Project.Infrastructure.Rendering.Grading
                     s.Lift = V(0.94f, 0.98f, 1.1f); s.Gamma = V(0.94f, 0.99f, 1.08f); s.Gain = V(0.92f, 0.98f, 1.1f);
                     s.SplitShadows = new Color(0.3f, 0.4f, 0.7f); s.SplitHighlights = new Color(0.5f, 0.6f, 0.75f); s.SplitBalance = -20;
                     break;
-                case GradeStage.Lobi: // mavi saat + kırmızı vurgu
-                    s.Temperature = -18; s.Tint = 6; s.PostExposure = 0.1f; s.Contrast = 24; s.Saturation = 2;
-                    s.Lift = V(0.98f, 0.99f, 1.08f); s.Gamma = V(1f, 0.98f, 1.04f); s.Gain = V(1.1f, 0.96f, 1.02f);
-                    s.SplitShadows = new Color(0.3f, 0.42f, 0.78f); s.SplitHighlights = new Color(0.9f, 0.3f, 0.25f); s.SplitBalance = 5;
-                    s.Highlights = V(1.08f, 0.96f, 0.96f);
+                case GradeStage.Lobi: // mavi saat: soğuk gölge + ateşten sıcak parlak; kırmızı vurgu arayüz/ışıktan gelir, filtreden değil
+                    s.Temperature = -14; s.Tint = -2; s.PostExposure = 0f; s.Contrast = 18; s.Saturation = -8;
+                    s.Lift = V(0.98f, 1f, 1.05f); s.Gamma = V(1f, 1f, 1.02f); s.Gain = V(1.03f, 1f, 0.98f);
+                    s.SplitShadows = new Color(0.42f, 0.48f, 0.62f); s.SplitHighlights = new Color(0.62f, 0.54f, 0.46f); s.SplitBalance = 0;
+                    s.Highlights = V(1.02f, 1f, 0.98f);
                     break;
             }
             return s;

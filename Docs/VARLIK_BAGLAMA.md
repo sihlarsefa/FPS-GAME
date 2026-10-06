@@ -28,6 +28,7 @@ Maske kuralı (MaterialLibrary/ProceduralPbr ile aynı): `<Set>_Mask.png` = R me
 | Wood / WoodDark | Planks037A / Planks023A | |
 | Rust | Metal021 | paslı sac |
 | TentCanvas | Fabric062 | askeri kumaş |
+| Sandbag | Fabric045 | kaba çuval dokuması, haki ton (0.74, 0.64, 0.47) ile çarpılır |
 
 ## Arazi katmanları (TerrainLayerOverride)
 

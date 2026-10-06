@@ -467,28 +467,17 @@ namespace Project.Presentation.UI
             var sub = UiFactory.Label(page, "Timini kur, Kuzgun Vadisi'ne intikal et. Son ayakta kalan tim kazanır.", UiTheme.FontMedium, TextAnchor.MiddleLeft, UiKitTokens.TextDim);
             UiFactory.SetRect(sub, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -132f), new Vector2(0f, -80f));
 
-            var cta = UiFactory.Button(page, "OYNA  ›", () => ShowPage(PagePlay), UiButtonStyle.Primary);
-            UiFactory.Anchor(cta, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -176f), new Vector2(300f, 68f));
-            var ctaButton = cta.GetComponent<Button>();
-            if (ctaButton != null)
-            {
-                var colors = ctaButton.colors;
-                colors.normalColor = UiKitTokens.Accent;
-                colors.highlightedColor = UiKitTokens.AccentHover;
-                colors.selectedColor = UiKitTokens.AccentHover;
-                colors.pressedColor = UiKitTokens.AccentDown;
-                ctaButton.colors = colors;
-            }
-
-            var ctaLabel = UiFactory.GetButtonLabel(cta);
-            if (ctaLabel != null)
-                ctaLabel.fontSize = UiTheme.FontLarge;
-
-            MenuHomeVisuals.DecorateCta(page, (RectTransform)cta.transform);
+            // OYNA burada tekrar edilmez (sol menü + sağ alttaki büyük OYNA yeterli). Kartlar sağ sütunda:
+            // ekranın ortası lobi komutanına (sahnenin kahramanı) bırakılır.
             MenuHomeVisuals.BuildMotif(page);
-            MenuHomeVisuals.BuildStatStrip(page, -276f);
-            MenuHomeVisuals.BuildDailyChallenge(page, -380f);
-            MenuHomeVisuals.BuildBottomBar(page);
+            var column = UiFactory.CreateRect("HomeRightColumn", page);
+            column.anchorMin = column.anchorMax = new Vector2(1f, 1f);
+            column.pivot = new Vector2(1f, 1f);
+            column.anchoredPosition = new Vector2(0f, -170f);
+            column.sizeDelta = new Vector2(620f, 560f);
+            MenuHomeVisuals.BuildStatStrip(column, 0f);
+            MenuHomeVisuals.BuildDailyChallenge(column, -112f);
+            MenuHomeVisuals.BuildBottomBar(column);
         }
 
         /// <summary>Vitrin / Görevler / Ayarlar sekmelerini mevcut akışlara bağlayan düğmelerle doldurur.</summary>

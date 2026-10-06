@@ -30,7 +30,7 @@ namespace Project.Infrastructure.Weapons
         /// <summary>Metal üst sınırı: tam metal difüz ışığı sıfırlar, yansıma probu yoksa silah siyah kalır.</summary>
         public const float MetallicCap = 0.55f;
         /// <summary>Dünya/TP silahı için asgari albedo parlaklığı (sRGB gri); siluet 30-100 m okunur.</summary>
-        public const float MinAlbedoLuma = 0.17f;
+        public const float MinAlbedoLuma = 0.05f;
         public const float MaxAlbedoLuma = 0.62f;
 
         /// <summary>Saf parametre tablosu (testler okur). Sıra: key, kind, albedo, smoothness, metallic.</summary>
@@ -43,14 +43,14 @@ namespace Project.Infrastructure.Weapons
 
         public static readonly Param[] Table =
         {
-            new Param("steel", GunKind.ParkerizedSteel, new Color(0.40f, 0.41f, 0.42f), 0.55f, 0.5f),
-            new Param("anod", GunKind.AnodizedAluminum, new Color(0.30f, 0.31f, 0.33f), 0.55f, 0.5f),
-            new Param("poly", GunKind.Polymer, new Color(0.22f, 0.22f, 0.22f), 0.32f, 0f),
+            new Param("steel", GunKind.ParkerizedSteel, new Color(0.075f, 0.075f, 0.078f), 0.42f, 0.45f),
+            new Param("anod", GunKind.AnodizedAluminum, new Color(0.07f, 0.07f, 0.072f), 0.42f, 0.45f),
+            new Param("poly", GunKind.Polymer, new Color(0.09f, 0.09f, 0.09f), 0.38f, 0f),
             new Param("tan", GunKind.Paint, new Color(0.62f, 0.52f, 0.37f), 0.3f, 0f),
             new Param("olive", GunKind.Paint, new Color(0.30f, 0.34f, 0.22f), 0.26f, 0f),
             new Param("wood", GunKind.Wood, new Color(0.42f, 0.26f, 0.14f), 0.38f, 0f),
             new Param("woodd", GunKind.Wood, new Color(0.27f, 0.16f, 0.09f), 0.34f, 0f),
-            new Param("rubber", GunKind.Rubber, new Color(0.17f, 0.17f, 0.17f), 0.1f, 0f),
+            new Param("rubber", GunKind.Rubber, new Color(0.07f, 0.07f, 0.07f), 0.1f, 0f),
         };
 
         public static float Luma(Color c) => 0.299f * c.r + 0.587f * c.g + 0.114f * c.b;
@@ -63,19 +63,19 @@ namespace Project.Infrastructure.Weapons
         }
 
         public static Material ParkerizedSteel(float wear = 0.55f) =>
-            Make(Get("steel"), wear, new Color(0.46f, 0.46f, 0.47f), 1f, 0.58f);
+            Make(Get("steel"), wear, new Color(0.30f, 0.30f, 0.30f), 0.5f, 0.45f);
 
         public static Material DarkAnodized(float wear = 0.45f) =>
-            Make(Get("anod"), wear, new Color(0.62f, 0.63f, 0.65f), 1f, 0.62f);
+            Make(Get("anod"), wear, new Color(0.30f, 0.30f, 0.30f), 0.5f, 0.45f);
 
         public static Material Polymer(float wear = 0.4f) =>
-            Make(Get("poly"), wear, new Color(0.27f, 0.27f, 0.27f), 0f, 0.42f);
+            Make(Get("poly"), wear, new Color(0.16f, 0.16f, 0.16f), 0f, 0.4f);
 
         public static Material TanPaint(float wear = 0.55f) =>
-            Make(Get("tan"), wear, new Color(0.2f, 0.2f, 0.205f), 0.8f, 0.5f);
+            Make(Get("tan"), wear, new Color(0.2f, 0.2f, 0.2f), 0.5f, 0.45f);
 
         public static Material OlivePaint(float wear = 0.6f) =>
-            Make(Get("olive"), wear, new Color(0.2f, 0.2f, 0.205f), 0.8f, 0.5f);
+            Make(Get("olive"), wear, new Color(0.2f, 0.2f, 0.2f), 0.5f, 0.45f);
 
         public static Material WoodGrain(float wear = 0.35f) =>
             Make(Get("wood"), wear, new Color(0.5f, 0.34f, 0.2f), 0f, 0.2f);
@@ -84,7 +84,7 @@ namespace Project.Infrastructure.Weapons
             Make(Get("woodd"), wear, new Color(0.38f, 0.25f, 0.14f), 0f, 0.2f);
 
         public static Material RubberGrip(float wear = 0.2f) =>
-            Make(Get("rubber"), wear, new Color(0.2f, 0.2f, 0.2f), 0f, 0.14f);
+            Make(Get("rubber"), wear, new Color(0.12f, 0.12f, 0.12f), 0f, 0.14f);
 
         /// <summary>Optik cam: koyu taban, mavi/amber kaplama tonu.</summary>
         public static Material OpticGlass(bool dark)

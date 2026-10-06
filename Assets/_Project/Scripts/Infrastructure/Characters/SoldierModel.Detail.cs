@@ -147,7 +147,7 @@ namespace Project.Infrastructure.Characters
         /// <summary>
         /// Kask kamuflaj kılıfı ağı + lastik bant (yedek mühimmat/yaprak sıkıştırma halkaları).
         /// Adlar Helmet ile başlar: birleştirmeden muaf (kask devrilebilir).
-        /// ENTEGRASYON: SoldierModel.cs EnsureHelmet içinde level >= 2 için AddHelmetCoverDetail(v) çağrılmalı.
+        /// Bağlı DEĞİL: EnsureHelmet level>=2 zaten aynı yarıçapta HelmetBand kuruyor; ikisi birlikte z-fighting yapar.
         /// </summary>
         private void AddHelmetCoverDetail(Variant v)
         {

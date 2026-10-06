@@ -17,12 +17,16 @@ namespace Project.Infrastructure.World
         public Vector3 Pos;
         public float Yaw;
         public int Km;
+        /// <summary>Tabela türü (RoadsideSignSet indeksi) veya enkaz varyantı.</summary>
+        public int Kind;
     }
 
     public struct GuardRun
     {
         public Vector3 Start;
         public Vector3 End;
+        /// <summary>Koşu boyunca ardışık kenar noktaları (eğimi izlemek için); boşsa Start→End düz.</summary>
+        public List<Vector3> Points;
     }
 
     /// <summary>
@@ -40,6 +44,25 @@ namespace Project.Infrastructure.World
         public const int MaxPoles = 140;
         public const int MaxKmStones = 14;
         public const int MaxGuardRuns = 48;
+        public const float SignSpacing = 260f;
+        public const int MaxSigns = 24;
+        public const float WreckSpacing = 700f;
+        public const int MaxWrecks = 6;
+
+        /// <summary>Kalite kademesi (0..3) için Max* ölçeği: Düşük %40, Orta %65, Yüksek %85, Ultra %100.</summary>
+        public static float TierScale(int tier)
+        {
+            switch (Mathf.Clamp(tier, 0, 3)) { case 0: return 0.40f; case 1: return 0.65f; case 2: return 0.85f; default: return 1f; }
+        }
+
+        private static int Scaled(int max, int tier) => Mathf.Max(1, Mathf.RoundToInt(max * TierScale(tier)));
+
+        public static int PolesFor(int tier) => Scaled(MaxPoles, tier);
+        public static int KmStonesFor(int tier) => Scaled(MaxKmStones, tier);
+        public static int GuardRunsFor(int tier) => Scaled(MaxGuardRuns, tier);
+        public static int SignsFor(int tier) => Scaled(MaxSigns, tier);
+        public static int WrecksFor(int tier) => Scaled(MaxWrecks, tier);
+        public static int TotalFor(int tier) => PolesFor(tier) + KmStonesFor(tier) + GuardRunsFor(tier) + SignsFor(tier) + WrecksFor(tier);
 
         /// <summary>Asfalt = ana yol (elektrik direkli), toprak = köy yolu.</summary>
         public static bool IsMainRoad(RoadKind kind) => kind == RoadKind.Asphalt;
@@ -239,6 +262,7 @@ namespace Project.Infrastructure.World
                 var open = false;
                 var start = Vector3.zero;
                 var last = Vector3.zero;
+                var pts = new List<Vector3>();
                 for (var i = 0; i < samples.Count; i++)
                 {
                     var s = samples[i];
@@ -252,8 +276,10 @@ namespace Project.Infrastructure.World
                         {
                             open = true;
                             start = edge;
+                            pts = new List<Vector3>();
                         }
 
+                        pts.Add(edge);
                         last = edge;
                     }
 
@@ -261,7 +287,7 @@ namespace Project.Infrastructure.World
                     {
                         open = false;
                         if (Vector3.Distance(start, last) >= GuardSegment && runs.Count < maxRuns)
-                            runs.Add(new GuardRun { Start = start, End = last });
+                            runs.Add(new GuardRun { Start = start, End = last, Points = pts });
                     }
                 }
             }
@@ -271,6 +297,115 @@ namespace Project.Infrastructure.World
 
         /// <summary>Tel sarkması: t∈[0,1] boyunca aşağı sapma (parabol, uçlarda 0, ortada sag).</summary>
         public static float WireSag(float t, float sag) => 4f * sag * t * (1f - t);
+
+        /// <summary>
+        /// Gerçek katener (cosh) sarkması: t∈[0,1] boyunca aşağı sapma; uçlarda 0, ortada tam sag. Parametre a,
+        /// a*(cosh(span/2a)-1)=sag denkleminden ikiye bölmeyle bulunur. Küçük sarkmada parabole yakınsar.
+        /// </summary>
+        public static float CatenaryDrop(float t, float span, float sag)
+        {
+            if (sag <= 1e-4f || span <= 1e-3f)
+                return 0f;
+            var lo = span * 0.02f;
+            var hi = 1e6f;
+            for (var i = 0; i < 60; i++)
+            {
+                var mid = Mathf.Sqrt(lo * hi);
+                var v = mid * ((float)Math.Cosh(span / (2f * mid)) - 1f);
+                if (v > sag)
+                    lo = mid;
+                else
+                    hi = mid;
+            }
+
+            var a = Mathf.Sqrt(lo * hi);
+            var x = (Mathf.Clamp01(t) - 0.5f) * span;
+            return a * ((float)Math.Cosh(span / (2f * a)) - (float)Math.Cosh(x / a));
+        }
+
+        /// <summary>Korkuluk iki noktası arasındaki eğim açısı (derece, yukarı +).</summary>
+        public static float PitchDegrees(Vector3 a, Vector3 b)
+        {
+            var h = new Vector2(b.x - a.x, b.z - a.z).magnitude;
+            return Mathf.Atan2(b.y - a.y, Mathf.Max(1e-4f, h)) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>Korkuluk koşusunu eğimi izleyen segmentlere böler (Points varsa onları, yoksa Start→End'i maxSeg aralıkla).</summary>
+        public static List<Vector3> RunPath(GuardRun run, float maxSeg)
+        {
+            if (run.Points != null && run.Points.Count >= 2)
+                return run.Points;
+            var list = new List<Vector3>();
+            var len = Vector3.Distance(run.Start, run.End);
+            var n = Mathf.Max(1, Mathf.CeilToInt(len / Mathf.Max(0.5f, maxSeg)));
+            for (var i = 0; i <= n; i++)
+                list.Add(Vector3.Lerp(run.Start, run.End, i / (float)n));
+            return list;
+        }
+
+        /// <summary>
+        /// Trafik/askeri tabelalar: SignSpacing aralıkla, yan değiştirerek (okunabilirlik iki yönden). Tür, kindCount üzerinden
+        /// döner; ilk tabela her yolda 0 (bölge adı). Yaz = tabela ön yüzünün normali.
+        /// </summary>
+        public static List<RoadsidePost> PlanSigns(IList<RoadSample> samples, float roadWidth, int kindCount, int seed,
+            int maxCount, Func<float, float, bool> blocked)
+        {
+            var list = new List<RoadsidePost>();
+            if (samples == null || samples.Count < 2 || maxCount <= 0 || kindCount <= 0)
+                return list;
+
+            var next = SignSpacing * 0.35f;
+            var idx = 0;
+            for (var i = 0; i < samples.Count && list.Count < maxCount; i++)
+            {
+                if (samples[i].S < next)
+                    continue;
+                next += SignSpacing;
+                var side = (idx & 1) == 0 ? 1f : -1f;
+                var p = Offset(samples[i], side * (roadWidth * 0.5f + 2.3f));
+                var kind = idx == 0 ? 0 : (idx + Mathf.Abs(seed)) % kindCount;
+                idx++;
+                if (blocked != null && blocked(p.x, p.z))
+                    continue;
+                var facing = side > 0f ? -samples[i].Dir : samples[i].Dir;
+                list.Add(new RoadsidePost { Pos = p, Yaw = YawOf(facing), Kind = kind });
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Yanmış araç kasaları: WreckSpacing aralıkla, ilki yolun ~%40'ında; yoldan 3.5 m dışta, deterministik eğik duruş.
+        /// Kısa yollarda (&lt;300 m) yok.
+        /// </summary>
+        public static List<RoadsidePost> PlanWrecks(IList<RoadSample> samples, float roadWidth, int maxCount,
+            Func<float, float, bool> blocked)
+        {
+            var list = new List<RoadsidePost>();
+            if (samples == null || samples.Count < 2 || maxCount <= 0)
+                return list;
+            var length = samples[samples.Count - 1].S;
+            if (length < 300f)
+                return list;
+
+            var next = length * 0.4f;
+            var idx = 0;
+            for (var i = 0; i < samples.Count && list.Count < maxCount; i++)
+            {
+                if (samples[i].S < next)
+                    continue;
+                next += WreckSpacing;
+                var side = (idx & 1) == 0 ? -1f : 1f;
+                var p = Offset(samples[i], side * (roadWidth * 0.5f + 3.5f));
+                var yaw = YawOf(samples[i].Dir) + 25f + 17f * idx;
+                idx++;
+                if (blocked != null && blocked(p.x, p.z))
+                    continue;
+                list.Add(new RoadsidePost { Pos = p, Yaw = yaw, Kind = idx });
+            }
+
+            return list;
+        }
 
         /// <summary>İki direk arası açıklığa göre sarkma (m): kısa açıklıkta az.</summary>
         public static float SagFor(float span) => Mathf.Clamp(span * 0.035f, 0.1f, 1.6f);

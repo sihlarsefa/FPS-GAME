@@ -127,6 +127,8 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: b00768e8773df4a6b910f89c6ae31922, type: 2}
   - materialId: 42
     material: {fileID: 2100000, guid: 66fd93137ab2a4fa8a0b7281a8a730d7, type: 2}
+  - materialId: 40
+    material: {fileID: 2100000, guid: 72f1681991c0d4206bf28021ce354a65, type: 2}
   soldier:
     humanoidPrefab: {fileID: 0}
     animatorController: {fileID: 0}

@@ -205,8 +205,12 @@ namespace Project.Infrastructure.Audio
             if (gain <= 0f)
                 return;
             var arrive = AcousticsMath.Delay(direct);
-            Schedule(SoundId.ShotTailIndoor, origin, now + arrive + AcousticsMath.SlapbackDelay(nearest), gain,
-                Mathf.Min(6000f, AcousticsMath.CutoffHz(c, Mathf.Max(direct, 10f), suppressed)), 5f, 150f);
+            var slap = AcousticsMath.SlapbackDelay(nearest);
+            var slapCut = Mathf.Min(6000f, AcousticsMath.CutoffHz(c, Mathf.Max(direct, 10f), suppressed));
+            Schedule(SoundId.ShotTailIndoor, origin, now + arrive + slap, gain, slapCut, 5f, 150f);
+            // Kısa reverb kuyruğu: daha sönük, daha boğuk ikinci vuruş.
+            Schedule(SoundId.ShotTailIndoor, origin, now + arrive + AirAbsorption.ReverbTapDelay(slap),
+                AirAbsorption.ReverbTapGain(gain), slapCut * 0.6f, 5f, 150f);
         }
 
         private static SoundId MainSound(CaliberClass c, float distance)

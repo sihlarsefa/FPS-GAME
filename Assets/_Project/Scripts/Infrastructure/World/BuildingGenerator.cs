@@ -116,6 +116,7 @@ namespace Project.Infrastructure.World
             t.SetPositionAndRotation(spec.Position, Quaternion.Euler(0f, spec.Yaw, 0f));
             c.B.BuildInto(t);
             StructureKit.MarkStatic(root);
+            BuildInteriorJobs(c, t);
             for (var i = 0; i < c.Panes.Count; i++)
             {
                 var pane = StructureKit.CreateBox(t, "Cam" + i, c.Panes[i].Key, c.Panes[i].Value, Quaternion.identity, M.Glass);
@@ -223,6 +224,10 @@ namespace Project.Infrastructure.World
             /// <summary>Baca konumu (yerel xz) - anten çakışmasını önler.</summary>
             public Vector3? ChimneyPos;
             public int WeatherPass;
+            /// <summary>İç mekan işleri (InteriorFurnisher / ışık huzmesi / pervaz): Finish'te kök altında kurulur.</summary>
+            public readonly List<InteriorJob> Interiors = new List<InteriorJob>(12);
+            public readonly List<ShaftJob> Shafts = new List<ShaftJob>(8);
+            public readonly List<SillJob> Sills = new List<SillJob>(8);
 
             public Ctx(BuildingSpec spec, StructureBuilder builder)
             {
@@ -1487,6 +1492,15 @@ namespace Project.Infrastructure.World
             RuinDebris(c, p);
             Furnish(c, p);
             ApplyWeathering(c, p);
+            try
+            {
+                WarWear(c, p);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[BuildingGenerator] Savaş yıpranması atlandı (" + c.Spec.Style + "): " + e.Message);
+            }
+
             if (c.Loot.Count == 0)
                 c.Loot.Add(new Vector3((p.Xi0 + p.Xi1) * 0.5f, Y0 + 0.05f, (p.Zi0 + p.Zi1) * 0.5f));
         }
@@ -1504,9 +1518,12 @@ namespace Project.Infrastructure.World
                 {
                     var room = Rooms[r];
                     var area = room.width * room.height;
-                    if (d.Kilim && !c.Ruined && c.Chance(0.6f))
-                        Kilim(c, p, k, room, y);
-                    if (theme != PropTheme.None)
+                    if (IsDomestic(theme))
+                    {
+                        // Ev tipi odalar: tek mobilya sistemi InteriorFurnisher (kilim, mobilya, süs, ampul orada)
+                        FurnishDomestic(c, p, k, room, r, y);
+                    }
+                    else if (theme != PropTheme.None)
                     {
                         var n = Mathf.Clamp(Mathf.RoundToInt(area / Mathf.Max(1f, d.PropArea)), 1, d.MaxProps);
                         if (c.Ruined)
@@ -1565,33 +1582,6 @@ namespace Project.Infrastructure.World
                 c.Loot.Add(pos);
                 placed++;
             }
-        }
-
-        private static void Kilim(Ctx c, BoxPlan p, int level, Rect room, float y)
-        {
-            var sx = Mathf.Min(room.width * 0.55f, 3f);
-            var sz = Mathf.Min(room.height * 0.5f, 2.2f);
-            if (sx < 1f || sz < 0.8f)
-                return;
-            var r = Centered(room.center.x, room.center.y, sx, sz);
-            var holes = p.HolesAt(level);
-            if (holes != null)
-            {
-                for (var i = 0; i < holes.Count; i++)
-                {
-                    if (Overlaps(holes[i], r))
-                        return;
-                }
-            }
-
-            for (var i = 0; i < p.Cores.Count; i++)
-            {
-                var core = p.Cores[i];
-                if ((core.Level == level || core.Level + 1 == level) && Overlaps(core.Footprint, r))
-                    return;
-            }
-
-            c.B.Box(new Vector3(r.center.x, y + 0.008f, r.center.y), new Vector3(sx, 0.012f, sz), M.Carpet, StructureCollider.None);
         }
 
         private static readonly PropKind[] ThemeVillage =

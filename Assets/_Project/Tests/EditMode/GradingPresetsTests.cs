@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine;
 using Project.Core.Domain;
 using Project.Infrastructure.Rendering.Grading;
 
@@ -52,6 +53,18 @@ namespace Project.Tests.EditMode
             Assert.Less(l.Temperature, 0f);
             Assert.Greater(l.SplitHighlights.r, l.SplitHighlights.b);
             Assert.Greater(l.SplitShadows.b, l.SplitShadows.r);
+        }
+
+        [Test]
+        public void Lobi_MorFiltreYok()
+        {
+            var l = GradingPresets.For(MapCatalog.Kuzgun, GradeStage.Lobi);
+            Assert.IsTrue(l.Tint <= 0f, "pozitif tint sahneyi magentaya kaydırır");
+            foreach (var c in new[] { l.SplitShadows, l.SplitHighlights })
+            {
+                var spread = Mathf.Max(c.r, Mathf.Max(c.g, c.b)) - Mathf.Min(c.r, Mathf.Min(c.g, c.b));
+                Assert.IsTrue(spread <= 0.25f, "split-toning rengi çok doygun: " + c);
+            }
         }
 
         [Test]

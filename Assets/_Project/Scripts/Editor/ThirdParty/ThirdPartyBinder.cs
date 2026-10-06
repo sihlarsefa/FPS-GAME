@@ -23,8 +23,9 @@ namespace Project.EditorTools
 
         private sealed class MatBinding
         {
-            public MaterialId Id; public string Set; public float Tiling;
-            public MatBinding(MaterialId id, string set, float tiling) { Id = id; Set = set; Tiling = tiling; }
+            public MaterialId Id; public string Set; public float Tiling; public Color Tint;
+            public MatBinding(MaterialId id, string set, float tiling) : this(id, set, tiling, Color.white) { }
+            public MatBinding(MaterialId id, string set, float tiling, Color tint) { Id = id; Set = set; Tiling = tiling; Tint = tint; }
         }
 
         private sealed class LayerBinding
@@ -63,6 +64,8 @@ namespace Project.EditorTools
             new MatBinding(MaterialId.WoodDark, "Planks023A", 2f),
             new MatBinding(MaterialId.Rust, "Metal021", 2f),
             new MatBinding(MaterialId.TentCanvas, "Fabric062", 3f),
+            // Kaba dokuma beyaz çuval → haki kum torbası (taban rengi doku ile çarpılır).
+            new MatBinding(MaterialId.Sandbag, "Fabric045", 2f, new Color(0.74f, 0.64f, 0.47f)),
         };
 
         // TerrainTextureFactory yalnız Grass/DryGrass/Dirt/Rock/Gravel/Mud/Snow/Asphalt okur; kalanlar ileriki arazi için hazır.
@@ -182,7 +185,7 @@ namespace Project.EditorTools
                 foreach (var b in Materials)
                 {
                     if (!prepared.TryGetValue(b.Set, out var a)) continue;
-                    var mat = BuildMaterial(b.Set, a, b.Tiling);
+                    var mat = BuildMaterial(b.Set, a, b.Tiling, b.Tint);
                     UpsertMaterial(matEntries, b.Id, mat);
                     sb.AppendLine("  Materyal " + b.Id + " <- " + b.Set);
                 }
@@ -342,7 +345,7 @@ namespace Project.EditorTools
 
         // ------------------------------------------------------------------ varlık üretimi
 
-        private static Material BuildMaterial(string set, SetAssets a, float tiling)
+        private static Material BuildMaterial(string set, SetAssets a, float tiling, Color tint)
         {
             var path = MaterialRoot + "/HK_" + set + ".mat";
             var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -358,7 +361,7 @@ namespace Project.EditorTools
             SetTex(mat, "_BumpMap", a.Normal, t);
             SetTex(mat, "_MetallicGlossMap", a.Mask, t);
             SetTex(mat, "_OcclusionMap", a.Mask, t);
-            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", tint);
             if (mat.HasProperty("_BumpScale")) mat.SetFloat("_BumpScale", 1f);
             if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 1f);
             if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", 1f);

@@ -1,5 +1,6 @@
 using System;
 using Project.Application.Catalogs;
+using Project.Application.Combat.Feel;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure;
@@ -498,9 +499,17 @@ namespace Project.Presentation.Player
             }
 
             _breath.Update(dt, wantsHold, IsScoped);
+            // Koşu yorgunluğu (salt okunur motor bilgisi): koşunca dolar, ~5 sn'de söner.
+            var motor = _owner.Motor;
+            _sprintFatigue = WeaponSwayRules.StepFatigue(_sprintFatigue, motor != null && motor.IsSprinting, dt);
         }
 
-        private float SwayMultiplier => (IsScoped ? _breath.SwayMultiplier : 1f) * Suppression.SwayMultiplier * (_owner.Combatant != null ? _owner.Combatant.LimbSwayMultiplier : 1f); // RC1: yaralı kol
+        private float _sprintFatigue;
+
+        /// <summary>Dürbünde: yorgunluk x nefes (WeaponSwayRules.Combined); değilse 1.</summary>
+        private float ScopedSway => IsScoped ? WeaponSwayRules.Combined(1f - _sprintFatigue, _breath.SwayMultiplier, _breath.IsHolding) : 1f;
+
+        private float SwayMultiplier => ScopedSway * Suppression.SwayMultiplier * (_owner.Combatant != null ? _owner.Combatant.LimbSwayMultiplier : 1f); // RC1: yaralı kol
 
         private void ApplyZoom(float zoom)
         {

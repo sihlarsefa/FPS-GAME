@@ -185,10 +185,10 @@ namespace Project.Infrastructure.Weapons
             {
                 Color c;
                 var hasColor = true;
-                if (n.StartsWith("gun_steel")) c = new Color(0.40f, 0.41f, 0.42f);
-                else if (n.StartsWith("gun_anod")) c = new Color(0.30f, 0.31f, 0.33f);
-                else if (n.StartsWith("gun_poly")) c = new Color(0.23f, 0.23f, 0.24f);
-                else if (n.StartsWith("gun_rubber")) c = new Color(0.17f, 0.17f, 0.17f);
+                if (n.StartsWith("gun_steel")) c = new Color(0.075f, 0.075f, 0.075f);
+                else if (n.StartsWith("gun_anod")) c = new Color(0.07f, 0.07f, 0.07f);
+                else if (n.StartsWith("gun_poly")) c = new Color(0.09f, 0.09f, 0.09f);
+                else if (n.StartsWith("gun_rubber")) c = new Color(0.07f, 0.07f, 0.07f);
                 else if (n.StartsWith("gun_tan")) c = new Color(0.62f, 0.52f, 0.35f);
                 else if (n.StartsWith("gun_olive")) c = new Color(0.34f, 0.38f, 0.24f);
                 else if (n.StartsWith("gun_woodd")) c = new Color(0.36f, 0.22f, 0.12f);
@@ -208,7 +208,7 @@ namespace Project.Infrastructure.Weapons
 
                 if (hasColor)
                 {
-                    var m = MaterialLibrary.Lit(c, 0.35f, 0.15f);
+                    var m = MaterialLibrary.Lit(c, 0.4f, 0f);
                     if (m != null)
                         result = m;
                 }

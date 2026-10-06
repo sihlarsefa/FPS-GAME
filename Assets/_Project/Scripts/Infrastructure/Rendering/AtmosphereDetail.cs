@@ -43,7 +43,7 @@ namespace Project.Infrastructure.Rendering
         private Transform _glare;
         private readonly Transform[] _ghosts = new Transform[4];
         private readonly MeshRenderer[] _ghostRenderers = new MeshRenderer[4];
-        private readonly MaterialPropertyBlock _mpb = new MaterialPropertyBlock();
+        private MaterialPropertyBlock _mpb; // alan başlatıcısında oluşturulamaz (Unity CreateImpl kısıtı)
         private float _flareVis;
         private Mesh _quad;
         private AtmosphereDetailTier _cfg;
@@ -437,6 +437,7 @@ namespace Project.Infrastructure.Rendering
                 g.localScale = new Vector3(size, size, 1f);
                 var tint = i == 0 ? new Color(1f, 0.85f, 0.6f) : i == 1 ? new Color(0.6f, 0.85f, 1f) : i == 2 ? new Color(0.7f, 1f, 0.8f) : new Color(1f, 0.7f, 0.9f);
                 tint.a = inten * 0.16f * (1f - Mathf.Abs(k) * 0.4f);
+                if (_mpb == null) _mpb = new MaterialPropertyBlock();
                 _mpb.SetColor("_RendererColor", tint);
                 _ghostRenderers[i].SetPropertyBlock(_mpb);
             }
