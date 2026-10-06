@@ -1,4 +1,6 @@
+using System;
 using Project.Application.Services;
+using Project.Infrastructure.Weapons.Reload;
 using UnityEngine;
 
 namespace Project.Infrastructure.Weapons
@@ -11,6 +13,23 @@ namespace Project.Infrastructure.Weapons
         private GameObject _spareMag;
         private WeaponModel _spareFor;
         private bool _magDropped;
+        private ReloadPhasePlan _reloadPlan;
+        private ReloadPhaseTracker _reloadTracker;
+        private ReloadCancelBlend _cancelBlend;
+        private bool _reloadCancelling;
+        private float _cancelFrozenT;
+        private MagEstimate _pendingMagEstimate;
+        private bool _magEstimateRevealed;
+
+        /// <summary>Doldurma yeni bir evreye girdi (ses/animator senkronu).</summary>
+        public event Action<ReloadPhase> ReloadPhaseEntered;
+        /// <summary>Doldurma ses ipucu zamanı geldi (şarjör bırakma, çıkış, takma, şamar, sürgü).</summary>
+        public event Action<ReloadCue> ReloadCueReached;
+        /// <summary>Şarjör kontrolünde sayı görünür oldu.</summary>
+        public event Action<MagEstimate> MagCheckRevealed;
+
+        public bool IsReloadCancelling => _reloadCancelling;
+        public ReloadPhase CurrentReloadPhase => _reloadTracker != null ? _reloadTracker.Current : ReloadPhase.Prep;
 
         /// <summary>Boş (kurma kolu/sürgü ile) veya taktik doldurma. PlayReload(float) geriye uyumlu: taktik.</summary>
         public void PlayReload(bool emptyReload, float durationSeconds)
@@ -30,6 +49,9 @@ namespace Project.Infrastructure.Weapons
             _timeline = ViewmodelPoseTimeline.Build(kind, _reloadEmpty);
             _magDropped = false;
             _reloadEmpty = false;
+            _reloadPlan = null;
+            _reloadTracker = null;
+            _reloadCancelling = false;
         }
 
         /// <summary>Şarjörlü silahlar (tabanca/tüfek/sürgülü): zaman çizelgesiyle sürülen doldurma.</summary>
@@ -174,6 +196,141 @@ namespace Project.Infrastructure.Weapons
             _spareMag.transform.SetPositionAndRotation(
                 Vector3.Lerp(_left.PropSocket.position, wellPos, k),
                 wellRot * Quaternion.Euler(-25f * (1f - k), 0f, 0f));
+        }
+
+        // ------------------------------------------------------------------ evre senkronu ve iptal
+
+        private ReloadPhasePlan EnsureReloadPlan()
+        {
+            if (_reloadPlan == null && _timeline != null)
+            {
+                _reloadPlan = ReloadPhasePlan.Build(_timeline.Kind, _timeline.Empty, _actionDuration);
+                _reloadTracker = new ReloadPhaseTracker(_reloadPlan);
+            }
+
+            return _reloadPlan;
+        }
+
+        /// <summary>Her karede evre geçişlerini olaya ve Animator'a iletir.</summary>
+        private void TickReloadPhases(float t)
+        {
+            var plan = EnsureReloadPlan();
+            if (plan == null || _reloadCancelling)
+                return;
+
+            _reloadTracker.Advance(t,
+                phase =>
+                {
+                    ReloadPhaseEntered?.Invoke(phase);
+                    if (_animDriver != null)
+                        _animDriver.SetReloadInfo((int)phase, plan.Empty, ReloadAnimatorSpeed(plan));
+                },
+                cue => ReloadCueReached?.Invoke(cue));
+        }
+
+        /// <summary>Animator klibi referans süreye göre oynar: hız = referans / gerçek süre (1 = klip hızı).</summary>
+        private static float ReloadAnimatorSpeed(ReloadPhasePlan plan)
+        {
+            return Mathf.Clamp(ReloadPhasePlan.ReferenceSeconds(plan.Kind, plan.Empty) / Mathf.Max(0.1f, plan.TotalSeconds), 0.4f, 2.5f);
+        }
+
+        /// <summary>Doldurma dışarıdan kesildi: şarjör çıkmamışsa/çıkmışsa görsel geri sarma başlatır. Taahhütlü iptal (mermi geçti) ve pompa/kemer anında biter.</summary>
+        private bool TryBeginReloadCancel()
+        {
+            if (_action != ViewAction.Reload || _reloadCancelling || _timeline == null || _model == null || _actionDuration <= 0.05f)
+                return false;
+            var kind = _timeline.Kind;
+            if (kind != ReloadKind.Rifle && kind != ReloadKind.Pistol && kind != ReloadKind.BoltAction)
+                return false;
+
+            var t = Mathf.Clamp01(_actionTime / _actionDuration);
+            var plan = EnsureReloadPlan();
+            if (plan == null)
+                return false;
+
+            var d = ReloadCancelRules.Evaluate(plan, t, ReloadCancelReason.Manual);
+            if (!d.Allowed || (d.Class != CancelClass.Free && d.Class != CancelClass.Penalty) || d.BlendSeconds <= 0.001f)
+                return false;
+
+            _cancelBlend = ReloadCancelBlend.Start(t, d);
+            if (!_cancelBlend.Active)
+                return false;
+
+            _cancelFrozenT = t;
+            _reloadCancelling = true;
+            return true;
+        }
+
+        /// <summary>İptal geçişi: eski şarjör yerine döner, poz sönümlenir. Bitince false (eylem sona erdi).</summary>
+        private bool UpdateReloadCancel(float dt)
+        {
+            if (_model == null)
+            {
+                _hardEnd = true;
+                EndAction();
+                _hardEnd = false;
+                return false;
+            }
+
+            if (!_cancelBlend.Step(dt, out var t, out var w))
+            {
+                _hardEnd = true;
+                EndAction();
+                _hardEnd = false;
+                return false;
+            }
+
+            if (_timeline != null && _timeline.Kind == ReloadKind.Machinegun)
+                return true;
+            AnimateTimelineMagazineReload(t);
+            _actionPos *= w;
+            _actionRot = Quaternion.Slerp(Quaternion.identity, _actionRot, w);
+            return true;
+        }
+
+        // ------------------------------------------------------------------ şarjör kontrolü (Tarkov tarzı)
+
+        /// <summary>Şarjör kontrolü: şarjörü kısmen çekip bakar; sayı ortada MagCheckRevealed ile bildirilir. Beceri seviyesi belirsizlik/hız belirler.</summary>
+        public bool PlayMagCheck(int rounds, int capacity, bool chambered, int skillLevel = 0)
+        {
+            EnsureBuilt();
+            if (_model == null || _hasPending || IsEquipping || _action != ViewAction.None || _wantsAim || _sprintBlend > 0.1f)
+                return false;
+            if (_model.Magazine == null)
+                return false;
+
+            _pendingMagEstimate = MagazineCheck.Estimate(rounds, capacity, chambered, skillLevel);
+            _magEstimateRevealed = false;
+            StartAction(ViewAction.MagCheck, MagazineCheck.DurationSeconds(skillLevel));
+            if (_animDriver != null)
+                _animDriver.TriggerMagCheck();
+            return true;
+        }
+
+        private void AnimateMagCheck(float t)
+        {
+            var tl = MagCheckTimeline.Shared;
+            var m = _model;
+            var tilt = tl.Tilt.Evaluate(t);
+            var roll = tl.Roll.Evaluate(t);
+            _actionRot = Quaternion.Euler(-6f * tilt, 8f * tilt + 14f * roll, 22f * tilt - 18f * roll);
+            _actionPos = new Vector3(-0.03f, 0.03f, -0.01f) * tilt + new Vector3(0f, 0.012f, 0.02f) * roll;
+
+            var pull = Mathf.Clamp01(tl.MagPull.Evaluate(t));
+            m.SetMagazineOffset(m.MagazineEjectDirection * (pull * 0.07f), Quaternion.identity);
+            var reach = Mathf.Clamp01(tl.HandReach.Evaluate(t));
+            if (m.MagazineHandGrip != null)
+                _left.SetAnchorGoal(m.MagazineHandGrip, reach);
+
+            var jolt = tl.Jolt.Evaluate(t);
+            _actionPos += new Vector3(0f, 0.003f, -0.008f) * jolt;
+            _actionRot = _actionRot * Quaternion.Euler(-1.2f * jolt, 0f, 0f);
+
+            if (!_magEstimateRevealed && t >= MagazineCheck.RevealFraction)
+            {
+                _magEstimateRevealed = true;
+                MagCheckRevealed?.Invoke(_pendingMagEstimate);
+            }
         }
     }
 }

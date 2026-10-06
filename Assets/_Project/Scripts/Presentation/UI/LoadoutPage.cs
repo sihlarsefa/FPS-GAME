@@ -68,6 +68,8 @@ namespace Project.Presentation.UI
             new Vector2(0.60f, 0.86f), new Vector2(0.88f, 0.64f), new Vector2(0.68f, 0.17f), new Vector2(0.40f, 0.17f), new Vector2(0.11f, 0.52f)
         };
         private Text _extraStats;
+        private LoadoutCompareView _compare;
+        private AttachmentSlot _focusSlot = AttachmentSlot.Sight;
         private RectTransform _barsRoot;
 
         private static readonly string[] SlotNames = { "NİŞANGÂH", "NAMLU", "TUTAMAK", "ŞARJÖR", "DİPÇİK" };
@@ -99,13 +101,13 @@ namespace Project.Presentation.UI
                 vlg.childForceExpandHeight = false;
             }
 
-            _primaryRow = AddRow(column, "BİRİNCİL SİLAH", d => CycleWeapon(true, d), () => { _showSecondary = false; Refresh(false); });
-            _secondaryRow = AddRow(column, "İKİNCİL SİLAH", d => CycleWeapon(false, d), () => { _showSecondary = true; Refresh(false); });
+            _primaryRow = AddRow(column, "BİRİNCİL SİLAH", d => CycleWeapon(true, d), () => { _showSecondary = false; Refresh(false); if (_compare != null) _compare.Hide(); });
+            _secondaryRow = AddRow(column, "İKİNCİL SİLAH", d => CycleWeapon(false, d), () => { _showSecondary = true; Refresh(false); if (_compare != null) _compare.Hide(); });
             UiFactory.Spacer(column, 6f);
             for (var s = 0; s < AttachmentCatalog.SlotCount; s++)
             {
                 var slot = (AttachmentSlot)s;
-                _attRows[s] = AddRow(column, SlotNames[s], d => CycleAttachment(slot, d), null, 40f, 21);
+                _attRows[s] = AddRow(column, SlotNames[s], d => CycleAttachment(slot, d), () => { _showSecondary = false; Refresh(false); ShowCompare(slot); }, 40f, 21);
             }
 
             UiFactory.Spacer(column, 6f);
@@ -126,6 +128,7 @@ namespace Project.Presentation.UI
             raw.color = new Color(1f, 1f, 1f, 0f);
             _preview = LoadoutPreview.Create(raw, 1280, 720);
             BuildNodes(previewHolder);
+            _compare = LoadoutCompareView.Create(previewHolder);
 
             _weaponName = UiFactory.Label(previewHolder, string.Empty, 40, TextAnchor.UpperLeft, UiTheme.Text, FontStyle.Bold);
             _weaponName.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -140,6 +143,7 @@ namespace Project.Presentation.UI
             UiFactory.SetRect(_weaponDesc, new Vector2(0f, 1f), new Vector2(0.48f, 1f), new Vector2(22f, -156f), new Vector2(0f, -98f));
             var hint = UiFactory.Label(previewHolder, "sürükle: döndür", UiTheme.FontTiny, TextAnchor.LowerRight, UiTheme.TextMuted);
             UiFactory.SetRect(hint, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 8f), new Vector2(-14f, 30f));
+            _compare.transform.SetAsLastSibling();
 
             _barsRoot = UiFactory.CreateRect("Bars", page);
             UiFactory.SetRect(_barsRoot, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(450f, 0f), new Vector2(0f, 156f));
@@ -219,7 +223,7 @@ namespace Project.Presentation.UI
                 btn.targetGraphic = n.Back;
                 btn.transition = Selectable.Transition.None;
                 btn.navigation = new Navigation { mode = Navigation.Mode.None };
-                btn.onClick.AddListener(() => CycleAttachment(slot, 1));
+                btn.onClick.AddListener(() => ShowCompare(slot));
 
                 n.Caption = UiFactory.Label(box, SlotNames[s], UiTheme.FontTiny, TextAnchor.UpperLeft, UiTheme.TextMuted, FontStyle.Bold);
                 n.Caption.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -308,6 +312,8 @@ namespace Project.Presentation.UI
             else
                 _sel.SecondaryId = next;
             _showSecondary = !primary;
+            if (_compare != null)
+                _compare.Hide();
             UiWidgets.PlaySound(SoundId.WeaponEquip);
             Refresh(true);
         }
@@ -323,6 +329,31 @@ namespace Project.Presentation.UI
             _showSecondary = false;
             UiWidgets.PlaySound(SoundId.UiClick);
             Refresh(false);
+            ShowCompare(slot);
+        }
+
+        /// <summary>Yuvanın tüm seçeneklerini mevcut kuruluma göre +/- farklarıyla açar (satıra tıklamak kuşanır).</summary>
+        private void ShowCompare(AttachmentSlot slot)
+        {
+            if (_compare == null || !WeaponCatalog.TryGet(_sel.PrimaryId, out var weapon))
+                return;
+            _focusSlot = slot;
+            var options = LoadoutSelection.CompatibleAttachments(slot, weapon.Category);
+            if (options.Count <= 1)
+            {
+                _compare.Hide();
+                return;
+            }
+
+            var ranked = LoadoutStatCompare.RankSlotOptions(weapon, _sel.AttachmentIds(), slot, options, _sel.GetAttachment(slot));
+            _compare.Show(SlotNames[(int)slot], ranked, itemId =>
+            {
+                _sel.SetAttachment(_focusSlot, itemId);
+                _showSecondary = false;
+                UiWidgets.PlaySound(SoundId.UiClick);
+                Refresh(false);
+                ShowCompare(_focusSlot);
+            });
         }
 
         private void CycleCosmetic(string slot, int dir)
@@ -424,6 +455,12 @@ namespace Project.Presentation.UI
             RefreshNodes(primary);
             RefreshSwatches();
             ApplyTint(shown);
+
+            if (shown != null && _weaponMeta != null)
+            {
+                var overall = LoadoutStatCompare.Overall(withMods, shown.Category);
+                _weaponMeta.text += "  ·  GENEL " + overall + " (" + LoadoutStatCompare.GradeFromPoints(overall) + ")";
+            }
 
             if (shown != null)
                 _extraStats.text = Mathf.RoundToInt(withMods.RoundsPerMinute) + " d/dk   ·   " + withMods.MagazineSize + " mermi   ·   "

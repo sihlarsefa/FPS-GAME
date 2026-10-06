@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Project.Application.Movement;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure.Config;
@@ -25,10 +26,11 @@ namespace Project.Infrastructure.Player
         private Vector3 _mantleTarget;
         private int _mantleStall;
         private float _slideCooldown;
+        private float _mantleExitSpeed = 1.5f;
 
         /// <summary>Koşudan çömelme sonrası kayma sürüyor mu.</summary>
         public bool IsSliding => _sliding;
-        public float SlideProgress => _sliding ? Mathf.Clamp01(_slideTime / CameraFeelMath.SlideDuration) : 0f;
+        public float SlideProgress => _sliding ? _slideModel.Progress : 0f;
         public bool IsMantling => _mantling;
         /// <summary>Tırmanma ilerlemesi 0..1.</summary>
         public float MantleProgress => _mantling ? Mathf.Clamp01(_mantleTime / Mathf.Max(0.01f, _mantleDuration)) : 0f;
@@ -57,8 +59,8 @@ namespace Project.Infrastructure.Player
                 return;
 
             _slideDir = dir.normalized;
-            _slideStartSpeed = Mathf.Min(Mathf.Max(speed, config.sprintSpeed) * 1.05f, config.sprintSpeed * MovementRules.SlideMaxSpeedFactor)
-                               * MovementRules.LoadSpeedFactor(_burden);
+            _slideModel.Begin(Mathf.Max(speed, config.sprintSpeed), config.sprintSpeed, MovementRules.SlideMaxSpeedFactor,
+                MovementRules.LoadSpeedFactor(_burden));
             _slideCooldown = MovementRules.SlideCooldownSeconds;
             SpendStamina(MovementRules.SlideStaminaCost);
             _slideTime = 0f;
@@ -73,17 +75,24 @@ namespace Project.Infrastructure.Player
                 return;
 
             _slideTime += dt;
-            var end = config.SpeedFor(Stance.Crouching);
-            var speed = CameraFeelMath.SlideSpeed(_slideStartSpeed, end, _slideTime, CameraFeelMath.SlideDuration);
-            if (!_grounded || _stance != Stance.Crouching || _slideTime >= CameraFeelMath.SlideDuration)
+            var downhill = Vector3.ProjectOnPlane(Vector3.down, _groundNormal);
+            var slopeDeg = Vector3.Angle(_groundNormal, Vector3.up);
+            var dot = downhill.sqrMagnitude > 0.0001f ? Vector3.Dot(_slideDir, downhill.normalized) : 0f;
+            var running = _slideModel.Tick(dt, slopeDeg, dot);
+            if (!_grounded || _stance != Stance.Crouching || !running)
             {
+                // Kayma bitti: zıplama momentumu korunur, silah kayma çıkış süresiyle kalkar.
+                if (_slideModel.Active)
+                    _slideModel.Cancel();
                 _sliding = false;
+                NoteWeaponExit(SprintExitKind.Slide);
                 return;
             }
 
-            // Hafif yön düzeltmesi (kayarken çok az direksiyon).
-            var steer = transform.right * Sanitize(input.Right) * 0.6f;
+            // Hafif yön düzeltmesi: hız arttıkça direksiyon azalır.
+            var steer = transform.right * Sanitize(input.Right) * SlideModel.SteerRate(_slideModel.Speed, config.sprintSpeed);
             _slideDir = (_slideDir + steer * dt).normalized;
+            var speed = Mathf.Max(_slideModel.Speed, config.SpeedFor(Stance.Crouching));
             _planarVelocity = _slideDir * speed * _speedMultiplier;
         }
 
@@ -142,16 +151,19 @@ namespace Project.Infrastructure.Player
             if (_mantling || !ProbeMantle(controller, out var target, out var height))
                 return false;
 
-            if (!_stamina.CanAfford(MovementRules.MantleStaminaCost))
+            var plan = MantleRules.Plan(height, HorizontalSpeed, config.sprintSpeed, _burden, _stamina.Exhausted);
+            if (!_stamina.CanAfford(plan.StaminaCost))
                 return false;
 
-            SpendStamina(MovementRules.MantleStaminaCost);
+            SpendStamina(plan.StaminaCost);
+            _mantleExitSpeed = plan.ExitSpeed;
+            NoteWeaponExit(MantleRules.WeaponExitKind(plan.Kind));
             _mantling = true;
             _sliding = false;
             _mantleStart = transform.position;
             _mantleTarget = target;
             _mantleHeight = height;
-            _mantleDuration = CameraFeelMath.MantleDuration(height) * (1f + 0.35f * _burden);
+            _mantleDuration = plan.Duration;
             _mantleTime = 0f;
             _mantleStall = 0;
             _planarVelocity = Vector3.zero;
@@ -196,7 +208,7 @@ namespace Project.Infrastructure.Player
                 _mantling = false;
                 var fwd = transform.forward;
                 fwd.y = 0f;
-                _planarVelocity = fwd.normalized * 1.5f;
+                _planarVelocity = fwd.normalized * _mantleExitSpeed;
                 _verticalVelocity = -GroundStickSpeed;
                 _airTime = 0f;
                 _timeSinceGrounded = 0f;

@@ -477,6 +477,8 @@ namespace Project.Presentation.UI
             column.sizeDelta = new Vector2(620f, 560f);
             MenuHomeVisuals.BuildStatStrip(column, 0f);
             MenuHomeVisuals.BuildDailyChallenge(column, -112f);
+            // Bilgi katmani: haber karuseli + etkinlik geri sayimi + sezon mini widget'i (sag sutunda, orta bos).
+            Lobby.Home.HomeInfoWidgets.Build(column, -232f);
             MenuHomeVisuals.BuildBottomBar(column);
         }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Project.Application.Match.Flow;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Core.Interfaces;
@@ -55,10 +56,13 @@ namespace Project.Infrastructure.Loot
 
             var spawned = 0;
             var total = points != null ? points.Count : 0;
+            var neighbours = CountNeighbours(points, total);
             for (var p = 0; p < total; p++)
             {
                 var point = points[p];
                 var chance = Mathf.Clamp01(SafeChance(service, point.Tier));
+                // Yoğunluk dengesi: kalabalık kümede şans kısılır, yalnız noktada hafif artar (ganimet çölü önlemi).
+                chance = LootDensityModel.AdjustedChance(chance, (int)point.Tier, neighbours[p]);
                 if (random.NextFloat() >= chance)
                     continue;
 
@@ -85,6 +89,22 @@ namespace Project.Infrastructure.Loot
             spawned += SpawnInteriorAnchors(service, random);
             GroupBuffer.Clear();
             return spawned;
+        }
+
+        private static readonly List<float> XsBuffer = new(512);
+        private static readonly List<float> ZsBuffer = new(512);
+
+        private static int[] CountNeighbours(IReadOnlyList<LootSpawnPointData> points, int total)
+        {
+            XsBuffer.Clear();
+            ZsBuffer.Clear();
+            for (var i = 0; i < total; i++)
+            {
+                XsBuffer.Add(points[i].Position.x);
+                ZsBuffer.Add(points[i].Position.z);
+            }
+
+            return LootDensityModel.CountNeighbours(XsBuffer, ZsBuffer, LootDensityModel.DefaultNeighbourRadius);
         }
 
         private static readonly List<InteriorAnchor> AnchorBuffer = new(256);

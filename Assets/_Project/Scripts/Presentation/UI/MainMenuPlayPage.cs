@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Project.Core.Domain;
 using Project.Infrastructure.Audio;
+using Project.Presentation.UI.Play;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -233,6 +234,11 @@ namespace Project.Presentation.UI
         private Button _secondaryButton;
         private Text _startLabel;
         private Text _breadcrumb;
+        private MatchmakingBar _matchBar;
+        private readonly List<Button> _queueChips = new List<Button>(3);
+        private RectTransform _chipRow;
+        private Text _queueInfo;
+        private readonly QueueEstimator _hintEstimator = new QueueEstimator();
 
         /// <summary>Harita adımı açık mı (Esc önce buraya döner).</summary>
         public bool InMapStep => _inMap;
@@ -280,6 +286,7 @@ namespace Project.Presentation.UI
             BuildMapStep(_mapStep);
             RefreshMode();
             RefreshMap();
+            _matchBar = MatchmakingBar.Create(page);   // en üstte: arama/hazır kontrolü katmanı
         }
 
         private void BuildModeStep(RectTransform step)
@@ -341,8 +348,57 @@ namespace Project.Presentation.UI
             if (_startLabel != null)
                 _startLabel.fontSize = UiTheme.FontLarge;
 
+            BuildQueueChips(step);
+
             _secondaryButton = UiFactory.Button(step, "EĞİTİMLİ BAŞLAT", () => _menu.LaunchMode(MenuModeCatalog.Range, null, true), UiButtonStyle.Default);
             UiFactory.Anchor(_secondaryButton, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-4f, 150f), new Vector2(330f, 56f));
+        }
+
+        /// <summary>BR için eşleşme türü seçici: TİM / İKİLİ / TEKLİ (Eğitim zaten Poligon kartıdır).</summary>
+        private void BuildQueueChips(RectTransform step)
+        {
+            _chipRow = UiFactory.HorizontalList(step, 6f, 0, TextAnchor.MiddleLeft);
+            UiFactory.Anchor(_chipRow, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-4f, 214f), new Vector2(330f, 42f));
+            var h = _chipRow.GetComponent<HorizontalLayoutGroup>();
+            if (h != null)
+            {
+                h.childControlWidth = true;
+                h.childControlHeight = true;
+                h.childForceExpandWidth = true;
+                h.childForceExpandHeight = true;
+            }
+
+            for (var i = 0; i < 3; i++)
+            {
+                var kind = (PlayQueueKind)i;
+                var chip = UiFactory.Button(_chipRow, PlayQueueModes.Get(kind).Short, () => SelectQueue(kind), UiButtonStyle.Default);
+                _queueChips.Add(chip);
+            }
+
+            _queueInfo = UiFactory.Label(step, string.Empty, UiTheme.FontSmall, TextAnchor.LowerRight, UiKitTokens.TextDim, FontStyle.Bold);
+            UiFactory.SetRect(_queueInfo, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-344f, 258f), new Vector2(-4f, 292f));
+            RefreshQueue();
+        }
+
+        private void SelectQueue(PlayQueueKind kind)
+        {
+            if (PlayQueueModes.Current == kind)
+                return;
+            PlayQueueModes.Current = kind;
+            UiWidgets.PlaySound(SoundId.UiClick);
+            RefreshQueue();
+            RefreshMap();
+        }
+
+        private void RefreshQueue()
+        {
+            for (var i = 0; i < _queueChips.Count; i++)
+                _queueChips[i].colors = UiFactory.ButtonColors((int)PlayQueueModes.Current == i ? UiButtonStyle.Primary : UiButtonStyle.Default);
+            if (_queueInfo != null)
+            {
+                var info = PlayQueueModes.Get(PlayQueueModes.Current);
+                _queueInfo.text = info.Detail + "\nBekleme " + _hintEstimator.FormatRange(info.Kind, System.DateTime.Now.Hour);
+            }
         }
 
         private void BuildMapStep(RectTransform step)
@@ -408,6 +464,7 @@ namespace Project.Presentation.UI
         /// <summary>Sayfa gösterilince çağrılır: harita adımını sıfırlar.</summary>
         public void OnShown()
         {
+            RefreshQueue();
             _mapIndex = Mathf.Max(0, MapCatalog.IndexOf(Project.Presentation.Bootstrap.GameSession.SelectedMap));
             ShowStep(false);
             RefreshMap();
@@ -416,6 +473,8 @@ namespace Project.Presentation.UI
         /// <summary>Geri tuşu: harita adımındaysa moda döner ve true verir.</summary>
         public bool HandleBack()
         {
+            if (_matchBar != null && _matchBar.HandleBack())
+                return true;
             if (!_inMap)
                 return false;
             ShowStep(false);
@@ -467,6 +526,9 @@ namespace Project.Presentation.UI
                 _startLabel.text = mode.NeedsMap ? "HARİTA SEÇ  ›" : (mode.Id == MenuModeCatalog.Range ? "SERBEST ATIŞ" : "BAŞLAT");
             if (_secondaryButton != null)
                 _secondaryButton.gameObject.SetActive(mode.Id == MenuModeCatalog.Range);
+            var br = mode.Id == MenuModeCatalog.BattleRoyale;
+            if (_chipRow != null) _chipRow.gameObject.SetActive(br);
+            if (_queueInfo != null) _queueInfo.gameObject.SetActive(br);
         }
 
         private void RefreshMap()
@@ -475,7 +537,8 @@ namespace Project.Presentation.UI
             for (var i = 0; i < _mapCards.Count; i++)
                 _mapCards[i].Selected = i == _mapIndex;
             if (_mapTitle != null) _mapTitle.text = MenuText.ToUpperTr(MapCatalog.DisplayName(id));
-            if (_mapDesc != null) _mapDesc.text = MenuMapInfo.Tagline(id) + "\n" + MenuMapInfo.SizeText(id);
+            if (_mapDesc != null) _mapDesc.text = MenuMapInfo.Tagline(id) + "\n" + MenuMapInfo.SizeText(id)
+                    + "\n" + PlayQueueModes.Get(PlayQueueModes.Current).Title + "  ·  bekleme " + _hintEstimator.FormatRange(PlayQueueModes.Current, System.DateTime.Now.Hour);
         }
 
         private void Confirm()
@@ -487,7 +550,17 @@ namespace Project.Presentation.UI
                 return;
             }
 
-            _menu.LaunchMode(mode.Id, mode.NeedsMap ? MapCatalog.IdAt(_mapIndex) : null, false);
+            var mapId = mode.NeedsMap ? MapCatalog.IdAt(_mapIndex) : null;
+            // Yalnızca BR kuyruğa girer (arama -> hazır -> başlat); diğer modlar anında, eski akışla başlar.
+            if (mode.Id == MenuModeCatalog.BattleRoyale && _matchBar != null)
+            {
+                var kind = PlayQueueModes.Current == PlayQueueKind.Training ? PlayQueueKind.TeamBr : PlayQueueModes.Current;
+                var modeId = mode.Id;
+                _matchBar.Begin(kind, MenuText.ToUpperTr(MapCatalog.DisplayName(mapId)), () => _menu.LaunchMode(modeId, mapId, false));
+                return;
+            }
+
+            _menu.LaunchMode(mode.Id, mapId, false);
         }
 
         private void Update()
@@ -523,6 +596,8 @@ namespace Project.Presentation.UI
 
             if (_menu != null && (_menu.IsPanelOpen || _menu.IsLeaving))
                 return;
+            if (_matchBar != null && _matchBar.Active)
+                return;   // arama/hazır kontrolü sırasında kart gezintisi ve onay kilitli
 
             if (dir != 0)
             {

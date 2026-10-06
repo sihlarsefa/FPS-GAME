@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Project.Core.Domain;
+using Project.Infrastructure.Characters.WeaponHold;
 using Project.Infrastructure.Combat;
 using Project.Infrastructure.Content;
 using Project.Infrastructure.Rendering;
@@ -83,6 +84,7 @@ namespace Project.Infrastructure.Characters
             public Transform Muzzle;
             public HoldKind Kind;
             public float LeftHandReach;
+            public WeaponHoldProfile Profile;
             public float LastUsed;
 
             /// <summary>Silah fabrikasının sol/sağ el bileği bağlantıları (silah kökü uzayında), varsa.</summary>
@@ -192,6 +194,12 @@ namespace Project.Infrastructure.Characters
         private float _seat;
         private float _air;
         private float _recoil;
+        private WeaponHoldProfile _profile = WeaponHoldProfile.Default;
+        private readonly WeaponReadyState _ready = new WeaponReadyState();
+        private readonly WeaponSpring _aimSpring = new WeaponSpring();
+        private float _obstacleDistance = float.PositiveInfinity;
+        private Quaternion _leftHandAlign = Quaternion.Euler(-20f, 0f, 0f);
+        private Quaternion _rightHandAlign = Quaternion.Euler(-35f, 0f, 0f);
         private float _flinch;
         private float _flinchSide;
         private int _gesture; // 0 yok, 1 şarjör, 2 fırlatma
@@ -1685,7 +1693,8 @@ namespace Project.Infrastructure.Characters
                 Root = root,
                 Muzzle = muzzle,
                 Kind = kind,
-                LeftHandReach = LeftHandReachFor(weapon.Category)
+                LeftHandReach = LeftHandReachFor(weapon.Category),
+                Profile = WeaponHoldProfile.ForCategory(weapon.Category)
             };
 
             if (fromFactory)
@@ -1846,6 +1855,8 @@ namespace Project.Infrastructure.Characters
 
             held.LastUsed = Time.time;
             _hold = held.Kind;
+            _profile = held.Profile;
+            _ready.NotifyActivity();
             AttachWeaponToHand(held);
             if (held.Root != null)
                 held.Root.SetActive(!_dead);
@@ -1933,14 +1944,19 @@ namespace Project.Infrastructure.Characters
 
             // Uzun silahlarda el kundağı omuzdan erişilemeyecek kadar öndeyse eli namlu ekseni boyunca geri çek.
             var barrel = carry * Vector3.forward;
-            for (var i = 0; i < 48 && Vector3.Dot(leftWrist - socket, barrel) > 0.06f && (leftWrist - leftShoulder).sqrMagnitude > MaxArmReach * MaxArmReach; i++)
-                leftWrist -= barrel * 0.01f;
-            for (var i = 0; i < 48 && rightWrist.z > 0f && (rightWrist - rightShoulder).sqrMagnitude > MaxArmReach * MaxArmReach; i++)
-                rightWrist.z -= 0.01f;
+            leftWrist = WeaponHoldMath.ResolveWristReach(socket, barrel, leftWrist, leftShoulder, MaxArmReach, 0.06f);
+            rightWrist = WeaponHoldMath.ResolveWristReach(Vector3.zero, Vector3.forward, rightWrist, rightShoulder, MaxArmReach, rightWrist.z > 0f ? 0f : rightWrist.z);
             SolveTwoBone(rightShoulder, rightWrist, rightShoulder + new Vector3(0.3f, -0.4f, -0.2f), UpperArmLength, ForearmLength, -1f,
                 out _ikRightShoulder, out _ikRightElbow);
             SolveTwoBone(leftShoulder, leftWrist, leftShoulder + new Vector3(-0.3f, -0.45f, -0.05f), UpperArmLength, ForearmLength, -1f,
                 out _ikLeftShoulder, out _ikLeftElbow);
+
+            // Eller silah eksenine hizalanır (sol: avuç el kundağının altında, hafif içe yatık; sağ: kabzada).
+            var grip = WeaponHoldMath.GripFrame(barrel, 0f);
+            _leftHandAlign = WeaponHoldMath.AlignHand(_ikLeftShoulder * _ikLeftElbow, grip, Quaternion.Euler(-12f, 0f, -14f),
+                Quaternion.Euler(-20f, 0f, 0f));
+            _rightHandAlign = WeaponHoldMath.AlignHand(_ikRightShoulder * _ikRightElbow, grip, Quaternion.Euler(-30f, 0f, 8f),
+                Quaternion.Euler(-35f, 0f, 0f));
         }
 
         /// <summary>
@@ -2046,6 +2062,13 @@ namespace Project.Infrastructure.Characters
                 return;
 
             _recoil = 1f;
+            _ready.NotifyActivity();
+        }
+
+        /// <summary>Önündeki engele mesafe (m); yakınsa silah gövdeye çekilir. Sonsuz = engel yok.</summary>
+        public void SetObstacleDistance(float meters)
+        {
+            _obstacleDistance = float.IsNaN(meters) ? float.PositiveInfinity : Mathf.Max(0f, meters);
         }
 
         /// <summary>
@@ -2116,6 +2139,7 @@ namespace Project.Infrastructure.Characters
             _deathTime = 0f;
             _deathWeaponHidden = false;
             _recoil = 0f;
+            _ready.Reset();
             _flinch = 0f;
             _gesture = 0;
             DriveHumanoid();
@@ -2359,34 +2383,48 @@ namespace Project.Infrastructure.Characters
             var pitch = Mathf.Lerp(_aimPitch, Mathf.Clamp(_aimPitch, -25f, 20f), prone);
             var hasWeapon = _hold != HoldKind.None;
             var breathing = Mathf.Sin(_breath) * 0.8f * (1f - moveWeight);
+            var holdOut = new HoldOutput { SpineAim = pitch * 0.25f, ChestAim = pitch * 0.25f, HeadPitch = pitch * 0.9f };
+            if (hasWeapon)
+            {
+                _ready.Update(dt, _speed, _profile.IdleToLowReady, _obstacleDistance, _profile.Length, _gesture == 0 && _recoil <= 0f);
+                var lag = WeaponHoldMath.ClampLag(_aimSpring.Step(dt, pitch, _profile.SpringHz, _profile.SpringDamping), pitch);
+                holdOut = WeaponHoldMath.Evaluate(new HoldInput
+                {
+                    Pitch = pitch, Run = run, Crouch = crouch, Prone = prone, Seat = seat, MoveWeight = moveWeight,
+                    Breathing = breathing, Recoil = _recoil, LowReady = _ready.LowReady, WallPull = _ready.WallPull,
+                    StepCos = cos, StepPhase = _phase, SpringLag = lag, Profile = _profile
+                });
+            }
+            else
+                _aimSpring.Reset(pitch);
+
+            if (hasWeapon)
+                _body.localRotation = Quaternion.Euler(bodyPitch + holdOut.PelvisPitch, 0f, hipRoll);
+
             var lean = run * 9f + crouch * 12f + _flinch * -7f + breathing * 0.5f;
-            var spineX = lean + pitch * 0.25f - 5f * prone + seat * 5f;
-            var chestX = pitch * 0.25f + crouch * 4f - 15f * prone;
+            var spineX = lean + holdOut.SpineAim - 5f * prone + seat * 5f;
+            var chestX = holdOut.ChestAim + crouch * 4f - 15f * prone;
             var spineYaw = -sin * 5f * moveWeight * (1f - prone) * (hasWeapon ? 0.3f : 1f);
             _spine.localRotation = Quaternion.Euler(spineX, spineYaw, _flinch * _flinchSide * 4f);
             Chest.localRotation = Quaternion.Euler(chestX, SoldierDetailRules.ChestCounterTwist(sin, moveWeight, hasWeapon) * (1f - prone), -hipRoll * 0.35f);
             UpdateAntennaMotion(SoldierDetailRules.AntennaTilt(_speed, _phase), Mathf.Sin(_phase) * 2f * moveWeight);
 
-            var upperTotal = bodyPitch + spineX + chestX;
-            var headTotal = pitch * 0.9f;
+            var upperTotal = bodyPitch + holdOut.PelvisPitch + spineX + chestX;
+            var headTotal = holdOut.HeadPitch;
             Head.localRotation = Quaternion.Euler(headTotal - upperTotal - _flinch * 9f, -spineYaw * 0.8f + _flinch * _flinchSide * 12f, _flinch * _flinchSide * 5f);
 
             if (hasWeapon)
             {
-                var sprintDrop = run * 30f;
-                var seatDrop = seat * 35f;
-                var armsTotal = pitch + sprintDrop + seatDrop - _recoil * 6f + breathing * 0.3f;
-                var armsYaw = run * 25f;
-                _armsPivot.localRotation = Quaternion.Euler(armsTotal - upperTotal, armsYaw - spineYaw, 0f);
-                WeaponSocket.localPosition = _socketRest + new Vector3(0.006f * cos * moveWeight * (1f + run), 0.004f * Mathf.Sin(_phase * 2f) * moveWeight, -0.03f * _recoil);
+                _armsPivot.localRotation = Quaternion.Euler(holdOut.ArmsPitch - upperTotal, holdOut.ArmsYaw - spineYaw, 0f);
+                WeaponSocket.localPosition = _socketRest + holdOut.SocketOffset;
                 if (_hold == HoldKind.Rifle)
                     WeaponSocket.localRotation = RifleCarry(1f - prone); // Yüzüstünde namlu yere saplanmasın.
                 _leftShoulder.localRotation = _ikLeftShoulder;
                 _leftElbow.localRotation = _ikLeftElbow;
                 _rightShoulder.localRotation = _ikRightShoulder;
                 _rightElbow.localRotation = _ikRightElbow;
-                _leftHand.localRotation = Quaternion.Euler(-20f, 0f, 0f);
-                _rightHand.localRotation = Quaternion.Euler(-35f, 0f, 0f);
+                _leftHand.localRotation = _leftHandAlign;
+                _rightHand.localRotation = _rightHandAlign;
                 ApplyGesture();
             }
             else

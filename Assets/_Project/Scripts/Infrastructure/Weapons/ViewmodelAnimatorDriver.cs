@@ -8,7 +8,7 @@ namespace Project.Infrastructure.Weapons
     /// Override prefab'ın Animator'ünü sürer (WeaponAnimationOverride) ve sol el (Grip_L) IK hedefini iletir.
     /// Animator yoksa ya da override tanımlı değilse hiçbir şey yapmaz (prosedürel viewmodel aynen çalışır).
     /// Animation Rigging varsa (Two Bone IK) yalnızca bilgi günlüğü; yoksa Animator IK (OnAnimatorIK) kullanılır.
-    /// Parametreler (varsa): Aim (float), Speed (float), Sprint (bool), Reload (bool), Fire (trigger).
+    /// Parametreler (varsa): Aim (float), Speed (float), Sprint (bool), Reload (bool), Fire (trigger), ReloadEmpty (bool), ReloadPhase (int), ReloadSpeed (float), MagCheck (trigger).
     /// Cursor doğrulaması: Animator IK Pass katmanı ve gerçek prefab ile görsel kontrol gerekir.
     /// </summary>
     [DisallowMultipleComponent]
@@ -19,12 +19,16 @@ namespace Project.Infrastructure.Weapons
         private Animator _animator;
         private Transform _gripL;
         private float _ikWeight;
-        private bool _hasAim, _hasSpeed, _hasSprint, _hasReload, _hasFire;
+        private bool _hasAim, _hasSpeed, _hasSprint, _hasReload, _hasFire, _hasReloadEmpty, _hasReloadPhase, _hasReloadSpeed, _hasMagCheck;
         private static readonly int AimId = Animator.StringToHash("Aim");
         private static readonly int SpeedId = Animator.StringToHash("Speed");
         private static readonly int SprintId = Animator.StringToHash("Sprint");
         private static readonly int ReloadId = Animator.StringToHash("Reload");
         private static readonly int FireId = Animator.StringToHash("Fire");
+        private static readonly int ReloadEmptyId = Animator.StringToHash("ReloadEmpty");
+        private static readonly int ReloadPhaseId = Animator.StringToHash("ReloadPhase");
+        private static readonly int ReloadSpeedId = Animator.StringToHash("ReloadSpeed");
+        private static readonly int MagCheckId = Animator.StringToHash("MagCheck");
 
         public bool IsActive => _animator != null && _animator.runtimeAnimatorController != null;
 
@@ -68,6 +72,10 @@ namespace Project.Infrastructure.Weapons
                 else if (h == SprintId) _hasSprint = true;
                 else if (h == ReloadId) _hasReload = true;
                 else if (h == FireId) _hasFire = true;
+                else if (h == ReloadEmptyId) _hasReloadEmpty = true;
+                else if (h == ReloadPhaseId) _hasReloadPhase = true;
+                else if (h == ReloadSpeedId) _hasReloadSpeed = true;
+                else if (h == MagCheckId) _hasMagCheck = true;
             }
 
             if (!_rigLogged && Type.GetType("UnityEngine.Animations.Rigging.TwoBoneIKConstraint, Unity.Animation.Rigging") != null)
@@ -85,6 +93,22 @@ namespace Project.Infrastructure.Weapons
             if (_hasSpeed) _animator.SetFloat(SpeedId, speed01);
             if (_hasSprint) _animator.SetBool(SprintId, sprinting);
             if (_hasReload) _animator.SetBool(ReloadId, reloading);
+        }
+
+        /// <summary>Doldurma evresi (ReloadPhase int), boş/taktik ve klip hız çarpanı. Parametre yoksa yok sayılır.</summary>
+        public void SetReloadInfo(int phase, bool empty, float speedMultiplier)
+        {
+            if (!IsActive)
+                return;
+            if (_hasReloadPhase) _animator.SetInteger(ReloadPhaseId, phase);
+            if (_hasReloadEmpty) _animator.SetBool(ReloadEmptyId, empty);
+            if (_hasReloadSpeed) _animator.SetFloat(ReloadSpeedId, speedMultiplier);
+        }
+
+        public void TriggerMagCheck()
+        {
+            if (IsActive && _hasMagCheck)
+                _animator.SetTrigger(MagCheckId);
         }
 
         public void SetLeftHandWeight(float w) => _ikWeight = Mathf.Clamp01(w);

@@ -1,4 +1,5 @@
 using System;
+using Project.Application.Movement;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Core.Interfaces;
@@ -391,6 +392,7 @@ namespace Project.Infrastructure.Player
             // --- Koşu
             var standingReady = _stance == Stance.Standing && _currentHeight >= config.standingHeight - 0.08f;
             var wantsSprint = input.Sprint && forward >= config.sprintForwardThreshold && standingReady
+                              && AdsMovementRules.SprintAllowed(_adsProgress)
                               && _stamina.CanSprint(_isSprinting);
             var sprinting = wantsSprint && (_grounded || _isSprinting);
 
@@ -402,7 +404,8 @@ namespace Project.Infrastructure.Player
                 leanTarget = 0f;
             leanTarget = ClampLeanToClearance(leanTarget);
             // Ağır yükte eğilme biraz yavaş.
-            _lean = Mathf.MoveTowards(_lean, leanTarget, config.leanSpeed * (1f - 0.25f * _burden) * dt);
+            _lean = Mathf.MoveTowards(_lean, leanTarget,
+                LeanRules.Speed(config.leanSpeed, _burden, _adsProgress, Mathf.Abs(leanTarget) < Mathf.Abs(_lean)) * dt);
 
             // --- İstenen yatay hız
             var wish = ComputeWishVelocity(forward, right, sprinting);
@@ -410,7 +413,7 @@ namespace Project.Infrastructure.Player
             if (_grounded && !_onSteepSlope)
             {
                 var accel = hasInput ? config.groundAcceleration : config.groundDeceleration;
-                accel *= MovementRules.LoadAccelFactor(_burden);
+                accel *= MovementRules.LoadAccelFactor(_burden) * AdsMovementRules.AccelerationFactor(_adsProgress);
                 // Koşuya geçiş ve koşudan durma ağır: gerçek atalet hissi.
                 if (sprinting && hasInput)
                     accel *= 0.72f;
@@ -495,6 +498,7 @@ namespace Project.Infrastructure.Player
             }
 
             UpdateGroundedState(groundedNow, impactSpeed, dt);
+            TickFeel(dt, impactSpeed, !wasGrounded && _grounded);
 
             var horizontal = new Vector2(_velocity.x, _velocity.z).magnitude;
             var sprintRef = Mathf.Max(0.01f, config.sprintSpeed);
@@ -523,7 +527,7 @@ namespace Project.Infrastructure.Player
         {
             var moving = horizontal > 0.4f;
             var regen = MovementRules.RegenMultiplier(moving, _stance != Stance.Standing, _stance == Stance.Prone);
-            if (_stamina.Tick(dt, _isSprinting, regen, MovementRules.LoadDrainMultiplier(_burden)))
+            if (_stamina.Tick(dt, _isSprinting, regen, MovementRules.LoadDrainMultiplier(_burden) * _fatigue.DrainMultiplier))
                 NotifyExhaustion();
 
             if (_wasExhausted && !_stamina.Exhausted)
@@ -828,6 +832,8 @@ namespace Project.Infrastructure.Player
             speed *= MovementRules.LoadSpeedFactor(_burden);
             speed *= MovementRules.ExhaustedSpeedFactor(_stamina.Exhausted);
             speed *= MovementRules.StanceTransitionSpeedFactor(_currentHeight, _targetHeight);
+            speed *= AdsSpeedFactor(Mathf.Abs(input.x) * (1f - Mathf.Abs(input.y)));
+            speed *= LeanRules.MoveSpeedFactor(_lean);
 
             var fwd = transform.forward;
             fwd.y = 0f;
@@ -901,6 +907,8 @@ namespace Project.Infrastructure.Player
                     SetStepOffsetForAir(false);
                     // Sert iniş: nefes kesilir, yatay hız söner (diz kırılması).
                     SpendStamina(MovementRules.LandingStaminaCost(impactSpeed));
+                    if (impactSpeed > 8f)
+                        NoteWeaponExit(SprintExitKind.HardLanding);
                     _planarVelocity *= MovementRules.LandingVelocityKeep(impactSpeed);
                     if (impactSpeed >= config.landedEventMinSpeed || airTime >= LandedMinAirTime)
                         Landed?.Invoke(impactSpeed);

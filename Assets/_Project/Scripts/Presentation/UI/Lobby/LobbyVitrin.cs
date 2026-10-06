@@ -29,6 +29,7 @@ namespace Project.Presentation.UI.Lobby
         private Text _weaponName, _skinName;
         private Button _equipButton;
         private RawImage _view;
+        private LoadoutMiniBars _mini;
 
         private RenderTexture _rt;
         private Camera _cam;
@@ -75,6 +76,9 @@ namespace Project.Presentation.UI.Lobby
             MakeArrow(frame.rectTransform, "▶", 1, new Vector2(0.5f, 1f), new Vector2(240f, -52f));
             _skinName = UiFactory.Label(frame.rectTransform, string.Empty, 20, TextAnchor.MiddleCenter, LobbyTheme.TextDim);
             UiFactory.SetRect(_skinName.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-250f, 78f), new Vector2(250f, 108f));
+
+            // Sol-alt: silahın 6 çubuk özeti (hasar, hız, menzil, kontrol, hareket, nişan) + genel not.
+            _mini = LoadoutMiniBars.Create(frame.rectTransform, new Vector2(20f, 20f), 250f, LobbyTheme.TextDim, LobbyTheme.Border);
 
             // Alt: KUŞAN.
             _equipButton = UiFactory.Button(frame.rectTransform, "KUŞAN", Equip, UiButtonStyle.Primary);
@@ -138,6 +142,11 @@ namespace Project.Presentation.UI.Lobby
                 _marks[i].enabled = i == equipped;
             }
             _weaponName.text = WeaponNames[_weapon];
+            if (_mini != null)
+            {
+                WeaponCatalog.TryGet(CurrentWeaponId, out var def);
+                _mini.SetWeapon(def);
+            }
             _skinName.text = _selected == equipped ? "KUŞANILDI" : (_selected == 0 ? "Kaplamasız" : WeaponSkinCatalog.All[_selected - 1].Name);
             if (_equipButton != null)
             {

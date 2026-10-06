@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using Project.Presentation.UI.Lobby.Squad;
 
 namespace Project.Presentation.UI.Lobby
 {
@@ -20,6 +21,8 @@ namespace Project.Presentation.UI.Lobby
         public LobbyVignette Vignette { get; private set; }
         /// <summary>Sağ alttaki büyük kırmızı OYNA düğmesi.</summary>
         public Button PlayButton { get; private set; }
+        /// <summary>Sol alttaki 4 slotlu tim şeridi.</summary>
+        public SquadStripView Squad { get; private set; }
         private Text _rankText;
         private Text _xpText;
 
@@ -66,6 +69,8 @@ namespace Project.Presentation.UI.Lobby
             shell.Card = LobbyPlayerCard.Create(root);
             UiFactory.Anchor(shell.Card, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-400f, 48f), new Vector2(420f, 150f));
             shell.PlayButton = LobbyPlayButton.Create(root, onPlay);
+            // ENTEGRASYON: lobiyi kuran kod Squad.Roster'a yerel oyuncuyu ekleyip Squad.InviteRequested'a davet arayüzünü bağlamalı.
+            shell.Squad = SquadStripView.Create(root, new SquadRoster());
             shell.Tabs.TabChanged += shell.OnTabChanged;
             return shell;
         }

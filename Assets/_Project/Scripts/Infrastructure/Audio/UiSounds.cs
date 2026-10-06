@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Project.Infrastructure.Audio.HdrMix;
+using Project.Infrastructure.Audio.Ui;
 using UnityEngine;
 
 namespace Project.Infrastructure.Audio
 {
-    public enum UiSfx { Hover, Press, Tab, Back, Error, MatchFound, CountdownTick, CountdownGo }
+    public enum UiSfx { Hover, Press, Tab, Back, Error, MatchFound, CountdownTick, CountdownGo, Select, Confirm, Cancel, ToggleOn, ToggleOff }
 
     /// <summary>
     /// Saf (Unity'siz) prosedürel arayüz sesleri. Mono 22.05 kHz; her ses -18 LUFS (yaklaşık) hedefine ayarlanır,
@@ -38,6 +39,12 @@ namespace Project.Infrastructure.Audio
         public static float[] Render(UiSfx kind)
         {
             float[] s;
+            if (UiSfxExtraSynth.Handles(kind))
+            {
+                s = UiSfxExtraSynth.Render(kind);
+                Normalize(s);
+                return s;
+            }
             switch (kind)
             {
                 case UiSfx.Hover: s = Hover(); break;
@@ -187,8 +194,16 @@ namespace Project.Infrastructure.Audio
 
         private static readonly Dictionary<UiSfx, AudioClip> Clips = new Dictionary<UiSfx, AudioClip>();
         private static readonly float[] LastPlay = new float[Enum.GetValues(typeof(UiSfx)).Length];
+        private static readonly UiPitchState Pitch = new UiPitchState();
         private static AudioSource[] _srcs;
         private static int _next;
+
+        /// <summary>Üst katman (onay/stinger) çalarken ortam yatağının bastırılması: (derinlik dB, bitiş zamanı unscaledTime).</summary>
+        public static float DuckDepthDb { get; private set; }
+        public static float DuckUntil { get; private set; }
+
+        /// <summary>Anahtar sesi: açık yükselir, kapalı alçalır.</summary>
+        public static void PlayToggle(bool on) => Play(on ? UiSfx.ToggleOn : UiSfx.ToggleOff);
 
         public static void Play(UiSfx sfx)
         {
@@ -205,7 +220,19 @@ namespace Project.Infrastructure.Audio
                 EnsureHost();
                 var src = _srcs[_next]; _next = (_next + 1) % _srcs.Length;
                 src.clip = GetClip(sfx);
-                src.volume = v;
+                // Katman payı: hover çok kısık (-26 dB), diğerleri onay (-12 dB) referansına göre; stinger üstte.
+                var layer = sfx == UiSfx.Hover ? UiLayer.UiNav
+                    : (sfx == UiSfx.MatchFound || sfx == UiSfx.CountdownGo) ? UiLayer.Stinger : UiLayer.UiConfirm;
+                var rel = UiAudioRules.LayerGain(layer) / UiAudioRules.LayerGain(UiLayer.UiConfirm);
+                src.volume = Mathf.Clamp01(v * Mathf.Min(1f, rel * (layer == UiLayer.UiNav ? 1.6f : 1f)));
+                src.pitch = sfx == UiSfx.Hover ? Pitch.HoverPitch(now)
+                    : (sfx == UiSfx.CountdownTick || sfx == UiSfx.CountdownGo || sfx == UiSfx.MatchFound) ? 1f : Pitch.VariedPitch();
+                var duck = UiAudioRules.DuckDepthDb(sfx);
+                if (duck < 0f)
+                {
+                    DuckDepthDb = now < DuckUntil ? UiAudioRules.DeeperDuck(DuckDepthDb, duck) : duck;
+                    DuckUntil = Mathf.Max(DuckUntil, now + UiAudioRules.DuckHoldSeconds(sfx));
+                }
                 src.Play();
             }
             catch (Exception e) { Debug.LogWarning("[UiSounds] " + e.Message); }

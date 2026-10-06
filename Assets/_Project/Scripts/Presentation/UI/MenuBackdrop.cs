@@ -4,6 +4,7 @@ using Project.Infrastructure.Audio;
 using Project.Infrastructure.Rendering;
 using Project.Infrastructure.World.Lobby;
 using Project.Presentation.Lobby;
+using Project.Presentation.Lobby.CameraWork;
 using UnityEngine;
 
 namespace Project.Presentation.UI
@@ -38,20 +39,6 @@ namespace Project.Presentation.UI
             Team
         }
 
-        private struct ShotPose
-        {
-            public Vector3 Position;
-            public Vector3 Target;
-            public float FieldOfView;
-
-            public ShotPose(Vector3 position, Vector3 target, float fieldOfView)
-            {
-                Position = position;
-                Target = target;
-                FieldOfView = fieldOfView;
-            }
-        }
-
         private struct PendingBoom
         {
             public float Time;
@@ -59,22 +46,8 @@ namespace Project.Presentation.UI
             public float Pitch;
         }
 
-        private const float ShotBlendSeconds = 1.8f;
         private const float SoldierRefreshInterval = 1.5f;
         private const int MaxPendingBooms = 8;
-
-        // Kamera (0, 1.6, 0) civarında sabit; asker z = 3.2 m'de, sağa yakın. Tüm kadrajlar küçük dioramanın içinde kalır.
-        private static readonly ShotPose[] Shots =
-        {
-            // Ana kadraj (referans): komutan göğüs-üstü baskın, sağda tim + ateş, solda Kirpi. Hedef = SoldierPosition göğüs hizası.
-            new ShotPose(new Vector3(0.1f, 1.55f, 0f), new Vector3(0.2f, 1.35f, 2.6f), 37f),
-            new ShotPose(new Vector3(-0.8f, 1.5f, 0.3f), new Vector3(-2.5f, 1.3f, 10.5f), 40f),
-            new ShotPose(new Vector3(0.2f, 1.65f, 1.0f), new Vector3(0.7f, 1.55f, 3.2f), 32f),
-            new ShotPose(new Vector3(-0.5f, 1.6f, 0f), new Vector3(1.5f, 1.4f, 8f), 46f),
-            new ShotPose(new Vector3(0.3f, 1.7f, -0.2f), new Vector3(1.0f, 1.3f, 5f), 50f),
-            new ShotPose(new Vector3(-0.6f, 1.3f, 1.0f), new Vector3(-1.8f, 0.5f, 5f), 42f),
-            new ShotPose(new Vector3(0f, 1.6f, 0.3f), new Vector3(0.6f, 1.3f, 3.2f), 38f)
-        };
 
         private static MenuBackdrop _current;
 
@@ -95,9 +68,9 @@ namespace Project.Presentation.UI
         private Transform _cameraTransform;
         private Camera _camera;
         private Shot _shot = Shot.Main;
-        private ShotPose _from;
-        private ShotPose _to;
-        private float _blend = 1f;
+        private LobbyShotDirector _director;
+        private LobbyCameraGrade _grade;
+        private float _shotAspect = LobbyShotLibrary.DefaultAspect;
         private float _startTime;
         private float _soldierTimer;
         private float _nextFlash;
@@ -149,17 +122,12 @@ namespace Project.Presentation.UI
         /// <summary>Kamerayı verilen kadraja yumuşakça taşır.</summary>
         public void SetShot(Shot shot)
         {
-            var index = (int)shot;
-            if (index < 0 || index >= Shots.Length)
-                shot = Shot.Main;
-
-            if (shot == _shot && _blend >= 1f)
-                return;
-
-            _from = CurrentPose();
-            _to = Shots[(int)shot];
+            var index = LobbyShotLibrary.Clamp((int)shot);
+            shot = (Shot)index;
+            if (_director == null)
+                _director = new LobbyShotDirector(LobbyShotLibrary.Build(_shotAspect), index);
+            _director.SetShot(index);
             _shot = shot;
-            _blend = 0f;
         }
 
         /// <summary>Diorama sabit yönlüdür (ışık dekora göre kurulur; güneşe göre döndürme yok).</summary>
@@ -172,8 +140,7 @@ namespace Project.Presentation.UI
             Project.Infrastructure.Rendering.PostProcessing.SetLobbyGrade(true);
             _rng = new System.Random(Environment.TickCount);
             _startTime = Time.unscaledTime;
-            _to = Shots[0];
-            _from = _to;
+            _director = new LobbyShotDirector(LobbyShotLibrary.Build(_shotAspect), LobbyShotLibrary.Main);
         }
 
         private void Start()
@@ -214,6 +181,7 @@ namespace Project.Presentation.UI
                 MenuDioramaBuilder.SoldierPosition, QualitySettings.GetQualityLevel()), "Lobi atmosferi");
             Step(() => _parallax = gameObject.AddComponent<LobbyParallax>(), "Lobi paralaksı");
             Step(BuildCamera, "Kamera");
+            Step(() => _grade = LobbyCameraGrade.Create(transform, QualitySettings.GetQualityLevel()), "Lobi kamera derecelendirmesi");
             Step(StartAudio, "Ses");
 
             ApplyCamera(0f);
@@ -239,7 +207,7 @@ namespace Project.Presentation.UI
 
             try
             {
-                _rig = CameraRig.Create(pivot, Shots[0].FieldOfView, false);
+                _rig = CameraRig.Create(pivot, _director.Current.FieldOfView, false);
                 _camera = _rig != null ? _rig.WorldCamera : null;
             }
             catch (Exception e)
@@ -260,7 +228,7 @@ namespace Project.Presentation.UI
                 go.transform.SetParent(pivot, false);
                 go.tag = "MainCamera";
                 _camera = go.AddComponent<Camera>();
-                _camera.fieldOfView = Shots[0].FieldOfView;
+                _camera.fieldOfView = _director.Current.FieldOfView;
                 _camera.clearFlags = CameraClearFlags.SolidColor;
                 _camera.backgroundColor = MenuBackdropLook.BackgroundColor;
                 _camera.nearClipPlane = 0.05f;
@@ -354,52 +322,55 @@ namespace Project.Presentation.UI
             _floodlights[i].intensity = _floodBase[i] * k;
         }
 
-        private ShotPose CurrentPose()
-        {
-            var t = Mathf.Clamp01(_blend);
-            var eased = t * t * (3f - 2f * t);
-            return new ShotPose(
-                Vector3.Lerp(_from.Position, _to.Position, eased),
-                Vector3.Lerp(_from.Target, _to.Target, eased),
-                Mathf.Lerp(_from.FieldOfView, _to.FieldOfView, eased));
-        }
-
         private void ApplyCamera(float dt)
         {
-            if (_cameraTransform == null)
+            if (_cameraTransform == null || _director == null)
                 return;
 
-            if (_blend < 1f)
-                _blend = Mathf.Min(1f, _blend + dt / ShotBlendSeconds);
+            // Ekran oranı değişince üçte bir çözümü yeniden kurulur (hareketsizken sıçramadan oturur).
+            if (_camera != null && _camera.aspect > 0.5f && Mathf.Abs(_camera.aspect - _shotAspect) > 0.02f && !_director.IsMoving)
+            {
+                _shotAspect = _camera.aspect;
+                _director.Replace(LobbyShotLibrary.Build(_shotAspect));
+            }
 
-            var pose = CurrentPose();
+            var shot = _director.Tick(dt);
 
             // Kamera hayatı: yörünge yok; ~2 mm yavaş süzülme + %1 yakınlaşma nefesi (8 sn periyot).
             var life = Time.unscaledTime - _startTime;
             if (float.IsNaN(life) || float.IsInfinity(life))
                 life = 0f;
-            var position = pose.Position + new Vector3(
+            var position = shot.Position + new Vector3(
                 Mathf.Sin(life * 0.31f) * 0.002f,
                 Mathf.Sin(life * 0.23f + 1.3f) * 0.002f,
                 Mathf.Sin(life * 0.17f + 2.1f) * 0.002f);
             // Yavaş dolly (60 sn periyot, ±4 cm ileri-geri) + imleç paralaksı (yalnız ParallaxEnabled).
-            position += pose.Target - pose.Position != Vector3.zero
-                ? (pose.Target - pose.Position).normalized * (Mathf.Sin(life * 0.105f) * 0.04f)
-                : Vector3.zero;
+            var forward = shot.Target - shot.Position;
+            if (forward != Vector3.zero)
+                position += forward.normalized * (Mathf.Sin(life * 0.105f) * 0.04f);
             if (ParallaxEnabled && _parallax != null)
                 position += _parallax.Offset;
-            var look = pose.Target - position;
+
+            // El kamerası: konumdan çok dönüşte titrer; geçişte güçlenir.
+            var hand = LobbyHandheld.Sample(life, shot.FieldOfView, life, shot.ShakeScale, _director.Transit01);
+            position += hand.PositionOffset;
+
+            var look = shot.Target - position;
             if (look.sqrMagnitude < 1e-4f)
                 look = Vector3.forward;
 
             _cameraTransform.localPosition = position;
-            _cameraTransform.localRotation = Quaternion.LookRotation(look, Vector3.up);
+            _cameraTransform.localRotation = Quaternion.LookRotation(look, Vector3.up)
+                * Quaternion.Euler(hand.PitchDegrees, hand.YawDegrees, hand.RollDegrees + shot.RollDegrees);
 
-            var fov = pose.FieldOfView * (1f + 0.01f * Mathf.Sin(life * (Mathf.PI * 2f / 8f)));
+            var fov = shot.FieldOfView * (1f + 0.01f * Mathf.Sin(life * (Mathf.PI * 2f / 8f)));
             if (_rig != null)
                 _rig.SetFieldOfView(fov);
             else if (_camera != null && !Mathf.Approximately(_camera.fieldOfView, fov))
                 _camera.fieldOfView = fov;
+
+            if (_grade != null)
+                _grade.Apply(shot);
         }
 
         private void UpdateSoldiers(float dt)
@@ -622,6 +593,8 @@ namespace Project.Presentation.UI
 
             if (_look != null)
                 _look.Dispose();
+            if (_grade != null)
+                _grade.Dispose();
             _look = null;
             MenuBackdropBuilder.DestroyOwned(_context);
             _context = null;

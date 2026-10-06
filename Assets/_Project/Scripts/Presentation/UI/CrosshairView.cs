@@ -1,6 +1,7 @@
 using System;
 using Project.Application.Services;
 using Project.Infrastructure.Audio;
+using Project.Presentation.UI.Crosshair;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,10 +17,6 @@ namespace Project.Presentation.UI
     {
         private const float LineLength = 11f;
         private const float LineThickness = 2f; // 2 px çizgi + 1 px gölge (Outline)
-        private const float MinGap = 5f;
-        private const float MaxGap = 140f;
-        private const float HitMarkerDuration = 0.28f;
-        private const float KillMarkerDuration = 0.55f;
         private const float HitArmOffset = 5f;
         private const float HitArmLength = 8f;
 
@@ -41,6 +38,13 @@ namespace Project.Presentation.UI
         private float _hitDuration;
         private float _hitScale = 1f;
         private float _lastHitSound = -1f;
+        private HitKind _hitKind = HitKind.Govde;
+        private HitStyle _hitStyle;
+        private readonly Outline[] _lineOutlines = new Outline[5];
+        private readonly Outline[] _hitOutlines = new Outline[4];
+        private CrosshairSettings _settings;
+
+        // ENTEGRASYON: AdvancedDisplay.cs / ayar paneli icinde CrosshairSettings.Apply(...) cagrisi sonrasi CrosshairView.ApplyAppearance() tetiklenmeli.
 
         public RectTransform Root { get; private set; }
 
@@ -72,7 +76,7 @@ namespace Project.Presentation.UI
             _right = CreateLine("Right", new Vector2(LineLength, LineThickness), new Vector2(0f, 0.5f));
 
             _dot = HudBuild.Image("Dot", _crosshair, UiSprites.Circle, Color.white, Vector2.zero, new Vector2(2f, 2f));
-            UiFactory.AddOutline(_dot, UiTheme.WithAlpha(Color.black, 0.6f), 1f);
+            _lineOutlines[4] = UiFactory.AddOutline(_dot, UiTheme.WithAlpha(Color.black, 0.6f), 1f);
 
             _hitMarker = HudBuild.Rect("HitMarker", Root, HudBuild.Center, HudBuild.Center, Vector2.zero, new Vector2(HudVisualRules.MaxHitMarkerPx, HudVisualRules.MaxHitMarkerPx));
             _hitGroup = HudBuild.PassiveGroup(_hitMarker, 0f);
@@ -82,23 +86,57 @@ namespace Project.Presentation.UI
                 holder.localRotation = Quaternion.Euler(0f, 0f, 45f + 90f * i);
                 var line = HudBuild.Image("Line", holder, UiSprites.White, Color.white, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f),
                     new Vector2(0f, HitArmOffset), new Vector2(2.5f, HitArmLength));
-                UiFactory.AddOutline(line, UiTheme.WithAlpha(Color.black, 0.55f), 1f);
+                _hitOutlines[i] = UiFactory.AddOutline(line, UiTheme.WithAlpha(Color.black, 0.55f), 1f);
                 _hitLines[i] = line;
             }
         }
 
-        /// <summary>Ayarlardaki nişangâh rengi/boyutunu uygular (anında).</summary>
+        /// <summary>Ayarlardaki nişangâh görünümünü (renk, uzunluk, kalınlık, nokta, kontur, opaklık) uygular.</summary>
         public void ApplyAppearance()
         {
             if (_crosshair == null)
                 return;
-            var color = AdvancedDisplay.CrosshairTint;
+            _settings = CrosshairSettings.Current;
+            var st = _settings;
+            var color = st.UseCustomColor ? st.CustomColor : AdvancedDisplay.CrosshairTint;
+            color.a = 1f;
             _crosshair.localScale = Vector3.one * HudVisualRules.ClampCrosshairScale(AdvancedDisplay.CrosshairSize);
-            foreach (var line in new[] { _top, _bottom, _left, _right })
-                if (line != null && line.TryGetComponent<Image>(out var img))
+
+            var lines = new[] { _top, _bottom, _left, _right };
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+                if (line == null)
+                    continue;
+                var vertical = i < 2;
+                line.sizeDelta = vertical ? new Vector2(st.LineThickness, st.LineLength) : new Vector2(st.LineLength, st.LineThickness);
+                if (line.TryGetComponent<Image>(out var img))
                     img.color = color;
+            }
+
             if (_dot != null)
+            {
                 _dot.color = color;
+                _dot.rectTransform.sizeDelta = new Vector2(st.DotSize, st.DotSize);
+                _dot.gameObject.SetActive(st.CenterDot);
+            }
+
+            var outlineAlpha = CrosshairMath.EffectiveOutlineOpacity(st);
+            var outlineColor = CrosshairMath.OutlineColorFor(color, outlineAlpha);
+            for (var i = 0; i < _lineOutlines.Length; i++)
+            {
+                var o = _lineOutlines[i];
+                if (o == null)
+                    continue;
+                o.enabled = outlineAlpha > 0.001f && st.OutlineThickness > 0.01f;
+                o.effectColor = outlineColor;
+                o.effectDistance = new Vector2(st.OutlineThickness, -st.OutlineThickness);
+            }
+
+            var hitOutline = UiTheme.WithAlpha(Color.black, Mathf.Max(0.55f, outlineAlpha));
+            foreach (var o in _hitOutlines)
+                if (o != null)
+                    o.effectColor = hitOutline;
         }
 
         private RectTransform CreateLine(string name, Vector2 size, Vector2 pivot)
@@ -111,14 +149,27 @@ namespace Project.Presentation.UI
         /// <summary>Yerel oyuncunun isabetini gösterir (HitConfirmedEvent).</summary>
         public void ShowHit(bool headshot, bool kill, bool armorAbsorbed, float damage = 0f)
         {
-            var color = kill ? HudRules.KillConfirm : headshot ? UiTheme.Amber : armorAbsorbed ? UiTheme.Armor : Color.white;
-            for (var i = 0; i < _hitLines.Length; i++)
-                if (_hitLines[i] != null)
-                    _hitLines[i].color = color;
+            var st = _settings ?? CrosshairSettings.Current;
+            if (st.HitMarkerEnabled)
+            {
+                // Saçma/çoklu isabette en önemli tür (öldürme > kafa > zırh > gövde) görünür kalır.
+                var incoming = CrosshairMath.ResolveKind(headshot, kill, armorAbsorbed, st);
+                _hitKind = CrosshairMath.Merge(_hitKind, _hitTimer > 0f, incoming);
+                _hitStyle = CrosshairMath.StyleFor(_hitKind, st.ColorBlind);
+                for (var i = 0; i < _hitLines.Length; i++)
+                {
+                    if (_hitLines[i] == null)
+                        continue;
+                    _hitLines[i].color = _hitStyle.Color;
+                    var rt = _hitLines[i].rectTransform;
+                    rt.sizeDelta = new Vector2(2.5f, _hitStyle.ArmLength);
+                    rt.anchoredPosition = new Vector2(0f, _hitStyle.ArmOffset);
+                }
 
-            _hitDuration = kill ? KillMarkerDuration : HitMarkerDuration;
-            _hitTimer = _hitDuration;
-            _hitScale = kill ? HudVisualRules.ClampHitMarkerScale(HitArmOffset, HitArmLength, 1.15f) : 1f;
+                _hitDuration = _hitStyle.Duration * st.HitMarkerDuration;
+                _hitTimer = _hitDuration;
+                _hitScale = _hitStyle.PopScale;
+            }
 
             // Aynı karede gelen saçma (pompalı) isabetlerinde sesi çoğaltma.
             var now = Time.unscaledTime;
@@ -178,11 +229,12 @@ namespace Project.Presentation.UI
                 show = false;
             }
 
-            if (scoped || (aiming && weapon != null) || usingItem)
-                show = false;
-
-            var targetAlpha = show ? 1f : 0f;
-            _crosshairAlpha = Mathf.MoveTowards(_crosshairAlpha, targetAlpha, deltaTime * (show ? 6f : 14f));
+            var st = _settings ?? CrosshairSettings.Current;
+            var adsActive = aiming && weapon != null;
+            var visibility = CrosshairMath.TargetVisibility(st, !show, adsActive, scoped, usingItem);
+            var targetAlpha = visibility * st.Opacity;
+            show = visibility > 0f;
+            _crosshairAlpha = Mathf.MoveTowards(_crosshairAlpha, targetAlpha, deltaTime * (targetAlpha > _crosshairAlpha ? 6f : 14f));
             HudBuild.SetAlpha(_crosshairGroup, _crosshairAlpha);
             if (_crosshairAlpha <= 0.001f)
                 return;
@@ -195,8 +247,8 @@ namespace Project.Presentation.UI
             if (!armed)
                 return;
 
-            var targetGap = SpreadToPixels(spread);
-            _gap = Mathf.Lerp(_gap, targetGap, 1f - Mathf.Exp(-deltaTime * 18f));
+            var targetGap = SpreadToPixels(spread, st) * CrosshairMath.AdsGapScale(st, adsActive);
+            _gap = CrosshairMath.SmoothGap(_gap, targetGap, deltaTime, st);
             var g = Mathf.Round(_gap);
             HudBuild.SetPosition(_top, new Vector2(0f, g));
             HudBuild.SetPosition(_bottom, new Vector2(0f, -g));
@@ -205,22 +257,15 @@ namespace Project.Presentation.UI
         }
 
         /// <summary>Sekme açısını (derece, koni yarı açısı) HUD birimine çevirir (dikey görüş alanına göre).</summary>
-        private float SpreadToPixels(float spreadDegrees)
+        private float SpreadToPixels(float spreadDegrees, CrosshairSettings st)
         {
-            if (float.IsNaN(spreadDegrees) || spreadDegrees < 0f)
-                spreadDegrees = 0f;
-
             var cam = _ctx.Camera;
             var fov = cam != null ? cam.fieldOfView : 70f;
-            fov = Mathf.Clamp(fov, 5f, 150f);
-
             var halfHeight = 540f;
             var parent = Root.parent as RectTransform;
             if (parent != null && parent.rect.height > 1f)
                 halfHeight = parent.rect.height * 0.5f;
-
-            var t = Mathf.Tan(Mathf.Min(spreadDegrees, 60f) * Mathf.Deg2Rad) / Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad);
-            return Mathf.Clamp(t * halfHeight + 3f, MinGap, MaxGap);
+            return CrosshairMath.SpreadToPixels(spreadDegrees, fov, halfHeight, st);
         }
 
         private void UpdateHitMarker(float deltaTime)
@@ -232,13 +277,9 @@ namespace Project.Presentation.UI
             }
 
             _hitTimer -= deltaTime;
-            var t = Mathf.Clamp01(_hitTimer / Mathf.Max(0.01f, _hitDuration));
-            HudBuild.SetAlpha(_hitGroup, t < 0.5f ? t * 2f : 1f);
-            // Hafif pop yalnızca ilk 80 ms ve yalnızca etkisiz hâlde; sonra sabit.
-            var elapsed = _hitDuration - _hitTimer;
-            var scale = 1f;
-            if (_hitScale > 1f && elapsed < 0.08f)
-                scale = 1f + (_hitScale - 1f) * Mathf.Sin(elapsed / 0.08f * Mathf.PI);
+            var st = _settings ?? CrosshairSettings.Current;
+            HudBuild.SetAlpha(_hitGroup, CrosshairMath.HitAlpha(_hitTimer, _hitDuration, st.HitMarkerOpacity));
+            var scale = CrosshairMath.HitScale(_hitDuration - _hitTimer, _hitScale, st.HitMarkerSize);
             HudBuild.SetScale(_hitMarker, scale);
         }
     }

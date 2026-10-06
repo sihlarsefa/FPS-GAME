@@ -5,6 +5,7 @@ using Project.Core.Domain;
 using Project.Infrastructure.Audio;
 using Project.Infrastructure.Audio.HdrMix;
 using Project.Infrastructure.Rendering;
+using Project.Presentation.UI.Settings;
 using Project.Presentation.Bootstrap;
 using Project.Application.Localization;
 using Project.Infrastructure.Localization;
@@ -91,6 +92,7 @@ namespace Project.Presentation.UI
         private UiOptionSelector _quality;
         private UiOptionSelector _language;
         private Button _keysButton;
+        private ExtendedSettingsSection _ext;
 
         // ---- Ayarlar UX katmanı (arama, değişti noktası, satır sıfırlama, önerilen rozetleri, uyarılar, klavye gezinmesi) ----
         private sealed class Row
@@ -181,6 +183,7 @@ namespace Project.Presentation.UI
             }
 
             ApplyImmediateEffects(sanitized);
+            _ext?.Commit();
             _working = sanitized.Clone();
             SetDirty(false);
             ShowStatus("Ayarlar kaydedildi.", UiTheme.Success);
@@ -243,6 +246,7 @@ namespace Project.Presentation.UI
                 PlayerName = _working.PlayerName
             };
             _working = SettingsService.Sanitize(defaults);
+            _ext?.ResetAll();
             RefreshControls();
             PreviewAudio();
             SetDirty(true);
@@ -592,6 +596,9 @@ namespace Project.Presentation.UI
             _backButton = UiKitButton.Create(row, Loc.Get("common.back", "GERİ"), Close, UiKitButtonKind.Default, 180f, 52f);
             _applyButton = UiKitButton.Create(row, Loc.Get("settings.btn.apply", "UYGULA"), ApplyAndClose, UiKitButtonKind.Primary, 220f, 52f);
 
+            _ext = ExtendedSettingsSection.Build(tabKontrol, tabGrafik, tabSes, tabErisim, GameSession.Store ?? new Project.Infrastructure.Persistence.PlayerPrefsSettingsStore(), () => SetDirty(true));
+            _ext.BaseSensitivity = _working.MouseSensitivity;
+
             AttachHints();
             UiKitRestyle.All(window);
             BuildTabGlyphs();
@@ -659,6 +666,11 @@ namespace Project.Presentation.UI
 
         private void RefreshControls()
         {
+            if (_ext != null)
+            {
+                _ext.BaseSensitivity = _working.MouseSensitivity;
+                _ext.Refresh();
+            }
             if (_sensitivity != null)
                 _sensitivity.value = _working.MouseSensitivity;   // Değer yazısı onValueChanged ile güncellenir.
             if (_ads != null)
@@ -850,6 +862,27 @@ namespace Project.Presentation.UI
             R(_sfx, s => s.SfxVolume, (s, v) => s.SfxVolume = v);
             R(_music, s => s.MusicVolume, (s, v) => s.MusicVolume = v);
             R(_voice, s => s.VoiceVolume, (s, v) => s.VoiceVolume = v);
+
+            if (_ext != null)
+            {
+                foreach (var e in _ext.Entries)
+                {
+                    var root = e.Control == null ? null : RowRoot(e.Control);
+                    if (root == null)
+                        continue;
+                    var extra = e.Changed == null;
+                    map[root] = new Row
+                    {
+                        Name = extra ? "profil kodu" : RowName(e.Control, root),
+                        Root = root,
+                        Nav = e.Control is UiOptionSelector os ? os.Selectable : e.Control as Selectable,
+                        Extra = extra,
+                        Changed = e.Changed,
+                        Reset = e.Reset,
+                        Warn = e.Warn
+                    };
+                }
+            }
 
             // Bölüm sıfırlama düğmeleri (her sekmenin sonunda) + tuş atamaları düğmesi gezinmeye dahil.
             for (var t = 0; t < _tabContents.Length; t++)
@@ -1249,6 +1282,7 @@ namespace Project.Presentation.UI
 
         private void RevertPreview()
         {
+            _ext?.Revert();
             var current = _settings != null ? _settings.Current : null;
             if (current == null)
                 return;

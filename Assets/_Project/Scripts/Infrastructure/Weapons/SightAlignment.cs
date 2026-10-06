@@ -90,5 +90,65 @@ namespace Project.Infrastructure.Weapons
             var p = weaponLocalPos + weaponLocalRot * rearLocal;
             return new Vector2(p.x, p.y);
         }
+
+        /// <summary>Optik (kırmızı nokta/holo/dürbün) hizalama çözümü: konum, dönüş ve kalan hata.</summary>
+        public readonly struct OpticSolution
+        {
+            public readonly Vector3 Position;
+            public readonly Quaternion Rotation;
+            public readonly float ResidualMilliradians;
+            public readonly bool Clamped;
+
+            public OpticSolution(Vector3 position, Quaternion rotation, float residualMrad, bool clamped)
+            {
+                Position = position;
+                Rotation = rotation;
+                ResidualMilliradians = residualMrad;
+                Clamped = clamped;
+            }
+        }
+
+        /// <summary>
+        /// Optik hizası: pencere/lens merkezi göz eksenine (0,0,eyeRelief), optik eksen (boreLocal, model uzayı) +Z'ye gelir.
+        /// Model optiği hafif eğik monte edilmişse dönüş en çok <paramref name="maxTiltDegrees"/> ile düzeltilir; kalan eğim
+        /// ResidualMilliradians'ta raporlanır (kolimatör noktası bu kadar kayar). Eski yol rotasyonu hiç uygulamıyordu.
+        /// </summary>
+        public static OpticSolution SolveOptic(Vector3 windowCenterLocal, Vector3 boreLocal, float eyeRelief, float maxTiltDegrees = 3f)
+        {
+            var rot = Quaternion.identity;
+            var clamped = false;
+            var residual = 0f;
+            if (boreLocal.sqrMagnitude > 1e-8f)
+            {
+                var bore = boreLocal.normalized;
+                var full = Quaternion.FromToRotation(bore, Vector3.forward);
+                var ang = Quaternion.Angle(Quaternion.identity, full);
+                var limit = Mathf.Max(0f, maxTiltDegrees);
+                if (ang > limit && ang > 1e-4f)
+                {
+                    rot = Quaternion.Slerp(Quaternion.identity, full, limit / ang);
+                    clamped = true;
+                    residual = (ang - limit) * Mathf.Deg2Rad * 1000f;
+                }
+                else
+                {
+                    rot = full;
+                }
+            }
+
+            var rw = rot * windowCenterLocal;
+            var pos = new Vector3(-rw.x, -rw.y, eyeRelief - rw.z);
+            return new OpticSolution(pos, rot, residual, clamped);
+        }
+
+        /// <summary>
+        /// Ayarlanmış poz (hip→ADS, aim 0..1) için gez noktasının ekran merkezine uzaklığı (m, x/y); aim=1'de
+        /// <paramref name="swayOffset"/> * <paramref name="swayDamping"/> kalan salınım dahil. Teşhis/test için.
+        /// </summary>
+        public static Vector2 SightResidualWithSway(Vector3 adsPos, Quaternion adsRot, Vector3 rearLocal, Vector3 swayOffset, float swayDamping)
+        {
+            var p = adsPos + adsRot * rearLocal + swayOffset * Mathf.Clamp01(swayDamping);
+            return new Vector2(p.x, p.y);
+        }
     }
 }

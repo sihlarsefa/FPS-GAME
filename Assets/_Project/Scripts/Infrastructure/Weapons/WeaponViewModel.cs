@@ -5,6 +5,7 @@ using Project.Core.Domain;
 using Project.Infrastructure.Config;
 using Project.Infrastructure.Content;
 using Project.Infrastructure.Rendering;
+using Project.Infrastructure.Weapons.Viewmodel;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
@@ -1071,7 +1072,7 @@ namespace Project.Infrastructure.Weapons
             }
 
             if (_rig != null)
-                _rig.SetViewmodelFieldOfView(ViewmodelDynamics.AdsViewmodelFov(ViewmodelHipFov, AimPose));
+                _rig.SetViewmodelFieldOfView(ViewmodelDynamics.AdsViewmodelFov(ViewmodelFraming.ClassFov(ViewmodelHipFov, GripClasses.From(_shownStyle)), AimPose));
         }
 
         // ------------------------------------------------------------------ Wall proximity
@@ -1272,7 +1273,7 @@ namespace Project.Infrastructure.Weapons
 
             // Nişan alırken sol el kundak altına kayar (geri + aşağı), tabancada kayma yok.
             if (arm.IsLeft && grip != null && AimBlend > 0.001f && !IsPistolStyle(_shownStyle))
-                basePos += new Vector3(0f, -0.010f, -0.028f) * Smooth01(AimBlend);
+                basePos += SupportHand.AdsShift(GripClasses.From(_shownStyle)) * Smooth01(AimBlend);
 
             var goal = arm.Goal == GoalKind.None ? 0f : arm.GoalWeight;
             arm.Weight = goal >= arm.Weight ? goal : Mathf.MoveTowards(arm.Weight, goal, dt * OverrideReleaseRate);
@@ -1295,41 +1296,20 @@ namespace Project.Infrastructure.Weapons
         }
 
         /// <summary>İki kemikli IK (omuz–dirsek–bilek). Hedef erişimin dışındaysa omuz hedefe doğru kaydırılır (boşluk kalmaz).</summary>
-        private static void SolveArm(Arm arm, Vector3 wrist, Quaternion handRotation)
+        private void SolveArm(Arm arm, Vector3 wrist, Quaternion handRotation)
         {
-            const float a = ViewmodelMeshes.UpperArmLength;
-            const float b = ViewmodelMeshes.ForearmLength;
-            var shoulder = arm.Shoulder;
-            var toTarget = wrist - shoulder;
-            var distance = toTarget.magnitude;
-            var dir = distance > 1e-5f ? toTarget / distance : Vector3.forward;
+            var pole = SupportHand.AdaptPole(arm.Pole, arm.IsLeft, Smooth01(AimBlend));
+            var sol = TwoBoneSolver.Solve(arm.Shoulder, wrist, pole, ViewmodelMeshes.UpperArmLength, ViewmodelMeshes.ForearmLength);
+            var upperDir = sol.Elbow - sol.Shoulder;
+            var foreDir = wrist - sol.Elbow;
 
-            var maxReach = (a + b) * 0.995f;
-            var minReach = Mathf.Abs(a - b) + 0.05f;
-            if (distance > maxReach)
-            {
-                shoulder = wrist - dir * maxReach;
-                distance = maxReach;
-            }
-            else if (distance < minReach)
-            {
-                shoulder = wrist - dir * minReach;
-                distance = minReach;
-            }
+            // Bilek sınırı: el silahın tutamağına dönük kalır ama bilek kırılmaz (sınır dışı sapma kırpılır).
+            handRotation = WristLimit.Clamp(foreDir, handRotation, WristLimit.MaxFlexDegrees, WristLimit.MaxDeviationDegrees);
 
-            var cosA = Mathf.Clamp((a * a + distance * distance - b * b) / (2f * a * distance), -1f, 1f);
-            var sinA = Mathf.Sqrt(Mathf.Max(0f, 1f - cosA * cosA));
-            var pole = arm.Pole - Vector3.Dot(arm.Pole, dir) * dir;
-            if (pole.sqrMagnitude < 1e-6f)
-                pole = Vector3.Cross(dir, Vector3.right);
-            pole.Normalize();
-            var elbow = shoulder + dir * (a * cosA) + pole * (a * sinA);
-
-            var upperDir = elbow - shoulder;
-            var foreDir = wrist - elbow;
-            arm.Upper.localPosition = shoulder;
-            arm.Upper.localRotation = SafeLook(upperDir, -pole);
-            arm.Fore.localPosition = elbow;
+            var up = pole;
+            arm.Upper.localPosition = sol.Shoulder;
+            arm.Upper.localRotation = SafeLook(upperDir, -up);
+            arm.Fore.localPosition = sol.Elbow;
             arm.Fore.localRotation = SafeLook(foreDir, handRotation * Vector3.up);
             arm.Hand.localPosition = wrist;
             arm.Hand.localRotation = handRotation;

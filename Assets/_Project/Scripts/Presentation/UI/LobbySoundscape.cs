@@ -3,6 +3,7 @@ using Project.Presentation.Bootstrap;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Project.Infrastructure.Audio;
+using Project.Infrastructure.Audio.Ui;
 
 namespace Project.Presentation.UI
 {
@@ -63,6 +64,15 @@ namespace Project.Presentation.UI
         private MenuCampfire _campfire;
         private bool _playPressed;
 
+        // Uzak topçu katmanı + bastırma (ducking)
+        private AudioSource _arty;
+        private AudioClip[] _artyClips;
+        private float[] _artyKm;
+        private float _nextArty;
+        private int _salvoLeft;
+        private float _lastRadioEnd = -99f;
+        private readonly DuckFollower _duck = new DuckFollower(0.06f, 0.8f);
+
         /// <summary>OYNA'ya basıldığında çağrılır (LobbyFlow/menü bağlar). Menüde değilse yok sayılır.</summary>
         public static void NotifyPlayPressed()
         {
@@ -110,6 +120,12 @@ namespace Project.Presentation.UI
                 _radio = MakeSource("Telsiz", SquadPosition(firePos), true, false, 2f, 30f);
                 _play = MakeSource("OynaTek", firePos, false, false, 1f, 1f);
                 _radioClips = new[] { BuildRadio(0), BuildRadio(1), BuildRadio(2) };
+                _arty = MakeSource("UzakTopcu", transform.position, false, false, 1f, 1f);
+                _artyKm = new[] { 2.2f, 3.8f, 5.6f };
+                _artyClips = new AudioClip[_artyKm.Length];
+                for (var i = 0; i < _artyKm.Length; i++)
+                    _artyClips[i] = Make("lobi_topcu_" + i, DistantArtillerySynth.Render(_artyKm[i], 0x51A7u + (uint)i * 977u));
+                _nextArty = Time.unscaledTime + 12f + UiAudioRules.NextArtilleryDelay(Rand());
                 _thudClip = BuildThud();
                 _heliClip = BuildHeliSpool();
 
@@ -141,7 +157,10 @@ namespace Project.Presentation.UI
                 var clip = _radioClips[(int)(Rand() * _radioClips.Length) % _radioClips.Length];
                 _radio.pitch = 0.96f + Rand() * 0.1f;
                 _radio.PlayOneShot(clip, LobbySoundscapeRules.Scale(RadioVolume, Sfx()));
+                _lastRadioEnd = Time.unscaledTime + clip.length;
             }
+
+            UpdateArtillery();
         }
 
         private void OnDestroy()
@@ -149,6 +168,9 @@ namespace Project.Presentation.UI
             if (_instance == this)
                 _instance = null;
             DestroyClip(_fireClip); DestroyClip(_windClip); DestroyClip(_thudClip); DestroyClip(_heliClip);
+            if (_artyClips != null)
+                for (var i = 0; i < _artyClips.Length; i++)
+                    DestroyClip(_artyClips[i]);
             if (_radioClips != null)
                 for (var i = 0; i < _radioClips.Length; i++)
                     DestroyClip(_radioClips[i]);
@@ -173,9 +195,39 @@ namespace Project.Presentation.UI
             // Ortam yatakları: ortam ayarı x SFX; ana ses AudioListener.volume ile zaten uygulanır.
             var amb = LobbySoundscapeRules.Level(GameAudio.AmbientVolume);
             var sfx = Sfx();
-            if (_fire != null) _fire.volume = LobbySoundscapeRules.Scale(FireVolume, amb * sfx);
-            if (_wind != null) _wind.volume = LobbySoundscapeRules.Scale(WindVolume, amb * sfx);
+            // Üst katman (onay/stinger/maç bulundu) çalarken yatak geri çekilir, sonra nefes alarak döner.
+            var now = Time.unscaledTime;
+            var duckGain = _duck.Step(Time.unscaledDeltaTime, now < UiSounds.DuckUntil ? UiSounds.DuckDepthDb : 0f);
+            if (_fire != null) _fire.volume = LobbySoundscapeRules.Scale(FireVolume * duckGain, amb * sfx);
+            if (_wind != null) _wind.volume = LobbySoundscapeRules.Scale(WindVolume * duckGain, amb * sfx);
         }
+
+        /// <summary>Uzak topçu: 18-90 sn Poisson aralığı, 1-3 atışlık salvo, farklı uzaklıklar; telsiz konuşurken susar.</summary>
+        private void UpdateArtillery()
+        {
+            if (_playPressed || _arty == null || _artyClips == null || Time.unscaledTime < _nextArty)
+                return;
+            var now = Time.unscaledTime;
+            if (!UiAudioRules.ArtilleryAllowed(now, _lastRadioEnd))
+            {
+                _nextArty = now + 2f;
+                return;
+            }
+            if (_salvoLeft <= 0)
+                _salvoLeft = UiAudioRules.SalvoCount(Rand());
+            var idx = (int)(Rand() * _artyClips.Length) % _artyClips.Length;
+            var gain = UiAudioRules.LayerGain(UiLayer.Distant) * Mathf.Pow(10f, UiAudioRules.DistanceLossDb(_artyKm[idx]) / 20f);
+            // Katman payı ~-16 dB; kısa klibin tepe 0.8'i için telafi (x4) ile duyulur seviyeye getirilir.
+            var v = LobbySoundscapeRules.Scale(Mathf.Clamp01(gain * 4f * 2.5f), Level(GameAudio.AmbientVolume) * Sfx());
+            _arty.pitch = 0.94f + Rand() * 0.12f;
+            _arty.PlayOneShot(_artyClips[idx], v);
+            _salvoLeft--;
+            _nextArty = _salvoLeft > 0
+                ? now + UiAudioRules.SalvoGap(Rand())
+                : now + UiAudioRules.NextArtilleryDelay(Rand());
+        }
+
+        private static float Level(float x) => LobbySoundscapeRules.Level(x);
 
         // ---- OYNA ----
 

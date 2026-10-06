@@ -15,7 +15,8 @@ namespace Project.Infrastructure.Weapons
             Melee,
             Throw,
             Use,
-            Inspect
+            Inspect,
+            MagCheck
         }
 
         private enum CycleKind
@@ -56,8 +57,15 @@ namespace Project.Infrastructure.Weapons
             _actionDuration = Mathf.Max(0.05f, duration);
         }
 
+        private bool _hardEnd;
+
         private void EndAction()
         {
+            if (!_hardEnd && TryBeginReloadCancel())
+                return;
+            _reloadCancelling = false;
+            _reloadPlan = null;
+            _reloadTracker = null;
             _action = ViewAction.None;
             _actionTime = 0f;
             _actionLower = 0f;
@@ -77,7 +85,9 @@ namespace Project.Infrastructure.Weapons
         /// <summary>Tüm eylemleri ve atış döngülerini iptal eder; hareketli parçalar evine döner.</summary>
         private void CancelActions()
         {
+            _hardEnd = true;
             EndAction();
+            _hardEnd = false;
             _cycle = CycleKind.None;
             _cyclePos = Vector3.zero;
             _cycleRot = Quaternion.identity;
@@ -110,9 +120,18 @@ namespace Project.Infrastructure.Weapons
             switch (_action)
             {
                 case ViewAction.Reload:
+                    if (_reloadCancelling)
+                    {
+                        if (!UpdateReloadCancel(dt))
+                            return;
+                        break;
+                    }
+
                     if (_model == null || _actionTime >= _actionDuration)
                     {
+                        _hardEnd = true;
                         EndAction();
+                        _hardEnd = false;
                         return;
                     }
 
@@ -147,6 +166,16 @@ namespace Project.Infrastructure.Weapons
                     }
 
                     AnimateInspect(_actionTime / _actionDuration);
+                    break;
+
+                case ViewAction.MagCheck:
+                    if (_model == null || _actionTime >= _actionDuration || _sprintBlend > 0.3f)
+                    {
+                        EndAction();
+                        return;
+                    }
+
+                    AnimateMagCheck(_actionTime / _actionDuration);
                     break;
 
                 case ViewAction.Use:
@@ -185,7 +214,7 @@ namespace Project.Infrastructure.Weapons
 
         private void CancelInspect()
         {
-            if (_action == ViewAction.Inspect)
+            if (_action == ViewAction.Inspect || _action == ViewAction.MagCheck)
                 EndAction();
         }
 
@@ -224,6 +253,7 @@ namespace Project.Infrastructure.Weapons
 
         private void AnimateReload(float t)
         {
+            TickReloadPhases(t);
             if (WeaponStyles.IsPumpAction(_shownStyle))
                 AnimateShellReload(t);
             else if (WeaponStyles.IsBeltFed(_shownStyle))
