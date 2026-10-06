@@ -1,0 +1,45 @@
+### S7-vfx-graph tamamlandı. GpuVfx kancası (IGpuVfxBackend, GpuVfx.Backend/TryPlay/SetWeather, GpuVfxBudget) Infrastructure
+  - ENTEGRASYON: Infrastructure/Vfx/GameVfx.cs MuzzleFlash: if (GpuVfx.TryPlay(GpuVfxEffect.MuzzleRifle /*silah sınıfına göre*/, position, direction, scale)) { /* ışığı yine yak, CPU parçacığı atla */ }
+  - ENTEGRASYON: GameVfx.cs Impact: if (GpuVfx.TryPlay(GpuVfxEffect.Impact, point + n*0.02f, n, 1f, (int)surface)) atla CPU Spawn (decal yine yerleştirilir)
+  - ENTEGRASYON: GameVfx.cs Explosion: if (GpuVfx.TryPlay(GpuVfxEffect.Explosion, position, Vector3.up, radius)) CPU patlama parçacığını atla
+  - ENTEGRASYON: GameVfx.cs SmokeCloud: GpuVfx.TryPlay(GpuVfxEffect.SmokeGrenade, position, Vector3.up, radius, 0, duration)
+  - ENTEGRASYON: GameVfx.Extras.cs RotorWash: GpuVfx.TryPlay(GpuVfxEffect.RotorDust, position, Vector3.up, radius)
+  - ENTEGRASYON: Atmosphere/hava sistemi Update: GpuVfx.SetWeather(GpuVfxEffect.Rain or Snow, camera.transform, intensity)
+  - ENTEGRASYON: Kalite uygulama (RenderSettingsUtil/PerformanceProfile): GpuVfx.Tier = qualityTier (0..3)
+### S6-hlod-akis tamamlandı: HLOD üretici (Editor) + HlodProxy çalışma anı takası (histerezisli) + Occlusion Bake menüsü + T
+  - ENTEGRASYON: Rendering/PostProcessing.cs (kalite kademesi uygulanırken): Project.Infrastructure.Rendering.TextureStreamingSetup.Install(camera, tierIndex)  (HlodProxy.SetTier'ı da çağırır)
+  - ENTEGRASYON: Editor/SceneBuilder.cs (yerleşim kurulumundan sonra, isteğe bağlı): Project.EditorTools.HlodBuilder.Build(settlementRoot, HlodBuilder.MinPartExtent, HlodBuilder.TriBudget)
+### S3-yansima tamamlandı. Planar yansıma: eğik yakın kırpmalı gizli ikinci kamera, 1/4 veya 1/2 çözünürlük, küçük eşya katm
+  - ENTEGRASYON: Infrastructure/World/WorldWater.cs: WorldWater.Build içinde `WaterSurface.Attach(root, layout, model, material);` satırından sonra `PlanarReflection.RegisterAll(root.transform, layout.WaterLevel);`
+  - ENTEGRASYON: Infrastructure/Rendering/WaterSurface.cs: Attach() sonunda (ws._foam kurulumundan sonra) `PlanarReflection.Install(ViewCamera());` ve kalite ayarı değişince `PlanarReflection.Install(ViewCamera(), tierIndex)`. Ayrıca CameraRig yeniden oluşursa Install tekrar çağrılabilir, güvenlidir.
+  - ENTEGRASYON: Editor/SceneBuilder.cs: `WorldGenerator.Generate(options)` sonrası, meta null değilse `ReflectionProbePlacer.PlaceFromWorld(WorldGenerator.LastLayout, meta, -1, worldRoot.transform);` (ya da WorldGenerator içinde yapılar hazır olunca `ReflectionProbePlacer.Place(layout, (x,z)=>model.SampleHeight(x,z), structures, -1, root.transform)`). tier -1 QualitySettings'ten okunur; çalışma zaman
+  - verify.sh Infrastructure derlemesi başka ajanın Audio/ProceduralAudioSynth.Loops.cs dosyasındaki `Mix` ad alanı çakışması yüzünden hata veriyor (benim dosyalarımda hata yok), bu yüzden Presentation/Editor derlemeleri çalışmadı.
+### S5 grass and wind is written. The C# compiles (verify.sh: 0 errors including the player build; 874 tests pass, 11 of the
+  - ENTEGRASYON: scene/terrain bootstrap (after the terrain is created, e.g. TerrainGenerator.Create caller): GrassSystem.Install(camera, terrain, qualityTier, layout.WaterLevel)
+  - ENTEGRASYON: Rendering/Atmosphere.cs (weather apply): WindSystem.SetWeather(weather)
+  - ENTEGRASYON: Rendering/PerformanceProfile.cs (tier apply, near ApplyToTerrains): GrassSystem.SetTier(level); WindSystem.SetTier(level) is already called inside it. ApplyToTerrains must not re-enable detailObjectDensity while GrassSystem.Active is true (GrassSystem re-zeroes it every 128 frames).
+  - ENTEGRASYON: player and vehicle spawn code: GrassSystem.AddInteractor(transform, 0.9f) for the player (2.5f for vehicles); GrassSystem.RemoveInteractor on despawn.
+  - ENTEGRASYON: World/VegetationMaterials.cs (CreateCutout/CreateNeedles/CreateLeaves): try GrassAssets.TryCreateWindFoliage(name, tex, tint, trunkSway, flutter, translucency) first; if it returns null keep the current URP/Lit path.
+  - ENTEGRASYON: World/TreeMeshes.cs or TreeFactory (G3 files): write vertex color R (bend weight), G (phase) and B (AO) into tree meshes, otherwise HAREKAT/VegetationWind has only trunk sway and no branch flutter.
+  - The shaders could not be compiled here. They are written against the real URP 17.6 package source, but the first Unity import may still show errors or warnings. Check UNITY_TEXTURE_STREAMING_DEBUG_VARS inside the cbuffer, the _CLUSTER_LIGHT_LOOP and ProbeVolumeVariants pragmas, and the instanced _InstColor buffer layout (it must match the GrassInstance struct order: Matrix4x4, then Vector4).
+### S4-arazi-shader tamamlandı, ama shader'lar derlenemedi (Unity açılamıyor). C# tarafı verify.sh ile doğrulandı: 0 hata, 8
+  - ENTEGRASYON: Infrastructure/World/TerrainGenerator.cs: terrain.materialTemplate = material; satırından sonra `TerrainShaderBinder.Install(terrain, <kalite kademesi 0-3>);`
+  - ENTEGRASYON: kalite/ayar değişim noktası (PerformanceProfile veya RenderSettingsUtil uygulayıcısı): `TerrainShaderBinder.Install(terrain, level);`
+  - ENTEGRASYON: hava/yağmur sistemi (şu an yok): her karede `TerrainShaderBinder.Tick(rain01, Time.deltaTime);` veya `TerrainShaderBinder.SetWetness(x);`
+  - ENTEGRASYON: Rendering/MaterialLibrary.cs: çamur/zemin/kaya malzemeleri için `TerrainShaderBinder.CreateWetMud(litMat, ormh, height) ?? litMat` (CreateParallaxMaterial(litMat, TerrainShadingMath.GroundPreset()/RockPreset(), ...) de var).
+### S8 AAA_Benchmark sahnesi yazıldı. Presentation/Benchmark/ altında 7 yeni dosya var. AaaBenchmarkBootstrap oyuncuyu Train
+  - ENTEGRASYON: Assets/_Project/Scripts/Editor/ProjectSetup.cs (RunAllSteps): RunStep("AAA Benchmark sahnesi", AaaBenchmarkSceneBuilder.EnsureScene);  (SceneBuilder.EnsureBuildSettings zaten SceneNames.BuildOrder'daki AaaBenchmark'ı ekler, sahne dosyası varsa)
+  - ENTEGRASYON: Assets/_Project/Scripts/Editor/SceneBuilder.cs (EnsureMissingScenes): isteğe bağlı: if (!File.Exists(SceneNames.PathOf(SceneNames.AaaBenchmark))) AaaBenchmarkSceneBuilder.EnsureScene();
+  - DOĞRULAMA ENGELİ: Gerçek ağaçta verify.sh başkalarının yarım işleri yüzünden Infrastructure'da hata veriyor: Audio.Mix ad alanının Mix() metoduyla çakışması (AmbienceSynth, ProceduralAudioSynth.Loops, AmbienceDirector) ve VolumetricFogFeature/VolumetricFogPass/HarekatSsrLiteFeature tanımsız. Benim dosyalarım kopya üzerinde Presentation ve Editor 0 hata, testler 882 geçti. Kopyada Audio.Mix ad alan
+### S1-ekran-uzayi tamamlandı. Eklenenler: (1) özel URP renderer-feature çerçevesi (HarekatRendererFeatures: kayıt/Register,
+  - ENTEGRASYON: Assets/_Project/Scripts/Infrastructure/Rendering/PostProcessing.cs (SsaoTuner.Apply(level) satırının yanı, ~satır 206): Project.Infrastructure.Rendering.Features.HarekatRendererFeatures.Install(level);
+  - ENTEGRASYON: Atmosphere/hava durumu (yağmur/çamur başlayınca): Project.Infrastructure.Rendering.Features.ScreenSpaceSettings.Wetness = rain01; (varsayılan 0.2)
+  - ENTEGRASYON (isteğe bağlı): ayar menüsü kullanıcı anahtarı: HarekatRendererFeatures.SetUserEnabled("ContactShadows"/"SsrLite", bool)
+  - Gölgelendiriciler (ContactShadows.shader, SSRLite.shader, HarekatSsCommon.hlsl) burada derlenemedi; URP 17.6 kaynaklarına (Library/PackageCache) bakılarak yazıldı. Cursor Unity'de pembe/derleme hatası, Y-yönü/UV hizası (HkProject/HkWorldFromDepth çifti) ve Frame Debugger geçişlerini doğrulamalı.
+  - Stub değişikliği: Tools/UnityVerify/stubs/UrpRenderGraphStub.cs (yeni; RenderGraph, ScriptableRenderPass, UniversalResourceData vb. imzaları), UrpStub.cs'te ScriptableRendererFeature (abstract Create/AddRenderPasses) ve ScriptableRendererData.rendererFeatures/SetDirty eklendi, setup_deps.sh Universal stub'ını bu dosyayla birlikte derliyor ve .deps DLL'leri yeniden derlendi. Eşzamanlı S2-volumetrik
+### S2-volumetrik is written, but the shader has never been compiled or seen running. Unity cannot be launched here. The C# 
+  - ENTEGRASYON: PerformanceProfile / quality applier: call VolumetricFog.Install(tier, userEnabled) on startup and on every quality change.
+  - ENTEGRASYON: Atmosphere.cs: on time-of-day or weather change call VolumetricFog.ApplyPreset(timeOfDay, weatherKind, 4f). When writing fog density, multiply RenderSettings.fogDensity by VolumetricFog.BuiltInFogScale (0.35 while volumetric is active) to avoid double fog.
+  - ENTEGRASYON: the existing AtmosphereMath.VolumetricAllowed gate (Yüksek and above) disagrees with my tier table, which turns Orta on in its cheapest configuration. VolumetricFog.Install(tier) is the authority; align the gate or switch Orta off in VolumetricFogMath.ForTier.
+  - ENTEGRASYON: Project Settings > Graphics > Always Included Shaders: add HAREKAT/Volumetric/Fog. Shader.Find fails in builds without it.
+  - Object.GetInstanceID is an error in this Unity version, so history is keyed per camera by camera.GetHashCode().

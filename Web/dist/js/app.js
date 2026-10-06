@@ -42,8 +42,12 @@ async function route() {
     else if (head === 'squad') html = await pages.renderSquad();
     else if (head === 'matchmaking') html = await pages.renderMatchmaking();
     else if (head === 'achievements') html = await pages.renderAchievements();
+    else if (head === 'download') html = await pages.renderDownload();
+    else if (head === 'requirements') html = await pages.renderRequirements();
+    else if (head === 'teams') html = await pages.renderTeams();
     else if (head === 'arsenal') html = await pages.renderArsenal();
-    else if (head === 'map') html = await pages.renderMap();
+    else if (head === 'map') html = await pages.renderMap(parts[1]);
+    else if (head === 'patches' && parts[1]) html = await pages.renderPatchPost(decodeURIComponent(parts[1]));
     else if (head === 'patches') html = await pages.renderPatches();
     else if (head === 'news' && parts[1]) html = await pages.renderNewsPost(decodeURIComponent(parts[1]));
     else if (head === 'news') html = await pages.renderNews();
@@ -267,6 +271,17 @@ function bindPageEvents(head) {
       if (idInput) idInput.value = p.id;
     } catch (err) {
       document.getElementById('adminSearchMsg').textContent = err.message;
+    }
+  });
+
+  document.getElementById('copyShaBtn')?.addEventListener('click', async () => {
+    const val = document.getElementById('sha256Value')?.textContent?.trim() || '';
+    const msg = document.getElementById('copyShaMsg');
+    try {
+      await navigator.clipboard.writeText(val);
+      if (msg) msg.textContent = t('dl_copied');
+    } catch {
+      if (msg) msg.textContent = val;
     }
   });
 

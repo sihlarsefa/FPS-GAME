@@ -28,6 +28,11 @@ SLUG = {
     "Erişilebilirlik": "16_Erisilebilirlik",
     "Windows matrisi": "17_Windows",
     "Denge": "18_Denge",
+    "Sürülebilir Kirpi": "19_Surulebilir_Kirpi",
+    "Geliştirici konsolu": "20_Gelistirici_Konsolu",
+    "Online paneller": "21_Online_Paneller",
+    "Windows sunucu": "22_Windows_Sunucu",
+    "İçerik override": "23_Icerik_Override",
 }
 
 def main() -> None:

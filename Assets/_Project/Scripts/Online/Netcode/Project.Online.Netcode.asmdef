@@ -5,6 +5,8 @@
         "Project.Core",
         "Project.Application",
         "Project.Infrastructure",
+        "Project.Presentation",
+        "Project.Online",
         "Unity.Netcode.Runtime",
         "Unity.Networking.Transport",
         "Unity.Collections"

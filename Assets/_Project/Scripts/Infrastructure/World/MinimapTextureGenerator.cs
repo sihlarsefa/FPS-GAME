@@ -92,7 +92,7 @@ namespace Project.Infrastructure.World
             if (groundColors != null && groundColors.Length == pixels.Length)
                 System.Array.Copy(groundColors, pixels, pixels.Length);
             else
-                PaintRelief(pixels, heights, size, mpp, waterLevel);
+                PaintRelief(pixels, heights, size, mpp, waterLevel, layout != null ? layout.SnowLine : TerrainPainter.SnowLine);
             PaintTrees(pixels, trees, size, minX, minZ, mpp);
             ApplyHillshade(pixels, heights, size, mpp, waterLevel);
             PaintContours(pixels, heights, size, waterLevel);
@@ -253,7 +253,7 @@ namespace Project.Infrastructure.World
 
         // ================================================================== Katmanlar
 
-        private static void PaintRelief(Color[] pixels, float[] heights, int size, float mpp, float waterLevel)
+        private static void PaintRelief(Color[] pixels, float[] heights, int size, float mpp, float waterLevel, float snowLine)
         {
             for (var py = 0; py < size; py++)
             {
@@ -273,7 +273,7 @@ namespace Project.Infrastructure.World
                         c = Color.Lerp(MidLand, HighLand, Mathf.Clamp01((h - 90f) / 40f));
 
                     c = Color.Lerp(c, RockColor, TerrainNoise.SmoothStep(26f, 38f, slope));
-                    c = Color.Lerp(c, SnowColor, TerrainNoise.SmoothStep(TerrainPainter.SnowLine - 5f, TerrainPainter.SnowLine + 4f, h)
+                    c = Color.Lerp(c, SnowColor, TerrainNoise.SmoothStep(snowLine - 5f, snowLine + 4f, h)
                                                  * (1f - TerrainNoise.SmoothStep(42f, 55f, slope)));
                     pixels[i] = c;
                 }

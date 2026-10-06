@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "season": 1,
+  "name": "Sezon 1 — Kuzgun İnişi",
+  "maxTier": 50,
+  "xpPerTier": 600,
+  "rules": [
+    "Yalnızca kozmetik; oynanışa etkisi yok.",
+    "Premium hat yakında; gerçek para akışı yok."
+  ],
+  "free": [
+    {
+      "tier": 1,
+      "cosmeticId": "armband_season1"
+    },
+    {
+      "tier": 2,
+      "cosmeticId": "frame_bronze"
+    },
+    {
+      "tier": 3,
+      "cosmeticId": "camo_coast"
+    },
+    {
+      "tier": 5,
+      "cosmeticId": "skin_mpt55_coast"
+    },
+    {
+      "tier": 9,
+      "cosmeticId": "beret_steel"
+    },
+    {
+      "tier": 13,
+      "cosmeticId": "frame_season1"
+    },
+    {
+      "tier": 18,
+      "cosmeticId": "skin_jng90_snow"
+    },
+    {
+      "tier": 24,
+      "cosmeticId": "pose_binoculars"
+    },
+    {
+      "tier": 30,
+      "cosmeticId": "beret_frost"
+    },
+    {
+      "tier": 34,
+      "cosmeticId": "skin_g3_woodland"
+    },
+    {
+      "tier": 39,
+      "cosmeticId": "camo_mountain"
+    },
+    {
+      "tier": 47,
+      "cosmeticId": "beret_navy"
+    },
+    {
+      "tier": 50,
+      "cosmeticId": "pose_flag_plant"
+    }
+  ],
+  "premium": [
+    {
+      "tier": 4,
+      "cosmeticId": "camo_night"
+    },
+    {
+      "tier": 8,
+      "cosmeticId": "beret_gold"
+    },
+    {
+      "tier": 12,
+      "cosmeticId": "armband_kartal"
+    },
+    {
+      "tier": 16,
+      "cosmeticId": "skin_escort_copper"
+    },
+    {
+      "tier": 21,
+      "cosmeticId": "camo_urban"
+    },
+    {
+      "tier": 27,
+      "cosmeticId": "armband_atmaca"
+    },
+    {
+      "tier": 33,
+      "cosmeticId": "skin_knt76_ridge"
+    },
+    {
+      "tier": 38,
+      "cosmeticId": "camo_snow"
+    },
+    {
+      "tier": 44,
+      "cosmeticId": "armband_pars"
+    },
+    {
+      "tier": 50,
+      "cosmeticId": "skin_sar9_black"
+    }
+  ]
+}

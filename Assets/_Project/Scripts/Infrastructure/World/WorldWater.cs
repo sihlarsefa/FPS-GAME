@@ -21,7 +21,7 @@ namespace Project.Infrastructure.World
                 return null;
 
             var hasRiver = layout.Rivers.Count > 0;
-            var hasLake = layout.Lakes.Count > 0;
+            var hasLake = layout.Lakes.Count > 0 || layout.SeaPlane;
             if (!hasRiver && !hasLake)
                 return null;
 
@@ -31,7 +31,9 @@ namespace Project.Infrastructure.World
                 root.transform.SetParent(parent, false);
             root.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
 
-            var material = MaterialLibrary.Get(MaterialId.Water);
+            var frozen = IceSurface.IsFrozen(layout);
+            var iceMat = frozen ? IceSurface.CreateMaterial() : null;
+            var material = iceMat ?? WaterSurface.CreateMaterial() ?? MaterialLibrary.Get(MaterialId.Water);
             var halfWidth = (model != null ? model.RiverWaterHalfWidth : 6f) + 3f;
             for (var r = 0; r < layout.Rivers.Count; r++)
             {
@@ -59,6 +61,26 @@ namespace Project.Infrastructure.World
                 CreateSurface(root.transform, "Gölet_" + l, mesh, material);
             }
 
+            if (layout.SeaPlane)
+            {
+                // Harita çevresindeki deniz: geniş düzlem, kara altında kalır (çarpıştırıcı yok).
+                var seaMesh = BuildDiscMesh(new Vector3(0f, layout.WaterLevel - 0.04f, 0f), layout.HalfSize * 6f, 32);
+                CreateSurface(root.transform, "Deniz", seaMesh, material);
+            }
+
+            if (iceMat != null)
+            {
+                // Donmuş: dalga/köpük/sıçrama/su altı sisi yok; buz üstüne kar yamaları.
+                try { IceSurface.BuildSnowPatches(root.transform, layout); }
+                catch (System.Exception e) { Debug.LogWarning("[HAREKÂT] Buz kar yamaları atlandı: " + e.Message); }
+                return root;
+            }
+
+            WaterSurface.Attach(root, layout, model, material);
+            try { RiverDetails.Build(root.transform, layout, model, Mathf.RoundToInt(layout.HalfSize) + layout.Rivers.Count * 31); }
+            catch (System.Exception e) { Debug.LogWarning("[HAREKÂT] Nehir detayları atlandı: " + e.Message); }
+            try { PlanarReflection.RegisterAll(root.transform, layout.WaterLevel); }
+            catch (System.Exception e) { Debug.LogWarning("[HAREKÂT] PlanarReflection kaydı atlandı: " + e.Message); }
             return root;
         }
 
@@ -128,6 +150,7 @@ namespace Project.Infrastructure.World
             var vertices = new Vector3[count * 2];
             var normals = new Vector3[count * 2];
             var uvs = new Vector2[count * 2];
+            var flow = new Vector2[count * 2]; // UV2: akış yönü (nokta sırası = akış yönü); shader normal haritayı kaydırır
             var triangles = new int[(count - 1) * 6];
             var along = 0f;
             for (var i = 0; i < count; i++)
@@ -152,6 +175,8 @@ namespace Project.Infrastructure.World
                 normals[i * 2 + 1] = Vector3.up;
                 uvs[i * 2] = new Vector2(0f, along);
                 uvs[i * 2 + 1] = new Vector2(halfWidth * 2f, along);
+                flow[i * 2] = tangent;
+                flow[i * 2 + 1] = tangent;
             }
 
             for (var i = 0; i + 1 < count; i++)
@@ -171,6 +196,7 @@ namespace Project.Infrastructure.World
             mesh.vertices = vertices;
             mesh.normals = normals;
             mesh.uv = uvs;
+            mesh.uv2 = flow;
             mesh.triangles = triangles;
             mesh.RecalculateBounds();
             return mesh;

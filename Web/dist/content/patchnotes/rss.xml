@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>HAREKÂT Yama Notları</title>
+    <link>https://harekat.example/content/patchnotes/index.html</link>
+    <atom:link href="https://harekat.example/content/patchnotes/rss.xml" rel="self" type="application/rss+xml" />
+    <description>HAREKÂT istemci, portal ve sunucu yama notları</description>
+    <language>tr</language>
+    <lastBuildDate>Mon, 05 Oct 2026 12:00:00 GMT</lastBuildDate>
+    <generator>harekat-web patchnotes-build</generator>
+    <item>
+      <title>0.4.0 — Web portal v2</title>
+      <link>https://harekat.example/content/patchnotes/0.4.0.html</link>
+      <guid isPermaLink="false">harekat-patch-0.4.0</guid>
+      <pubDate>Mon, 05 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Portal JWT API katmanı ve yönetici paneli IIS web.config proxy / SPA fallback İndirme, sistem gereksinimleri ve yama RSS Not Kurulum paketi SHA-256 henüz yer tutucu; F3-8 launcher çıktısıyla güncellenecek.</description>
+      <content:encoded><![CDATA[<h2 id="portal">Portal</h2>
+<ul><li>JWT API katmanı ve yönetici paneli</li><li>IIS <code>web.config</code> proxy / SPA fallback</li><li>İndirme, sistem gereksinimleri ve yama RSS</li></ul>
+<h2 id="not">Not</h2>
+<p>Kurulum paketi SHA-256 henüz yer tutucu; F3-8 launcher çıktısıyla güncellenecek.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>0.3.0 — Topçu ve intikal</title>
+      <link>https://harekat.example/content/patchnotes/0.3.0.html</link>
+      <guid isPermaLink="false">harekat-patch-0.3.0</guid>
+      <pubDate>Thu, 01 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Oyun dengesi Topçu desteği bekleme süresi dengelendi Kirpi taşıma kapasitesi +1 Kuzgun Barajı yağma düzeni Düzeltmeler Bot intikal yolu kenar durumları</description>
+      <content:encoded><![CDATA[<h2 id="oyun-dengesi">Oyun dengesi</h2>
+<ul><li>Topçu desteği bekleme süresi dengelendi</li><li>Kirpi taşıma kapasitesi +1</li><li>Kuzgun Barajı yağma düzeni</li></ul>
+<h2 id="duzeltmeler">Düzeltmeler</h2>
+<ul><li>Bot intikal yolu kenar durumları</li></ul>]]></content:encoded>
+    </item>
+    <item>
+      <title>0.2.1 — Silah ve rütbe</title>
+      <link>https://harekat.example/content/patchnotes/0.2.1.html</link>
+      <guid isPermaLink="false">harekat-patch-0.2.1</guid>
+      <pubDate>Sat, 12 Sep 2026 12:00:00 GMT</pubDate>
+      <description>MPT-76 geri tepme azaltıldı Bot intikal yolu düzeltmesi Rütbe XP eşikleri güncellendi</description>
+      <content:encoded><![CDATA[<ul><li>MPT-76 geri tepme azaltıldı</li><li>Bot intikal yolu düzeltmesi</li><li>Rütbe XP eşikleri güncellendi</li></ul>]]></content:encoded>
+    </item>
+    <item>
+      <title>0.2.0 — İlk açık tatbikat</title>
+      <link>https://harekat.example/content/patchnotes/0.2.0.html</link>
+      <guid isPermaLink="false">harekat-patch-0.2.0</guid>
+      <pubDate>Thu, 20 Aug 2026 12:00:00 GMT</pubDate>
+      <description>10 kişilik tim lobisi T-70 / Kirpi intikal İlk açık tatbikat sürümü</description>
+      <content:encoded><![CDATA[<ul><li>10 kişilik tim lobisi</li><li>T-70 / Kirpi intikal</li><li>İlk açık tatbikat sürümü</li></ul>]]></content:encoded>
+    </item>
+  </channel>
+</rss>

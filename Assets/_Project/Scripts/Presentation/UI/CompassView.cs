@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Project.Core.Domain;
 using Project.Infrastructure.Combat;
+using Project.Infrastructure.Drone;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,7 +34,8 @@ namespace Project.Presentation.UI
             Ally,
             LandingZone,
             Waypoint,
-            Artillery
+            Artillery,
+            Ping
         }
 
         private sealed class Marker
@@ -53,7 +55,12 @@ namespace Project.Presentation.UI
         private Marker _landingZone;
         private Marker _waypoint;
         private Marker _artillery;
+        private Marker _ping;
+        private readonly List<Marker> _reconMarkers = new List<Marker>(8);
+        private readonly List<Combatant> _reconBuffer = new List<Combatant>(16);
         private float _shownYaw = float.NaN;
+        private string _pingText;
+        private bool _pingEnemy;
 
         public RectTransform Root { get; private set; }
 
@@ -108,6 +115,7 @@ namespace Project.Presentation.UI
             _landingZone = CreateMarker(MarkerKind.LandingZone, UiSprites.Chevron, UiTheme.Amber, new Vector2(16f, 12f), "İB");
             _waypoint = CreateMarker(MarkerKind.Waypoint, UiSprites.Diamond, new Color(1f, 0.86f, 0.25f, 1f), new Vector2(12f, 12f), null);
             _artillery = CreateMarker(MarkerKind.Artillery, UiSprites.Diamond, UiTheme.EnemyRed, new Vector2(12f, 12f), "TOPÇU");
+            _ping = CreateMarker(MarkerKind.Ping, UiSprites.Triangle, UiTheme.Amber, new Vector2(14f, 12f), null);
         }
 
         private void BuildTick(int degree)
@@ -158,7 +166,7 @@ namespace Project.Presentation.UI
 
             if (!string.IsNullOrEmpty(label))
             {
-                marker.Label = HudBuild.Text("Label", marker.Rect, label, 11, TextAnchor.UpperCenter, color, FontStyle.Bold,
+                marker.Label = HudBuild.Text("Label", marker.Rect, label, 14, TextAnchor.UpperCenter, color, FontStyle.Bold,
                     new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, -1f), new Vector2(60f, 14f));
             }
 
@@ -211,6 +219,22 @@ namespace Project.Presentation.UI
 
             for (var i = used; i < _allyMarkers.Count; i++)
                 HudBuild.SetActive(_allyMarkers[i].Rect, false);
+
+            // İHA keşfi: işaretli düşmanlar.
+            var reconUsed = 0;
+            if (local != null)
+            {
+                ReconDroneSystem.GetMarked(local.Team, _reconBuffer);
+                for (var i = 0; i < _reconBuffer.Count && reconUsed < MaxAllyMarkers; i++)
+                {
+                    while (_reconMarkers.Count <= reconUsed)
+                        _reconMarkers.Add(CreateMarker(MarkerKind.Artillery, UiSprites.Diamond, UiTheme.EnemyRed, new Vector2(10f, 10f), null));
+                    PlaceMarker(_reconMarkers[reconUsed++], origin, _reconBuffer[i].transform.position, yaw, -StripHeight * 0.5f + 6f, false, 1f);
+                }
+            }
+
+            for (var i = reconUsed; i < _reconMarkers.Count; i++)
+                HudBuild.SetActive(_reconMarkers[i].Rect, false);
 
             // İniş bölgesi (intikal sırasında).
             var showLz = false;
@@ -287,6 +311,30 @@ namespace Project.Presentation.UI
                 PlaceMarker(_artillery, origin, target, yaw, 0f, true, 1f);
             else
                 HudBuild.SetActive(_artillery.Rect, false);
+
+            // Tim ping'i (düşman: düşman rengi, nokta: kehribar); süre bittikçe solar.
+            if (_ctx.LocalTeam >= 0 && PingBoard.TryGet(_ctx.LocalTeam, Time.time, out var ping))
+            {
+                var color = ping.IsEnemy ? UiTheme.EnemyRed : UiTheme.Amber;
+                _ping.Icon.color = color;
+                if (_ping.Label == null)
+                    _ping.Label = HudBuild.Text("Label", _ping.Rect, string.Empty, 14, TextAnchor.UpperCenter, color, FontStyle.Bold,
+                        new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, -1f), new Vector2(80f, 14f));
+                var meters = HudFormat.Meters(Vector3.Distance(origin, ping.Position));
+                if (_pingText != meters || _pingEnemy != ping.IsEnemy)
+                {
+                    _pingText = meters;
+                    _pingEnemy = ping.IsEnemy;
+                    UiFactory.SetText(_ping.Label, ping.Label + " " + meters);
+                }
+
+                UiFactory.SetColor(_ping.Label, color);
+                PlaceMarker(_ping, origin, ping.Position, yaw, 0f, true, Mathf.Lerp(0.5f, 1f, ping.Remaining01(Time.time)));
+            }
+            else
+            {
+                HudBuild.SetActive(_ping.Rect, false);
+            }
         }
 
         private static void PlaceMarker(Marker marker, Vector3 origin, Vector3 target, float yaw, float y, bool clampToEdge, float alpha)

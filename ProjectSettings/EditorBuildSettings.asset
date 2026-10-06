@@ -4,5 +4,27 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
-  m_configObjects: {}
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Project/Scenes/MainMenu.unity
+    guid: 784406f1d9c104a29b1e87cc21c147f1
+  - enabled: 1
+    path: Assets/_Project/Scenes/KuzgunVadisi.unity
+    guid: 6370981e9c1d54e57becffc4fd6e05c3
+  - enabled: 1
+    path: Assets/_Project/Scenes/AyazGecidi.unity
+    guid: e468969760a6f4f94aaca27b9787b07c
+  - enabled: 1
+    path: Assets/_Project/Scenes/MaviLiman.unity
+    guid: 29fed0860ee9b4d54ae0ebb87ed77c82
+  - enabled: 1
+    path: Assets/_Project/Scenes/KartalYaylasi.unity
+    guid: ad0f88b4dfd8040f4a9d059bfe571a02
+  - enabled: 1
+    path: Assets/_Project/Scenes/TrainingRange.unity
+    guid: 582e038a4c0bb4fc09ce3536b39f60d7
+  - enabled: 1
+    path: Assets/_Project/Scenes/AAA_Benchmark.unity
+    guid: 2765c625541f84eb6aef13de5b624e26
+  m_configObjects:
+    com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}

@@ -29,17 +29,27 @@ Sözleşme kontrolü: `npm run contracts` (Backend route + DTO snapshot).
 | Hash | İçerik |
 |------|--------|
 | `#/` | Ana sayfa |
+| `#/download` | Windows kurulum (yer tutucu), SHA-256, Steam yakında |
+| `#/requirements` | Min / önerilen sistem gereksinimleri |
+| `#/patches` | Yama notları (md → HTML) + RSS |
+| `#/teams` | Tim kimlikleri ve amblemler |
 | `#/login` | Giriş / kayıt (form doğrulama) |
 | `#/profile` | Rütbe, XP, kariyer, son maçlar, en iyi silah |
 | `#/squad` | Tim kur / davet / hazır / WebSocket\|long-poll |
 | `#/matchmaking` | Kuyruk, süre, ETA |
 | `#/leaderboards` | Sezon filtresi + sayfalama |
 | `#/match/:id` | Tim sıralaması, kill feed, SVG iniş/ölüm |
-| `#/achievements` | Başarımlar |
+| `#/achievements` | Başarım kataloğu (50+) |
 | `#/admin` | Rol tabanlı yönetim paneli |
 | `#/compare` | Oyuncu karşılaştırma |
 | `#/archive` | Sezon arşivi |
 | `#/news` | Markdown → statik haber |
+
+## İçerik derleme
+
+- Haberler: `content/news/*.md` → `npm run news`
+- Yamalar: `content/patchnotes/*.md` → `npm run patchnotes` (HTML JSON + `rss.xml`)
+- Statik veri: `content/data/{download,sysreq,teams,achievements}.json`
 
 ## IIS (Windows Server)
 
@@ -60,9 +70,10 @@ Sözleşme kontrolü: `npm run contracts` (Backend route + DTO snapshot).
 ```bash
 npm run lint
 npm run test
-npm run build      # → Web/dist (+ news JSON)
+npm run build      # → Web/dist (+ news + patchnotes/RSS)
 npm run contracts
 npm run news
+npm run patchnotes
 ```
 
 ## i18n / tema / PWA

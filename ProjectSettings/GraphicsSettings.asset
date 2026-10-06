@@ -34,6 +34,23 @@ GraphicsSettings:
   - {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 10783, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 4800000, guid: 9ec1d0dcfd53f46a0a0164dd5847f32f, type: 3}
+  - {fileID: 4800000, guid: 7fe89881929f1494caa5399e1d2d0633, type: 3}
+  - {fileID: 4800000, guid: 9889ee9d7e4d0419db4a777ce626bfe2, type: 3}
+  - {fileID: 4800000, guid: 63c70ae92b4d94eb888ba75a0444330b, type: 3}
+  - {fileID: 4800000, guid: f9a36daab4e0e4aa4ad532ec6d0bd297, type: 3}
+  - {fileID: 4800000, guid: 0d295a861c0be476a8eb2f4e5e4a67a0, type: 3}
+  - {fileID: 4800000, guid: ff6cd6921ded94339ba55276a7b769d3, type: 3}
+  - {fileID: 4800000, guid: 136b7b74444d448f1b72e555eed18351, type: 3}
+  - {fileID: 4800000, guid: a56f5fb725631469d91a037c6e9430d1, type: 3}
+  - {fileID: 4800000, guid: ad914d988aee3414d98c60ef265ae928, type: 3}
+  - {fileID: 4800000, guid: c4b53a75e2ae947348ad86f7b90aa9e1, type: 3}
+  - {fileID: 4800000, guid: e58286ac447aa47b4a0aaa8926f50a53, type: 3}
+  - {fileID: 4800000, guid: cd77705f28e4a4aeba7216ed4b8e09d5, type: 3}
+  - {fileID: 4800000, guid: fd3cbfbfae01241a5a6c5a5beec51c58, type: 3}
+  - {fileID: 4800000, guid: cb9f7440fdb0e497ab6bb24eff3bdef2, type: 3}
+  - {fileID: 4800000, guid: e7845b8d78e864fc4b573ad48eab28a2, type: 3}
+  - {fileID: 4800000, guid: 2d9ec16df1e934d4c802526187490bfc, type: 3}
   m_PreloadedShaders: []
   m_PreloadShadersBatchTimeLimit: -1
   m_GraphicsStateCollection: {fileID: 0}
@@ -46,7 +63,7 @@ GraphicsSettings:
   m_WarmupProgressivelyLimit: -1
   m_CacheMissCollectionPath: CacheMissCollection
   m_SpritesDefaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  m_CustomRenderPipeline: {fileID: 0}
+  m_CustomRenderPipeline: {fileID: 11400000, guid: 07addc054312347e9b9f6d672a535719, type: 2}
   m_TransparencySortMode: 0
   m_TransparencySortAxis: {x: 0, y: 0, z: 1}
   m_DefaultRenderingPath: 1
@@ -55,7 +72,7 @@ GraphicsSettings:
   m_LightmapStripping: 0
   m_FogStripping: 0
   m_InstancingStripping: 0
-  m_BrgStripping: 0
+  m_BrgStripping: 2
   m_DefaultLightBaker: 0
   m_LightmapKeepPlain: 1
   m_LightmapKeepDirCombined: 1
@@ -67,14 +84,15 @@ GraphicsSettings:
   m_FogKeepExp: 1
   m_FogKeepExp2: 1
   m_AlbedoSwatchInfos: []
-  m_RenderPipelineGlobalSettingsMap: {}
+  m_RenderPipelineGlobalSettingsMap:
+    UnityEngine.Rendering.Universal.UniversalRenderPipeline: {fileID: 11400000, guid: 8e3fdb1c3a4e64ddf945866bcd04ef7e, type: 2}
   m_ShaderBuildSettings:
     keywordDeclarationOverrides: []
     numInternalDefines: 0
     defines: []
     compilerSettings: []
-  m_LightsUseLinearIntensity: 0
-  m_LightsUseColorTemperature: 0
+  m_LightsUseLinearIntensity: 1
+  m_LightsUseColorTemperature: 1
   m_LogWhenShaderIsCompiled: 0
   m_LightProbeOutsideHullStrategy: 1
   m_CameraRelativeLightCulling: 0

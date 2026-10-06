@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Project.Infrastructure.Audio.HdrMix;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -108,7 +109,7 @@ namespace Project.Infrastructure.Audio
         /// Tek seferlik ses için kanal: önce boş kanal, yoksa önemi yeni sesten düşük olan en önemsiz kanal çalınır.
         /// Tüm kanallar daha önemliyse null döner (yeni ses düşürülür).
         /// </summary>
-        internal Voice AcquireOneShot(float now, float importance)
+        internal Voice AcquireOneShot(float now, float importance, bool forceSteal = false)
         {
             var count = _voices.Count;
             Voice weakest = null;
@@ -123,7 +124,7 @@ namespace Project.Infrastructure.Audio
                 if (v.InUse)
                     continue;
 
-                if (v.EndTime <= now)
+                if (v.EndTime <= now && !forceSteal)
                 {
                     _cursor = i + 1 >= count ? 0 : i + 1;
                     return Prepare(v);
@@ -140,7 +141,7 @@ namespace Project.Infrastructure.Audio
                 }
             }
 
-            if (count < _maxCapacity)
+            if (count < _maxCapacity && !forceSteal)
             {
                 var created = CreateVoice(count);
                 _voices.Add(created);
@@ -262,6 +263,16 @@ namespace Project.Infrastructure.Audio
             return v;
         }
 
+        private MixChannel _channel = MixChannel.Efekt;
+
+        /// <summary>Havuz kaynaklarının AudioMixer kanalı (mixer yoksa etkisiz). Mevcut ve sonradan kurulan kanallara uygulanır.</summary>
+        public void SetMixChannel(MixChannel channel)
+        {
+            _channel = channel;
+            for (var i = 0; i < _voices.Count; i++)
+                MixerRouting.Route(_voices[i].Source, channel);
+        }
+
         private Voice CreateVoice(int index)
         {
             var v = new Voice { Index = index };
@@ -294,6 +305,7 @@ namespace Project.Infrastructure.Audio
                 source.spatialBlend = 0f;
             }
 
+            MixerRouting.Route(source, _channel);
             v.Source = source;
             v.Transform = go.transform;
             if (_spatial)

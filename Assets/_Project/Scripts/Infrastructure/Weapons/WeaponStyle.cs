@@ -17,7 +17,13 @@ namespace Project.Infrastructure.Weapons
         Knt76,
         Jng90,
         Pmt76,
-        Escort
+        Escort,
+        Sar223,
+        Mpt76K,
+        MeteSft,
+        Sar762Mt,
+        Mg3,
+        EscortMagnum
     }
 
     /// <summary>Silah tanımından model tipini çözer (bilinmeyen kimlikler kategoriye göre en yakın modele düşer).</summary>
@@ -42,6 +48,12 @@ namespace Project.Infrastructure.Weapons
                 case WeaponIds.Jng90: return WeaponStyle.Jng90;
                 case WeaponIds.Pmt76: return WeaponStyle.Pmt76;
                 case WeaponIds.Escort: return WeaponStyle.Escort;
+                case WeaponIds.Sar223: return WeaponStyle.Sar223;
+                case WeaponIds.Mpt76K: return WeaponStyle.Mpt76K;
+                case WeaponIds.Mete: return WeaponStyle.MeteSft;
+                case WeaponIds.Sar762Mt: return WeaponStyle.Sar762Mt;
+                case WeaponIds.Mg3: return WeaponStyle.Mg3;
+                case WeaponIds.EscortMagnum: return WeaponStyle.EscortMagnum;
             }
 
             switch (category)
@@ -57,15 +69,16 @@ namespace Project.Infrastructure.Weapons
             }
         }
 
-        public static bool IsPistol(WeaponStyle style) => style == WeaponStyle.Sar9 || style == WeaponStyle.Tp9;
+        public static bool IsPistol(WeaponStyle style) => style == WeaponStyle.Sar9 || style == WeaponStyle.Tp9 || style == WeaponStyle.MeteSft;
 
         public static bool IsBoltAction(WeaponStyle style) => style == WeaponStyle.Jng90;
 
         public static bool IsPumpAction(WeaponStyle style) => style == WeaponStyle.Escort;
 
-        public static bool IsBeltFed(WeaponStyle style) => style == WeaponStyle.Pmt76;
+        public static bool IsBeltFed(WeaponStyle style) => style == WeaponStyle.Pmt76 || style == WeaponStyle.Mg3;
 
         public static bool IsHeavy(WeaponStyle style) =>
-            style == WeaponStyle.Pmt76 || style == WeaponStyle.Jng90 || style == WeaponStyle.Knt76;
+            style == WeaponStyle.Pmt76 || style == WeaponStyle.Mg3 || style == WeaponStyle.Jng90 ||
+            style == WeaponStyle.Knt76 || style == WeaponStyle.Sar762Mt;
     }
 }

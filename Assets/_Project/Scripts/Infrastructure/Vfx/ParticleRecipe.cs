@@ -38,6 +38,9 @@ namespace Project.Infrastructure.Vfx
         public float NoiseStrength;
         public float NoiseFrequency = 0.5f;
 
+        /// <summary>Parçacık ölünce aynı efektteki bu adlı alt sistemi tetikler (alt yayıcı).</summary>
+        public string DeathSubEmitter;
+
         public bool ShapeEnabled = true;
         public ParticleSystemShapeType Shape = ParticleSystemShapeType.Cone;
         public float ShapeAngle = 25f;
@@ -82,12 +85,12 @@ namespace Project.Infrastructure.Vfx
 
             var emission = ps.emission;
             emission.enabled = true;
-            emission.rateOverTime = new ParticleSystem.MinMaxCurve(RateOverTime);
+            emission.rateOverTime = new ParticleSystem.MinMaxCurve(RateOverTime * VfxQuality.CountFactor);
             emission.rateOverDistance = new ParticleSystem.MinMaxCurve(0f);
             if (BurstMax > 0)
             {
-                var min = (short)Mathf.Clamp(BurstMin, 0, short.MaxValue);
-                var max = (short)Mathf.Clamp(Mathf.Max(BurstMin, BurstMax), 0, short.MaxValue);
+                var min = (short)Mathf.Clamp(VfxQuality.Scale(BurstMin), 0, short.MaxValue);
+                var max = (short)Mathf.Clamp(Mathf.Max(min, VfxQuality.Scale(BurstMax)), 0, short.MaxValue);
                 emission.SetBursts(new[] { new ParticleSystem.Burst(0f, min, max) });
             }
             else

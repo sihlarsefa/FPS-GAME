@@ -24,9 +24,39 @@ namespace Project.Application.Services
             public const string QualityLevel = "settings.quality";
             public const string Fullscreen = "settings.fullscreen";
             public const string ShowFps = "settings.showFps";
+            public const string ViewmodelFov = "settings.viewmodelFov";
+            public const string AdsFovRelative = "settings.adsFovRelative";
+            public const string VolumetricFog = "settings.volumetricFog";
+            public const string ContactShadows = "settings.contactShadows";
+            public const string Ssr = "settings.ssr";
+            public const string ResolutionWidth = "settings.resW";
+            public const string ResolutionHeight = "settings.resH";
+            public const string WindowMode = "settings.windowMode";
+            public const string VSync = "settings.vsync";
+            public const string FrameRateCap = "settings.fpsCap";
+            public const string RenderScale = "settings.renderScale";
+            public const string SfxVolume = "settings.sfxVolume";
+            public const string MusicVolume = "settings.musicVolume";
+            public const string VoiceVolume = "settings.voiceVolume";
+            public const string CrosshairColor = "settings.crossColor";
+            public const string CrosshairSize = "settings.crossSize";
+            public const string HudScale = "settings.hudScale";
+            public const string HudOpacity = "settings.hudOpacity";
+            public const string CameraShake = "settings.cameraShake";
+            public const string MotionBlur = "settings.motionBlur";
+            public const string ColorBlindMode = "settings.colorBlind";
+            public const string ColorBlindPalette = "settings.colorBlindPalette";
+            public const string AimAssist = "settings.aimAssist";
+            public const string SubtitleSize = "settings.subtitleSize";
+            public const string SubtitleBg = "settings.subtitleBg";
+            public const string ToggleAds = "settings.toggleAds";
+            public const string ToggleCrouch = "settings.toggleCrouch";
             public const string TeamCount = "settings.teamCount";
             public const string Difficulty = "settings.difficulty";
             public const string Insertion = "settings.insertion";
+            public const string Language = "settings.language";
+            public const string NameProfile = "settings.nameProfile";
+            public const string SelectedMap = "settings.selectedMap";
             public const string PlayerNameLength = "settings.playerName.length";
             public const string PlayerNameCharPrefix = "settings.playerName.c";
         }
@@ -35,7 +65,9 @@ namespace Project.Application.Services
         public const float MaxMouseSensitivity = 1f;
         public const float MinAdsMultiplier = 0.2f;
         public const float MaxAdsMultiplier = 1.5f;
-        public const float MinFieldOfView = 60f;
+        public const float MinViewmodelFov = 50f;
+        public const float MaxViewmodelFov = 80f;
+        public const float MinFieldOfView = 55f;
         public const float MaxFieldOfView = 110f;
         public const int MinQualityLevel = 0;
         public const int MaxQualityLevel = 3;
@@ -76,9 +108,39 @@ namespace Project.Application.Services
                     loaded.QualityLevel = GetInt(Keys.QualityLevel, defaults.QualityLevel);
                     loaded.Fullscreen = GetBool(Keys.Fullscreen, defaults.Fullscreen);
                     loaded.ShowFps = GetBool(Keys.ShowFps, defaults.ShowFps);
+                    loaded.ViewmodelFov = GetFloat(Keys.ViewmodelFov, defaults.ViewmodelFov);
+                    loaded.AdsFovRelativeSensitivity = GetBool(Keys.AdsFovRelative, defaults.AdsFovRelativeSensitivity);
+                    loaded.VolumetricFog = GetBool(Keys.VolumetricFog, defaults.VolumetricFog);
+                    loaded.ContactShadows = GetBool(Keys.ContactShadows, defaults.ContactShadows);
+                    loaded.ScreenSpaceReflections = GetBool(Keys.Ssr, defaults.ScreenSpaceReflections);
+                    loaded.ResolutionWidth = GetInt(Keys.ResolutionWidth, defaults.ResolutionWidth);
+                    loaded.ResolutionHeight = GetInt(Keys.ResolutionHeight, defaults.ResolutionHeight);
+                    loaded.WindowMode = GetInt(Keys.WindowMode, loaded.Fullscreen ? 0 : 2);
+                    loaded.VSync = GetBool(Keys.VSync, defaults.VSync);
+                    loaded.FrameRateCap = GetInt(Keys.FrameRateCap, defaults.FrameRateCap);
+                    loaded.RenderScale = GetFloat(Keys.RenderScale, defaults.RenderScale);
+                    loaded.SfxVolume = GetFloat(Keys.SfxVolume, defaults.SfxVolume);
+                    loaded.MusicVolume = GetFloat(Keys.MusicVolume, defaults.MusicVolume);
+                    loaded.VoiceVolume = GetFloat(Keys.VoiceVolume, defaults.VoiceVolume);
+                    loaded.CrosshairColor = GetInt(Keys.CrosshairColor, defaults.CrosshairColor);
+                    loaded.CrosshairSize = GetFloat(Keys.CrosshairSize, defaults.CrosshairSize);
+                    loaded.HudScale = GetFloat(Keys.HudScale, defaults.HudScale);
+                    loaded.HudOpacity = GetFloat(Keys.HudOpacity, defaults.HudOpacity);
+                    loaded.CameraShakeIntensity = GetFloat(Keys.CameraShake, defaults.CameraShakeIntensity);
+                    loaded.MotionBlur = GetBool(Keys.MotionBlur, defaults.MotionBlur);
+                    loaded.ColorBlindMode = GetBool(Keys.ColorBlindMode, defaults.ColorBlindMode);
+                    loaded.ColorBlindPalette = GetInt(Keys.ColorBlindPalette, loaded.ColorBlindMode ? 1 : 0);
+                    loaded.AimAssistStrength = GetInt(Keys.AimAssist, defaults.AimAssistStrength);
+                    loaded.SubtitleSize = GetInt(Keys.SubtitleSize, defaults.SubtitleSize);
+                    loaded.SubtitleBackground = GetBool(Keys.SubtitleBg, defaults.SubtitleBackground);
+                    loaded.ToggleAds = GetBool(Keys.ToggleAds, defaults.ToggleAds);
+                    loaded.ToggleCrouch = GetBool(Keys.ToggleCrouch, defaults.ToggleCrouch);
                     loaded.TeamCount = GetInt(Keys.TeamCount, defaults.TeamCount);
                     loaded.Difficulty = (BotDifficulty)GetInt(Keys.Difficulty, (int)defaults.Difficulty);
                     loaded.Insertion = (InsertionMethod)GetInt(Keys.Insertion, (int)defaults.Insertion);
+                    loaded.SelectedMap = MapCatalog.IdAt(GetInt(Keys.SelectedMap, MapCatalog.IndexOf(defaults.SelectedMap)));
+                    loaded.Language = Project.Application.Localization.LocalizationTable.Languages[Math.Clamp(GetInt(Keys.Language, 0), 0, Project.Application.Localization.LocalizationTable.Languages.Length - 1)];
+                    loaded.NameProfile = GetInt(Keys.NameProfile, defaults.NameProfile);
                     loaded.PlayerName = LoadName() ?? defaults.PlayerName;
                 }
                 catch (Exception)
@@ -99,6 +161,7 @@ namespace Project.Application.Services
                 return;
 
             _current = Sanitize(settings);
+            Project.Application.Catalogs.NameProfile.Current = Project.Application.Catalogs.NameProfile.Normalize(_current.NameProfile);
             Persist(_current);
             Changed?.Invoke(_current);
         }
@@ -137,16 +200,59 @@ namespace Project.Application.Services
 
             s.MouseSensitivity = ClampFloat(s.MouseSensitivity, MinMouseSensitivity, MaxMouseSensitivity, defaults.MouseSensitivity);
             s.AdsSensitivityMultiplier = ClampFloat(s.AdsSensitivityMultiplier, MinAdsMultiplier, MaxAdsMultiplier, defaults.AdsSensitivityMultiplier);
+            s.ViewmodelFov = ClampFloat(s.ViewmodelFov, MinViewmodelFov, MaxViewmodelFov, defaults.ViewmodelFov);
             s.FieldOfView = ClampFloat(s.FieldOfView, MinFieldOfView, MaxFieldOfView, defaults.FieldOfView);
             s.MasterVolume = ClampFloat(s.MasterVolume, 0f, 1f, defaults.MasterVolume);
             s.AmbientVolume = ClampFloat(s.AmbientVolume, 0f, 1f, defaults.AmbientVolume);
+            s.ResolutionWidth = s.ResolutionWidth <= 0 ? 0 : ClampInt(s.ResolutionWidth, 640, 7680);
+            s.ResolutionHeight = s.ResolutionHeight <= 0 ? 0 : ClampInt(s.ResolutionHeight, 480, 4320);
+            if (s.ResolutionWidth == 0 || s.ResolutionHeight == 0)
+            {
+                s.ResolutionWidth = 0;
+                s.ResolutionHeight = 0;
+            }
+            s.WindowMode = s.WindowMode < 0 ? (s.Fullscreen ? 0 : 2) : ClampInt(s.WindowMode, 0, 2);
+            s.Fullscreen = s.WindowMode != 2;
+            s.FrameRateCap = NormalizeFrameRateCap(s.FrameRateCap);
+            s.RenderScale = ClampFloat(s.RenderScale, 0.5f, 1f, 1f);
+            s.SfxVolume = ClampFloat(s.SfxVolume, 0f, 1f, 1f);
+            s.MusicVolume = ClampFloat(s.MusicVolume, 0f, 1f, 1f);
+            s.VoiceVolume = ClampFloat(s.VoiceVolume, 0f, 1f, 1f);
+            s.CrosshairColor = ClampInt(s.CrosshairColor, 0, 4);
+            s.CrosshairSize = ClampFloat(s.CrosshairSize, 0.5f, 2f, 1f);
+            s.HudScale = ClampFloat(s.HudScale, 0.8f, 1.2f, 1f);
+            s.HudOpacity = ClampFloat(s.HudOpacity, 0.3f, 1f, 1f);
+            s.ColorBlindPalette = ClampInt(s.ColorBlindPalette, 0, 3);
+            if (s.ColorBlindPalette == 0 && s.ColorBlindMode)
+                s.ColorBlindPalette = 1;
+            s.ColorBlindMode = s.ColorBlindPalette != 0;
+            s.AimAssistStrength = ClampInt(s.AimAssistStrength, 0, 100);
+            s.SubtitleSize = ClampInt(s.SubtitleSize, 0, 3);
+            s.CameraShakeIntensity = ClampFloat(s.CameraShakeIntensity, 0f, 1.5f, 1f);
             s.QualityLevel = ClampInt(s.QualityLevel, MinQualityLevel, MaxQualityLevel);
             s.TeamCount = ClampInt(s.TeamCount, MinTeamCount, MaxTeamCount);
             s.Difficulty = (BotDifficulty)ClampInt((int)s.Difficulty, (int)BotDifficulty.Easy, (int)BotDifficulty.Hard);
             s.Insertion = (InsertionMethod)ClampInt((int)s.Insertion, (int)InsertionMethod.Helicopter, (int)InsertionMethod.ArmoredVehicle);
+            s.Language = Project.Application.Localization.LocalizationTable.NormalizeLanguage(s.Language);
+            s.SelectedMap = MapCatalog.Normalize(s.SelectedMap);
+            s.NameProfile = ClampInt(s.NameProfile, 0, 1);
             s.PlayerName = SanitizeName(s.PlayerName);
             s.BotCount = s.TeamCount * TeamSize - 1;
             return s;
+        }
+
+        public static readonly int[] FrameRateCaps = { 30, 60, 120, 144, 0 };
+
+        /// <summary>Kare sınırını izin verilen değerlerden en yakınına çeker (0 = sınırsız).</summary>
+        public static int NormalizeFrameRateCap(int cap)
+        {
+            if (cap <= 0)
+                return 0;
+            var best = FrameRateCaps[0];
+            foreach (var c in FrameRateCaps)
+                if (c > 0 && Math.Abs(c - cap) < Math.Abs(best - cap))
+                    best = c;
+            return best;
         }
 
         /// <summary>Oyuncu adını kırpar: boşluklar temizlenir, kontrol karakterleri atılır, en fazla 16 karakter.</summary>
@@ -185,9 +291,39 @@ namespace Project.Application.Services
                 _store.SetInt(Keys.QualityLevel, s.QualityLevel);
                 _store.SetInt(Keys.Fullscreen, s.Fullscreen ? 1 : 0);
                 _store.SetInt(Keys.ShowFps, s.ShowFps ? 1 : 0);
+                _store.SetFloat(Keys.ViewmodelFov, s.ViewmodelFov);
+                _store.SetInt(Keys.AdsFovRelative, s.AdsFovRelativeSensitivity ? 1 : 0);
+                _store.SetInt(Keys.VolumetricFog, s.VolumetricFog ? 1 : 0);
+                _store.SetInt(Keys.ContactShadows, s.ContactShadows ? 1 : 0);
+                _store.SetInt(Keys.Ssr, s.ScreenSpaceReflections ? 1 : 0);
+                _store.SetInt(Keys.ResolutionWidth, s.ResolutionWidth);
+                _store.SetInt(Keys.ResolutionHeight, s.ResolutionHeight);
+                _store.SetInt(Keys.WindowMode, s.WindowMode);
+                _store.SetInt(Keys.VSync, s.VSync ? 1 : 0);
+                _store.SetInt(Keys.FrameRateCap, s.FrameRateCap);
+                _store.SetFloat(Keys.RenderScale, s.RenderScale);
+                _store.SetFloat(Keys.SfxVolume, s.SfxVolume);
+                _store.SetFloat(Keys.MusicVolume, s.MusicVolume);
+                _store.SetFloat(Keys.VoiceVolume, s.VoiceVolume);
+                _store.SetInt(Keys.CrosshairColor, s.CrosshairColor);
+                _store.SetFloat(Keys.CrosshairSize, s.CrosshairSize);
+                _store.SetFloat(Keys.HudScale, s.HudScale);
+                _store.SetFloat(Keys.HudOpacity, s.HudOpacity);
+                _store.SetFloat(Keys.CameraShake, s.CameraShakeIntensity);
+                _store.SetInt(Keys.MotionBlur, s.MotionBlur ? 1 : 0);
+                _store.SetInt(Keys.ColorBlindMode, s.ColorBlindMode ? 1 : 0);
+                _store.SetInt(Keys.ColorBlindPalette, s.ColorBlindPalette);
+                _store.SetInt(Keys.AimAssist, s.AimAssistStrength);
+                _store.SetInt(Keys.SubtitleSize, s.SubtitleSize);
+                _store.SetInt(Keys.SubtitleBg, s.SubtitleBackground ? 1 : 0);
+                _store.SetInt(Keys.ToggleAds, s.ToggleAds ? 1 : 0);
+                _store.SetInt(Keys.ToggleCrouch, s.ToggleCrouch ? 1 : 0);
                 _store.SetInt(Keys.TeamCount, s.TeamCount);
                 _store.SetInt(Keys.Difficulty, (int)s.Difficulty);
                 _store.SetInt(Keys.Insertion, (int)s.Insertion);
+                _store.SetInt(Keys.SelectedMap, MapCatalog.IndexOf(s.SelectedMap));
+                _store.SetInt(Keys.Language, Project.Application.Localization.LocalizationTable.IndexOf(s.Language));
+                _store.SetInt(Keys.NameProfile, s.NameProfile);
                 SaveName(s.PlayerName);
                 _store.Save();
             }
@@ -358,6 +494,25 @@ namespace Project.Application.Services
             Changed?.Invoke(stats);
             if (stats.Rank > previousRank)
                 Promoted?.Invoke(previousRank, stats.Rank);
+        }
+
+        /// <summary>Maç dışı kaynaktan (eğitim vb.) XP ekler; rütbeyi günceller, kaydeder, olayları tetikler.</summary>
+        public int AddExperience(int amount)
+        {
+            if (amount <= 0)
+                return 0;
+            var stats = _current;
+            var previousRank = stats.Rank;
+            var before = stats.Experience;
+            stats.Experience = SafeAdd(stats.Experience, amount);
+            stats.Rank = RankCatalog.RankForExperience(stats.Experience);
+            LastExperienceGained = stats.Experience - before;
+            LastPreviousRank = previousRank;
+            Persist(stats);
+            Changed?.Invoke(stats);
+            if (stats.Rank > previousRank)
+                Promoted?.Invoke(previousRank, stats.Rank);
+            return LastExperienceGained;
         }
 
         /// <summary>Kariyeri sıfırlar ve kaydeder.</summary>

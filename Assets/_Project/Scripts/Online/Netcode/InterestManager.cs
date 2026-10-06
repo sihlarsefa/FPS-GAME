@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Project.Infrastructure.Combat;
+using Project.Online.Sim;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -11,17 +13,20 @@ namespace Project.Online.Netcode
     public sealed class InterestManager : MonoBehaviour
     {
         public const int DefaultMaxPlayers = 60;
-        public const float NearRange = 80f;
-        public const float FarRange = 220f;
-        public const float FarUpdateInterval = 0.35f;
+        /// <summary>Gözlemciye bu mesafe içindeki veya aynı timdeki oyuncular replike edilir.</summary>
+        public const float ReplicationRadius = InterestRules.Radius;
 
         private readonly List<NetworkPlayer> _players = new(DefaultMaxPlayers);
-        private readonly Dictionary<ulong, float> _lastFarUpdate = new();
+        private readonly BandwidthBudget _budget = new();
         private NetworkManager _manager;
         private int _maxPlayers = DefaultMaxPlayers;
         private float _rebuildAt;
+        private float _graceAt;
 
         public static InterestManager Instance { get; private set; }
+
+        /// <summary>Sunucu tarafı istemci başına bant genişliği bütçesi.</summary>
+        public BandwidthBudget Budget => _budget;
 
         public static InterestManager Ensure(NetworkManager manager, int maxPlayers)
         {
@@ -45,6 +50,7 @@ namespace Project.Online.Netcode
             if (player == null || _players.Contains(player))
                 return;
             _players.Add(player);
+            _budget.Register(player.OwnerClientId);
             BindVisibility(player);
         }
 
@@ -53,7 +59,33 @@ namespace Project.Online.Netcode
             if (player == null)
                 return;
             _players.Remove(player);
+            _budget.Remove(player.OwnerClientId);
         }
+
+        /// <summary>Gözlemci-hedef ilgi kademesi (mesafe + tim; görüş hattı ucuzluk için varsayılan açık).</summary>
+        public InterestTier TierFor(NetworkPlayer observer, NetworkPlayer target, bool currentlyVisible)
+        {
+            return InterestTiers.Classify(currentlyVisible,
+                observer.transform.position, target.transform.position,
+                TeamOf(observer), TeamOf(target), true);
+        }
+
+        /// <summary>
+        /// Sunucu: bu tick'te hedefin snapshot'ı gözlemciye gönderilsin mi? Yakın = her tick, orta 20 Hz, uzak 5 Hz.
+        /// Faz hedef kimliğidir (gönderimler tick'lere dağılır).
+        /// </summary>
+        public bool ShouldSendSnapshot(ulong observerClientId, NetworkPlayer target, uint tick)
+        {
+            var observer = FindByClient(observerClientId);
+            if (observer == null || target == null)
+                return true;
+            var visible = target.NetworkObject != null && target.NetworkObject.IsNetworkVisibleTo(observerClientId);
+            var tier = TierFor(observer, target, visible);
+            return InterestTiers.ShouldSend(tier, tick, (int)target.NetworkObjectId, (int)NetcodeNetworkSession.SimulationHz);
+        }
+
+        /// <summary>Bağlı istemci kimlikleri (sunucuda); yoksa boş.</summary>
+        public IReadOnlyList<ulong> ConnectedClients => _manager != null && _manager.IsServer ? _manager.ConnectedClientsIds : System.Array.Empty<ulong>();
 
         public void Rebuild()
         {
@@ -66,6 +98,12 @@ namespace Project.Online.Netcode
             if (_manager == null || !_manager.IsServer)
                 return;
 
+            _budget.Refill(Time.unscaledTime);
+            if (Time.unscaledTime >= _graceAt)
+            {
+                _graceAt = Time.unscaledTime + 1f;
+                NetcodeNetworkSession.Grace.Expire(Time.unscaledTime); // süresi dolan slotlar serbest
+            }
             if (Time.unscaledTime >= _rebuildAt)
             {
                 _rebuildAt = Time.unscaledTime + 0.1f;
@@ -88,22 +126,7 @@ namespace Project.Online.Netcode
                 if (observer == null)
                     return true;
 
-                var dist = Vector3.Distance(observer.transform.position, player.transform.position);
-                if (dist <= NearRange)
-                    return true;
-
-                if (dist > FarRange)
-                    return false;
-
-                // Orta mesafe: seyrek göster
-                if (!_lastFarUpdate.TryGetValue(CompositeKey(clientId, player.OwnerClientId), out var last)
-                    || Time.unscaledTime - last >= FarUpdateInterval)
-                {
-                    _lastFarUpdate[CompositeKey(clientId, player.OwnerClientId)] = Time.unscaledTime;
-                    return true;
-                }
-
-                return netObj.IsNetworkVisibleTo(clientId);
+                return TierFor(observer, player, netObj.IsNetworkVisibleTo(clientId)) != InterestTier.Culled;
             };
         }
 
@@ -138,17 +161,24 @@ namespace Project.Online.Netcode
             }
         }
 
+        private readonly List<HitCandidate> _candidates = new(DefaultMaxPlayers);
+
+        /// <summary>
+        /// Geri sarılmış (rewindTick, shooter tarafında zaten 1 sn'ye kırpılmış) kapsüllere karşı en yakın isabet.
+        /// worldBlockDistance: dünya engeli mesafesi; isabetten yakınsa atış engellenir.
+        /// </summary>
         public bool TryHitWithLagCompensation(
             NetworkPlayer shooter,
-            uint tick,
+            uint rewindTick,
             Vector3 origin,
             Vector3 direction,
+            float worldBlockDistance,
             out NetworkPlayer victim,
             out bool headshot)
         {
             victim = null;
             headshot = false;
-            var best = float.MaxValue;
+            _candidates.Clear();
 
             for (var i = 0; i < _players.Count; i++)
             {
@@ -156,21 +186,22 @@ namespace Project.Online.Netcode
                 if (candidate == null || candidate == shooter || candidate.Health <= 0f)
                     continue;
 
-                CapsuleHitbox box;
-                if (candidate.LagBuffer == null || !candidate.LagBuffer.TrySample(tick, out box))
-                    box = candidate.CurrentHitbox();
-
-                if (!box.Raycast(origin, direction, 400f, out var dist, out var hs))
-                    continue;
-
-                if (dist < best)
+                PositionHistory.Sample sample;
+                var box = default(CapsuleHitbox);
+                if (candidate.LagBuffer != null && candidate.LagBuffer.History.TrySampleTick(rewindTick, out sample))
                 {
-                    best = dist;
-                    victim = candidate;
-                    headshot = hs;
+                    _candidates.Add(new HitCandidate(i, sample));
+                    continue;
                 }
+
+                box = candidate.CurrentHitbox();
+                _candidates.Add(new HitCandidate(i, new PositionHistory.Sample(rewindTick, 0f, box.Position, box.Rotation, box.Height, box.Radius)));
             }
 
+            if (!HitscanRules.PickVictim(_candidates, origin, direction, worldBlockDistance, out var index, out _, out headshot))
+                return false;
+
+            victim = _players[index];
             return victim != null;
         }
 
@@ -186,7 +217,10 @@ namespace Project.Online.Netcode
             return null;
         }
 
-        private static ulong CompositeKey(ulong a, ulong b) => (a * 397UL) ^ (b + 0x9e3779b97f4a7c15UL);
+        private static int TeamOf(NetworkPlayer p)
+        {
+            return CombatantRegistry.TryGet(p.DomainPlayerId, out var c) && c != null ? c.Team : -1;
+        }
 
         private void OnDestroy()
         {

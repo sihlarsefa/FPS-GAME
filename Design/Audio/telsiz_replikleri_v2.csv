@@ -1,0 +1,591 @@
+id,text,stress,category,voiceHint
+mag_empty_sak_01,Şarjör bitti.,sakin,mag_empty,alçak;kısa
+mag_empty_sak_02,"Şarjör boş, değiştiriyorum.",sakin,mag_empty,alçak;kısa
+mag_empty_sak_03,"Mermi bitti, şarjör değişiyor.",sakin,mag_empty,alçak;kısa
+mag_empty_sak_04,Şarjör boşaldı.,sakin,mag_empty,alçak;kısa
+mag_empty_cat_01,Şarjör!,catisma,mag_empty,sert;kısa
+mag_empty_cat_02,Şarjör boş!,catisma,mag_empty,sert;kısa
+mag_empty_cat_03,"Boşaldı, şarjör!",catisma,mag_empty,sert;kısa
+mag_empty_cat_04,Şarjör değişiyor!,catisma,mag_empty,sert;kısa
+mag_empty_cat_05,Mermim bitti!,catisma,mag_empty,sert;kısa
+mag_empty_pan_01,Şarjör! Şarjör!,panik,mag_empty,bağırarak;hızlı
+mag_empty_pan_02,"Boşaldım, boşaldım!",panik,mag_empty,bağırarak;hızlı
+mag_empty_pan_03,"Mermim yok, ört beni!",panik,mag_empty,bağırarak;hızlı
+mag_empty_pan_04,Şarjör şarjör şarjör!,panik,mag_empty,bağırarak;hızlı
+reload_sak_01,Yeniden dolduruyorum.,sakin,reload,alçak
+reload_sak_02,Şarjör değiştiriyorum.,sakin,reload,alçak
+reload_sak_03,"Dolduruyorum, bir saniye.",sakin,reload,alçak
+reload_sak_04,Silahı dolduruyorum.,sakin,reload,alçak
+reload_cat_01,Yeniden dolduruyorum!,catisma,reload,sert
+reload_cat_02,"Dolduruyorum, ört!",catisma,reload,sert
+reload_cat_03,"Şarjör değişiyor, bana ört!",catisma,reload,sert
+reload_cat_04,"Reload, dolduruyorum!",catisma,reload,sert
+reload_cat_05,"Yeniden dolduruyorum, kapatın!",catisma,reload,sert
+reload_pan_01,"Dolduruyorum, dolduruyorum!",panik,reload,bağırarak;hızlı
+reload_pan_02,"Yeniden dolduruyorum, ört beni!",panik,reload,bağırarak;hızlı
+reload_pan_03,"Bekleyin, dolduruyorum!",panik,reload,bağırarak;hızlı
+reload_pan_04,"Şarjör değişiyor, çabuk ört!",panik,reload,bağırarak;hızlı
+reload_last_sak_01,Son şarjör.,sakin,reload_last,alçak
+reload_last_sak_02,Son şarjörüm kaldı.,sakin,reload_last,alçak
+reload_last_sak_03,"Cephanem azalıyor, son şarjör.",sakin,reload_last,alçak
+reload_last_cat_01,Son şarjör!,catisma,reload_last,sert
+reload_last_cat_02,Son şarjörü takıyorum!,catisma,reload_last,sert
+reload_last_cat_03,"Cephane azaldı, son şarjör!",catisma,reload_last,sert
+reload_last_pan_01,"Son şarjör, son şarjör!",panik,reload_last,bağırarak
+reload_last_pan_02,"Cephanem bitiyor, son şarjör!",panik,reload_last,bağırarak
+ammo_request_sak_01,Cephane lazım.,sakin,ammo_request,
+ammo_request_sak_02,Kimde fazla şarjör var?,sakin,ammo_request,
+ammo_request_sak_03,Cephane ihtiyacım var.,sakin,ammo_request,
+ammo_request_cat_01,Cephane ver!,catisma,ammo_request,sert
+ammo_request_cat_02,Şarjör lazım!,catisma,ammo_request,sert
+ammo_request_cat_03,Kimde şarjör var!,catisma,ammo_request,sert
+ammo_request_pan_01,Cephane! Cephane!,panik,ammo_request,bağırarak
+ammo_request_pan_02,"Mermim kalmadı, şarjör ver!",panik,ammo_request,bağırarak
+grenade_throw_sak_01,El bombası atıyorum.,sakin,grenade_throw,alçak
+grenade_throw_sak_02,"Bomba hazır, atıyorum.",sakin,grenade_throw,alçak
+grenade_throw_sak_03,El bombası geliyor.,sakin,grenade_throw,alçak
+grenade_throw_cat_01,El bombası!,catisma,grenade_throw,sert
+grenade_throw_cat_02,Bomba atıyorum!,catisma,grenade_throw,sert
+grenade_throw_cat_03,"El bombası geliyor, açılın!",catisma,grenade_throw,sert
+grenade_throw_cat_04,Bomba!,catisma,grenade_throw,sert
+grenade_throw_cat_05,"Yakınından patlayacak, el bombası!",catisma,grenade_throw,sert
+grenade_throw_pan_01,El bombası! El bombası!,panik,grenade_throw,bağırarak;hızlı
+grenade_throw_pan_02,Bomba! Yatın!,panik,grenade_throw,bağırarak;hızlı
+grenade_throw_pan_03,"El bombası atıyorum, siper alın!",panik,grenade_throw,bağırarak;hızlı
+grenade_throw_pan_04,Bomba bomba!,panik,grenade_throw,bağırarak;hızlı
+grenade_incoming_sak_01,"Dikkat, el bombası.",sakin,grenade_incoming,
+grenade_incoming_sak_02,Yakında bomba var.,sakin,grenade_incoming,
+grenade_incoming_sak_03,"Bomba, ayrılın.",sakin,grenade_incoming,
+grenade_incoming_cat_01,El bombası! Açılın!,catisma,grenade_incoming,sert
+grenade_incoming_cat_02,"Bomba geliyor, kaçın!",catisma,grenade_incoming,sert
+grenade_incoming_cat_03,Bomba! Siper!,catisma,grenade_incoming,sert
+grenade_incoming_cat_04,Üstümüzde bomba!,catisma,grenade_incoming,sert
+grenade_incoming_pan_01,BOMBA! YAT!,panik,grenade_incoming,bağırarak;hızlı
+grenade_incoming_pan_02,El bombası! Yat yat yat!,panik,grenade_incoming,bağırarak;hızlı
+grenade_incoming_pan_03,"Bomba bomba, kaçın!",panik,grenade_incoming,bağırarak;hızlı
+grenade_incoming_pan_04,Yat! Bomba geliyor!,panik,grenade_incoming,bağırarak;hızlı
+grenade_out_cat_01,El bombam kalmadı!,catisma,grenade_out,sert
+grenade_out_cat_02,Bomba bitti!,catisma,grenade_out,sert
+frag_clear_sak_01,"Bomba patladı, temiz.",sakin,frag_clear,
+frag_clear_sak_02,"Bomba tuttu, devam.",sakin,frag_clear,
+wounded_sak_01,"Yaralandım, hafif.",sakin,wounded,alçak;nefesli
+wounded_sak_02,Yaralıyım ama devam ediyorum.,sakin,wounded,alçak;nefesli
+wounded_sak_03,"Sıyrık, önemli değil.",sakin,wounded,alçak;nefesli
+wounded_sak_04,Hafif yaralandım.,sakin,wounded,alçak;nefesli
+wounded_cat_01,Yaralandım!,catisma,wounded,sert;nefesli
+wounded_cat_02,"Yara aldım, kanıyorum!",catisma,wounded,sert;nefesli
+wounded_cat_03,"Vuruldum, yaralıyım!",catisma,wounded,sert;nefesli
+wounded_cat_04,"Yaralandım, hâlâ ayaktayım!",catisma,wounded,sert;nefesli
+wounded_cat_05,Kolumdan yaralandım!,catisma,wounded,sert;nefesli
+wounded_cat_06,Bacağımdan vuruldum!,catisma,wounded,sert;nefesli
+wounded_pan_01,Yaralandım! Yaralandım!,panik,wounded,bağırarak;acı
+wounded_pan_02,"Ah! Vuruldum, yardım edin!",panik,wounded,bağırarak;acı
+wounded_pan_03,"Kanıyorum, sıhhiye!",panik,wounded,bağırarak;acı
+wounded_pan_04,"Çok kötüyüm, yardım!",panik,wounded,bağırarak;acı
+wounded_pan_05,"Yaralıyım, çıkaramıyorum!",panik,wounded,bağırarak;acı
+hit_self_sak_01,"Vuruldum, siperdeyim.",sakin,hit_self,alçak
+hit_self_sak_02,Bana ateş edildi.,sakin,hit_self,alçak
+hit_self_sak_03,İsabet aldım.,sakin,hit_self,alçak
+hit_self_cat_01,Vuruldum!,catisma,hit_self,sert
+hit_self_cat_02,İsabet aldım!,catisma,hit_self,sert
+hit_self_cat_03,"Üstüme ateş var, vuruldum!",catisma,hit_self,sert
+hit_self_cat_04,Beni vurdular!,catisma,hit_self,sert
+hit_self_cat_05,"Ah, vuruldum!",catisma,hit_self,sert
+hit_self_pan_01,Vuruldum! Vuruldum!,panik,hit_self,bağırarak;acı
+hit_self_pan_02,"Beni vurdular, ört!",panik,hit_self,bağırarak;acı
+hit_self_pan_03,"Ateş altındayım, vuruldum!",panik,hit_self,bağırarak;acı
+hit_self_pan_04,"Vuruldum, yardım edin!",panik,hit_self,bağırarak;acı
+bleeding_sak_01,"Kanamam var, sargı lazım.",sakin,bleeding,alçak
+bleeding_sak_02,Yaramı sarmam lazım.,sakin,bleeding,alçak
+bleeding_cat_01,"Kanıyorum, sargı!",catisma,bleeding,sert
+bleeding_cat_02,Kanamam durmuyor!,catisma,bleeding,sert
+bleeding_pan_01,"Kanıyorum, kan kaybediyorum!",panik,bleeding,bağırarak
+bleeding_pan_02,"Kan durmuyor, sıhhiye!",panik,bleeding,bağırarak
+critical_cat_01,Ağır yaralıyım!,catisma,critical,sert;zayıf
+critical_cat_02,"Dayanamayacağım, yardım!",catisma,critical,sert;zayıf
+critical_pan_01,"Ölüyorum, yardım edin!",panik,critical,bağırarak;zayıf
+critical_pan_02,"Çok ağır yaralıyım, sıhhiye!",panik,critical,bağırarak;zayıf
+medic_sak_01,Sıhhiye lazım.,sakin,medic,
+medic_sak_02,"Yaralı var, sıhhiye.",sakin,medic,
+medic_sak_03,"Sıhhiyeci, buraya bak.",sakin,medic,
+medic_cat_01,Sıhhiye!,catisma,medic,sert
+medic_cat_02,"Yaralı var, sıhhiye!",catisma,medic,sert
+medic_cat_03,Sıhhiye çabuk!,catisma,medic,sert
+medic_cat_04,"Sıhhiyeci, adam yaralı!",catisma,medic,sert
+medic_pan_01,SIHHİYE! SIHHİYE!,panik,medic,bağırarak
+medic_pan_02,"Adam yaralı, sıhhiye çabuk!",panik,medic,bağırarak
+medic_pan_03,"Yaralı var, sıhhiye buraya!",panik,medic,bağırarak
+man_down_sak_01,Adamımız yaralandı.,sakin,man_down,
+man_down_sak_02,Arkadaşımız yaralı.,sakin,man_down,
+man_down_sak_03,Yaralı var.,sakin,man_down,
+man_down_cat_01,Adam yaralı!,catisma,man_down,sert
+man_down_cat_02,Adam düştü!,catisma,man_down,sert
+man_down_cat_03,"Yaralı var, ört!",catisma,man_down,sert
+man_down_cat_04,Arkadaş vuruldu!,catisma,man_down,sert
+man_down_pan_01,Adam düştü! Adam düştü!,panik,man_down,bağırarak
+man_down_pan_02,"Vuruldu, vuruldu, adam yaralı!",panik,man_down,bağırarak
+man_down_pan_03,Kardeşim vuruldu!,panik,man_down,bağırarak
+self_heal_sak_01,Pansuman yapıyorum.,sakin,self_heal,alçak
+self_heal_sak_02,Yaramı sarıyorum.,sakin,self_heal,alçak
+self_heal_sak_03,Sargı bezi kullanıyorum.,sakin,self_heal,alçak
+self_heal_cat_01,"Sarıyorum, ört beni!",catisma,self_heal,sert
+self_heal_cat_02,"Sargı yapıyorum, bana ört!",catisma,self_heal,sert
+heal_done_sak_01,"Yaram sarıldı, devam.",sakin,heal_done,
+heal_done_sak_02,"Pansuman tamam, hazırım.",sakin,heal_done,
+revive_thanks_sak_01,Sağ ol kardeşim.,sakin,revive_thanks,
+revive_thanks_sak_02,"Teşekkürler, kurtardın beni.",sakin,revive_thanks,
+revive_thanks_sak_03,"Sağ ol, borçluyum.",sakin,revive_thanks,
+revive_thanks_cat_01,"Sağ ol, devam!",catisma,revive_thanks,sert
+revive_thanks_cat_02,"Teşekkürler, ayaktayım!",catisma,revive_thanks,sert
+reviving_cat_01,"Seni kaldırıyorum, dayan!",catisma,reviving,sert
+reviving_cat_02,"Geldim, dayan kardeşim!",catisma,reviving,sert
+reviving_cat_03,"Tutun, kaldırıyorum!",catisma,reviving,sert
+reviving_pan_01,"Dayan dayan, geliyorum!",panik,reviving,bağırarak
+reviving_pan_02,"Bırakma, seni çekiyorum!",panik,reviving,bağırarak
+enemy_down_sak_01,Düşman düştü.,sakin,enemy_down,alçak
+enemy_down_sak_02,Hedef etkisiz.,sakin,enemy_down,alçak
+enemy_down_sak_03,Bir düşman temizlendi.,sakin,enemy_down,alçak
+enemy_down_sak_04,"Vurdum, hedef yok.",sakin,enemy_down,alçak
+enemy_down_cat_01,Düşman düştü!,catisma,enemy_down,sert
+enemy_down_cat_02,"Vurdum, düştü!",catisma,enemy_down,sert
+enemy_down_cat_03,Hedef etkisiz!,catisma,enemy_down,sert
+enemy_down_cat_04,Bir tane indirdim!,catisma,enemy_down,sert
+enemy_down_cat_05,Düşman yere indi!,catisma,enemy_down,sert
+enemy_down_cat_06,"İsabet, düşman düştü!",catisma,enemy_down,sert
+enemy_down_pan_01,Düştü! Düştü!,panik,enemy_down,bağırarak;hızlı
+enemy_down_pan_02,Vurdum! Vurdum onu!,panik,enemy_down,bağırarak;hızlı
+enemy_down_pan_03,"Düşman düştü, devam edin!",panik,enemy_down,bağırarak;hızlı
+enemy_down_pan_04,"İndirdim, indirdim!",panik,enemy_down,bağırarak;hızlı
+enemy_down_hs_cat_01,Kafadan vurdum!,catisma,enemy_down_hs,sert
+enemy_down_hs_cat_02,"Kafa vuruşu, düştü!",catisma,enemy_down_hs,sert
+enemy_down_hs_cat_03,"Tam isabet, düşman düştü!",catisma,enemy_down_hs,sert
+enemy_down_hs_sak_01,"Temiz atış, düşman düştü.",sakin,enemy_down_hs,alçak
+enemy_down_hs_sak_02,Tek atışta etkisiz.,sakin,enemy_down_hs,alçak
+enemy_down_multi_cat_01,İki düşman düştü!,catisma,enemy_down_multi,sert
+enemy_down_multi_cat_02,Birden fazla hedef indirildi!,catisma,enemy_down_multi,sert
+enemy_down_multi_cat_03,İki tane indirdim!,catisma,enemy_down_multi,sert
+enemy_down_multi_pan_01,İki tane düştü! Devam!,panik,enemy_down_multi,bağırarak
+enemy_down_multi_pan_02,Hepsini indiriyoruz!,panik,enemy_down_multi,bağırarak
+squad_kill_ack_sak_01,Güzel atış.,sakin,squad_kill_ack,
+squad_kill_ack_sak_02,"Aferin, temiz iş.",sakin,squad_kill_ack,
+squad_kill_ack_sak_03,"Tamam, devam edelim.",sakin,squad_kill_ack,
+squad_kill_ack_cat_01,Güzel atış!,catisma,squad_kill_ack,sert
+squad_kill_ack_cat_02,"Devam, devam!",catisma,squad_kill_ack,sert
+squad_kill_ack_cat_03,"Aferin, bir daha!",catisma,squad_kill_ack,sert
+last_enemy_cat_01,Son düşman da düştü!,catisma,last_enemy,sert
+last_enemy_cat_02,"Bölge temizlendi gibi, dikkat!",catisma,last_enemy,sert
+cover_me_sak_01,"Bana ört, hareket ediyorum.",sakin,cover_me,alçak
+cover_me_sak_02,"Beni koruyun, geçiyorum.",sakin,cover_me,alçak
+cover_me_sak_03,"Ört beni, yer değiştireceğim.",sakin,cover_me,alçak
+cover_me_cat_01,Bana ört!,catisma,cover_me,sert
+cover_me_cat_02,Ört beni!,catisma,cover_me,sert
+cover_me_cat_03,"Beni koruyun, geçiyorum!",catisma,cover_me,sert
+cover_me_cat_04,"Ateş desteği ver, ilerliyorum!",catisma,cover_me,sert
+cover_me_cat_05,"Ört, ört!",catisma,cover_me,sert
+cover_me_pan_01,Ört beni ört beni!,panik,cover_me,bağırarak;hızlı
+cover_me_pan_02,"Bana ört, çıkamıyorum!",panik,cover_me,bağırarak;hızlı
+cover_me_pan_03,"Çabuk ört, ateş altındayım!",panik,cover_me,bağırarak;hızlı
+cover_me_pan_04,Ört! Kafamı kaldıramıyorum!,panik,cover_me,bağırarak;hızlı
+covering_sak_01,"Seni koruyorum, hareket et.",sakin,covering,
+covering_sak_02,"Üzerindeyim, geç.",sakin,covering,
+covering_sak_03,"Gözüm sende, git.",sakin,covering,
+covering_cat_01,"Koruyorum, git!",catisma,covering,sert
+covering_cat_02,Seni örtüyorum!,catisma,covering,sert
+covering_cat_03,"Ateş desteği veriyorum, geç!",catisma,covering,sert
+covering_cat_04,"Üzerindeyim, hareket!",catisma,covering,sert
+covering_pan_01,Ört! Ört! Git!,panik,covering,bağırarak
+covering_pan_02,"Ben kapatıyorum, koş!",panik,covering,bağırarak
+suppress_cat_01,Baskı atıyorum!,catisma,suppress,sert
+suppress_cat_02,Ateş altına alıyorum!,catisma,suppress,sert
+suppress_cat_03,Mevzilerini dövüyorum!,catisma,suppress,sert
+suppress_cat_04,Baskı ateşi!,catisma,suppress,sert
+suppress_pan_01,Ateş! Ateş! Başlarını kaldırtmayın!,panik,suppress,bağırarak
+suppress_pan_02,Dövün! Dövün onları!,panik,suppress,bağırarak
+suppress_sak_01,Baskı ateşi veriyorum.,sakin,suppress,
+suppress_sak_02,Hattı tutuyorum.,sakin,suppress,
+advance_sak_01,İlerliyorum.,sakin,advance,alçak
+advance_sak_02,Yer değiştiriyorum.,sakin,advance,alçak
+advance_sak_03,Öne geçiyorum.,sakin,advance,alçak
+advance_sak_04,"Hareket ediyorum, takip edin.",sakin,advance,alçak
+advance_sak_05,Bir sonraki siper hattına geçiyorum.,sakin,advance,alçak
+advance_cat_01,İlerliyorum!,catisma,advance,sert
+advance_cat_02,Hareket ediyorum!,catisma,advance,sert
+advance_cat_03,"İlerliyorum, ört!",catisma,advance,sert
+advance_cat_04,"Öne geçiyorum, kapatın!",catisma,advance,sert
+advance_cat_05,Atlıyorum!,catisma,advance,sert
+advance_cat_06,"Sıçrıyorum, ört!",catisma,advance,sert
+advance_pan_01,Hareket! Hareket!,panik,advance,bağırarak;hızlı
+advance_pan_02,"İlerliyorum, çabuk çabuk!",panik,advance,bağırarak;hızlı
+advance_pan_03,"Koşuyorum, ört beni!",panik,advance,bağırarak;hızlı
+advance_pan_04,İlerle ilerle!,panik,advance,bağırarak;hızlı
+fall_back_sak_01,Geri çekiliyorum.,sakin,fall_back,
+fall_back_sak_02,"Geriye geçiyorum, ört.",sakin,fall_back,
+fall_back_sak_03,Mevzi değiştiriyorum.,sakin,fall_back,
+fall_back_cat_01,Geri çekiliyorum!,catisma,fall_back,sert
+fall_back_cat_02,"Geri çekil, geri!",catisma,fall_back,sert
+fall_back_cat_03,"Geriye düşüyorum, ört!",catisma,fall_back,sert
+fall_back_pan_01,Geri! Geri çekil!,panik,fall_back,bağırarak
+fall_back_pan_02,"Tutamıyoruz, geri!",panik,fall_back,bağırarak
+fall_back_pan_03,Çekil çekil çekil!,panik,fall_back,bağırarak
+holding_sak_01,Mevzideyim.,sakin,holding,
+holding_sak_02,Pozisyonu tutuyorum.,sakin,holding,
+holding_sak_03,Burada bekliyorum.,sakin,holding,
+holding_cat_01,Mevzii tutuyorum!,catisma,holding,sert
+holding_cat_02,Buradan geçemezler!,catisma,holding,sert
+flank_sak_01,Kanattan dolaşıyorum.,sakin,flank,
+flank_sak_02,Sağ kanada geçiyorum.,sakin,flank,
+flank_sak_03,Sol kanattan yaklaşıyorum.,sakin,flank,
+flank_cat_01,Kanattan dolaşıyorum!,catisma,flank,sert
+flank_cat_02,"Sağ kanada geçiyorum, ört!",catisma,flank,sert
+flank_cat_03,Sol kanattan gidiyorum!,catisma,flank,sert
+flank_pan_01,Kanat! Kanattan geliyorlar!,panik,flank,bağırarak
+flank_pan_02,Yanımızdan dolaşıyorlar!,panik,flank,bağırarak
+moving_up_sak_01,Yaklaşıyorum.,sakin,moving_up,alçak
+moving_up_sak_02,Gözcülük yaparak ilerliyorum.,sakin,moving_up,alçak
+clear_sak_01,Temiz.,sakin,clear,alçak
+clear_sak_02,"Temiz, ilerleyebilirsin.",sakin,clear,alçak
+clear_sak_03,Bölge temiz.,sakin,clear,alçak
+clear_sak_04,Gözüme bir şey çarpmıyor.,sakin,clear,alçak
+clear_sak_05,Burası temiz.,sakin,clear,alçak
+clear_cat_01,Temiz!,catisma,clear,sert
+clear_cat_02,Sağ temiz!,catisma,clear,sert
+clear_cat_03,Sol temiz!,catisma,clear,sert
+clear_cat_04,Arka temiz!,catisma,clear,sert
+clear_room_sak_01,Oda temiz.,sakin,clear_room,alçak
+clear_room_sak_02,Bina temizlendi.,sakin,clear_room,alçak
+clear_room_sak_03,Kat temiz.,sakin,clear_room,alçak
+clear_room_cat_01,Oda temiz!,catisma,clear_room,sert
+clear_room_cat_02,"Bina temiz, geçin!",catisma,clear_room,sert
+watch_sak_01,Etrafı gözlüyorum.,sakin,watch,alçak;fısıltı
+watch_sak_02,Gözcülük yapıyorum.,sakin,watch,alçak;fısıltı
+watch_sak_03,"Sessiz, dikkatli ol.",sakin,watch,alçak;fısıltı
+watch_sak_04,Hareket yok.,sakin,watch,alçak;fısıltı
+quiet_sak_01,Sessiz ol.,sakin,quiet,fısıltı
+quiet_sak_02,Ses yapma.,sakin,quiet,fısıltı
+quiet_sak_03,"Alçak, alçak.",sakin,quiet,fısıltı
+smoke_sak_01,Sis atıyorum.,sakin,smoke,alçak
+smoke_sak_02,Sis bombası hazır.,sakin,smoke,alçak
+smoke_sak_03,"Duman atıyorum, geçin.",sakin,smoke,alçak
+smoke_cat_01,Sis atıyorum!,catisma,smoke,sert
+smoke_cat_02,"Sis geliyor, geçin!",catisma,smoke,sert
+smoke_cat_03,"Duman atıyorum, ört!",catisma,smoke,sert
+smoke_cat_04,Sis bombası!,catisma,smoke,sert
+smoke_cat_05,"Sis atıyorum, kapatın!",catisma,smoke,sert
+smoke_pan_01,Sis! Sis atıyorum!,panik,smoke,bağırarak;hızlı
+smoke_pan_02,"Sis geliyor, çıkın çıkın!",panik,smoke,bağırarak;hızlı
+smoke_pan_03,"Sis atıyorum, çabuk geçin!",panik,smoke,bağırarak;hızlı
+smoke_used_sak_01,"Sis oturdu, hareket edin.",sakin,smoke_used,
+smoke_used_sak_02,"Sis kapattı, geçebiliriz.",sakin,smoke_used,
+smoke_used_cat_01,"Sis tuttu, geç!",catisma,smoke_used,sert
+smoke_used_cat_02,"Sis kapattı, şimdi!",catisma,smoke_used,sert
+flash_cat_01,Flaş! Gözlerinizi kapatın!,catisma,flash,sert
+flash_cat_02,Flaş atıyorum!,catisma,flash,sert
+open_sak_01,Temas.,sakin,part_open,alçak;fısıltı
+open_sak_02,"Gözlem, düşman var.",sakin,part_open,alçak;fısıltı
+open_sak_03,Düşman görüyorum.,sakin,part_open,alçak;fısıltı
+open_sak_04,Hareket var.,sakin,part_open,alçak;fısıltı
+open_cat_01,Temas!,catisma,part_open,sert
+open_cat_02,Düşman!,catisma,part_open,sert
+open_cat_03,Düşman görüyorum!,catisma,part_open,sert
+open_cat_04,"Görüyorum, düşman!",catisma,part_open,sert
+open_cat_05,Hedef!,catisma,part_open,sert
+open_cat_06,Düşman hareketi!,catisma,part_open,sert
+open_cat_07,"Temas, temas!",catisma,part_open,sert
+open_cat_08,Kontak!,catisma,part_open,sert
+open_pan_01,TEMAS TEMAS!,panik,part_open,bağırarak;hızlı
+open_pan_02,Düşman! Düşman!,panik,part_open,bağırarak;hızlı
+open_pan_03,Üstümüze geliyorlar!,panik,part_open,bağırarak;hızlı
+open_pan_04,Ateş altındayız!,panik,part_open,bağırarak;hızlı
+open_pan_05,Çok sayıda düşman!,panik,part_open,bağırarak;hızlı
+open_pan_06,Bastırıyorlar!,panik,part_open,bağırarak;hızlı
+clk_01,Saat bir yönü,any,part_clock,net;kısa
+clk_02,Saat iki yönü,any,part_clock,net;kısa
+clk_03,Saat üç yönü,any,part_clock,net;kısa
+clk_04,Saat dört yönü,any,part_clock,net;kısa
+clk_05,Saat beş yönü,any,part_clock,net;kısa
+clk_06,Saat altı yönü,any,part_clock,net;kısa
+clk_07,Saat yedi yönü,any,part_clock,net;kısa
+clk_08,Saat sekiz yönü,any,part_clock,net;kısa
+clk_09,Saat dokuz yönü,any,part_clock,net;kısa
+clk_10,Saat on yönü,any,part_clock,net;kısa
+clk_11,Saat on bir yönü,any,part_clock,net;kısa
+clk_12,Saat on iki yönü,any,part_clock,net;kısa
+clks_01,Saat bir,panik,part_clock,kısa;hızlı
+clks_02,Saat iki,panik,part_clock,kısa;hızlı
+clks_03,Saat üç,panik,part_clock,kısa;hızlı
+clks_04,Saat dört,panik,part_clock,kısa;hızlı
+clks_05,Saat beş,panik,part_clock,kısa;hızlı
+clks_06,Saat altı,panik,part_clock,kısa;hızlı
+clks_07,Saat yedi,panik,part_clock,kısa;hızlı
+clks_08,Saat sekiz,panik,part_clock,kısa;hızlı
+clks_09,Saat dokuz,panik,part_clock,kısa;hızlı
+clks_10,Saat on,panik,part_clock,kısa;hızlı
+clks_11,Saat on bir,panik,part_clock,kısa;hızlı
+clks_12,Saat on iki,panik,part_clock,kısa;hızlı
+num_1,bir,any,part_num,net
+num_2,iki,any,part_num,net
+num_3,üç,any,part_num,net
+num_4,dört,any,part_num,net
+num_5,beş,any,part_num,net
+num_6,altı,any,part_num,net
+num_7,yedi,any,part_num,net
+num_8,sekiz,any,part_num,net
+num_9,dokuz,any,part_num,net
+num_10,on,any,part_num,net
+num_20,yirmi,any,part_num,net
+num_30,otuz,any,part_num,net
+num_40,kırk,any,part_num,net
+num_50,elli,any,part_num,net
+num_60,altmış,any,part_num,net
+num_70,yetmiş,any,part_num,net
+num_80,seksen,any,part_num,net
+num_90,doksan,any,part_num,net
+num_100,yüz,any,part_num,net
+num_1000,bin,any,part_num,net
+unit_metre,metre,any,part_unit,net
+unit_metre_yakin,"metre, çok yakın",panik,part_unit,bağırarak
+dist_10,on metre,any,distance_full,net
+dist_20,yirmi metre,any,distance_full,net
+dist_30,otuz metre,any,distance_full,net
+dist_40,kırk metre,any,distance_full,net
+dist_50,elli metre,any,distance_full,net
+dist_75,yetmiş beş metre,any,distance_full,net
+dist_100,yüz metre,any,distance_full,net
+dist_150,yüz elli metre,any,distance_full,net
+dist_200,iki yüz metre,any,distance_full,net
+dist_250,iki yüz elli metre,any,distance_full,net
+dist_300,üç yüz metre,any,distance_full,net
+dist_400,dört yüz metre,any,distance_full,net
+dist_500,beş yüz metre,any,distance_full,net
+dist_600,altı yüz metre,any,distance_full,net
+dist_800,sekiz yüz metre,any,distance_full,net
+dist_1000,bin metre,any,distance_full,net
+tgt_piyade,düşman piyade,any,part_target,net
+tgt_sniper,keskin nişancı,any,part_target,net
+tgt_mg,makineli tüfekçi,any,part_target,net
+tgt_rpg,RPG'li düşman,any,part_target,net
+tgt_arac,düşman aracı,any,part_target,net
+tgt_zirhli,zırhlı araç,any,part_target,net
+tgt_grup,bir grup düşman,any,part_target,net
+tgt_tek,tek düşman,any,part_target,net
+tgt_iki,iki düşman,any,part_target,net
+tgt_uc,üç düşman,any,part_target,net
+tgt_bina,binada hareket,any,part_target,net
+tgt_cati,çatıda silüet,any,part_target,net
+tgt_tepe,tepede düşman,any,part_target,net
+tgt_agac,ağaç hattında hareket,any,part_target,net
+tgt_kaya,kayanın arkasında düşman,any,part_target,net
+tgt_heli,düşman helikopteri,any,part_target,net
+tgt_drone,düşman drone'u,any,part_target,net
+tgt_tuzak,"mayın, dikkat",any,part_target,net
+tgt_ates,ağır ateş altındayız,any,part_target,net
+tail_t_dikkat,Dikkat!,any,part_tail,net
+tail_t_ates,Ateş açıyorum!,any,part_tail,net
+tail_t_ort,Ört beni!,any,part_tail,net
+tail_t_kapan,Kapanın!,any,part_tail,net
+tail_t_yaklasiyor,Yaklaşıyor!,any,part_tail,net
+tail_t_hareket,Hareket halinde!,any,part_tail,net
+tail_t_hazir,Hazır olun.,any,part_tail,net
+tail_t_bekle,"Ateş etmeyin, bekleyin.",any,part_tail,net
+tail_t_isaretle,İşaretliyorum.,any,part_tail,net
+tail_t_yakin,Çok yakın!,any,part_tail,net
+contact_full_sak_01,"Gözlem, saat üç yönü, yüz metre, düşman piyade.",sakin,contact_full,alçak;fısıltı
+contact_full_sak_02,"Temas. Saat on yönü, iki yüz elli metre, keskin nişancı.",sakin,contact_full,alçak
+contact_full_cat_01,"Temas! Saat üç yönü, yüz metre, düşman piyade!",catisma,contact_full,sert
+contact_full_cat_02,"Düşman! Saat dokuz yönü, seksen metre, makineli tüfekçi!",catisma,contact_full,sert
+contact_full_cat_03,"Görüyorum! Saat on iki yönü, üç yüz metre, tepede düşman!",catisma,contact_full,sert
+contact_full_cat_04,"Temas! Saat altı yönü, elli metre, düşman aracı!",catisma,contact_full,sert
+contact_full_pan_01,"TEMAS! Saat iki, elli metre, bir grup düşman!",panik,contact_full,bağırarak
+contact_full_pan_02,"Düşman! Saat dört, otuz metre, çok yakın!",panik,contact_full,bağırarak
+contact_full_pan_03,"Üstümüze geliyorlar! Saat on bir, yetmiş metre!",panik,contact_full,bağırarak
+contact_lost_sak_01,Hedefi kaybettim.,sakin,contact_lost,
+contact_lost_sak_02,"Görüşü kaybettim, dikkat.",sakin,contact_lost,
+contact_lost_cat_01,Hedef kayboldu!,catisma,contact_lost,sert
+contact_lost_cat_02,"Nereye gitti, göremiyorum!",catisma,contact_lost,sert
+enemy_flank_warn_cat_01,Arkamıza dolanıyorlar!,catisma,enemy_flank_warn,sert
+enemy_flank_warn_cat_02,Sağdan geliyorlar!,catisma,enemy_flank_warn,sert
+enemy_flank_warn_cat_03,Soldan geliyorlar!,catisma,enemy_flank_warn,sert
+enemy_flank_warn_pan_01,Arkamızdalar! Arkamızdalar!,panik,enemy_flank_warn,bağırarak
+enemy_flank_warn_pan_02,"Çevrildik, çevrildik!",panik,enemy_flank_warn,bağırarak
+enemy_reload_cat_01,"Düşman doldurma yapıyor, şimdi!",catisma,enemy_reload,sert
+enemy_reload_cat_02,"Dolduruyorlar, bastırın!",catisma,enemy_reload,sert
+taking_fire_sak_01,"Ateş altındayız, dikkat.",sakin,taking_fire,
+taking_fire_sak_02,Bize ateş açıldı.,sakin,taking_fire,
+taking_fire_cat_01,Ateş altındayız!,catisma,taking_fire,sert
+taking_fire_cat_02,Üstümüze ateş var!,catisma,taking_fire,sert
+taking_fire_cat_03,"Siper alın, ateş geliyor!",catisma,taking_fire,sert
+taking_fire_cat_04,"Ateş ediyorlar, yat!",catisma,taking_fire,sert
+taking_fire_pan_01,Ateş! Ateş altındayız!,panik,taking_fire,bağırarak;hızlı
+taking_fire_pan_02,Yat yat yat!,panik,taking_fire,bağırarak;hızlı
+taking_fire_pan_03,Siper! Siper!,panik,taking_fire,bağırarak;hızlı
+taking_fire_pan_04,"Kafanı kaldırma, vuruyorlar!",panik,taking_fire,bağırarak;hızlı
+sniper_warn_cat_01,Keskin nişancı! Kafayı kaldırma!,catisma,sniper_warn,sert
+sniper_warn_cat_02,"Nişancı var, siper alın!",catisma,sniper_warn,sert
+sniper_warn_pan_01,NİŞANCI! Yat!,panik,sniper_warn,bağırarak
+sniper_warn_pan_02,"Keskin nişancı, kımıldama!",panik,sniper_warn,bağırarak
+friendly_fire_cat_01,Dost ateşi! Dost ateşi!,catisma,friendly_fire,sert
+friendly_fire_cat_02,Bizim adamlara ateş etme!,catisma,friendly_fire,sert
+friendly_fire_cat_03,"Ateşi kes, dostuz!",catisma,friendly_fire,sert
+friendly_fire_pan_01,DOSTUZ! ATEŞİ KES!,panik,friendly_fire,bağırarak
+friendly_fire_pan_02,"Bana ateş etme, dostum!",panik,friendly_fire,bağırarak
+radio_check_sak_01,"Telsiz kontrol, sesim geliyor mu?",sakin,radio_check,telsiz
+radio_check_sak_02,"Bravo, telsiz kontrol.",sakin,radio_check,telsiz
+radio_check_sak_03,"Telsiz kontrol, beş üzerinden beş.",sakin,radio_check,telsiz
+radio_check_sak_04,Sesini net alıyorum.,sakin,radio_check,telsiz
+radio_check_cat_01,"Telsiz, bana cevap ver!",catisma,radio_check,telsiz;sert
+radio_check_cat_02,"Kırmızı hat, sesim geliyor mu?",catisma,radio_check,telsiz;sert
+report_status_sak_01,"Durum raporu, mevzideyiz.",sakin,report_status,telsiz
+report_status_sak_02,"Tim hazır, ilerliyoruz.",sakin,report_status,telsiz
+report_status_sak_03,"Hepimiz iyiyiz, devam.",sakin,report_status,telsiz
+report_status_sak_04,"Bir yaralı var, devam.",sakin,report_status,telsiz
+report_status_cat_01,"Temastayız, destek lazım!",catisma,report_status,telsiz;sert
+report_status_cat_02,"Ateş altındayız, durum kötü!",catisma,report_status,telsiz;sert
+report_status_pan_01,"Mevzi düşüyor, destek!",panik,report_status,telsiz;bağırarak
+report_status_pan_02,Yardım! Yardım! Tim ateş altında!,panik,report_status,telsiz;bağırarak
+request_support_cat_01,Destek talep ediyorum!,catisma,request_support,telsiz;sert
+request_support_cat_02,Takviye lazım!,catisma,request_support,telsiz;sert
+request_support_cat_03,Topçu desteği istiyorum!,catisma,request_support,telsiz;sert
+request_support_pan_01,Destek! Destek!,panik,request_support,telsiz;bağırarak
+request_support_pan_02,Topçu! Topçu desteği çabuk!,panik,request_support,telsiz;bağırarak
+sitrep_sak_01,"Gözcü mevzi, düşman görünmüyor.",sakin,sitrep,telsiz
+sitrep_sak_02,Ön hat sessiz.,sakin,sitrep,telsiz
+sitrep_sak_03,"Çember yaklaşıyor, hazırlan.",sakin,sitrep,telsiz
+zone_move_sak_01,"Çember daralıyor, kaymamız lazım.",sakin,zone_move,
+zone_move_sak_02,Güvenli bölgeye geçelim.,sakin,zone_move,
+zone_move_cat_01,"Çember daralıyor, çabuk hareket!",catisma,zone_move,sert
+zone_move_cat_02,"Dışarıda kaldık, içeri girin!",catisma,zone_move,sert
+zone_move_pan_01,"Çember! Çember kapanıyor, koşun!",panik,zone_move,bağırarak
+zone_move_pan_02,"Yanıyoruz, içeri içeri!",panik,zone_move,bağırarak
+heli_inc_sak_01,"Helikopter sesi, hazır olun.",sakin,heli_inc,
+heli_inc_sak_02,Pervane sesi duyuyorum.,sakin,heli_inc,
+vehicle_inc_cat_01,Araç geliyor!,catisma,vehicle_inc,sert
+vehicle_inc_cat_02,"Zırhlı yaklaşıyor, açılın!",catisma,vehicle_inc,sert
+artillery_warn_cat_01,"Topçu geliyor, siper!",catisma,artillery_warn,sert
+artillery_warn_cat_02,Havan! Yat!,catisma,artillery_warn,sert
+artillery_warn_pan_01,TOPÇU! YAT!,panik,artillery_warn,bağırarak
+artillery_warn_pan_02,"Havan, havan, siper!",panik,artillery_warn,bağırarak
+loot_found_sak_01,Cephane buldum.,sakin,loot_found,
+loot_found_sak_02,Teçhizat var burada.,sakin,loot_found,
+loot_found_sak_03,"Güzel, yeni silah buldum.",sakin,loot_found,
+empty_dry_cat_01,"Silahım çalışmıyor, boş!",catisma,empty_dry,sert
+empty_dry_cat_02,"Tetik düştü, mermi yok!",catisma,empty_dry,sert
+jam_cat_01,Silah tutukluk yaptı!,catisma,jam,sert
+jam_cat_02,"Tutukluk, düzeltiyorum!",catisma,jam,sert
+low_health_cat_01,Durumum kötü!,catisma,low_health,sert
+low_health_cat_02,"Sağlığım düşüyor, dikkat!",catisma,low_health,sert
+low_health_pan_01,Ölüyorum! Yardım!,panik,low_health,bağırarak
+low_health_pan_02,"Dayanamıyorum, çok kötüyüm!",panik,low_health,bağırarak
+thanks_sak_01,Sağ ol.,sakin,thanks,
+thanks_sak_02,Teşekkürler.,sakin,thanks,
+thanks_sak_03,Sağ olun kardeşim.,sakin,thanks,
+praise_sak_01,Aferin.,sakin,praise,
+praise_sak_02,"Çok iyi, devam.",sakin,praise,
+praise_sak_03,Güzel iş çıkardın.,sakin,praise,
+order_move_sak_01,Hareket!,sakin,order_move,
+order_move_sak_02,Gidiyoruz.,sakin,order_move,
+order_move_sak_03,"İlerleyin, ben arkadayım.",sakin,order_move,
+order_hold_sak_01,Pozisyon tut!,sakin,order_hold,
+order_hold_sak_02,Yerinde kal.,sakin,order_hold,
+order_hold_sak_03,Mevziyi koru.,sakin,order_hold,
+ack_er_sak_01,Emredersiniz komutanım.,sakin,ack_er,disiplinli
+ack_er_sak_02,"Emredersiniz komutanım, anlaşıldı.",sakin,ack_er,disiplinli
+ack_er_sak_03,Başüstüne komutanım.,sakin,ack_er,disiplinli
+ack_er_sak_04,Anlaşıldı komutanım.,sakin,ack_er,disiplinli
+ack_er_sak_05,Emredin komutanım.,sakin,ack_er,disiplinli
+ack_er_cat_01,Emredersiniz komutanım!,catisma,ack_er,sert;disiplinli
+ack_er_cat_02,Başüstüne komutanım!,catisma,ack_er,sert;disiplinli
+ack_er_cat_03,Hemen komutanım!,catisma,ack_er,sert;disiplinli
+ack_er_cat_04,"Anlaşıldı komutanım, yapıyorum!",catisma,ack_er,sert;disiplinli
+ack_er_cat_05,Derhal komutanım!,catisma,ack_er,sert;disiplinli
+ack_er_pan_01,Emredersiniz komutanım! Hemen!,panik,ack_er,bağırarak
+ack_er_pan_02,"Anlaşıldı komutanım, gidiyorum!",panik,ack_er,bağırarak
+ack_er_pan_03,"Emredin komutanım, çabuk!",panik,ack_er,bağırarak
+ack_nco_sak_01,Emredersiniz komutanım.,sakin,ack_nco,disiplinli
+ack_nco_sak_02,Anlaşıldı komutanım.,sakin,ack_nco,disiplinli
+ack_nco_sak_03,Tamamdır komutanım.,sakin,ack_nco,disiplinli
+ack_nco_sak_04,Yapıyoruz komutanım.,sakin,ack_nco,disiplinli
+ack_nco_cat_01,Anlaşıldı komutanım!,catisma,ack_nco,sert
+ack_nco_cat_02,Emredersiniz!,catisma,ack_nco,sert
+ack_nco_cat_03,"Tamamdır komutanım, yapıyoruz!",catisma,ack_nco,sert
+ack_nco_pan_01,"Anlaşıldı komutanım, hemen!",panik,ack_nco,bağırarak
+ack_nco_pan_02,"Emredersiniz, gidiyoruz!",panik,ack_nco,bağırarak
+ack_peer_sak_01,Anlaşıldı.,sakin,ack_peer,
+ack_peer_sak_02,Tamam.,sakin,ack_peer,
+ack_peer_sak_03,Alındı.,sakin,ack_peer,
+ack_peer_sak_04,"Tamamdır, yapıyorum.",sakin,ack_peer,
+ack_peer_sak_05,Peki.,sakin,ack_peer,
+ack_peer_cat_01,Anlaşıldı!,catisma,ack_peer,sert
+ack_peer_cat_02,Tamam!,catisma,ack_peer,sert
+ack_peer_cat_03,"Alındı, yapıyorum!",catisma,ack_peer,sert
+ack_peer_cat_04,Tamam tamam!,catisma,ack_peer,sert
+ack_peer_pan_01,Tamam tamam!,panik,ack_peer,bağırarak
+ack_peer_pan_02,"Anlaşıldı, hemen!",panik,ack_peer,bağırarak
+ack_peer_pan_03,"Yapıyorum, yapıyorum!",panik,ack_peer,bağırarak
+ack_superior_sak_01,"Anlaşıldı, devam edin.",sakin,ack_superior,
+ack_superior_sak_02,"Tamam, hareket edin.",sakin,ack_superior,
+ack_superior_sak_03,"Peki, ilerleyin.",sakin,ack_superior,
+ack_superior_sak_04,"Güzel, devam.",sakin,ack_superior,
+ack_superior_cat_01,"Anlaşıldı, devam!",catisma,ack_superior,sert
+ack_superior_cat_02,"Tamam, hareket!",catisma,ack_superior,sert
+ack_superior_cat_03,"Güzel, böyle devam!",catisma,ack_superior,sert
+ack_superior_pan_01,Anlaşıldı! Çabuk olun!,panik,ack_superior,bağırarak
+ack_superior_pan_02,"Tamam, koşun, koşun!",panik,ack_superior,bağırarak
+ack_negative_sak_01,"Yapamıyorum komutanım, yolu kapalı.",sakin,ack_negative,
+ack_negative_sak_02,Bu yönde geçiş yok.,sakin,ack_negative,
+ack_negative_sak_03,Mevzi uygun değil komutanım.,sakin,ack_negative,
+ack_negative_cat_01,"Yapamıyorum komutanım, ateş altındayım!",catisma,ack_negative,sert
+ack_negative_cat_02,"Geçemiyorum, ateş çok yoğun!",catisma,ack_negative,sert
+report_to_leader_sak_01,"Komutanım, bölge temiz.",sakin,report_to_leader,disiplinli
+report_to_leader_sak_02,"Komutanım, mevzi hazır.",sakin,report_to_leader,disiplinli
+report_to_leader_sak_03,"Komutanım, yaralı yok.",sakin,report_to_leader,disiplinli
+report_to_leader_sak_04,"Komutanım, cephane yeterli.",sakin,report_to_leader,disiplinli
+report_to_leader_cat_01,"Komutanım, temastayız!",catisma,report_to_leader,sert
+report_to_leader_cat_02,"Komutanım, yaralı var!",catisma,report_to_leader,sert
+report_to_leader_cat_03,"Komutanım, ateş altındayız!",catisma,report_to_leader,sert
+report_to_leader_cat_04,"Komutanım, destek lazım!",catisma,report_to_leader,sert
+report_to_leader_pan_01,"Komutanım! Ateş altındayız, ne yapalım!",panik,report_to_leader,bağırarak
+report_to_leader_pan_02,"Komutanım, adam düştü, yardım!",panik,report_to_leader,bağırarak
+report_to_leader_pan_03,"Komutanım, tutamıyoruz!",panik,report_to_leader,bağırarak
+leader_orders_sak_01,"Hazır olun, ilerliyoruz.",sakin,leader_orders,komuta
+leader_orders_sak_02,"Mevzileri tutun, ben bakıyorum.",sakin,leader_orders,komuta
+leader_orders_sak_03,"Dağılmayın, toplu hareket.",sakin,leader_orders,komuta
+leader_orders_cat_01,"Ateş edin, ilerliyoruz!",catisma,leader_orders,komuta;sert
+leader_orders_cat_02,"Ört, ben geçiyorum!",catisma,leader_orders,komuta;sert
+leader_orders_cat_03,"Kapatın, ben geçiyorum!",catisma,leader_orders,komuta;sert
+leader_orders_cat_04,"Toplanın, birlikte hareket!",catisma,leader_orders,komuta;sert
+leader_orders_pan_01,Toparlanın! Cephe bozulmasın!,panik,leader_orders,komuta;bağırarak
+leader_orders_pan_02,"Mevziyi tutun, bırakmak yok!",panik,leader_orders,komuta;bağırarak
+leader_orders_pan_03,Kimse geri çekilmesin!,panik,leader_orders,komuta;bağırarak
+leader_praise_sak_01,Aferin çocuklar.,sakin,leader_praise,komuta
+leader_praise_sak_02,"İyi iş, devam.",sakin,leader_praise,komuta
+leader_praise_sak_03,"Güzel, böyle devam.",sakin,leader_praise,komuta
+leader_command_take_sak_01,Komutayı ben alıyorum.,sakin,leader_command_take,komuta
+leader_command_take_sak_02,"Komuta bende, toplanın.",sakin,leader_command_take,komuta
+leader_command_take_cat_01,"Komuta bende, devam!",catisma,leader_command_take,komuta;sert
+leader_command_take_cat_02,"Komutayı devraldım, toparlanın!",catisma,leader_command_take,komuta;sert
+er_asks_sak_01,"Komutanım, emriniz?",sakin,er_asks,disiplinli
+er_asks_sak_02,"Komutanım, nereye geçiyoruz?",sakin,er_asks,disiplinli
+er_asks_sak_03,"Komutanım, emirlerinizi bekliyorum.",sakin,er_asks,disiplinli
+er_asks_cat_01,"Komutanım, ne yapıyoruz!",catisma,er_asks,sert
+er_asks_cat_02,"Komutanım, emriniz!",catisma,er_asks,sert
+breath_cat_01,Hh... hh...,catisma,breath,nefesli
+breath_cat_02,Nefes nefese kaldım.,catisma,breath,nefesli
+breath_pan_01,Hh! Hh! Dayan!,panik,breath,nefesli;bağırarak
+breath_pan_02,"Yetişemiyorum, hh...",panik,breath,nefesli;bağırarak
+calm_down_pan_01,"Sakin ol, sakin ol.",panik,calm_down,komuta
+calm_down_pan_02,"Nefes al, devam.",panik,calm_down,komuta
+calm_down_pan_03,Toparla kendini!,panik,calm_down,komuta
+calm_down_cat_01,"Sakin kalın, planı bozmayalım.",catisma,calm_down,komuta
+calm_down_cat_02,"Sakin, nişan alarak ateş.",catisma,calm_down,komuta
+relieved_sak_01,"Tamam, geçti.",sakin,relieved,
+relieved_sak_02,"Atlattık, hepiniz iyi misiniz?",sakin,relieved,
+relieved_sak_03,"Durum sakin, mevzi alın.",sakin,relieved,
+victory_sak_01,"Hepsi bu kadar, bölge bizim.",sakin,victory,
+victory_sak_02,Operasyon tamam.,sakin,victory,
+victory_sak_03,"Görev tamam, aferin tim.",sakin,victory,
+victory_cat_01,Başardık! Çıktık!,catisma,victory,sert
+victory_cat_02,"Başardık, hepsi düştü!",catisma,victory,sert
+defeat_sak_01,Kaybettik... Toplanın.,sakin,defeat,
+defeat_sak_02,"Bitti, çıkıyoruz.",sakin,defeat,
+squad_lost_sak_01,"Takım düşüyor, bilgi veriyorum.",sakin,squad_lost,telsiz
+squad_lost_sak_02,Kimse kalmadı...,sakin,squad_lost,telsiz

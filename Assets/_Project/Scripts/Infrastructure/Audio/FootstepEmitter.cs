@@ -36,7 +36,7 @@ namespace Project.Infrastructure.Audio
         public float ProneVolumeScale = 0.25f;
 
         /// <summary>Yerel oyuncunun kendi adımları biraz daha kısık (düşman adımları öne çıksın).</summary>
-        public float LocalPlayerVolumeScale = 0.7f;
+        public float LocalPlayerVolumeScale = AudioQuality.LocalStepVolumeScale;
 
         [Header("Duyulma menzili (m)")]
         public float HearingDistance = 32f;
@@ -141,6 +141,7 @@ namespace Project.Infrastructure.Audio
             _combatant = GetComponentInParent<Combatant>();
             _controller = GetComponentInParent<CharacterController>();
             _agent = GetComponentInParent<NavMeshAgent>();
+            _isBot = GetComponentInParent<Project.Infrastructure.AI.BotController>() != null;
             // Yalnızca bir hareket kaynağı (motor/ajan/kontrolcü) bulununca aramayı bırak: bileşen, hareket
             // sistemi eklenmeden önce eklenmiş olabilir (Combatant tek başına yerde olup olmadığını söylemez).
             _resolvedAny = _motor != null || _controller != null || _agent != null;
@@ -325,15 +326,53 @@ namespace Project.Infrastructure.Audio
                     break;
             }
 
-            if (_combatant != null && _combatant.IsLocalPlayer)
+            var isLocal = _combatant != null && _combatant.IsLocalPlayer;
+            var isBot = !isLocal && _isBot;
+            if (isLocal)
                 volumeScale *= LocalPlayerVolumeScale;
+            else if (isBot)
+                volumeScale *= AudioQuality.BotStepVolumeScale;
 
-            var volume = Volume * volumeScale * Random.Range(0.85f, 1f);
-            var pitch = pitchScale * Random.Range(0.9f, 1.1f) * (_leftFoot ? 0.97f : 1.03f);
+            var surface = AudioQuality.SampleSurface(position);
+            _lastVariant = AudioQuality.NextStepVariant(surface, _lastVariant, Random.value);
+            var recipe = AudioQuality.StepVariant(surface, _lastVariant);
+            var gait = AudioQuality.GaitVolume(stance, sprinting);
+            // Zaten stance/sprint çarpanı (volumeScale) var; yürüme yumuşaklığı için yalnızca ayakta yürümeyi kıs.
+            if (stance == Stance.Standing && !sprinting)
+                volumeScale *= gait;
+
+            var volume = Volume * volumeScale * recipe.Volume * Random.Range(0.85f, 1f);
+            var pitch = pitchScale * recipe.Pitch * Random.Range(0.94f, 1.06f) * (_leftFoot ? 0.97f : 1.03f);
             _leftFoot = !_leftFoot;
             var feet = position + Vector3.up * FootHeight;
-            GameAudio.Play(SoundId.Footstep, feet, volume, pitch, Mathf.Max(2f, HearingDistance * hearingScale));
+            var hearing = Mathf.Max(2f, HearingDistance * hearingScale);
+            var id = recipe.Id;
+            if (surface == Project.Infrastructure.Vfx.SurfaceKind.Metal) { volume *= 1.15f; hearing *= 1.1f; }
+            else if (id == SoundId.FootstepGrass) volume *= 0.8f;
+            volume = AudioQuality.FinalStepVolume(volume, isLocal, isBot);
+            volume *= HdrMix.AudioMix.HdrGainFor(HdrMix.HdrEventKind.Footstep, feet); // yüksek sesli olay sırasında adımlar pencere altında kalır
+            GameAudio.Play(id, feet, volume, pitch, hearing);
+            if (recipe.Extra != SoundId.None)
+                GameAudio.Play(recipe.Extra, feet, volume * recipe.ExtraVolume / Mathf.Max(0.01f, recipe.Volume) , pitch * 0.97f, hearing);
+            if (sprinting || surface == Project.Infrastructure.Vfx.SurfaceKind.Snow)
+                Project.Infrastructure.Vfx.GameVfx.FootstepDust(position, surface, sprinting ? 1f : 0.6f);
+            _stepSurface = surface;
+
+            // Kıyafet/teçhizat hışırtısı: koşarken her adım, yürürken her iki adımda bir, çömelmede/sürünmede seyrek.
+            _stepCount++;
+            var rustleEvery = sprinting ? 1 : stance == Stance.Standing ? 2 : 3;
+            if (_stepCount % rustleEvery == 0)
+                GameAudio.Play(SoundId.ClothRustle, feet + Vector3.up * 0.9f, Volume * 0.35f * volumeScale * Random.Range(0.7f, 1f),
+                    Random.Range(0.9f, 1.1f), Mathf.Max(2f, hearing * 0.3f));
+            if (AudioQuality.GearJingleOnStep(stance, sprinting, _stepCount))
+                GameAudio.Play(SoundId.GearJingle, feet + Vector3.up * 1.0f, Volume * 0.3f * volumeScale * Random.Range(0.7f, 1f),
+                    Random.Range(0.92f, 1.08f), Mathf.Max(2f, hearing * 0.5f));
         }
+
+        private int _stepCount;
+        private int _lastVariant = -1;
+        private bool _isBot;
+        private Project.Infrastructure.Vfx.SurfaceKind _stepSurface;
 
         private void PlayLanding(Vector3 position, Stance stance)
         {
@@ -342,9 +381,18 @@ namespace Project.Infrastructure.Audio
             if (_combatant != null && _combatant.IsLocalPlayer)
                 volume *= LocalPlayerVolumeScale;
 
+            var surface = AudioQuality.SampleSurface(position);
+            AudioQuality.LandingTweak(surface, out var surfVol, out var surfPitch, out var layer);
+            volume *= surfVol;
+            var isBot = _isBot && !(_combatant != null && _combatant.IsLocalPlayer);
+            if (isBot)
+                volume *= AudioQuality.BotStepVolumeScale;
+            volume = AudioQuality.FinalStepVolume(volume, false, isBot);
+
             var feet = position + Vector3.up * FootHeight;
-            GameAudio.Play(SoundId.Land, feet, Mathf.Clamp01(volume), Random.Range(0.92f, 1.05f),
-                Mathf.Max(2f, HearingDistance * 1.2f));
+            var landHearing = Mathf.Max(2f, HearingDistance * 1.2f);
+            GameAudio.Play(SoundId.Land, feet, Mathf.Clamp01(volume), Random.Range(0.92f, 1.05f) * surfPitch, landHearing);
+            GameAudio.Play(layer, feet, Mathf.Clamp01(volume * 0.9f), Random.Range(0.85f, 0.95f), landHearing);
             _accumulated = 0f;
         }
     }

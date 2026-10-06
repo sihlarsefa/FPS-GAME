@@ -1,0 +1,6 @@
+== Soak PlayMode: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/MacOS/Unity
+== HAREKAT_SOAK_SECONDS=60 SHORT=30
+== Filtre: TrainingRange_Soak
+== Unity çıkış kodu: 2
+== Özet: passed=0 failed=7
+== Rapor: Logs/soak/RAPOR.md

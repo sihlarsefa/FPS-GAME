@@ -21,8 +21,26 @@ namespace Project.Core.Domain
         public float PlaneAltitude { get; set; } = 120f;
         public float PlaneSpeed { get; set; } = 38f;
         public float InitialZoneRadius { get; set; } = 740f;
-        public float ArtilleryCooldownSeconds { get; set; } = 150f;
+        public float ArtilleryCooldownSeconds { get; set; } = 180f;
+
+        // ---- İkmal sandığı (T-70 hava ikmali) — maç akışı: Docs/MAC_AKISI.md
+        /// <summary>İlk ikmal duyurusu (InMatch başlangıcından sonra, sn). Erken temas ve ölü zaman kırıcı.</summary>
+        public float AirdropFirstSeconds { get; set; } = 90f;
+        /// <summary>İki ikmal duyurusu arası (sn).</summary>
+        public float AirdropIntervalSeconds { get; set; } = 110f;
+        /// <summary>Maç boyunca en fazla kaç ikmal (0 = kapalı).</summary>
+        public int AirdropCount { get; set; } = 4;
+        /// <summary>Duyurudan yere inişe (paraşüt) süre; oyuncular bu sürede yetişebilir ama sandık hemen açılmaz.</summary>
+        public float AirdropDescentSeconds { get; set; } = 40f;
+        /// <summary>Yere inişten sandığın açılmasına kadar süre (anında üçüncü tarafı engeller).</summary>
+        public float AirdropOpenDelaySeconds { get; set; } = 8f;
+        /// <summary>Sonraki güvenli çember bu yarıçaptan küçükse ikmal atılmaz (son çember anında kalabalık olmasın).</summary>
+        public float AirdropMinZoneRadius { get; set; } = 60f;
         public int RandomSeed { get; set; }
+        public TimeOfDay TimeOfDay { get; set; } = TimeOfDay.Gunduz;
+        public WeatherKind Weather { get; set; } = WeatherKind.Acik;
+        /// <summary>Maç içi dinamik hava (tohumdan Açık→bulut→yağmur→açılma, şimşek). Yalnız başlangıç havası Açık ise çalışır.</summary>
+        public bool DynamicWeather { get; set; } = true;
         public ZonePhase[] ZonePhases { get; set; } = DefaultZonePhases();
 
         public MatchConfig()
@@ -56,16 +74,19 @@ namespace Project.Core.Domain
             return this;
         }
 
-        /// <summary>Toplam ~13 dakikalık harekât alanı daralma planı (bekleme, daralma, yarıçap, saniyelik hasar).</summary>
+        /// <summary>
+        /// 1 km harita, 6x10 oyuncu için ~11,7 dakikalık harekât alanı planı (bekleme, daralma, yarıçap, saniyelik hasar).
+        /// Kenar hızı hep koşu hızının altında; hasar artar; ilk bekleme kısa (ölü zaman &lt; 90 sn). Ayrıntı: Docs/MAC_AKISI.md.
+        /// </summary>
         public static ZonePhase[] DefaultZonePhases() => new[]
         {
-            new ZonePhase(150f, 70f, 420f, 1f),
-            new ZonePhase(80f, 55f, 260f, 2f),
-            new ZonePhase(65f, 45f, 160f, 3.5f),
-            new ZonePhase(55f, 40f, 95f, 5f),
-            new ZonePhase(45f, 35f, 50f, 8f),
-            new ZonePhase(35f, 30f, 20f, 11f),
-            new ZonePhase(25f, 30f, 0f, 16f)
+            new ZonePhase(120f, 70f, 400f, 1f),
+            new ZonePhase(75f, 55f, 270f, 2f),
+            new ZonePhase(60f, 45f, 170f, 3.5f),
+            new ZonePhase(50f, 40f, 100f, 5f),
+            new ZonePhase(40f, 35f, 55f, 8f),
+            new ZonePhase(30f, 30f, 22f, 12f),
+            new ZonePhase(20f, 30f, 0f, 18f)
         };
     }
 }

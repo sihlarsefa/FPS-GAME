@@ -301,6 +301,8 @@ namespace Project.Application.Services
                     return PickupArmor(item, definition, dropped);
                 case ItemCategory.Backpack:
                     return PickupBackpack(definition, dropped);
+                case ItemCategory.Attachment:
+                    return PickupAttachment(definition);
                 default:
                     return definition.IsStackable ? PickupStack(item, definition) : PickupResult.Rejected;
             }
@@ -326,6 +328,9 @@ namespace Project.Application.Services
 
                 case ItemCategory.Backpack:
                     return definition.Level > _backpackLevel;
+
+                case ItemCategory.Attachment:
+                    return FindAttachTarget(definition.Id) != null;
 
                 case ItemCategory.Ammunition:
                     return WantsAmmo(definition);
@@ -434,6 +439,9 @@ namespace Project.Application.Services
                 if (output != null && loot.IsValid)
                     output.Add(loot);
 
+                if (output != null)
+                    AppendAttachmentLoot(weapon, output);
+
                 _weapons[i] = null;
             }
 
@@ -516,6 +524,9 @@ namespace Project.Application.Services
                     return;
                 case ItemCategory.Backpack:
                     EquipBackpack(definition.Level);
+                    return;
+                case ItemCategory.Attachment:
+                    PickupAttachment(definition);
                     return;
             }
 
@@ -809,6 +820,8 @@ namespace Project.Application.Services
                 var oldLoot = ToLoot(old);
                 if (dropped != null && oldLoot.IsValid)
                     dropped.Add(oldLoot);
+                if (dropped != null)
+                    AppendAttachmentLoot(old, dropped);
             }
 
             _weapons[slot] = CreateWeapon(definition, item.LoadedAmmo);
@@ -820,6 +833,61 @@ namespace Project.Application.Services
 
             RaiseChanged();
             return new PickupResult(true, 1, true);
+        }
+
+        /// <summary>Eklentiyi takabileceği (uyumlu + yuvası boş) silah: önce aktif, sonra diğerleri.</summary>
+        private WeaponRuntimeService FindAttachTarget(string attachmentId)
+        {
+            var active = ActiveWeapon;
+            if (active != null && active.CanAttach(attachmentId))
+                return active;
+
+            for (var i = 0; i < WeaponSlotCount; i++)
+            {
+                var w = _weapons[i];
+                if (w != null && w != active && w.CanAttach(attachmentId))
+                    return w;
+            }
+
+            return null;
+        }
+
+        private PickupResult PickupAttachment(ItemDefinition definition)
+        {
+            var target = FindAttachTarget(definition.Id);
+            if (target == null || !target.TryAttach(definition.Id, out _))
+                return PickupResult.Rejected;
+
+            RaiseChanged();
+            return new PickupResult(true, 1, true);
+        }
+
+        /// <summary>Aktif silahtan eklenti çıkarır ve yere bırakılacak veriyi verir.</summary>
+        public bool TryDetachFromActive(AttachmentSlot slot, out LootItemData dropped)
+        {
+            dropped = default;
+            var weapon = ActiveWeapon;
+            var id = weapon?.Detach(slot);
+            if (id == null)
+                return false;
+
+            dropped = ItemCatalog.CreateLoot(id, 1);
+            RaiseChanged();
+            return dropped.IsValid;
+        }
+
+        private static void AppendAttachmentLoot(WeaponRuntimeService weapon, List<LootItemData> output)
+        {
+            for (var s = 0; s < AttachmentCatalog.SlotCount; s++)
+            {
+                var id = weapon.GetAttachment((AttachmentSlot)s);
+                if (id == null)
+                    continue;
+
+                var loot = ItemCatalog.CreateLoot(id, 1);
+                if (loot.IsValid)
+                    output.Add(loot);
+            }
         }
 
         private PickupResult PickupArmor(LootItemData item, ItemDefinition definition, List<LootItemData> dropped)

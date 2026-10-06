@@ -65,6 +65,10 @@ namespace Project.Application.Services
 
         private readonly IEventBus _eventBus;
         private readonly Action<PlayerDiedEvent> _onPlayerDied;
+        private readonly Action<DownedEvent> _onDowned;
+        private readonly Action<RevivedEvent> _onRevived;
+        private readonly HashSet<int> _downedIds = new();
+        private readonly List<PlayerId> _downedScratch = new();
         private readonly Dictionary<int, CombatantRecord> _records = new();
         private readonly List<PlayerId> _registrationOrder = new();
         private readonly List<PlayerId> _alive = new();
@@ -88,6 +92,10 @@ namespace Project.Application.Services
             _eventBus = eventBus;
             _onPlayerDied = OnPlayerDied;
             _eventBus?.Subscribe(_onPlayerDied);
+            _onDowned = OnDowned;
+            _onRevived = OnRevived;
+            _eventBus?.Subscribe(_onDowned);
+            _eventBus?.Subscribe(_onRevived);
         }
 
         /// <summary>Bir tim tamamen elendiğinde (tim, tim sıralaması). Olay yolundan ayrı, sunum kolaylığı için.</summary>
@@ -110,6 +118,9 @@ namespace Project.Application.Services
 
         /// <summary>Maç sona erdi mi (MatchEndedEvent yayınlandı ya da Ending'e geçildi).</summary>
         public bool HasEnded => _ended;
+
+        /// <summary>false iken tim elenmesi maçı bitirmez (Çatışma modu: skor/süre kuralı kullanır). Varsayılan true.</summary>
+        public bool AutoEndOnElimination { get; set; } = true;
 
         /// <summary>PreMatch geri sayımı gibi zamanlı fazlarda kalan süre; değilse 0.</summary>
         public float PhaseRemainingSeconds
@@ -331,6 +342,48 @@ namespace Project.Application.Services
             }
         }
 
+        /// <summary>Ölü kaydı tekrar hayatta işaretler (yeniden doğma). Olay yayınlamaz; maç bitmişse etkisizdir.</summary>
+        public void Revive(PlayerId playerId)
+        {
+            if (_ended || !TryGetRecord(playerId, out var record) || record.IsAlive)
+                return;
+
+            record.IsAlive = true;
+            record.Placement = 0;
+            record.DeathTime = -1f;
+            _alive.Add(playerId);
+
+            var team = GetTeamRecord(record.Team);
+            if (team == null)
+                return;
+
+            if (team.AliveCount == 0)
+            {
+                _aliveTeamCount++;
+                team.Placement = 0;
+            }
+
+            team.AliveCount++;
+        }
+
+        /// <summary>Maçı kural gereği bitirir (skor/süre). <paramref name="winnerTeam"/> &lt; 0 = berabere.</summary>
+        public void ForceEnd(int winnerTeam)
+        {
+            if (_ended)
+                return;
+
+            _ended = true;
+            _winnerTeam = winnerTeam;
+            _winnerId = winnerTeam >= 0 ? PickWinnerRepresentative(winnerTeam) : PlayerId.Invalid;
+
+            var winner = winnerTeam >= 0 ? GetTeamRecord(winnerTeam) : null;
+            if (winner != null)
+                winner.Placement = 1;
+
+            _eventBus?.Publish(new MatchEndedEvent(_winnerId, _winnerTeam));
+            TransitionTo(MatchPhase.Ending);
+        }
+
         public bool IsAlive(PlayerId id) => TryGetRecord(id, out var record) && record.IsAlive;
 
         public int GetPlacement(PlayerId id) => TryGetRecord(id, out var record) && !record.IsAlive ? record.Placement : 0;
@@ -381,14 +434,53 @@ namespace Project.Application.Services
 
             _disposed = true;
             _eventBus?.Unsubscribe(_onPlayerDied);
+            _eventBus?.Unsubscribe(_onDowned);
+            _eventBus?.Unsubscribe(_onRevived);
             TeamEliminated = null;
         }
 
-        private void OnPlayerDied(PlayerDiedEvent e) => RegisterPlayerDeath(e.VictimId);
+        private void OnPlayerDied(PlayerDiedEvent e)
+        {
+            _downedIds.Remove(e.VictimId.Value);
+            RegisterPlayerDeath(e.VictimId);
+        }
+
+        /// <summary>Takımın tüm hayatta üyeleri yaralıysa (kurtaracak kimse yok) takım elenmiş sayılır.</summary>
+        private void OnDowned(DownedEvent e)
+        {
+            if (_ended || !e.VictimId.IsValid)
+                return;
+
+            _downedIds.Add(e.VictimId.Value);
+            var team = GetTeamRecord(e.Team >= 0 ? e.Team : GetTeam(e.VictimId));
+            if (team == null || team.AliveCount <= 0)
+                return;
+
+            _downedScratch.Clear();
+            for (var i = 0; i < team.Members.Count; i++)
+            {
+                var id = team.Members[i];
+                if (!IsAlive(id))
+                    continue;
+
+                if (!_downedIds.Contains(id.Value))
+                    return; // yaralı olmayan sağ üye var
+
+                _downedScratch.Add(id);
+            }
+
+            for (var i = 0; i < _downedScratch.Count; i++)
+            {
+                _downedIds.Remove(_downedScratch[i].Value);
+                RegisterPlayerDeath(_downedScratch[i]);
+            }
+        }
+
+        private void OnRevived(RevivedEvent e) => _downedIds.Remove(e.VictimId.Value);
 
         private void CheckForMatchEnd()
         {
-            if (_ended)
+            if (_ended || !AutoEndOnElimination)
                 return;
 
             var shouldEnd = _registeredTeamCount >= 2 ? _aliveTeamCount <= 1 : _registeredTeamCount == 1 && _aliveTeamCount == 0;

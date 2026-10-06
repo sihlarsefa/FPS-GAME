@@ -34,9 +34,13 @@ namespace Project.Infrastructure.Vfx
 
         public int ActiveCount => _active;
 
-        public void Flash(Vector3 position, Color color, float intensity, float range, float duration)
+        public void Flash(Vector3 position, Color color, float intensity, float range, float duration, int maxActive = int.MaxValue)
         {
             if (_container == null || intensity <= 0f || range <= 0f)
+                return;
+
+            // Kademe sınırı: doluysa yeni ışık atlanır (ucuz; en eski ışık yeniden kullanılmaz).
+            if (_active >= maxActive)
                 return;
 
             var index = Acquire();

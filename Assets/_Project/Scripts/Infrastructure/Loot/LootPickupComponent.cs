@@ -58,6 +58,10 @@ namespace Project.Infrastructure.Loot
         private MeshFilter _filter;
         private MeshRenderer _renderer;
         private LODGroup _lodGroup;
+        private Transform _display;
+        private Vector3 _displayPivot;
+        private LootRarity _rarity;
+        private float _phase;
         private BoxCollider _trigger;
         private GameObject _prototypeCopy;
         private WorldItemVisual _visual;
@@ -88,6 +92,22 @@ namespace Project.Infrastructure.Loot
 
         /// <summary>Bakış/hedef noktası (modelin ortası, dünya).</summary>
         public Vector3 FocusPoint => _focusPoint;
+
+        /// <summary>Nadirlik (renk kodu; ışın/halka rengi).</summary>
+        public LootRarity Rarity => _rarity;
+
+        /// <summary>Dönen/süzülen model kökü (çarpıştırıcı ve kayıt köke bağlı kalır). Dedicated sunucuda null.</summary>
+        internal Transform Display => _display;
+
+        /// <summary>Dönüşün merkezi (modelin yerel xz merkezi).</summary>
+        internal Vector3 DisplayPivot => _displayPivot;
+
+        internal float AnimPhase => _phase;
+
+        /// <summary>Dönen modelin ağı (alma animasyonu için); yoksa null.</summary>
+        internal Mesh DisplayMesh => _filter != null ? _filter.sharedMesh : null;
+
+        internal Material[] DisplayMaterials => _renderer != null ? _renderer.sharedMaterials : null;
 
         /// <summary>Vurgu halkasının yarıçapı (m).</summary>
         public float RingRadius => _ringRadius;
@@ -137,6 +157,7 @@ namespace Project.Infrastructure.Loot
                 LootRegistry.Register(pickup);
 
             LootFocusDriver.Ensure();
+            LootVisualFx.Ensure();
             return pickup;
         }
 
@@ -360,7 +381,17 @@ namespace Project.Infrastructure.Loot
             // yeniden kullanır ve çağıranın elindeki referans başka bir eşyayı göstermeye başlar.
             SpawnDroppedBuffer(transform.position);
 
-            if (result.FullyTaken || amount >= before.Quantity)
+            var wholly = result.FullyTaken || amount >= before.Quantity;
+            try
+            {
+                LootVisualFx.PlayPickup(this, wholly);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, this);
+            }
+
+            if (wholly)
                 Despawn();
             else if (amount > 0)
                 Take(amount);
@@ -399,12 +430,13 @@ namespace Project.Infrastructure.Loot
             if (WorldItemVisuals.IsHeadless)
                 return;
 
+            var pitch = 1f + 0.06f * (int)_rarity;   // nadir eşya biraz daha tiz
             try
             {
                 if (combatant.IsLocalPlayer)
-                    GameAudio.Play2D(SoundId.Pickup, 0.8f);
+                    GameAudio.Play2D(SoundId.Pickup, 0.8f, pitch);
                 else
-                    GameAudio.Play(SoundId.Pickup, transform.position, 0.6f, 1f, 18f);
+                    GameAudio.Play(SoundId.Pickup, transform.position, 0.6f, pitch, 18f);
             }
             catch (Exception e)
             {
@@ -443,7 +475,7 @@ namespace Project.Infrastructure.Loot
 
                 if (visual.Prototype != null)
                 {
-                    _prototypeCopy = Instantiate(visual.Prototype, transform, false);
+                    _prototypeCopy = Instantiate(visual.Prototype, _display != null ? _display : transform, false);
                     _prototypeCopy.name = visual.Prototype.name;
                     GameLayers.SetLayerRecursively(_prototypeCopy, GameLayers.Loot);
                     DisableColliders(_prototypeCopy);
@@ -460,7 +492,12 @@ namespace Project.Infrastructure.Loot
                 _trigger.size = size;
                 _trigger.center = new Vector3(bounds.center.x, size.y * 0.5f, bounds.center.z);
                 _ringRadius = visual.RingRadius;
+                _displayPivot = new Vector3(bounds.center.x, 0f, bounds.center.z);
             }
+
+            _rarity = LootRarityRules.Of(item.ItemId, item.Category);
+            _phase = (_nextSpawnId * 0.7371f) % 6.2832f;
+            ResetDisplay();
 
             RebuildText();
             UpdateFocusPoint();
@@ -483,6 +520,13 @@ namespace Project.Infrastructure.Loot
             UpdateFocusPoint();
             if (RegistryIndex >= 0)
                 LootRegistry.Register(this);   // ızgara hücresini güncelle
+        }
+
+        /// <summary>Dönen/süzülen modeli dinlenme konumuna alır.</summary>
+        internal void ResetDisplay()
+        {
+            if (_display != null)
+                _display.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
 
         private void UpdateFocusPoint()
@@ -516,12 +560,29 @@ namespace Project.Infrastructure.Loot
         {
             // Dedicated sunucuda (grafik aygıtı yok) çizim bileşeni eklenmez; tetik ve kayıt yeterlidir.
             var headless = WorldItemVisuals.IsHeadless;
-            if (_filter == null && !TryGetComponent(out _filter) && !headless)
-                _filter = gameObject.AddComponent<MeshFilter>();
-
-            if (_renderer == null && !TryGetComponent(out _renderer) && !headless)
+            if (_display == null && !headless)
             {
-                _renderer = gameObject.AddComponent<MeshRenderer>();
+                var child = transform.Find("Display");
+                if (child == null)
+                {
+                    var go = new GameObject("Display") { layer = GameLayers.Loot };
+                    child = go.transform;
+                    child.SetParent(transform, false);
+                }
+
+                _display = child;
+
+                // Eski kurulumda köke konmuş çizici varsa kapat (model artık Display altında çizilir).
+                if (TryGetComponent<MeshRenderer>(out var legacy))
+                    legacy.enabled = false;
+            }
+
+            if (_filter == null && _display != null && !_display.TryGetComponent(out _filter))
+                _filter = _display.gameObject.AddComponent<MeshFilter>();
+
+            if (_renderer == null && _display != null && !_display.TryGetComponent(out _renderer))
+            {
+                _renderer = _display.gameObject.AddComponent<MeshRenderer>();
                 _renderer.shadowCastingMode = ShadowCastingMode.On;
                 _renderer.receiveShadows = true;
                 _renderer.lightProbeUsage = LightProbeUsage.BlendProbes;

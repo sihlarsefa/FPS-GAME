@@ -25,7 +25,7 @@ namespace Project.Tests.PlayMode
         {
             get
             {
-                var projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+                var projectRoot = Path.GetFullPath(Path.Combine(UnityEngine.Application.dataPath, ".."));
                 return Path.Combine(projectRoot, "Logs", "screens");
             }
         }
@@ -86,15 +86,30 @@ namespace Project.Tests.PlayMode
                 safe += ".png";
 
             var path = Path.Combine(ScreensDirectory, safe);
-            ScreenCapture.CaptureScreenshot(path);
-            Debug.Log("[PlayMode] Ekran görüntüsü: " + path);
+            // CaptureScreenshot asenkron ve batchmode'da dosyayı kaçırabiliyor; senkron yaz.
+            var tex = ScreenCapture.CaptureScreenshotAsTexture();
+            if (tex == null)
+            {
+                Debug.LogWarning("[PlayMode] Ekran görüntüsü alınamadı: " + path);
+                return;
+            }
+
+            try
+            {
+                var png = tex.EncodeToPNG();
+                File.WriteAllBytes(path, png);
+                Debug.Log("[PlayMode] Ekran görüntüsü: " + path + " (" + png.Length + " bayt)");
+            }
+            finally
+            {
+                Object.Destroy(tex);
+            }
         }
 
         public static IEnumerator CaptureScreenAndWait(string fileName, float settleSeconds = 0.15f)
         {
             yield return WaitRealtime(settleSeconds);
             CaptureScreen(fileName);
-            // CaptureScreenshot asenkron yazabilir; sonraki assert öncesi bir kare bekleyelim.
             yield return null;
         }
 
@@ -320,7 +335,7 @@ namespace Project.Tests.PlayMode
             if (_active)
                 return;
             _active = true;
-            Application.logMessageReceivedThreaded += OnLog;
+            UnityEngine.Application.logMessageReceivedThreaded += OnLog;
         }
 
         public void AssertNoExceptions(string context)
@@ -336,7 +351,7 @@ namespace Project.Tests.PlayMode
             if (!_active)
                 return;
             _active = false;
-            Application.logMessageReceivedThreaded -= OnLog;
+            UnityEngine.Application.logMessageReceivedThreaded -= OnLog;
         }
 
         private void OnLog(string condition, string stackTrace, LogType type)

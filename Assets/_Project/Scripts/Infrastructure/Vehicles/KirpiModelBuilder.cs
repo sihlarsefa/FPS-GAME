@@ -17,6 +17,10 @@ namespace Project.Infrastructure.Vehicles
             public Transform[] PassengerSeats;
             public Transform[] PassengerViews;
             public BoxCollider HullCollider;
+            public Transform TurretYaw;
+            public Transform TurretPitch;
+            public Transform TurretMuzzle;
+            public Transform GunnerView;
         }
 
         public static Result Build(Transform parent)
@@ -38,6 +42,25 @@ namespace Project.Infrastructure.Vehicles
             StructureKit.CreateBox(root.transform, "Kule", new Vector3(0f, 2.55f, -0.2f),
                 new Vector3(0.9f, 0.45f, 0.9f), Quaternion.identity, MaterialId.VehicleDark);
 
+            var turretYaw = new GameObject("TaretDonus").transform;
+            turretYaw.SetParent(root.transform, false);
+            turretYaw.localPosition = new Vector3(0f, 2.85f, -0.2f);
+            StructureKit.CreateBox(turretYaw, "TaretGovde", new Vector3(0f, 0.12f, 0f),
+                new Vector3(0.5f, 0.3f, 0.6f), Quaternion.identity, MaterialId.MetalDark, false);
+            StructureKit.CreateBox(turretYaw, "TaretKalkan", new Vector3(0f, 0.3f, 0.38f),
+                new Vector3(0.9f, 0.55f, 0.06f), Quaternion.identity, MaterialId.VehicleDark, false);
+            var turretPitch = new GameObject("TaretEgim").transform;
+            turretPitch.SetParent(turretYaw, false);
+            turretPitch.localPosition = new Vector3(0f, 0.2f, 0.25f);
+            StructureKit.CreateBox(turretPitch, "TaretNamlu", new Vector3(0f, 0f, 0.55f),
+                new Vector3(0.08f, 0.08f, 1.1f), Quaternion.identity, MaterialId.MetalDark, false);
+            var muzzle = new GameObject("TaretNamluUcu").transform;
+            muzzle.SetParent(turretPitch, false);
+            muzzle.localPosition = new Vector3(0f, 0f, 1.15f);
+            var gunnerView = new GameObject("NisanciKamera").transform;
+            gunnerView.SetParent(root.transform, false);
+            gunnerView.localPosition = new Vector3(0f, 3.15f, -0.75f);
+
             var hull = body.GetComponent<BoxCollider>();
             if (hull == null)
                 hull = body.AddComponent<BoxCollider>();
@@ -48,6 +71,8 @@ namespace Project.Infrastructure.Vehicles
             wheels[1] = CreateWheel(root.transform, "TekerFR", new Vector3(1.05f, 0.48f, 1.55f));
             wheels[2] = CreateWheel(root.transform, "TekerRL", new Vector3(-1.05f, 0.48f, -1.55f));
             wheels[3] = CreateWheel(root.transform, "TekerRR", new Vector3(1.05f, 0.48f, -1.55f));
+
+            VehicleDetailKit.Decorate(root.transform, VehicleDetailKit.KirpiDims, wheels, turretYaw, true);
 
             var driverSeat = new GameObject("SurucuKoltugu").transform;
             driverSeat.SetParent(root.transform, false);
@@ -74,6 +99,8 @@ namespace Project.Infrastructure.Vehicles
                 passengerViews[i] = view;
             }
 
+            TryApplyVisualOverride(root, wheels);
+
             return new Result
             {
                 Root = root,
@@ -83,8 +110,57 @@ namespace Project.Infrastructure.Vehicles
                 WheelVisuals = wheels,
                 PassengerSeats = passengerSeats,
                 PassengerViews = passengerViews,
-                HullCollider = hull
+                HullCollider = hull,
+                TurretYaw = turretYaw,
+                TurretPitch = turretPitch,
+                TurretMuzzle = muzzle,
+                GunnerView = gunnerView
             };
+        }
+
+        /// <summary>ContentOverrides Kirpi prefab'ı: prosedürel görseller gizlenir (collider'lar kalır); Wheel_0..3 varsa tekerler onlara bağlanır.</summary>
+        private static void TryApplyVisualOverride(GameObject root, Transform[] wheels)
+        {
+            try
+            {
+                if (!Project.Infrastructure.Content.ContentOverrides.TryGetKirpi(out var prefab) || prefab == null)
+                    return;
+
+                var visual = Object.Instantiate(prefab, root.transform, false);
+                visual.name = "GovdeHazir";
+                visual.transform.localPosition = Vector3.zero;
+                visual.transform.localRotation = Quaternion.identity;
+                var cols = visual.GetComponentsInChildren<Collider>(true);
+                for (var i = 0; i < cols.Length; i++)
+                {
+                    cols[i].enabled = false;
+                    Object.Destroy(cols[i]);
+                }
+
+                GameLayers.SetLayerRecursively(visual, GameLayers.Vehicle);
+
+                var proc = root.GetComponentsInChildren<Renderer>(true);
+                for (var i = 0; i < proc.Length; i++)
+                    if (!proc[i].transform.IsChildOf(visual.transform))
+                        proc[i].enabled = false;
+
+                var all = visual.GetComponentsInChildren<Transform>(true);
+                for (var i = 0; i < wheels.Length; i++)
+                {
+                    for (var j = 0; j < all.Length; j++)
+                    {
+                        if (all[j].name == "Wheel_" + i)
+                        {
+                            wheels[i] = all[j];
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[KirpiModelBuilder] Prefab override uygulanamadi: " + e.Message);
+            }
         }
 
         private static Transform CreateWheel(Transform parent, string name, Vector3 localPos)

@@ -54,6 +54,32 @@ namespace Project.Infrastructure.Config
         [Tooltip("Landed olayı için asgari çarpma hızı (m/s) — daha küçükse hava süresi kontrol edilir.")]
         public float landedEventMinSpeed = 2.5f;
 
+        [Header("Stamina & Load (hareket hissi)")]
+        public float staminaMax = 100f;
+
+        [Tooltip("Koşarken saniyede harcanan stamina (yük çarpanıyla artar).")]
+        public float staminaSprintDrain = 11f;
+
+        [Tooltip("Harcamadan sonra toparlanma başlamadan önceki bekleme (s).")]
+        public float staminaRegenDelay = 1.1f;
+
+        public float staminaRegenRate = 15f;
+
+        [Tooltip("Tükenince (0) bekleme ek süresi (s).")]
+        public float staminaExhaustedExtraDelay = 0.9f;
+
+        [Tooltip("Tükenmiş durumdan çıkış eşiği.")]
+        public float staminaExhaustedRecoverAt = 25f;
+
+        [Tooltip("Koşuya yeniden başlamak için asgari stamina.")]
+        public float staminaSprintStartMin = 12f;
+
+        [Tooltip("Ağır yük/zırh etkisini (hız, ivme, stamina) 0..2 ölçekler. 0 = yük etkisi kapalı.")]
+        [Range(0f, 2f)] public float loadEffectScale = 1f;
+
+        [Tooltip("Eğim hız modifikatörü açık mı (yokuş yukarı yavaş, aşağı hafif hızlı).")]
+        public bool slopeSpeedModifier = true;
+
         [Header("Look")]
         public float mouseSensitivity = 0.12f;
         public float minPitch = -85f;
@@ -97,7 +123,7 @@ namespace Project.Infrastructure.Config
 
         [Header("Camera")]
         [Tooltip("Varsayılan dikey görüş açısı (derece).")]
-        public float fieldOfView = 80f;
+        public float fieldOfView = 64f;
 
         public float fovSmoothSpeed = 14f;
         public float eyeHeightSmoothSpeed = 14f;
@@ -228,6 +254,24 @@ namespace Project.Infrastructure.Config
             maxPitch = Mathf.Clamp(maxPitch, 0f, 89.9f);
             fieldOfView = Mathf.Clamp(fieldOfView, 30f, 120f);
             leanSpeed = Mathf.Max(0.1f, leanSpeed);
+            staminaMax = Mathf.Max(1f, staminaMax);
+            staminaSprintDrain = Mathf.Max(0f, staminaSprintDrain);
+            staminaRegenRate = Mathf.Max(0f, staminaRegenRate);
+        }
+
+        /// <summary>Stamina modeli ayarlarına dönüştürür.</summary>
+        public Project.Application.Services.StaminaTuning ToStaminaTuning()
+        {
+            return new Project.Application.Services.StaminaTuning
+            {
+                Max = Mathf.Max(1f, staminaMax),
+                SprintDrain = Mathf.Max(0f, staminaSprintDrain),
+                RegenDelay = Mathf.Max(0f, staminaRegenDelay),
+                ExhaustedExtraDelay = Mathf.Max(0f, staminaExhaustedExtraDelay),
+                RegenRate = Mathf.Max(0f, staminaRegenRate),
+                ExhaustedRecoverAt = Mathf.Clamp(staminaExhaustedRecoverAt, 1f, Mathf.Max(1f, staminaMax)),
+                SprintStartMin = Mathf.Clamp(staminaSprintStartMin, 0f, Mathf.Max(1f, staminaMax)),
+            };
         }
 
         /// <summary>

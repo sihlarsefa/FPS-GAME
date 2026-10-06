@@ -1,0 +1,804 @@
+Unity Editor version:    6000.6.4f1 (12bfff696524)
+Branch:                  6000.6/staging
+Build type:              Release
+Batch mode:              NO
+macOS version:           Version 26.6.2 (Build 25G83)
+Darwin version:          25.6.0
+Architecture:            arm64
+Running under Rosetta:   NO
+Available memory:        16384 MB
+Date:                    2026-10-06T01:21:54Z
+VBCSCompilerPreWarmer: watching VBCSCompiler (PID 2893)
+VBCSCompilerPreWarmer: pre-warm launched (dotnet PID 2895)
+VBCSCompiler prewarm took 2.83 ms
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-f2gomac" at "2026-10-06T01:21:54.79643Z"
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/PackageManager/Server/UnityPackageManager
+
+COMMAND LINE ARGUMENTS:
+/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/MacOS/Unity
+-projectPath
+/Users/f2gomac/Desktop/FPS-GAME
+-executeMethod
+Project.EditorTools.AutoPlayMainMenu.Enter
+-logFile
+/Users/f2gomac/Desktop/FPS-GAME/Tools/UnityVerify/editor_play2.log
+Successfully changed project path to: /Users/f2gomac/Desktop/FPS-GAME
+/Users/f2gomac/Desktop/FPS-GAME
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.3+d7ffd15
+  Session Id:              22f9c2da4ce24b5ba7571983fffe5c02
+  Correlation Id:          68e0f246342f4f1ede43797c1e12e278
+  External correlation Id: 2992343491245580495
+  Machine Id:              N5wA6icxbnhbHWazitLENc7cwgY=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-f2gomac" (connect: 0.00s, validation: 0.00s, handshake: 0.32s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-f2gomac-notifications" at "2026-10-06T01:21:55.118565Z"
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 18968492814813-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.00
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 0.33s
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-remapper-allocator-initial-capacity=32768"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-main-allocator-mimalloc-enabled=1"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+Logging is directed to a specific file, skipping project log.
+Player connection [8309662080]  Target information:
+
+Player connection [8309662080]  * "[IP] 192.168.1.4 [Port] 55504 [Flags] 2 [Guid] 2826065952 [EditorId] 2826065952 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080]  * "[IP] 10.211.55.2 [Port] 55504 [Flags] 2 [Guid] 2826065952 [EditorId] 2826065952 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080]  * "[IP] 10.37.129.2 [Port] 55504 [Flags] 2 [Guid] 2826065952 [EditorId] 2826065952 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [8309662080] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-2888" after 0.0 seconds.
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Warning] Acquired exclusive lock but discovered existing shared memory pool, destroying and reinitialising
+Initialising UDS system complete:
+  - System type: Client
+  - Resource namespace: c3abdf221fc5d9fd33df3a582a8a25a4
+  - Shared memory size: 1073741824
+  - Command buffer id: 1052672
+  - Command buffer size: 8192
+  - Hashmap size: 4194304
+  - Service connected: false
+Launching Unity Data Store - /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/Unity.DataStore 
+Unity Data Store artifact dir = Library/DataStore, working dir = /Users/f2gomac/Desktop/FPS-GAMEUnity Data Store running and initialised
+[Physics::Module] Selected backend (deferred post-plugins).
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Initialize engine version: 6000.6.4f1 (12bfff696524)
+[EntityIdStore] init: VM path (explicit commit), pageSize=16384, blockCount=262144, entitiesPerBlock=1024, slots reserved=4294967296 bytes
+[Subsystems] Discovering subsystems at path /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path /Users/f2gomac/Desktop/FPS-GAME/Assets
+GfxDevice: creating device client; kGfxThreadingModeThreaded
+ preferred device: Apple M4 (high power)
+Metal devices available: 1
+0: Apple M4 (high power)
+Using device Apple M4 (high power)
+Initializing Metal device caps: Apple M4
+Mac GPU Family: 2
+Apple GPU Family: 9
+MSL Version: 3.0
+Has Float MSAA: 1
+Has Float Filtering: 1
+ReadWrite Texture Tier: 2
+Initialize mono
+Mono path[0] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/Managed'
+Mono path[1] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/BCLExtensions/runtime/netstandard2.1'
+Mono path[2] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/MonoBleedingEdge/lib/mono/unityjit-macos'
+Mono config path = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56888
+CodeReloadManager initialized
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: /Applications/Unity/Hub/Editor/6000.6.4f1/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: /Applications/Unity/Hub/Editor/6000.6.4f1/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll
+Registered in 0.000729 seconds.
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Scripting: successfully reloaded assembly
+- Finished resetting the current domain, in  0.522 seconds
+Domain Reload Profiling: 819ms
+	BeginReloadAssembly (75ms)
+		CreateAndSetChildDomain (5ms)
+	RebuildNativeTypeToScriptingClass (13ms)
+	initialDomainReloadingComplete (29ms)
+	LoadAllAssembliesAndSetupDomain (178ms)
+		LoadAssemblies (70ms)
+		TypeCache.Refresh (130ms)
+			TypeCache.ScanAssembly (120ms)
+		AnalyzeDomain (0ms)
+	FinalizeReload (522ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (48ms)
+			ProcessInitializeOnLoadAttributes (50ms)
+			ProcessInitializeOnLoadMethodAttributes (311ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 43 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.20.0-pre.1 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.assistant@ceb45b7b3ebd)
+    com.unity.ai.inference@2.6.1 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.inference@9a123aee5df7)
+    com.unity.ai.navigation@2.0.14 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.navigation@134dd6a3b97b)
+    com.unity.ide.rider@3.0.38 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ide.rider@1f60b3138684)
+    com.unity.ide.visualstudio@2.0.26 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.inputsystem@1.20.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.inputsystem@7a4e1a2a8194)
+    com.unity.dt.app-ui@2.1.13 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.dt.app-ui@9d0f103f520a)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.nuget.mono-cecil@1.11.6 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.searcher@4.9.5 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.searcher@a463122f2c00)
+    com.unity.profiling.core@1.0.3 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.profiling.core@8a49f7027d06)
+  Built-in packages:
+    com.unity.render-pipelines.universal@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21)
+    com.unity.test-framework@1.8.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.test-framework@80f691d4262b)
+    com.unity.ugui@2.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ugui@0727b404f3a0)
+    com.unity.modules.ai@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.ai)
+    com.unity.modules.animation@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.animation)
+    com.unity.modules.audio@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.audio)
+    com.unity.modules.imageconversion@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.imageconversion)
+    com.unity.modules.jsonserialize@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.terrainphysics)
+    com.unity.modules.ui@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.ui)
+    com.unity.modules.unitywebrequest@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.unitywebrequest)
+    com.unity.modules.video@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.video)
+    com.unity.modules.physicscore2d@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physicscore2d)
+    com.unity.modules.imgui@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.imgui)
+    com.unity.ext.nunit@2.1.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ext.nunit@0198eae3b53e)
+    com.unity.render-pipelines.core@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f)
+    com.unity.shadergraph@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.shadergraph@58bcb150677d)
+    com.unity.render-pipelines.universal-config@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.universal-config@561422b74439)
+    com.unity.modules.uielements@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.uielements)
+    com.unity.burst@2.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.burst@626e66ab421b)
+    com.unity.collections@6.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.collections@10fff0607388)
+    com.unity.2d.sprite@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.2d.sprite@752945c75a6f)
+    com.unity.mathematics@1.4.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.mathematics@8306a64d0cd6)
+    com.unity.graph-authoring@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.graph-authoring@cfd2588851ee)
+    com.unity.modules.hierarchycore@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.hierarchycore)
+    com.unity.test-framework.performance@6.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.test-framework.performance@b6023decb532)
+    com.unity.modules.androidjni@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.androidjni)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.00 seconds
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/bee_backend --ipc --defer-dag-verification --dagfile="Library/Bee/200b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/Extensions/2.0.0/System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.Composition.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/compat/2.1.0/shims/netfx/System.ComponentModel.Composition.dll"
+ExitCode: 0 Duration: 0s359ms
+[1009/1379  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+*** Tundra build success (0.34 seconds), 1 items updated, 1379 evaluated
+AssetDatabase: script compilation time: 0.955564s
+Total cache size 253507556
+Begin MonoManager ReloadAssembly
+Total cache size after purge 253507556, took 00:00:00.1713265
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Scripting: successfully reloaded assembly
+- Finished resetting the current domain, in  1.036 seconds
+Domain Reload Profiling: 1626ms
+	BeginReloadAssembly (108ms)
+		DisableScriptedObjects (10ms)
+		CreateAndSetChildDomain (27ms)
+	RebuildCommonClasses (5ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (51ms)
+	LoadAllAssembliesAndSetupDomain (417ms)
+		LoadAssemblies (189ms)
+		TypeCache.Refresh (160ms)
+			TypeCache.ScanAssembly (147ms)
+		AnalyzeDomain (33ms)
+			BuildScriptInfoCaches (28ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1037ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (79ms)
+			ProcessInitializeOnLoadAttributes (633ms)
+			ProcessInitializeOnLoadMethodAttributes (99ms)
+		AwakeInstancesAfterBackupRestoration (10ms)
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Starting new worker id: 0 with log in /Users/f2gomac/Desktop/FPS-GAME/Logs/AssetImportWorkerHW0.log
+
+Asset Pipeline Refresh (id=fdcda9e57402d426e90bd25fbaff273f): Total: 3.619 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=1973 ms
+		Asset DB Callback time: managed=27 ms, native=5 ms
+		Scripting: domain reloads=1, domain reload time=619 ms, compile time=957 ms, other=36 ms
+		Project Asset Count: scripts=1957, non-scripts=16987
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 1
+	InvokeCustomDependenciesCallbacks: 0.212ms
+	InvokePackagesCallback: 6.425ms
+	ApplyChangesToAssetFolders: 0.179ms
+	Scan: 569.443ms
+	Collect global state as custom dependencies: 9.090ms
+	CategorizeScriptCompilationAssets: 36.588ms
+	ProcessAssetsWithTransientArtifactChanges: 42.814ms
+	CategorizeAssets: 134.885ms
+	CompileScripts: 956.619ms
+	ImportOutOfDateAssets: 1053.853ms (1045.549ms without children)
+		ReloadNativeAssets: 0.051ms
+		UnloadImportedAssets: 3.591ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.894ms
+		ImportSchedulerStart: 2.764ms
+	PostProcessAllAssets: 27.142ms
+		MonoPostProcessAllAssets: 27.109ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 8.508ms
+			SyncVS.PostprocessSyncProject 4.833ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 0.991ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 0.882ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 0.877ms
+			AssetChangeDetector.OnPostprocessAllAssets 0.492ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 0.442ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.313ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.257ms
+			ProjectSettingsPostprocessor.OnPostprocessAllAssets 0.138ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.127ms
+			InputActionAssetPostprocessor.OnPostprocessAllAssets 0.119ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.107ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.068ms
+	UnloadStreamsBegin: 3.987ms
+	PersistCurrentRevisions: 0.378ms
+	GenerateScriptTypeHashes: 1.209ms
+	GenerateScriptTypeSerializationHashes: 2.208ms
+	Untracked: 775.644ms
+
+Application.AssetDatabase Initial Refresh End
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Launched and connected shader compiler UnityShaderCompiler after 0.04 seconds
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Scanning for USB devices : 0.258ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-HAREKÂT
+2026-10-06 04:22:04.567 Unity[2888:1589545] NSEventModifierFlagFunction specified to -setKeyEquivalentModifierMask: for item <NSMenuItem: 0xcbbec9900 SDF, ke='Command-F12'>, but is only supported for system-provided menu items; will not be used
+Unloading 85 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/MainMenu.unity'
+	Deserialize:            0.689 ms
+	Integration:            7.179 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.006 ms
+	Total Operation Time:   7.874 ms
+Unloading 8191 unused Assets / (21.5 MB). Loaded Objects now: 9277.
+Memory consumption went from 340.5 MB to 319.1 MB.
+Total: 17.419833 ms (FindLiveObjects: 0.508083 ms CreateObjectMapping: 0.167000 ms MarkObjects: 12.836042 ms  DeleteObjects: 3.800791 ms)
+
+[LAYOUT] About to load UserSettings/Layouts/default-6000.dwlt, keepMainWindow=False
+[LAYOUT] About to save layout /Users/f2gomac/Desktop/FPS-GAME/UserSettings/Layouts/default-6000.dwlt
+[LAYOUT] About to save layout /Users/f2gomac/Library/Preferences/Unity/Editor-5.x/Layouts/current/default-6000.dwlt
+Worker ready: AssetImportWorkerHW0 0
+[MODES] ModeService[default].InitializeCurrentMode
+[MODES] ModeService[default].RaiseModeChanged(default, default)
+Opening scene 'Assets/_Project/Scenes/MainMenu.unity'
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/MainMenu.unity'
+	Deserialize:            0.244 ms
+	Integration:            9.650 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.004 ms
+	Total Operation Time:   9.898 ms
+Unloading 1 unused Assets / (3.5 KB). Loaded Objects now: 9442.
+Memory consumption went from 363.0 MB to 363.0 MB.
+Total: 17.008792 ms (FindLiveObjects: 0.352792 ms CreateObjectMapping: 0.080250 ms MarkObjects: 16.336416 ms  DeleteObjects: 0.034708 ms)
+
+[HAREKÂT] AutoPlay MainMenu
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Project.EditorTools.AutoPlayMainMenu:Enter () (at Assets/_Project/Scripts/Editor/AutoPlayMainMenu.cs:40)
+
+(Filename: Assets/_Project/Scripts/Editor/AutoPlayMainMenu.cs Line: 40)
+
+[Project] Loading completed in 10.422 seconds
+	Project init time: 				0.000 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		0.000 seconds
+		Asset Database init time: 		0.000 seconds
+		Global illumination init time: 	0.000 seconds
+		Assemblies load time: 			0.000 seconds
+		Unity extensions init time: 	0.000 seconds
+		Asset Database refresh time: 	0.000 seconds
+	Scene opening time: 			0.000 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1791249725214,"processId":2888,"projectLoad":10.422441917,"projectInit":0.0,"templateInit":0.0,"packageManagerInit":0.0,"assetDatabaseInit":0.0,"globalIlluminationInit":0.0,"assembliesLoad":0.0,"unityExtensionsInit":0.0,"assetDatabaseRefresh":0.0,"sceneOpening":0.0}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1791249725214,"processId":2888,"editorVersion":"6000.6.4f1 (12bfff696524)","branch":"6000.6/staging","buildType":"Release","platform":"OSX"}
+Subscribe to USB device events
+Scanning for USB devices : 0.279ms
+Thread 0x44df07000 may have been prematurely finalized
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+2026-10-06 04:22:05.635 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+Scripting: successfully reloaded assembly
+- Finished resetting the current domain, in  1.251 seconds
+Domain Reload Profiling: 1620ms
+	BeginReloadAssembly (188ms)
+		DisableScriptedObjects (33ms)
+		CreateAndSetChildDomain (81ms)
+	RebuildCommonClasses (6ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (40ms)
+	LoadAllAssembliesAndSetupDomain (126ms)
+		LoadAssemblies (71ms)
+		TypeCache.Refresh (6ms)
+		AnalyzeDomain (6ms)
+			ResolveRequiredComponents (4ms)
+	FinalizeReload (1251ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (86ms)
+			ProcessInitializeOnLoadAttributes (420ms)
+			ProcessInitializeOnLoadMethodAttributes (142ms)
+		AwakeInstancesAfterBackupRestoration (378ms)
+No restricted APIs configured; Validation skipped.
+Checking 23 assemblies for restricted APIs found 0 usage(s) in 1 ms
+
+Asset Pipeline Refresh (id=c3b890b585f0248fc9a7f40fcf0d3624): Total: 2.848 seconds - Initiated by StopAssetImportingV2(ForceSynchronousImport | ForceDomainReload)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=1558 ms
+		Asset DB Callback time: managed=751 ms, native=151 ms
+		Scripting: domain reloads=1, domain reload time=385 ms, compile time=1 ms, other=0 ms
+		Project Asset Count: scripts=1957, non-scripts=16987
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokePackagesCallback: 0.593ms
+	ApplyChangesToAssetFolders: 0.166ms
+	Collect global state as custom dependencies: 1.406ms
+	ProcessAssetsWithTransientArtifactChanges: 110.303ms
+	CategorizeAssets: 140.104ms
+	CompileScripts: 1.167ms
+	ImportOutOfDateAssets: 1259.924ms (1256.327ms without children)
+		CollectScriptTypesHashes: 0.824ms
+		ReloadNativeAssets: 0.793ms
+		UnloadImportedAssets: 0.754ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.750ms
+		ImportSchedulerStart: 0.263ms
+	PostProcessAllAssets: 897.010ms
+		AssemblyValidation.PostprocessAllAssets 37.147ms
+		PostProcessCallbackCreateDeferredMaterials 14.204ms
+		ComputeShaderImportPostprocess 10.351ms
+		RaytracingShaderImportPostprocess 10.251ms
+		ShaderAssetModifiedCallback 9.561ms
+		SpeedTreeImporter.PostprocessAllAssets 9.428ms
+		BlockShaderImporter.PostprocessAllAssets 3.754ms
+		LocalizationDatabase.AssetDatabasePostprocessCallback 3.650ms
+		XRBuildSystem.XRAssetImported 0.096ms
+		MonoPostProcessAllAssets: 750.504ms
+			SyncVS.PostprocessSyncProject 173.830ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 132.823ms
+			AssetPostprocessor.OnPostprocessAllAssets 94.710ms
+			PostProcessor.OnPostprocessAllAssets 33.139ms
+			InputActionAssetPostprocessor.OnPostprocessAllAssets 24.219ms
+			MaterialPostprocessor.OnPostprocessAllAssets 23.165ms
+			InputActionJsonNameModifierAssetProcessor.OnPostprocessAllAssets 22.739ms
+			AssetReferenceReimportMonitor.OnPostprocessAllAssets 21.180ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 19.532ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 15.747ms
+			AssetChangedListener.OnPostprocessAllAssets 12.142ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 12.001ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 3.799ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 3.201ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 3.098ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 1.265ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 0.969ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 0.918ms
+			AssetChangeDetector.OnPostprocessAllAssets 0.545ms
+			SkillsProjectAssetPostprocessor.OnPostprocessAllAssets 0.533ms
+			ThemePostprocessor.OnPostprocessAllAssets 0.422ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.405ms
+			SpriteEditorTexturePostprocessor.OnPostprocessAllAssets 0.379ms
+			ProjectSettingsPostprocessor.OnPostprocessAllAssets 0.331ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.288ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 0.269ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 0.252ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.177ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.168ms
+			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.154ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 0.131ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.121ms
+			AssetEvents.OnPostprocessAllAssets 0.095ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.076ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.056ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.051ms
+	PostAssetChangesProfiler: 6.035ms
+	GatherAllCurrentPrimaryImportResultRevisions: 0.310ms
+	UnloadStreamsBegin: 0.602ms
+	PersistCurrentRevisions: 0.378ms
+	GenerateScriptTypeHashes: 2.671ms
+	GenerateScriptTypeSerializationHashes: 4.108ms
+	Untracked: 427.287ms
+
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.525 ms
+	Integration:            320.504 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.097 ms
+	Total Operation Time:   321.127 ms
+Your project uses a scriptable render pipeline. You can use Camera.layerCullSpherical only with the built-in renderer.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+UnityEngine.Camera:set_layerCullSpherical (bool) (at /Users/bokken/build/output/unity/unity/Runtime/Export/Camera/Camera.bindings.cs:87)
+Project.Infrastructure.Rendering.PerformanceProfile:ApplyToCamera (UnityEngine.Camera,int) (at Assets/_Project/Scripts/Infrastructure/Rendering/PerformanceProfile.cs:62)
+Project.Infrastructure.Rendering.CameraRig:ConfigureWorldCamera (UnityEngine.Camera,single) (at Assets/_Project/Scripts/Infrastructure/Rendering/CameraRig.cs:329)
+Project.Infrastructure.Rendering.CameraRig:Create (UnityEngine.Transform,single,bool) (at Assets/_Project/Scripts/Infrastructure/Rendering/CameraRig.cs:64)
+Project.Presentation.UI.MenuBackdrop:BuildCamera () (at Assets/_Project/Scripts/Presentation/UI/MenuBackdrop.cs:238)
+Project.Presentation.UI.MenuBackdrop:Step (System.Action,string) (at Assets/_Project/Scripts/Presentation/UI/MenuBackdrop.cs:222)
+Project.Presentation.UI.MenuBackdrop:Build () (at Assets/_Project/Scripts/Presentation/UI/MenuBackdrop.cs:210)
+Project.Presentation.UI.MenuBackdrop:Create (UnityEngine.Transform) (at Assets/_Project/Scripts/Presentation/UI/MenuBackdrop.cs:129)
+Project.Presentation.Bootstrap.MainMenuBootstrap/<>c:<Start>b__8_0 () (at Assets/_Project/Scripts/Presentation/Bootstrap/MainMenuBootstrap.cs:59)
+Project.Presentation.Bootstrap.BootstrapUtility:Try<Project.Presentation.UI.MenuBackdrop> (System.Func`1<Project.Presentation.UI.MenuBackdrop>,string) (at Assets/_Project/Scripts/Presentation/Bootstrap/BootstrapUtility.cs:236)
+Project.Presentation.Bootstrap.MainMenuBootstrap:Start () (at Assets/_Project/Scripts/Presentation/Bootstrap/MainMenuBootstrap.cs:59)
+
+(Filename: /Users/bokken/build/output/unity/unity/Runtime/Export/Camera/Camera.bindings.cs Line: 87)
+
+Invalid worldAABB. Object is too large or too far away from the origin.
+Invalid worldAABB. Object is too large or too far away from the origin.
+Invalid worldAABB. Object is too large or too far away from the origin.
+Invalid worldAABB. Object is too large or too far away from the origin.
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+The GPU Resident Drawer requires the "BatchRendererGroup Variants" setting to be "Keep All". The current setting will cause errors when building a player because all DOTS instancing shaders will be stripped. To fix, modify Graphics settings and set "BatchRendererGroup Variants" to "Keep All".
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+UnityEngine.Rendering.GPUResidentDrawer:LogMessage (string,UnityEngine.LogType) (at ./Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/GPUDriven/GPUResidentDrawer.Validator.cs:122)
+UnityEngine.Rendering.GPUResidentDrawer:Recreate (UnityEngine.Rendering.GPUResidentDrawerSettings) (at ./Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/GPUDriven/GPUResidentDrawer.cs:395)
+UnityEngine.Rendering.GPUResidentDrawer:Reinitialize () (at ./Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/GPUDriven/GPUResidentDrawer.cs:342)
+UnityEngine.Rendering.IGPUResidentRenderPipeline:ReinitializeGPUResidentDrawer () (at ./Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/GPUDriven/IGPUResidentRenderPipeline.cs:100)
+UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset:CreatePipeline () (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/Data/UniversalRenderPipelineAsset.cs:811)
+UnityEngine.Rendering.RenderPipelineAsset:InternalCreatePipeline () (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineAsset.cs:15)
+UnityEngine.Rendering.RenderPipelineManager:TryPrepareRenderPipeline (UnityEngine.Rendering.RenderPipelineAsset) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineManager.cs:172)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal (UnityEngine.Rendering.RenderPipelineAsset,intptr,object,Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineManager.cs:146)
+UnityEditor.EditorGUIUtility:RenderPlayModeViewCamerasInternal (UnityEngine.RenderTexture,int,UnityEngine.Vector2,bool,bool)
+UnityEditor.PlayModeView:RenderView (UnityEngine.Vector2,bool) (at /Users/bokken/build/output/unity/unity/Editor/Mono/PlayModeView/PlayModeView.cs:249)
+UnityEditor.GameView:OnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GameView/GameView.cs:1062)
+UnityEditor.HostView:InvokeOnGUI (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/HostView.cs:522)
+UnityEditor.DockArea:DrawView (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:411)
+UnityEditor.DockArea:OldOnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:402)
+UnityEngine.UIElements.IMGUIContainer:DoOnGUI (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,bool,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:387)
+UnityEngine.UIElements.IMGUIContainer:HandleIMGUIEvent (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:716)
+UnityEngine.UIElements.IMGUIContainer:DoIMGUIRepaint () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:573)
+UnityEngine.UIElements.UIR.RenderChainCommand:ExecuteNonDrawMesh (UnityEngine.UIElements.UIR.DrawParams,System.Exception&) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderers.cs:186)
+UnityEngine.UIElements.UIR.UIRenderDevice:EvaluateChain (UnityEngine.UIElements.UIR.RenderChainCommand,UnityEngine.Material,UnityEngine.Texture,UnityEngine.UIElements.UIR.ShaderInfoAllocator,System.Nullable`1<UnityEngine.Rect>,UnityEngine.Rect,single,bool,UnityEngine.UIElements.TextureSlotCount,bool,System.Exception&,UnityEngine.UIElements.BaseVisualElementPanel) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderDevice.cs:983)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderSingleTree (UnityEngine.UIElements.UIR.RenderTree,UnityEngine.RenderTexture,UnityEngine.RectInt,UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:604)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderRootTree () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:549)
+UnityEngine.UIElements.UIRRepaintUpdater:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRepaintUpdater.cs:160)
+UnityEngine.UIElements.BaseVisualElementPanel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1040)
+UnityEngine.UIElements.Panel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1851)
+UnityEditor.UIElements.EditorEventDispatchUtility:DoDispatch (UnityEngine.UIElements.BaseVisualElementPanel,UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/EditorEventDispatchUtility.cs:62)
+UnityEditor.UIElements.DefaultWindowBackend:ProcessEvent (UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/WindowBackends/DefaultWindowBackend.cs:114)
+UnityEditor.GUIView:ProcessEvent (UnityEngine.EntityId,intptr,bool&) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUIView.cs:70)
+
+(Filename: ./Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f/Runtime/GPUDriven/GPUResidentDrawer.Validator.cs Line: 122)
+
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Invalid AABB a
+Invalid AABB a
+Invalid AABB a
+Invalid AABB a
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Mesh 'HK_MenuRidge_Sırt1': abnormal mesh bounds - most likely it has some invalid vertices (+/-inifinity or NANs) due to errors exporting.
+Mesh bounds min=(-380.00, nan, 103.00), max=(380.00, nan, 173.00). Please make sure the mesh is exported without any errors.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.Rendering.ScriptableRenderContext:Internal_Cull (UnityEngine.Rendering.ScriptableCullingParameters&,UnityEngine.Rendering.ScriptableRenderContext,intptr)
+UnityEngine.Rendering.ScriptableRenderContext:Cull (UnityEngine.Rendering.ScriptableCullingParameters&) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/ScriptableRenderContext.cs:315)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderSingleCamera (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.UniversalCameraData) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1026)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderCameraStack (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Camera,bool) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1275)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:Render (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:629)
+UnityEngine.Rendering.RenderPipeline:InternalRender (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipeline.cs:58)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal (UnityEngine.Rendering.RenderPipelineAsset,intptr,object,Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineManager.cs:159)
+UnityEditor.EditorGUIUtility:RenderPlayModeViewCamerasInternal (UnityEngine.RenderTexture,int,UnityEngine.Vector2,bool,bool)
+UnityEditor.PlayModeView:RenderView (UnityEngine.Vector2,bool) (at /Users/bokken/build/output/unity/unity/Editor/Mono/PlayModeView/PlayModeView.cs:249)
+UnityEditor.GameView:OnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GameView/GameView.cs:1062)
+UnityEditor.HostView:InvokeOnGUI (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/HostView.cs:522)
+UnityEditor.DockArea:DrawView (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:411)
+UnityEditor.DockArea:OldOnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:402)
+UnityEngine.UIElements.IMGUIContainer:DoOnGUI (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,bool,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:387)
+UnityEngine.UIElements.IMGUIContainer:HandleIMGUIEvent (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:716)
+UnityEngine.UIElements.IMGUIContainer:DoIMGUIRepaint () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:573)
+UnityEngine.UIElements.UIR.RenderChainCommand:ExecuteNonDrawMesh (UnityEngine.UIElements.UIR.DrawParams,System.Exception&) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderers.cs:186)
+UnityEngine.UIElements.UIR.UIRenderDevice:EvaluateChain (UnityEngine.UIElements.UIR.RenderChainCommand,UnityEngine.Material,UnityEngine.Texture,UnityEngine.UIElements.UIR.ShaderInfoAllocator,System.Nullable`1<UnityEngine.Rect>,UnityEngine.Rect,single,bool,UnityEngine.UIElements.TextureSlotCount,bool,System.Exception&,UnityEngine.UIElements.BaseVisualElementPanel) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderDevice.cs:983)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderSingleTree (UnityEngine.UIElements.UIR.RenderTree,UnityEngine.RenderTexture,UnityEngine.RectInt,UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:604)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderRootTree () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:549)
+UnityEngine.UIElements.UIRRepaintUpdater:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRepaintUpdater.cs:160)
+UnityEngine.UIElements.BaseVisualElementPanel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1040)
+UnityEngine.UIElements.Panel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1851)
+UnityEditor.UIElements.EditorEventDispatchUtility:DoDispatch (UnityEngine.UIElements.BaseVisualElementPanel,UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/EditorEventDispatchUtility.cs:62)
+UnityEditor.UIElements.DefaultWindowBackend:ProcessEvent (UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/WindowBackends/DefaultWindowBackend.cs:114)
+UnityEditor.GUIView:ProcessEvent (UnityEngine.EntityId,intptr,bool&) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUIView.cs:70)
+
+[/Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs line 23]
+
+Mesh 'HK_MenuRidge_Sırt2': abnormal mesh bounds - most likely it has some invalid vertices (+/-inifinity or NANs) due to errors exporting.
+Mesh bounds min=(-500.00, nan, 160.00), max=(500.00, nan, 250.00). Please make sure the mesh is exported without any errors.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.Rendering.ScriptableRenderContext:Internal_Cull (UnityEngine.Rendering.ScriptableCullingParameters&,UnityEngine.Rendering.ScriptableRenderContext,intptr)
+UnityEngine.Rendering.ScriptableRenderContext:Cull (UnityEngine.Rendering.ScriptableCullingParameters&) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/ScriptableRenderContext.cs:315)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderSingleCamera (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.UniversalCameraData) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1026)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderCameraStack (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Camera,bool) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1275)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:Render (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:629)
+UnityEngine.Rendering.RenderPipeline:InternalRender (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipeline.cs:58)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal (UnityEngine.Rendering.RenderPipelineAsset,intptr,object,Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineManager.cs:159)
+UnityEditor.EditorGUIUtility:RenderPlayModeViewCamerasInternal (UnityEngine.RenderTexture,int,UnityEngine.Vector2,bool,bool)
+UnityEditor.PlayModeView:RenderView (UnityEngine.Vector2,bool) (at /Users/bokken/build/output/unity/unity/Editor/Mono/PlayModeView/PlayModeView.cs:249)
+UnityEditor.GameView:OnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GameView/GameView.cs:1062)
+UnityEditor.HostView:InvokeOnGUI (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/HostView.cs:522)
+UnityEditor.DockArea:DrawView (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:411)
+UnityEditor.DockArea:OldOnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:402)
+UnityEngine.UIElements.IMGUIContainer:DoOnGUI (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,bool,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:387)
+UnityEngine.UIElements.IMGUIContainer:HandleIMGUIEvent (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:716)
+UnityEngine.UIElements.IMGUIContainer:DoIMGUIRepaint () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:573)
+UnityEngine.UIElements.UIR.RenderChainCommand:ExecuteNonDrawMesh (UnityEngine.UIElements.UIR.DrawParams,System.Exception&) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderers.cs:186)
+UnityEngine.UIElements.UIR.UIRenderDevice:EvaluateChain (UnityEngine.UIElements.UIR.RenderChainCommand,UnityEngine.Material,UnityEngine.Texture,UnityEngine.UIElements.UIR.ShaderInfoAllocator,System.Nullable`1<UnityEngine.Rect>,UnityEngine.Rect,single,bool,UnityEngine.UIElements.TextureSlotCount,bool,System.Exception&,UnityEngine.UIElements.BaseVisualElementPanel) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderDevice.cs:983)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderSingleTree (UnityEngine.UIElements.UIR.RenderTree,UnityEngine.RenderTexture,UnityEngine.RectInt,UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:604)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderRootTree () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:549)
+UnityEngine.UIElements.UIRRepaintUpdater:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRepaintUpdater.cs:160)
+UnityEngine.UIElements.BaseVisualElementPanel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1040)
+UnityEngine.UIElements.Panel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1851)
+UnityEditor.UIElements.EditorEventDispatchUtility:DoDispatch (UnityEngine.UIElements.BaseVisualElementPanel,UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/EditorEventDispatchUtility.cs:62)
+UnityEditor.UIElements.DefaultWindowBackend:ProcessEvent (UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/WindowBackends/DefaultWindowBackend.cs:114)
+UnityEditor.GUIView:ProcessEvent (UnityEngine.EntityId,intptr,bool&) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUIView.cs:70)
+
+[/Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs line 23]
+
+Mesh 'HK_MenuRidge_Sırt3': abnormal mesh bounds - most likely it has some invalid vertices (+/-inifinity or NANs) due to errors exporting.
+Mesh bounds min=(-640.00, nan, 235.00), max=(640.00, nan, 345.00). Please make sure the mesh is exported without any errors.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.Rendering.ScriptableRenderContext:Internal_Cull (UnityEngine.Rendering.ScriptableCullingParameters&,UnityEngine.Rendering.ScriptableRenderContext,intptr)
+UnityEngine.Rendering.ScriptableRenderContext:Cull (UnityEngine.Rendering.ScriptableCullingParameters&) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/ScriptableRenderContext.cs:315)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderSingleCamera (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.UniversalCameraData) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1026)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderCameraStack (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Camera,bool) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1275)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:Render (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:629)
+UnityEngine.Rendering.RenderPipeline:InternalRender (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipeline.cs:58)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal (UnityEngine.Rendering.RenderPipelineAsset,intptr,object,Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineManager.cs:159)
+UnityEditor.EditorGUIUtility:RenderPlayModeViewCamerasInternal (UnityEngine.RenderTexture,int,UnityEngine.Vector2,bool,bool)
+UnityEditor.PlayModeView:RenderView (UnityEngine.Vector2,bool) (at /Users/bokken/build/output/unity/unity/Editor/Mono/PlayModeView/PlayModeView.cs:249)
+UnityEditor.GameView:OnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GameView/GameView.cs:1062)
+UnityEditor.HostView:InvokeOnGUI (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/HostView.cs:522)
+UnityEditor.DockArea:DrawView (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:411)
+UnityEditor.DockArea:OldOnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:402)
+UnityEngine.UIElements.IMGUIContainer:DoOnGUI (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,bool,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:387)
+UnityEngine.UIElements.IMGUIContainer:HandleIMGUIEvent (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:716)
+UnityEngine.UIElements.IMGUIContainer:DoIMGUIRepaint () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:573)
+UnityEngine.UIElements.UIR.RenderChainCommand:ExecuteNonDrawMesh (UnityEngine.UIElements.UIR.DrawParams,System.Exception&) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderers.cs:186)
+UnityEngine.UIElements.UIR.UIRenderDevice:EvaluateChain (UnityEngine.UIElements.UIR.RenderChainCommand,UnityEngine.Material,UnityEngine.Texture,UnityEngine.UIElements.UIR.ShaderInfoAllocator,System.Nullable`1<UnityEngine.Rect>,UnityEngine.Rect,single,bool,UnityEngine.UIElements.TextureSlotCount,bool,System.Exception&,UnityEngine.UIElements.BaseVisualElementPanel) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderDevice.cs:983)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderSingleTree (UnityEngine.UIElements.UIR.RenderTree,UnityEngine.RenderTexture,UnityEngine.RectInt,UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:604)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderRootTree () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:549)
+UnityEngine.UIElements.UIRRepaintUpdater:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRepaintUpdater.cs:160)
+UnityEngine.UIElements.BaseVisualElementPanel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1040)
+UnityEngine.UIElements.Panel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1851)
+UnityEditor.UIElements.EditorEventDispatchUtility:DoDispatch (UnityEngine.UIElements.BaseVisualElementPanel,UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/EditorEventDispatchUtility.cs:62)
+UnityEditor.UIElements.DefaultWindowBackend:ProcessEvent (UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/WindowBackends/DefaultWindowBackend.cs:114)
+UnityEditor.GUIView:ProcessEvent (UnityEngine.EntityId,intptr,bool&) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUIView.cs:70)
+
+[/Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs line 23]
+
+Mesh 'HK_MenuRidge_Sırt4': abnormal mesh bounds - most likely it has some invalid vertices (+/-inifinity or NANs) due to errors exporting.
+Mesh bounds min=(-820.00, nan, 330.00), max=(820.00, nan, 470.00). Please make sure the mesh is exported without any errors.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.Rendering.ScriptableRenderContext:Internal_Cull (UnityEngine.Rendering.ScriptableCullingParameters&,UnityEngine.Rendering.ScriptableRenderContext,intptr)
+UnityEngine.Rendering.ScriptableRenderContext:Cull (UnityEngine.Rendering.ScriptableCullingParameters&) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/ScriptableRenderContext.cs:315)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderSingleCamera (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.UniversalCameraData) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1026)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderCameraStack (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Camera,bool) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1275)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:Render (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:629)
+UnityEngine.Rendering.RenderPipeline:InternalRender (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipeline.cs:58)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal (UnityEngine.Rendering.RenderPipelineAsset,intptr,object,Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineManager.cs:159)
+UnityEditor.EditorGUIUtility:RenderPlayModeViewCamerasInternal (UnityEngine.RenderTexture,int,UnityEngine.Vector2,bool,bool)
+UnityEditor.PlayModeView:RenderView (UnityEngine.Vector2,bool) (at /Users/bokken/build/output/unity/unity/Editor/Mono/PlayModeView/PlayModeView.cs:249)
+UnityEditor.GameView:OnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GameView/GameView.cs:1062)
+UnityEditor.HostView:InvokeOnGUI (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/HostView.cs:522)
+UnityEditor.DockArea:DrawView (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:411)
+UnityEditor.DockArea:OldOnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:402)
+UnityEngine.UIElements.IMGUIContainer:DoOnGUI (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,bool,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:387)
+UnityEngine.UIElements.IMGUIContainer:HandleIMGUIEvent (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:716)
+UnityEngine.UIElements.IMGUIContainer:DoIMGUIRepaint () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:573)
+UnityEngine.UIElements.UIR.RenderChainCommand:ExecuteNonDrawMesh (UnityEngine.UIElements.UIR.DrawParams,System.Exception&) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderers.cs:186)
+UnityEngine.UIElements.UIR.UIRenderDevice:EvaluateChain (UnityEngine.UIElements.UIR.RenderChainCommand,UnityEngine.Material,UnityEngine.Texture,UnityEngine.UIElements.UIR.ShaderInfoAllocator,System.Nullable`1<UnityEngine.Rect>,UnityEngine.Rect,single,bool,UnityEngine.UIElements.TextureSlotCount,bool,System.Exception&,UnityEngine.UIElements.BaseVisualElementPanel) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderDevice.cs:983)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderSingleTree (UnityEngine.UIElements.UIR.RenderTree,UnityEngine.RenderTexture,UnityEngine.RectInt,UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:604)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderRootTree () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:549)
+UnityEngine.UIElements.UIRRepaintUpdater:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRepaintUpdater.cs:160)
+UnityEngine.UIElements.BaseVisualElementPanel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1040)
+UnityEngine.UIElements.Panel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1851)
+UnityEditor.UIElements.EditorEventDispatchUtility:DoDispatch (UnityEngine.UIElements.BaseVisualElementPanel,UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/EditorEventDispatchUtility.cs:62)
+UnityEditor.UIElements.DefaultWindowBackend:ProcessEvent (UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/WindowBackends/DefaultWindowBackend.cs:114)
+UnityEditor.GUIView:ProcessEvent (UnityEngine.EntityId,intptr,bool&) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUIView.cs:70)
+
+[/Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs line 23]
+
+Launched and connected shader compiler UnityShaderCompiler after 0.02 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.03 seconds
+[HAREKAT] SSR-lite: pürüzsüzlük alfası istenemedi (alan/özellik bulunamadı); ıslaklık sezgiseline düşülüyor.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+Project.Infrastructure.Rendering.Features.HarekatSsrLiteFeature:Fail (string) (at Assets/_Project/Scripts/Infrastructure/Rendering/Features/HarekatSsrLiteFeature.cs:114)
+Project.Infrastructure.Rendering.Features.HarekatSsrLiteFeature:RequestSmoothnessInNormals (UnityEngine.Rendering.Universal.RenderingData&) (at Assets/_Project/Scripts/Infrastructure/Rendering/Features/HarekatSsrLiteFeature.cs:88)
+Project.Infrastructure.Rendering.Features.HarekatSsrLiteFeature:AddRenderPasses (UnityEngine.Rendering.Universal.ScriptableRenderer,UnityEngine.Rendering.Universal.RenderingData&) (at Assets/_Project/Scripts/Infrastructure/Rendering/Features/HarekatSsrLiteFeature.cs:60)
+UnityEngine.Rendering.Universal.ScriptableRenderer:AddRenderPasses (UnityEngine.Rendering.Universal.RenderingData&) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/ScriptableRenderer.cs:1157)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderSingleCamera (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Rendering.Universal.UniversalCameraData) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1061)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:RenderCameraStack (UnityEngine.Rendering.ScriptableRenderContext,UnityEngine.Camera,bool) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:1275)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:Render (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Runtime/UniversalRenderPipeline.cs:629)
+UnityEngine.Rendering.RenderPipeline:InternalRender (UnityEngine.Rendering.ScriptableRenderContext,System.Collections.Generic.List`1<UnityEngine.Camera>) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipeline.cs:58)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal (UnityEngine.Rendering.RenderPipelineAsset,intptr,object,Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle) (at /Users/bokken/build/output/unity/unity/Runtime/Export/RenderPipeline/RenderPipelineManager.cs:159)
+UnityEditor.EditorGUIUtility:RenderPlayModeViewCamerasInternal (UnityEngine.RenderTexture,int,UnityEngine.Vector2,bool,bool)
+UnityEditor.PlayModeView:RenderView (UnityEngine.Vector2,bool) (at /Users/bokken/build/output/unity/unity/Editor/Mono/PlayModeView/PlayModeView.cs:249)
+UnityEditor.GameView:OnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GameView/GameView.cs:1062)
+UnityEditor.HostView:InvokeOnGUI (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/HostView.cs:522)
+UnityEditor.DockArea:DrawView (UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:411)
+UnityEditor.DockArea:OldOnGUI () (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUI/DockArea.cs:402)
+UnityEngine.UIElements.IMGUIContainer:DoOnGUI (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,bool,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:387)
+UnityEngine.UIElements.IMGUIContainer:HandleIMGUIEvent (UnityEngine.Event,UnityEngine.Matrix4x4,UnityEngine.Rect,System.Action,bool) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:716)
+UnityEngine.UIElements.IMGUIContainer:DoIMGUIRepaint () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/IMGUIContainer.cs:573)
+UnityEngine.UIElements.UIR.RenderChainCommand:ExecuteNonDrawMesh (UnityEngine.UIElements.UIR.DrawParams,System.Exception&) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderers.cs:186)
+UnityEngine.UIElements.UIR.UIRenderDevice:EvaluateChain (UnityEngine.UIElements.UIR.RenderChainCommand,UnityEngine.Material,UnityEngine.Texture,UnityEngine.UIElements.UIR.ShaderInfoAllocator,System.Nullable`1<UnityEngine.Rect>,UnityEngine.Rect,single,bool,UnityEngine.UIElements.TextureSlotCount,bool,System.Exception&,UnityEngine.UIElements.BaseVisualElementPanel) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRenderer/UIRenderDevice.cs:983)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderSingleTree (UnityEngine.UIElements.UIR.RenderTree,UnityEngine.RenderTexture,UnityEngine.RectInt,UnityEngine.Rect) (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:604)
+UnityEngine.UIElements.UIR.RenderTreeManager:RenderRootTree () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRenderTreeManager.cs:549)
+UnityEngine.UIElements.UIRRepaintUpdater:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Renderer/UIRRepaintUpdater.cs:160)
+UnityEngine.UIElements.BaseVisualElementPanel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1040)
+UnityEngine.UIElements.Panel:Render () (at /Users/bokken/build/output/unity/unity/Modules/UIElements/Core/Panel.cs:1851)
+UnityEditor.UIElements.EditorEventDispatchUtility:DoDispatch (UnityEngine.UIElements.BaseVisualElementPanel,UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/EditorEventDispatchUtility.cs:62)
+UnityEditor.UIElements.DefaultWindowBackend:ProcessEvent (UnityEngine.Event) (at /Users/bokken/build/output/unity/unity/Modules/UIElementsEditor/WindowBackends/DefaultWindowBackend.cs:114)
+UnityEditor.GUIView:ProcessEvent (UnityEngine.EntityId,intptr,bool&) (at /Users/bokken/build/output/unity/unity/Editor/Mono/GUIView.cs:70)
+
+(Filename: Assets/_Project/Scripts/Infrastructure/Rendering/Features/HarekatSsrLiteFeature.cs Line: 114)
+
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.02 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.02 seconds
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.02 seconds
+2026-10-06 04:22:10.786 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+2026-10-06 04:22:10.786 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+2026-10-06 04:22:10.786 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+2026-10-06 04:22:10.786 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+2026-10-06 04:22:10.787 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+2026-10-06 04:22:10.791 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+Start Indexing on Editor startup
+[Indexing] Starting Initial Indexing for Assets
+Curl error 7: Failed to connect to localhost port 5081 after 46 ms: Error
+
+Asset Pipeline Refresh (id=8b482524feb3b41079fd394cf5d76814): Total: 0.627 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=627 ms
+		Asset DB Callback time: managed=0 ms, native=0 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=1957, non-scripts=16987
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 1
+	ApplyChangesToAssetFolders: 0.141ms
+	Scan: 482.226ms
+	Collect global state as custom dependencies: 3.133ms
+	ProcessAssetsWithTransientArtifactChanges: 0.322ms
+	CategorizeAssets: 108.349ms
+	ImportOutOfDateAssets: 2.273ms (0.351ms without children)
+		ReloadNativeAssets: 0.204ms
+		UnloadImportedAssets: 0.063ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.329ms
+		ImportSchedulerStart: 0.325ms
+	GatherAllCurrentPrimaryImportResultRevisions: 0.959ms
+	UnloadStreamsBegin: 4.253ms
+	PersistCurrentRevisions: 0.381ms
+	Untracked: 24.840ms
+
+Created GICache directory at /Users/f2gomac/Library/Caches/com.unity3d.UnityEditor/GiCache. Took: 0.007s, timestamps: [15.338 - 15.346]
+[Diagnostics] client-errors HTTP: 0 Cannot connect to destination host
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+Project.Infrastructure.Diagnostics.ClientErrorReporter/<>c__DisplayClass7_0:<PostAsync>b__0 (UnityEngine.AsyncOperation) (at Assets/_Project/Scripts/Infrastructure/Diagnostics/ClientErrorReporter.cs:85)
+UnityEngine.AsyncOperation:InvokeCompletionEvent () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/AsyncOperation.cs:24)
+
+(Filename: Assets/_Project/Scripts/Infrastructure/Diagnostics/ClientErrorReporter.cs Line: 85)
+
+2026-10-06 04:22:11.601 Unity[2888:1589545] [Warning] TouchGestureResponder was not found in the responder chain during removal.
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Client] Successfully updated the access token
+[Licensing::Module] Successfully updated access token: "cMtFpKV8"... (expires: 2026-10-06T03:20:19Z)
+[Licensing::Client] Successfully resolved entitlement details

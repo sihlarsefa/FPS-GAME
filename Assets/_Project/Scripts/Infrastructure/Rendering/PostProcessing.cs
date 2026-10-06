@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Project.Core.Domain;
+using Project.Infrastructure.Rendering.Grading;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -20,9 +22,7 @@ namespace Project.Infrastructure.Rendering
         public const int MaxQuality = 3;
 
         /// <summary>Kalite seviyesine göre gölge mesafesi (m): Düşük, Orta, Yüksek, Ultra.</summary>
-        private static readonly float[] ShadowDistances = { 60f, 110f, 170f, 260f };
-        private static readonly int[] ShadowCascades = { 1, 2, 3, 4 };
-        private static readonly int[] ShadowResolutions = { 1024, 2048, 2048, 4096 };
+        // Gölge mesafesi/kademe/çözünürlük TEK KAYNAK: PipelineTiers (50/100/180/300 m; cascade 1/2/4/4; 1024/2048/2048/4096).
         private static readonly float[] LodBiases = { 0.7f, 1f, 1.4f, 2f };
 
         private static RuntimeGlobalVolume _current;
@@ -30,6 +30,24 @@ namespace Project.Infrastructure.Rendering
         private static bool _qualityApplied;
 
         // Geri bildirim (hasar / düşük can) — taban değerlere eklenir.
+        private static string _mapId = MapCatalog.Kuzgun;
+        private static bool _motionBlur;
+        private static float _adsBlur01;
+        private static bool _deathBlur;
+        private static float _deathTimer;
+
+        // Post 2.0: derecelendirme geçişi (0,5 sn) ve oyuncu efekt ayarları.
+        private static readonly ScreenEffectsMath.GradeBlender GradeBlend = new ScreenEffectsMath.GradeBlender();
+        private static TimeOfDay _timeOfDay = TimeOfDay.Gunduz;
+        // GradingPresets verisi (safak/gunduz/altin/mavi/gece/lobi + harita ofseti); gün saati geçişleri 2,5 sn yumuşak.
+        private static readonly GradeSpecBlender SpecBlend = new GradeSpecBlender();
+        private static bool _lobbyGrade;
+        private static bool _effectPrefsLoaded;
+        private static bool _dofEnabled = true;
+        private static bool _grainEnabled = true;
+        private const string PrefDof = "settings.dof";
+        private const string PrefGrain = "settings.grain";
+
         private static float _damageFeedback;
         private static float _lowHealthFeedback;
 
@@ -149,17 +167,25 @@ namespace Project.Infrastructure.Rendering
             if (urp != null)
             {
                 RememberAssetDefaults(urp);
-                urp.shadowDistance = shadowDistance;
-                try
+                // Gölge mesafesi/cascade/split'i PipelineTiers.ApplyRuntime yazar (çifte yazım yok); çözünürlük tablodan.
+                urp.mainLightShadowmapResolution = PipelineTiers.Get(level).ShadowResolution;
+            }
+
+            // 2b) Katman kırpma mesafeleri + arazi ağaç/ayrıntı (PerformanceProfile; null güvenli).
+            try
+            {
+                for (var i = 0; i < CameraRig.Active.Count; i++)
                 {
-                    urp.shadowCascadeCount = ShadowCascades[level];
-                }
-                catch (ArgumentException)
-                {
-                    // Geçersiz kademe sayısı — varlık değeri korunur.
+                    var rig = CameraRig.Active[i];
+                    if (rig != null)
+                        PerformanceProfile.ApplyToCamera(rig.WorldCamera, level);
                 }
 
-                urp.mainLightShadowmapResolution = ShadowResolutions[level];
+                PerformanceProfile.ApplyToTerrains(level);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[PostProcessing] Performans profili uygulanamadı: " + e.Message);
             }
 
             // 3) Kenar yumuşatma: Düşük/Orta FXAA, Yüksek/Ultra SMAA.
@@ -169,14 +195,30 @@ namespace Project.Infrastructure.Rendering
             if (!ReferenceEquals(pipelineBefore, GraphicsSettings.currentRenderPipeline))
                 CameraRig.RefreshAll();
 
+            // 3b) SSAO kademesi (yansıma; yoksa sessiz).
+            // Tek uygulayıcı: SSAO, renderer özellikleri, hacimsel sis, doku akışı, çimen/rüzgâr, VFX, arazi, yansıma.
+            QualityTierApplier.Apply(level, ActiveWorldCamera());
+
             // 4) Post-processing ayrıntısı.
             var current = Current;
             if (current != null && current.Volume != null && current.Volume.sharedProfile != null)
                 Configure(current.Volume.sharedProfile, current.Look, level);
         }
 
+        private static Camera ActiveWorldCamera()
+        {
+            try
+            {
+                for (var i = 0; i < CameraRig.Active.Count; i++)
+                    if (CameraRig.Active[i] != null && CameraRig.Active[i].WorldCamera != null)
+                        return CameraRig.Active[i].WorldCamera;
+            }
+            catch (Exception) { }
+            return Camera.main;
+        }
+
         /// <summary>Kalite seviyesine karşılık gelen gölge mesafesi (m).</summary>
-        public static float ShadowDistanceFor(int level) => ShadowDistances[Mathf.Clamp(level, MinQuality, MaxQuality)];
+        public static float ShadowDistanceFor(int level) => PipelineTiers.Get(Mathf.Clamp(level, MinQuality, MaxQuality)).ShadowDistance;
 
         /// <summary>
         /// Savaş geri bildirimi: damage01 (son hasarın şiddeti, zamanla sönümlendirmek çağıranın işidir) kırmızımsı
@@ -235,27 +277,276 @@ namespace Project.Infrastructure.Rendering
             // Bloom — yalnız HDR parlaklar (namlu alevi, iz mermisi, ateş). Düşük kalitede kapalı.
             var bloom = GetOrAdd<Bloom>(profile);
             bloom.active = qualityLevel > 0;
-            bloom.threshold.Override(menu ? 0.85f : 1.05f);
-            bloom.intensity.Override(menu ? 0.85f : (qualityLevel >= 3 ? 0.6f : 0.5f));
+            bloom.threshold.Override(menu ? 0.85f : 1.2f);
+            bloom.intensity.Override(menu ? 0.85f : (_timeOfDay == TimeOfDay.Gece ? 0.5f : (qualityLevel >= 3 ? 0.35f : 0.30f)));
             bloom.scatter.Override(menu ? 0.72f : 0.62f);
             bloom.tint.Override(menu ? new Color(1f, 0.88f, 0.74f) : Color.white);
 
             // Renk ayarları — oyun: hafif doygunluğu düşük, hafif zeytin tonlu askerî derecelendirme;
             // menü: sıcak gün batımı filtresi, daha yüksek kontrast.
-            var colorAdjustments = GetOrAdd<ColorAdjustments>(profile);
-            colorAdjustments.active = true;
-            colorAdjustments.postExposure.Override(menu ? 0.22f : 0.12f);
-            colorAdjustments.contrast.Override(menu ? 16f : 12f);
-            colorAdjustments.colorFilter.Override(menu ? new Color(1f, 0.9f, 0.78f) : new Color(0.97f, 0.98f, 0.93f));
-            colorAdjustments.hueShift.Override(0f);
-            colorAdjustments.saturation.Override(BaseSaturation(look));
+            GetOrAdd<ColorAdjustments>(profile).active = true;
+            GetOrAdd<WhiteBalance>(profile);
+            GetOrAdd<ShadowsMidtonesHighlights>(profile);
+            EnsureGrade();
+            ApplyGrade(profile, look);
 
             // Vinyet (yoğunluk ve renk ApplyFeedback'te: taban + hasar/düşük can).
             var vignette = GetOrAdd<Vignette>(profile);
             vignette.active = true;
             vignette.smoothness.Override(menu ? 0.45f : 0.4f);
 
+            // Hafif lens kusurları: kromatik sapma + film greni (Düşük kalitede kapalı).
+            var chroma = GetOrAdd<ChromaticAberration>(profile);
+            chroma.active = qualityLevel > 0;
+            chroma.intensity.Override(menu ? 0.05f : 0.02f);
+
+            var grain = GetOrAdd<FilmGrain>(profile);
+            LoadEffectPrefs();
+            grain.active = qualityLevel > 0 && _grainEnabled;
+            grain.type.Override(FilmGrainLookup.Thin1);
+            grain.intensity.Override(menu ? 0.12f : 0.10f);
+            grain.response.Override(0.8f);
+
+            // Alan derinliği: ADS ve ölüm kamerasında SetAimBlur/SetDeathBlur ile açılır (Gaussian, yakın bulanıklık).
+            var dof = GetOrAdd<DepthOfField>(profile);
+            dof.mode.Override(DepthOfFieldMode.Off);
+            dof.active = qualityLevel > 0 && _dofEnabled;
+            dof.gaussianMaxRadius.Override(qualityLevel >= 3 ? 1.2f : 0.9f);
+            dof.highQualitySampling.Override(qualityLevel >= 3);
+
+            // Hareket bulanıklığı (ayar): yalnız Orta+ kalitede ve seçenek açıksa.
+            var mb = GetOrAdd<MotionBlur>(profile);
+            mb.active = _motionBlur && qualityLevel > 0 && !menu;
+            mb.mode.Override(MotionBlurMode.CameraOnly);
+            mb.quality.Override(qualityLevel >= 3 ? MotionBlurQuality.High : qualityLevel == 2 ? MotionBlurQuality.Medium : MotionBlurQuality.Low);
+            mb.intensity.Override(0.25f);
+            mb.clamp.Override(0.05f);
+
             ApplyFeedback(profile, look);
+            ApplyDepthOfField(profile);
+        }
+
+        private static Vector4 ToVector(float[] v) => new Vector4(v[0], v[1], v[2], v[3]);
+
+        /// <summary>Harita derecelendirmesini (Kuzgun sıcak-zeytin, Ayaz soğuk-mavi, Mavi Liman turkuaz) uygular.</summary>
+        public static void ApplyMapGrade(string mapId)
+        {
+            _mapId = MapCatalog.Normalize(mapId);
+            _timeOfDay = Atmosphere.CurrentTime;
+            RetargetGrade();
+        }
+
+        /// <summary>Günün saatine göre derecelendirme preseti; 0,5 sn'de yumuşak geçer.</summary>
+        public static void SetTimeOfDay(TimeOfDay time)
+        {
+            _timeOfDay = time;
+            RetargetGrade();
+        }
+
+        /// <summary>Menü/lobi: "mavi saat + kırmızı vurgu" presetini açar/kapatır (MenuBackdrop çağırır).</summary>
+        public static void SetLobbyGrade(bool on)
+        {
+            if (_lobbyGrade == on) return;
+            _lobbyGrade = on;
+            RetargetGrade();
+        }
+
+        private static GradeSpec SpecTarget() => _lobbyGrade
+            ? GradingPresets.For(_mapId, GradeStage.Lobi)
+            : GradingPresets.For(_mapId, _timeOfDay);
+
+        private static void RetargetGrade()
+        {
+            SpecBlend.SetTarget(SpecTarget());
+            GradeBlend.SetTarget(ScreenEffectsMath.BuildGrade(MapGradeTable.For(_mapId), _timeOfDay));
+            // Profil hemen güncellenmez: Tick kare kare harmanlar; hacim yoksa/ilk kurulumda Configure anında uygular.
+            var current = Current;
+            if (current != null && current.Volume != null && current.Volume.sharedProfile != null && !GradeBlend.Blending && !SpecBlend.Blending)
+                ApplyGrade(current.Volume.sharedProfile, current.Look);
+        }
+
+        private static void EnsureGrade()
+        {
+            if (!SpecBlend.HasTarget)
+                SpecBlend.SetTarget(SpecTarget(), true);
+            if (!GradeBlend.HasTarget)
+                GradeBlend.SetTarget(ScreenEffectsMath.BuildGrade(MapGradeTable.For(_mapId), _timeOfDay), true);
+        }
+
+        /// <summary>Her karede RuntimeGlobalVolume tarafından çağrılır: grade harmanı ve ölüm DoF eğrisi.</summary>
+        internal static void Tick(float unscaledDeltaTime)
+        {
+            var current = Current;
+            if (current == null || current.Volume == null || current.Volume.sharedProfile == null)
+                return;
+            var profile = current.Volume.sharedProfile;
+            var specMoved = SpecBlend.Advance(unscaledDeltaTime);
+            if (GradeBlend.Advance(unscaledDeltaTime) || specMoved)
+                ApplyGrade(profile, current.Look);
+            if (_deathBlur)
+            {
+                _deathTimer += Mathf.Max(0f, unscaledDeltaTime);
+                ApplyDepthOfField(profile);
+            }
+        }
+
+        private static void ApplyGrade(VolumeProfile profile, Look look)
+        {
+            if (profile == null || !GradeBlend.HasTarget)
+                return;
+            var menu = look == Look.Menu;
+            var g = GradeBlend.Current;
+            var spec = SpecBlend.HasTarget ? SpecBlend.Current : GradeSpec.Neutral;
+            // Menü: lobi presetı kapalıysa eski sıcak menü görünümü; açıksa preset (mavi saat + kırmızı vurgu) uygulanır.
+            var legacyMenu = menu && !_lobbyGrade;
+
+            if (profile.TryGet<ColorAdjustments>(out var ca))
+            {
+                ca.postExposure.Override(legacyMenu ? 0.22f : spec.PostExposure + g[ScreenEffectsMath.GradeExposure] - ScreenEffectsMath.TimeExposure(_timeOfDay));
+                ca.contrast.Override(legacyMenu ? 16f : spec.Contrast);
+                ca.colorFilter.Override(menu
+                    ? (_lobbyGrade ? Color.white : new Color(1f, 0.9f, 0.78f))
+                    : new Color(g[ScreenEffectsMath.GradeFilter], g[ScreenEffectsMath.GradeFilter + 1], g[ScreenEffectsMath.GradeFilter + 2]));
+                ca.hueShift.Override(0f);
+                ca.saturation.Override(Mathf.Clamp(BaseSaturation(look) - _lowHealthFeedback * 45f, -100f, 100f));
+            }
+
+            if (profile.TryGet<WhiteBalance>(out var wb) && legacyMenu)
+            {
+                wb.active = false; wb.temperature.Override(0f); wb.tint.Override(0f);
+            }
+            if (!legacyMenu)
+                GradingWriter.Apply(profile, spec, true);
+
+            if (profile.TryGet<ShadowsMidtonesHighlights>(out var smh))
+            {
+                smh.active = !legacyMenu;
+                var neutral = new Vector4(1f, 1f, 1f, 0f);
+                // Harita SMH'si (g) ile preset SMH'si çarpılır; menüde yalnız preset.
+                smh.shadows.Override(legacyMenu ? neutral : MulVec(menu ? neutral : GradeVec(g, ScreenEffectsMath.GradeShadows), spec.Shadows));
+                smh.midtones.Override(legacyMenu ? neutral : MulVec(menu ? neutral : GradeVec(g, ScreenEffectsMath.GradeMidtones), spec.Midtones));
+                smh.highlights.Override(legacyMenu ? neutral : MulVec(menu ? neutral : GradeVec(g, ScreenEffectsMath.GradeHighlights), spec.Highlights));
+            }
+        }
+
+        private static Vector4 MulVec(Vector4 a, Vector4 b) => new Vector4(a.x * b.x, a.y * b.y, a.z * b.z, Mathf.Clamp(a.w + b.w, -1f, 1f));
+
+        private static Vector4 GradeVec(float[] g, int i) => new Vector4(g[i], g[i + 1], g[i + 2], g[i + 3]);
+
+        // ---------------------------------------------------------------- Oyuncu efekt ayarları (DoF / film greni)
+
+        public static bool DepthOfFieldEnabled { get { LoadEffectPrefs(); return _dofEnabled; } }
+        public static bool FilmGrainEnabled { get { LoadEffectPrefs(); return _grainEnabled; } }
+
+        /// <summary>Alan derinliği (ADS/ölüm bulanıklığı) ayarı; PlayerPrefs'te saklanır.</summary>
+        public static void SetDepthOfFieldEnabled(bool enabled)
+        {
+            LoadEffectPrefs();
+            _dofEnabled = enabled;
+            SaveEffectPref(PrefDof, enabled);
+            ReconfigureCurrent();
+        }
+
+        /// <summary>Film greni ayarı; PlayerPrefs'te saklanır.</summary>
+        public static void SetFilmGrainEnabled(bool enabled)
+        {
+            LoadEffectPrefs();
+            _grainEnabled = enabled;
+            SaveEffectPref(PrefGrain, enabled);
+            ReconfigureCurrent();
+        }
+
+        private static void ReconfigureCurrent()
+        {
+            var current = Current;
+            if (current != null && current.Volume != null && current.Volume.sharedProfile != null)
+                Configure(current.Volume.sharedProfile, current.Look, _qualityApplied ? _qualityLevel : DefaultQuality());
+        }
+
+        private static void LoadEffectPrefs()
+        {
+            if (_effectPrefsLoaded)
+                return;
+            _effectPrefsLoaded = true;
+            try
+            {
+                _dofEnabled = PlayerPrefs.GetInt(PrefDof, 1) != 0;
+                _grainEnabled = PlayerPrefs.GetInt(PrefGrain, 1) != 0;
+            }
+            catch (Exception)
+            {
+                // PlayerPrefs erişilemezse varsayılan (açık).
+            }
+        }
+
+        private static void SaveEffectPref(string key, bool value)
+        {
+            try { PlayerPrefs.SetInt(key, value ? 1 : 0); }
+            catch (Exception) { }
+        }
+
+        /// <summary>Hareket bulanıklığı ayarı (Ayarlar > Hareket bulanıklığı).</summary>
+        public static void SetMotionBlur(bool enabled)
+        {
+            if (_motionBlur == enabled)
+                return;
+            _motionBlur = enabled;
+            var current = Current;
+            if (current != null && current.Volume != null && current.Volume.sharedProfile != null
+                && current.Volume.sharedProfile.TryGet<MotionBlur>(out var mb))
+                mb.active = enabled && _qualityLevel > 0 && current.Look == Look.Gameplay;
+        }
+
+        /// <summary>Nişan (ADS) derinlik bulanıklığı: 0 kapalı, 1 tam nişan. Her karede çağrılabilir.</summary>
+        public static void SetAimBlur(float ads01)
+        {
+            ads01 = Mathf.Clamp01(ads01);
+            if (Mathf.Approximately(ads01, _adsBlur01))
+                return;
+            _adsBlur01 = ads01;
+            ApplyDepthOfFieldToCurrent();
+        }
+
+        /// <summary>Ölüm kamerası bulanıklığı (yakın bulanıklık + gaussian).</summary>
+        public static void SetDeathBlur(bool on)
+        {
+            if (_deathBlur == on)
+                return;
+            _deathBlur = on;
+            _deathTimer = 0f;
+            ApplyDepthOfFieldToCurrent();
+        }
+
+        private static void ApplyDepthOfFieldToCurrent()
+        {
+            var current = Current;
+            if (current != null && current.Volume != null && current.Volume.sharedProfile != null)
+                ApplyDepthOfField(current.Volume.sharedProfile);
+        }
+
+        private static void ApplyDepthOfField(VolumeProfile profile)
+        {
+            if (!profile.TryGet<DepthOfField>(out var dof))
+                return;
+            var amount = _deathBlur ? 1f : _adsBlur01;
+            if (amount <= 0.001f)
+            {
+                dof.mode.Override(DepthOfFieldMode.Off);
+                return;
+            }
+
+            dof.mode.Override(DepthOfFieldMode.Gaussian);
+            if (_deathBlur)
+            {
+                dof.gaussianStart.Override(0.1f);
+                dof.gaussianEnd.Override(ScreenEffectsMath.DeathDofEnd(_deathTimer));
+                dof.gaussianMaxRadius.Override(Mathf.Clamp(ScreenEffectsMath.DeathDofRadius(_deathTimer), 0.5f, 1.5f));
+            }
+            else
+            {
+                dof.gaussianStart.Override(ScreenEffectsMath.AdsDofStart(amount));
+                dof.gaussianEnd.Override(ScreenEffectsMath.AdsDofEnd(amount));
+            }
         }
 
         // ---------------------------------------------------------------- RuntimeGlobalVolume hooks
@@ -295,9 +586,9 @@ namespace Project.Infrastructure.Rendering
 
         // ---------------------------------------------------------------- Helpers
 
-        private static float BaseSaturation(Look look) => look == Look.Menu ? -6f : -18f;
+        private static float BaseSaturation(Look look) => (look == Look.Menu && !_lobbyGrade) ? -6f : (SpecBlend.HasTarget ? SpecBlend.Current.Saturation : MapGradeTable.For(_mapId).Saturation);
 
-        private static float BaseVignette(Look look) => look == Look.Menu ? 0.36f : 0.26f;
+        private static float BaseVignette(Look look) => look == Look.Menu ? 0.36f : 0.12f;
 
         private static void ApplyFeedback(VolumeProfile profile, Look look)
         {
@@ -466,6 +757,14 @@ namespace Project.Infrastructure.Rendering
             _current = null;
             _qualityApplied = false;
             _qualityLevel = 2;
+            _mapId = MapCatalog.Kuzgun;
+            _adsBlur01 = 0f;
+            _deathBlur = false;
+            _deathTimer = 0f;
+            _timeOfDay = TimeOfDay.Gunduz;
+            _lobbyGrade = false;
+            SpecBlend.Reset();
+            _effectPrefsLoaded = false;
             _damageFeedback = 0f;
             _lowHealthFeedback = 0f;
 #if UNITY_EDITOR

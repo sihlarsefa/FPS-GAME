@@ -93,6 +93,7 @@ namespace Project.Presentation.UI
         private static readonly string[] RowLabels = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
         private static readonly string[] CellLabels = BuildCellLabels();
         private static readonly string[] BearingNames = { "K", "KD", "D", "GD", "G", "GB", "B", "KB" };
+        private static readonly int[] ScaleSteps = { 10, 25, 50, 100, 200, 250, 500, 1000 };
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
 
         // ------------------------------------------------------------------ Pafta
@@ -255,6 +256,122 @@ namespace Project.Presentation.UI
             }
 
             return new string(chars);
+        }
+
+        // ------------------------------------------------------------------ Karelaj (askeri koordinat)
+
+        /// <summary>Basitleştirilmiş karelaj bölge/şerit kodu (UTM benzeri, Türkiye için).</summary>
+        public const string GridZoneCode = "36S";
+
+        /// <summary>Basitleştirilmiş 100 km kare harfleri.</summary>
+        public const string GridSquareCode = "KD";
+
+        /// <summary>
+        /// Askeri karelaj koordinatı (basitleştirilmiş MGRS): "36S KD 051 087". Doğu/kuzey, haritanın güneybatı köşesinden
+        /// 10 m adımlarla üç hane (haritanın dışı sınırlandırılır). Tahsis eder; yalnızca değer değişince çağırın.
+        /// </summary>
+        public static string MilitaryGrid(MapFrame frame, Vector3 world)
+        {
+            GridDigits(frame, world, out var easting, out var northing);
+            return FormatMilitaryGrid(easting, northing);
+        }
+
+        /// <summary>Karelaj hanelerini (0..999; 10 m adım) verir.</summary>
+        public static void GridDigits(MapFrame frame, Vector3 world, out int easting, out int northing)
+        {
+            easting = Mathf.Clamp(Mathf.FloorToInt((world.x - frame.MinX) / 10f), 0, 999);
+            northing = Mathf.Clamp(Mathf.FloorToInt((world.z - frame.MinZ) / 10f), 0, 999);
+        }
+
+        /// <summary>"36S KD 051 087" biçimi.</summary>
+        public static string FormatMilitaryGrid(int easting, int northing)
+        {
+            easting = Mathf.Clamp(easting, 0, 999);
+            northing = Mathf.Clamp(northing, 0, 999);
+            return GridZoneCode + " " + GridSquareCode + " " + easting.ToString("000", Invariant) + " " + northing.ToString("000", Invariant);
+        }
+
+        /// <summary>İki nokta arası ölçüm yazısı: "320 m · 045° KD".</summary>
+        public static string FormatMeasure(Vector3 from, Vector3 to)
+        {
+            var bearing = BearingTo(from, to);
+            return FormatDistance(DistanceXZ(from, to)) + " · "
+                   + BearingDegrees(bearing).ToString("000", Invariant) + "° " + BearingName(bearing);
+        }
+
+        // ------------------------------------------------------------------ Dönen mini harita / yakınlaştırma
+
+        /// <summary>
+        /// Kuzey-yukarı arayüz ofsetini, bakış yönü yukarıda olacak şekilde döndürür (saat yönünün tersine <paramref name="yawDegrees"/>).
+        /// Doğuya (yaw 90) bakan oyuncu için doğudaki nokta yukarıya gelir.
+        /// </summary>
+        public static Vector2 RotateOffset(Vector2 offset, float yawDegrees)
+        {
+            var r = yawDegrees * Mathf.Deg2Rad;
+            var cos = Mathf.Cos(r);
+            var sin = Mathf.Sin(r);
+            return new Vector2(offset.x * cos - offset.y * sin, offset.x * sin + offset.y * cos);
+        }
+
+        /// <summary>Dünya sapması yawDegrees olan bir nesnenin, harita yawMap kadar döndürülmüşken arayüz Z açısı.</summary>
+        public static float RotatedUiAngle(float objectYaw, float mapRotationYaw)
+        {
+            return YawToUiAngle(objectYaw) + NormalizeDegrees(mapRotationYaw);
+        }
+
+        /// <summary>Verilen noktaya en yakın bölge çemberi noktası (merkez=nokta ise merkezin kendisi değil +X yönü).</summary>
+        public static Vector3 NearestPointOnCircle(Vector3 from, float centerX, float centerZ, float radius)
+        {
+            var dx = from.x - centerX;
+            var dz = from.z - centerZ;
+            var d = Mathf.Sqrt(dx * dx + dz * dz);
+            if (d < 1e-4f)
+                return new Vector3(centerX + radius, from.y, centerZ);
+            var k = radius / d;
+            return new Vector3(centerX + dx * k, from.y, centerZ + dz * k);
+        }
+
+        /// <summary>Ping radyal menüsü dilimi: 0 = yukarı (Gidiyorum), 1 = sağ (Düşman), 2 = aşağı (Yağma), 3 = sol (Tehlike); ölü bölgede -1.</summary>
+        public static int RadialSlice(Vector2 offset, float deadZone)
+        {
+            if (float.IsNaN(offset.x) || float.IsNaN(offset.y) || offset.sqrMagnitude < deadZone * deadZone)
+                return -1;
+            if (Mathf.Abs(offset.y) >= Mathf.Abs(offset.x))
+                return offset.y >= 0f ? 0 : 2;
+            return offset.x >= 0f ? 1 : 3;
+        }
+
+        /// <summary>Yakınlaştırma yüzdesi (1 = %100).</summary>
+        public static int ZoomPercent(float zoom) => Mathf.RoundToInt(Mathf.Max(0f, zoom) * 100f);
+
+        /// <summary>Yakınlaştırma sonrası harita odağı (UV): imlecin altındaki nokta ekranda sabit kalır.</summary>
+        public static Vector2 ZoomFocus(Vector2 focus, Vector2 pivotUv, float oldPixels, float newPixels)
+        {
+            if (oldPixels <= 0f || newPixels <= 0f)
+                return focus;
+            var offsetPx = (pivotUv - focus) * oldPixels;
+            return pivotUv - offsetPx / newPixels;
+        }
+
+        /// <summary>Harita odağını görünür alan haritanın içinde kalacak şekilde sınırlar.</summary>
+        public static Vector2 ClampFocus(Vector2 focus, float zoom)
+        {
+            var half = 0.5f / Mathf.Max(1f, zoom);
+            var x = float.IsNaN(focus.x) ? 0.5f : focus.x;
+            var y = float.IsNaN(focus.y) ? 0.5f : focus.y;
+            return new Vector2(Mathf.Clamp(x, half, 1f - half), Mathf.Clamp(y, half, 1f - half));
+        }
+
+        /// <summary>Ölçek çubuğu için en az <paramref name="minPixels"/> piksel genişliğinde yuvarlak mesafe (m).</summary>
+        public static int NiceScaleMeters(float pixelsPerMeter, float minPixels)
+        {
+            for (var i = 0; i < ScaleSteps.Length; i++)
+            {
+                if (ScaleSteps[i] * pixelsPerMeter >= minPixels)
+                    return ScaleSteps[i];
+            }
+
+            return ScaleSteps[ScaleSteps.Length - 1];
         }
 
         // ------------------------------------------------------------------ İşaretçi yardımcıları

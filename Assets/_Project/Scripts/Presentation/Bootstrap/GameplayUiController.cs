@@ -25,6 +25,7 @@ namespace Project.Presentation.Bootstrap
         private FullMapView _map;
         private InventoryView _inventory;
         private PauseMenu _pause;
+        private ScoreboardView _scoreboard;
         private Canvas _overlayCanvas;
         private Action _onMainMenu;
         private bool _endScreenActive;
@@ -42,6 +43,9 @@ namespace Project.Presentation.Bootstrap
         /// <summary>Duraklatma, harita, envanter ya da maç sonu ekranı açık mı?</summary>
         public bool AnyOverlayOpen =>
             _endScreenActive || IsOpen(_pause) || (_map != null && _map.IsOpen) || (_inventory != null && _inventory.IsOpen);
+
+        /// <summary>İmleç serbest/oyun girdisi kapalı olmalı mı: katmanlar ya da (metin girişi için) konsol açık.</summary>
+        private bool CursorOverlayOpen => AnyOverlayOpen || OverlayState.ConsoleOpen;
 
         /// <summary>Tam haritada işaretlenen nokta (tim emri/topçu hedefi için ek bilgi).</summary>
         public Vector3? LastMapMarker { get; private set; }
@@ -109,7 +113,7 @@ namespace Project.Presentation.Bootstrap
                 BootstrapUtility.Try(_pause.Close, "PauseMenu.Close");
 
             Time.timeScale = 1f;
-            ApplyCursorAndInput(AnyOverlayOpen);
+            ApplyCursorAndInput(CursorOverlayOpen);
         }
 
         private void Build(PlayerController player, SettingsService settings, Action onMainMenu)
@@ -131,6 +135,7 @@ namespace Project.Presentation.Bootstrap
                 {
                     _map = BootstrapUtility.Try(() => FullMapView.Create(overlayRoot, player), "FullMapView.Create");
                     _inventory = BootstrapUtility.Try(() => InventoryView.Create(overlayRoot, player), "InventoryView.Create");
+                    _scoreboard = BootstrapUtility.Try(() => ScoreboardView.Create(overlayRoot), "ScoreboardView.Create");
                 }
 
                 if (_map != null)
@@ -141,13 +146,24 @@ namespace Project.Presentation.Bootstrap
             ApplyCursorAndInput(false);
         }
 
+        private bool _wasCapturing;
+
         private void Update()
         {
             ReadUiInput(out var pausePressed, out var mapPressed, out var inventoryPressed);
 
+            // Tek sahip kuralı: konsol/çark/kozmetik açıkken ya da bu karede Esc ile kapandıysa duraklatma açılmaz;
+            // konsol yazarken (ve tuş atama yakalarken) M/Tab/I harf girişi sayılır, harita/envanter açılmaz.
+            if (OverlayState.EscapeOwnedByTransient)
+                pausePressed = false;
+            if (OverlayState.TextInputActive)
+                mapPressed = inventoryPressed = false;
+
             if (!_endScreenActive)
             {
-                if (pausePressed)
+                // Tuş atama yakalanırken (ve iptal edildiği karede) Esc duraklatmayı açıp kapatmasın.
+                var capturing = KeyBindingsPanel.IsCapturing || _wasCapturing;
+                if (pausePressed && !capturing)
                     HandleEscape();
                 else if (!IsOpen(_pause))
                 {
@@ -170,7 +186,11 @@ namespace Project.Presentation.Bootstrap
                     BootstrapUtility.Try(_inventory.Toggle, "InventoryView.Toggle");
             }
 
-            ApplyCursorAndInput(AnyOverlayOpen);
+            if (_scoreboard != null)
+                _scoreboard.Suppressed = _endScreenActive || IsOpen(_pause) || OverlayState.TextInputActive;
+
+            _wasCapturing = KeyBindingsPanel.IsCapturing;
+            ApplyCursorAndInput(CursorOverlayOpen);
         }
 
         private void HandleEscape()
@@ -191,7 +211,12 @@ namespace Project.Presentation.Bootstrap
                 return;
 
             if (_pause.IsOpen)
+            {
+                // Ayar / onay penceresi açıksa Esc yalnızca onu kapatır.
+                if (_pause.HandleBack())
+                    return;
                 OnResumeRequested();
+            }
             else
                 BootstrapUtility.Try(_pause.Open, "PauseMenu.Open");
         }
@@ -215,8 +240,8 @@ namespace Project.Presentation.Bootstrap
             }
 
             pause = keyboard.escapeKey.wasPressedThisFrame;
-            map = keyboard.mKey.wasPressedThisFrame;
-            inventory = keyboard.tabKey.wasPressedThisFrame || keyboard.iKey.wasPressedThisFrame;
+            map = Project.Infrastructure.Input.InputBindings.Pressed(BindAction.Map);
+            inventory = Project.Infrastructure.Input.InputBindings.Pressed(BindAction.Inventory);
         }
 
         private void ApplyCursorAndInput(bool overlayOpen)

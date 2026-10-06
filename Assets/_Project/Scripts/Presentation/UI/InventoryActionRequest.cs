@@ -16,7 +16,9 @@ namespace Project.Presentation.UI
         /// <summary>Tıbbi malzeme / takviye kullanmaya başla.</summary>
         UseItem = 4,
         /// <summary>Süren eşya kullanımını iptal et.</summary>
-        CancelUse = 5
+        CancelUse = 5,
+        /// <summary>Yerdeki eşyayı al (<see cref="InventoryActionRequest.SpawnId"/>; sunucu mesafeyi doğrular).</summary>
+        PickupLoot = 6
     }
 
     /// <summary>
@@ -40,8 +42,12 @@ namespace Project.Presentation.UI
         /// <summary>Bırakılacak adet (DropStack), yoksa 0.</summary>
         public int Quantity { get; }
 
-        public InventoryActionRequest(InventoryActionKind kind, int slot, ItemCategory category, string itemId, int quantity)
+        /// <summary>Yerdeki eşyanın <c>LootPickupComponent.SpawnId</c> değeri (PickupLoot), yoksa 0.</summary>
+        public int SpawnId { get; }
+
+        public InventoryActionRequest(InventoryActionKind kind, int slot, ItemCategory category, string itemId, int quantity, int spawnId = 0)
         {
+            SpawnId = spawnId;
             Kind = kind;
             Slot = slot;
             Category = category;
@@ -54,8 +60,9 @@ namespace Project.Presentation.UI
         public static InventoryActionRequest DropEquipment(ItemCategory category) => new InventoryActionRequest(InventoryActionKind.DropEquipment, -1, category, null, 1);
         public static InventoryActionRequest DropStack(string itemId, int quantity) => new InventoryActionRequest(InventoryActionKind.DropStack, -1, ItemCategory.None, itemId, quantity);
         public static InventoryActionRequest Use(string itemId) => new InventoryActionRequest(InventoryActionKind.UseItem, -1, ItemCategory.None, itemId, 1);
+        public static InventoryActionRequest PickupLoot(int spawnId) => new InventoryActionRequest(InventoryActionKind.PickupLoot, -1, ItemCategory.None, null, 1, spawnId);
         public static InventoryActionRequest Cancel() => new InventoryActionRequest(InventoryActionKind.CancelUse, -1, ItemCategory.None, null, 0);
 
-        public override string ToString() => Kind + " slot=" + Slot + " cat=" + Category + " item=" + (ItemId ?? "-") + " x" + Quantity;
+        public override string ToString() => Kind + " slot=" + Slot + " cat=" + Category + " item=" + (ItemId ?? "-") + " x" + Quantity + (SpawnId != 0 ? " spawn=" + SpawnId : string.Empty);
     }
 }

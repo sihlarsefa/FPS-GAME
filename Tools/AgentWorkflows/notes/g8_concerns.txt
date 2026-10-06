@@ -1,0 +1,36 @@
+### R6-kucuk-his is done. The default compile and the tests are clean: 0 errors in Core, Application, Infrastructure, Presentation, Editor and Tests, and 922 of 922 tests pass. The `--player` build has 1 
+  - ENTEGRASYON: Presentation/Player/PlayerWeaponHandler.cs: after `_owner.CameraController?.AddRecoil(pitch, yaw);` call `_owner.AddCameraKick(pitch, yaw);` so the camera kick follows the real recoil. For now PlayerController kicks a fixed small amount per WeaponFiredEvent.
+  - The --player build fails in Infrastructure/Rendering/CombatScreenFx.cs(74): Vignette.rounded is missing. It is another agent's file, not mine, and it blocks the Presentation[player] compile check.
+  - I did not change CameraRig.cs; its existing kick and undo logic is already correct. Nothing else writes the rig's own rotation, because the look controller writes the pivot. Only the death camera writes the offset transform above the rig.
+  - FirstPersonCameraController already scaled sensitivity by FOV (tan ratio). The new option only turns that scaling on or off, and no separate linear mode was added.
+### Baskı efekti sistemi yazıldı. Verify: 0 hata, 922 test geçti (7 yeni test dahil). Kendini çalışma anında kuruyor (RuntimeInitializeOnLoadMethod), sahne kurulumu gerekmiyor. Efektler ayrı bir yerel Vol
+  - ENTEGRASYON: Infrastructure/Audio (Acoustics.OnBulletPassed): Project.Presentation.Player.Suppression.ReportNearMiss(Vector3 point, float caliberMm, float distanceToPlayer) çağrısı, yalnız yerel oyuncunun yanından geçen mermi için.
+  - ENTEGRASYON: Infrastructure/AI/BotController.Combat.cs: bot yerel oyuncuya ateş ederken (MG/otomatik) Suppression.ReportIncomingFire(distance, caliberMm) çağır.
+  - ENTEGRASYON: Combat/ExplosionSystem.cs: patlamada Suppression.ReportExplosion(point, radius, distanceToLocalPlayer) çağır (PlayerCameraFx.NotifyExplosion yanında).
+  - ENTEGRASYON: Presentation/Player/PlayerWeaponHandler*.cs / viewmodel sallantısı: nişan ve silah sallantısını Suppression.SwayMultiplier ile çarp (1 = normal).
+  - Suppression.cs içinde Project.Presentation.Player katmanından Infrastructure.Rendering'e bağımlılık var (izinli yön); CombatScreenFx statik girdi alanlarını Presentation sürücüsü yazıyor.
+  - PostProcessing.SetCombatFeedback'in başka çağıranı yok. Düşük can efekti artık CombatScreenFx'te; ikisi aynı anda çağrılırsa vinyet üst üste biner.
+  - Bulanıklık için Gaussian DepthOfField yüksek öncelikli Volume'da override ediliyor. ADS DoF ile çakışırsa yalnız sersemletme/baskı sırasında geçici olarak ezer. Unity'de görsel olarak denenmedi (burada derlenemiyor).
+### R3 is done in part: magazine reloads (pistol, rifle, bolt-action) now run from a keyed pose timeline. The rest of the scope is not built. Verify shows 0 errors in all projects and 922 tests passed. Ma
+  - ENTEGRASYON: Presentation/Player/PlayerWeaponHandler.cs (SyncReloadAnimation): call viewModel.PlayReload(weapon.CurrentAmmo == 0, weapon.ReloadDuration) instead of PlayReload(weapon.ReloadDuration), otherwise empty reloads animate as tactical.
+  - ENTEGRASYON: PlayerWeaponHandler.cs: call viewModel.PlayDryFire() when the trigger is pulled on an empty magazine, and viewModel.PlayFireModeSwitch() when the fire mode changes.
+  - Belt-fed (MG), shotgun and sprint/equip animations were not rebuilt on the new timeline. MG and shotgun keep the old animation paths. The shotgun pump still always plays, even on a tactical reload.
+  - The NewMagInHand track is built but not yet used by the viewmodel, so the same magazine child is dropped and re-seated instead of a separate new magazine appearing at the left hand.
+  - In-engine visual tuning (tilt, magazine and hand offsets) was not checked: Unity cannot launch here. Cursor should check it in the editor.
+### R7-durbun is written and compiles with 0 errors in every assembly (player builds too); 922 EditMode tests pass, including 14 new ones in ScopeMathTests. Nothing here has been run in Unity, so the PiP 
+  - ENTEGRASYON: Combat/BallisticsSystem.cs: add Scope.ZeroingAngle(weaponId) degrees to the bullet origin pitch.
+  - ENTEGRASYON: PlayerWeaponHandler*.cs: create a ScopeInput and call Tick(weaponId, IsAiming, IsScoped, AimBlend, IsHoldingBreath, BreathRemaining, camera, lensRenderer, scopeAnchor, sway, dt) each frame; Dispose on dispose.
+  - ENTEGRASYON: PlayerWeaponHandler: while ScopeInput.ConsumesWheel is true, ignore input.CycleWeapon, because the mouse wheel is already bound to weapon switching.
+  - ENTEGRASYON: PlayerWeaponHandler.ApplyZoom: use ScopeInput.MainCameraZoom(zoom) so the main camera stays at 1x when PiP is active; variable zoom is exposed as ScopeInput.Magnification.
+  - ENTEGRASYON: HUD: show ScopeInput.ZeroingToast; BotPerception: use ScopeGlint.IntensityAt in the detection chance.
+  - Hold breath already exists on the Sprint key (LeftShift) in PlayerWeaponHandler, so no new binding was added and there is no conflict; ScopeInput only reads the handler's breath state.
+  - The viewmodels have no scope-lens Renderer today. Until Cursor or ViewmodelMeshes supplies one and it is passed as the lens argument, tiers 2 and 3 fall back to full-screen zoom.
+  - Nothing was visually verified in Unity. The PiP camera/RenderTexture, the URP Unlit lens and additive glint materials, and the IMGUI overlay are unconfirmed and need a check in the Editor.
+  - The ScopeGlint sprite faces a placeholder observer point 50 m behind the camera; real observers are bots calling IntensityAt.
+  - The overlay is IMGUI (OnGUI) because Project.Infrastructure does not reference UnityEngine.UI; it is only enabled while scoped.
+  - tools/UnityVerify/verify.sh prints 'line 77: parse error near )' after the test summary. All stages finished and the results above were already printed, so I did not investigate it.
+### The ragdoll and hit-reaction work was already in the tree, so I made no code changes. I checked it and ran verify. It shows 0 errors in all projects, and tests pass: 1186 passed, 0 failed, 16 skipped 
+  - ENTEGRASYON: Infrastructure/AI/BotController.cs:886 (and Presentation/Replay/ReplayViewer.cs:446) still call Model.PlayDeath(dir) directly. That bypasses the ragdoll and impulse path, but the SoldierModel owner-died event (OnOwnerDied -> Die) covers normal deaths, so it only matters if AutoPlayDeath is off.
+  - ENTEGRASYON: nothing outside Characters calls SoldierModel.PlayHit yet. If it is not already driven from damage events inside SoldierModel, a hit call is needed from Infrastructure/AI/BotController.Combat.cs or Presentation/Player/PlayerWeaponHandler*.cs (I4 scope): model.PlayHit(region, bulletDir, strength).
+  - A DURUM.md note from Codex reports a CS0246 for RagdollSettle/RagdollPart/RagdollKick at RagdollRig.cs, apparently from an earlier build. Those types exist in RagdollMath.cs now and verify shows 0 errors. A real Unity compile (X-1) should be re-run to confirm.
+  - Nothing was run in Unity itself; it cannot launch here.

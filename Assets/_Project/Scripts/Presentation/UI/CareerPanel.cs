@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
+using Project.Infrastructure.Localization;
 using Project.Presentation.Bootstrap;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,7 +18,7 @@ namespace Project.Presentation.UI
     /// kendini yeniler; kapanınca kendini yok eder.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class CareerPanel : MonoBehaviour
+    public sealed partial class CareerPanel : MonoBehaviour
     {
         private const float WindowWidth = 1400f;
         private const float WindowHeight = 830f;
@@ -49,6 +50,8 @@ namespace Project.Presentation.UI
         private UiProgressBar _progress;
         private Text _nextRank;
         private ScrollRect _ladderScroll;
+        private AchievementListView _achievements;
+        private bool _showAchievements;
         private readonly List<LadderRow> _ladder = new List<LadderRow>(24);
         private readonly Dictionary<string, Text> _stats = new Dictionary<string, Text>(12);
         private Button _backButton;
@@ -85,6 +88,7 @@ namespace Project.Presentation.UI
 
             if (panel._career != null)
                 panel._career.Changed += panel.OnCareerChanged;
+            panel.AttachDeep();
             return panel;
         }
 
@@ -130,6 +134,12 @@ namespace Project.Presentation.UI
                 return;
             }
 
+            if (DeepVisible)
+            {
+                SetDeepVisible(false);
+                return;
+            }
+
             Close();
         }
 
@@ -166,14 +176,14 @@ namespace Project.Presentation.UI
             if (_progress != null)
             {
                 _progress.SetValue(progress, true);
-                _progress.SetLabel(hasNext ? MenuText.FormatPercent(progress) : "EN YÜKSEK RÜTBE", UiTheme.FontTiny);
+                _progress.SetLabel(hasNext ? MenuText.FormatPercent(progress) : Loc.Get("career.max_rank", "EN YÜKSEK RÜTBE"), UiTheme.FontTiny);
             }
 
             if (_nextRank != null)
             {
                 _nextRank.text = hasNext
-                    ? "Sonraki rütbe: " + RankCatalog.GetName(next) + "  —  " + MenuText.FormatThousands(RankCatalog.ExperienceToNextRank(xp)) + " TP kaldı"
-                    : "En yüksek rütbeye ulaştın. Tebrikler komutanım!";
+                    ? Loc.Format("career.next_rank", "Sonraki rütbe: {0}  —  {1} TP kaldı", RankCatalog.GetName(next), MenuText.FormatThousands(RankCatalog.ExperienceToNextRank(xp)))
+                    : Loc.Get("career.max_rank_msg", "En yüksek rütbeye ulaştın. Tebrikler komutanım!");
             }
 
             // İstatistikler.
@@ -208,6 +218,7 @@ namespace Project.Presentation.UI
             }
 
             _scrollPending = true;
+            RefreshDeep();
         }
 
         private static CareerStatsService ResolveCareer(CareerStatsService career)
@@ -258,39 +269,47 @@ namespace Project.Presentation.UI
             stripe.gameObject.name = "Stripe";
             UiFactory.SetRect(stripe, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -6f), Vector2.zero);
 
-            var title = UiFactory.Label(window, "KARİYER", UiTheme.FontTitle, TextAnchor.MiddleLeft, UiTheme.Text, FontStyle.Bold);
+            var title = UiFactory.Label(window, Loc.Get("career.title", "KARİYER"), UiTheme.FontTitle, TextAnchor.MiddleLeft, UiTheme.Text, FontStyle.Bold);
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(title, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(40f, -96f), new Vector2(-40f, -22f));
             UiFactory.AddShadow(title, UiTheme.TextShadow, new Vector2(2f, -2f));
 
-            var subtitle = UiFactory.Label(window, "HAREKÂT KAYDI  ·  KUZGUN VADİSİ", UiTheme.FontNormal, TextAnchor.MiddleRight, UiTheme.Khaki, FontStyle.Bold);
+            var subtitle = UiFactory.Label(window, Loc.Get("career.subtitle", "HAREKÂT KAYDI  ·  KUZGUN VADİSİ"), UiTheme.FontNormal, TextAnchor.MiddleRight, UiTheme.Khaki, FontStyle.Bold);
             subtitle.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(subtitle, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(40f, -96f), new Vector2(-40f, -22f));
 
             BuildRankCard(window);
             BuildStats(window);
             BuildLadder(window);
+            _achievements = AchievementListView.Create(window, GameSession.Achievements);
+            BuildDeep(window);
 
             // Alt çubuk.
             var rules = UiFactory.Label(window,
-                "TP kazanımı:  etkisiz bırakma +" + CareerStatsService.ExperiencePerKill +
-                "  ·  kafadan isabet +" + CareerStatsService.ExperiencePerHeadshot +
-                "  ·  geride bırakılan her tim +" + CareerStatsService.ExperiencePerTeamOutlasted +
-                "  ·  zafer +" + MenuText.FormatThousands(CareerStatsService.ExperienceForWin),
+                Loc.Format("career.xp_rules",
+                    "TP kazanımı:  etkisiz bırakma +{0}  ·  kafadan isabet +{1}  ·  geride bırakılan her tim +{2}  ·  zafer +{3}",
+                    CareerStatsService.ExperiencePerKill,
+                    CareerStatsService.ExperiencePerHeadshot,
+                    CareerStatsService.ExperiencePerTeamOutlasted,
+                    MenuText.FormatThousands(CareerStatsService.ExperienceForWin)),
                 UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted);
             rules.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(rules, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(40f, 26f), new Vector2(-560f, 26f + UiTheme.ButtonHeight));
+            UiFactory.SetRect(rules, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(40f, 26f), new Vector2(-830f, 26f + UiTheme.ButtonHeight));
 
             var row = UiFactory.HorizontalList(window, 14f, 0, TextAnchor.MiddleRight);
             row.gameObject.name = "Buttons";
-            UiFactory.SetRect(row, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-540f, 26f), new Vector2(-40f, 26f + UiTheme.ButtonHeight));
+            UiFactory.SetRect(row, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-810f, 26f), new Vector2(-40f, 26f + UiTheme.ButtonHeight));
             row.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = false;
 
             UiFactory.FlexibleSpacer(row);
-            var reset = UiFactory.Button(row, "KARİYERİ SIFIRLA", ConfirmReset, UiButtonStyle.Ghost);
-            UiFactory.LayoutSize(reset, 270f, UiTheme.ButtonHeight);
-            _backButton = UiFactory.Button(row, "GERİ", Close, UiButtonStyle.Default);
-            UiFactory.LayoutSize(_backButton, 200f, UiTheme.ButtonHeight);
+            var deep = UiFactory.Button(row, Loc.Get("career.btn.deep", "DERİN KARİYER"), () => SetDeepVisible(!DeepVisible), UiButtonStyle.Default);
+            UiFactory.LayoutSize(deep, 230f, UiTheme.ButtonHeight);
+            var toggle = UiFactory.Button(row, Loc.Get("career.btn.achievements", "BAŞARIMLAR"), ToggleAchievements, UiButtonStyle.Ghost);
+            UiFactory.LayoutSize(toggle, 190f, UiTheme.ButtonHeight);
+            var reset = UiFactory.Button(row, Loc.Get("career.btn.reset", "KARİYERİ SIFIRLA"), ConfirmReset, UiButtonStyle.Ghost);
+            UiFactory.LayoutSize(reset, 230f, UiTheme.ButtonHeight);
+            _backButton = UiFactory.Button(row, Loc.Get("career.btn.back", "GERİ"), Close, UiButtonStyle.Default);
+            UiFactory.LayoutSize(_backButton, 140f, UiTheme.ButtonHeight);
         }
 
         private void BuildRankCard(RectTransform window)
@@ -301,7 +320,7 @@ namespace Project.Presentation.UI
             var cardBorder = UiFactory.Image(card, UiSprites.GetRoundedRectOutline(UiTheme.CornerRadius), UiTheme.WithAlpha(MenuRankInsignia.Gold, 0.45f));
             UiFactory.Stretch(cardBorder);
 
-            var caption = UiFactory.Label(card, "RÜTBE", UiTheme.FontSmall, TextAnchor.MiddleCenter, UiTheme.Khaki, FontStyle.Bold);
+            var caption = UiFactory.Label(card, Loc.Get("career.rank", "RÜTBE"), UiTheme.FontSmall, TextAnchor.MiddleCenter, UiTheme.Khaki, FontStyle.Bold);
             UiFactory.SetRect(caption, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -56f), new Vector2(0f, -20f));
 
             var holder = UiFactory.CreateRect("InsigniaHolder", card);
@@ -323,7 +342,7 @@ namespace Project.Presentation.UI
             var divider = UiFactory.Image(card, null, UiTheme.WithAlpha(UiTheme.PanelBorder, 0.8f));
             UiFactory.SetRect(divider, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(30f, -324f), new Vector2(-30f, -322f));
 
-            var xpCaption = UiFactory.Label(card, "TECRÜBE PUANI", UiTheme.FontSmall, TextAnchor.MiddleLeft, UiTheme.Khaki, FontStyle.Bold);
+            var xpCaption = UiFactory.Label(card, Loc.Get("career.xp", "TECRÜBE PUANI"), UiTheme.FontSmall, TextAnchor.MiddleLeft, UiTheme.Khaki, FontStyle.Bold);
             UiFactory.SetRect(xpCaption, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(30f, -372f), new Vector2(-30f, -340f));
 
             _experience = UiFactory.Label(card, string.Empty, UiTheme.FontLarge, TextAnchor.MiddleRight, UiTheme.Amber, FontStyle.Bold);
@@ -345,20 +364,20 @@ namespace Project.Presentation.UI
             column.gameObject.name = "Stats";
             UiFactory.SetRect(column, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(520f, 110f), new Vector2(520f + 400f, -116f));
 
-            UiWidgets.Header(column, "İSTATİSTİKLER", UiTheme.FontMedium);
+            UiWidgets.Header(column, Loc.Get("career.stats", "İSTATİSTİKLER"), UiTheme.FontMedium);
             UiFactory.Spacer(column, 4f);
-            AddStat(column, "matches", "Harekât");
-            AddStat(column, "wins", "Zafer");
-            AddStat(column, "winRate", "Zafer oranı");
+            AddStat(column, "matches", Loc.Get("career.stat.matches", "Harekât"));
+            AddStat(column, "wins", Loc.Get("career.stat.wins", "Zafer"));
+            AddStat(column, "winRate", Loc.Get("career.stat.win_rate", "Zafer oranı"));
             UiFactory.Divider(column, UiTheme.WithAlpha(UiTheme.PanelBorder, 0.6f));
-            AddStat(column, "kills", "Etkisiz bırakma");
-            AddStat(column, "headshots", "Kafadan isabet");
-            AddStat(column, "headshotRate", "Kafadan isabet oranı");
+            AddStat(column, "kills", Loc.Get("career.stat.kills", "Etkisiz bırakma"));
+            AddStat(column, "headshots", Loc.Get("career.stat.headshots", "Kafadan isabet"));
+            AddStat(column, "headshotRate", Loc.Get("career.stat.headshot_rate", "Kafadan isabet oranı"));
             UiFactory.Divider(column, UiTheme.WithAlpha(UiTheme.PanelBorder, 0.6f));
-            AddStat(column, "damage", "Toplam hasar");
-            AddStat(column, "damagePerMatch", "Harekât başına hasar");
-            AddStat(column, "best", "En iyi tim sıralaması");
-            AddStat(column, "survival", "En uzun hayatta kalma");
+            AddStat(column, "damage", Loc.Get("career.stat.damage", "Toplam hasar"));
+            AddStat(column, "damagePerMatch", Loc.Get("career.stat.damage_per_match", "Harekât başına hasar"));
+            AddStat(column, "best", Loc.Get("career.stat.best", "En iyi tim sıralaması"));
+            AddStat(column, "survival", Loc.Get("career.stat.survival", "En uzun hayatta kalma"));
         }
 
         private void AddStat(Transform parent, string key, string label)
@@ -378,7 +397,7 @@ namespace Project.Presentation.UI
             var header = UiFactory.CreateRect("LadderHeader", window);
             UiFactory.SetRect(header, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(960f, -164f), new Vector2(-40f, -116f));
             var headerList = UiFactory.VerticalList(header, 0f);
-            UiWidgets.Header(headerList, "RÜTBE BASAMAKLARI", UiTheme.FontMedium);
+            UiWidgets.Header(headerList, Loc.Get("career.ladder", "RÜTBE BASAMAKLARI"), UiTheme.FontMedium);
 
             _ladderScroll = UiWidgets.ScrollList(window, out var content, 4f, 0);
             UiFactory.SetRect(_ladderScroll, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(960f, 110f), new Vector2(-30f, -172f));
@@ -420,14 +439,28 @@ namespace Project.Presentation.UI
 
         // ------------------------------------------------------------------ Eylemler
 
+        private void ToggleAchievements()
+        {
+            _showAchievements = !_showAchievements;
+            if (_achievements != null)
+                _achievements.SetVisible(_showAchievements);
+            if (_ladderScroll != null)
+                _ladderScroll.gameObject.SetActive(!_showAchievements);
+            var ladderHeader = _window != null ? _window.Find("LadderHeader") : null;
+            if (ladderHeader != null)
+                ladderHeader.gameObject.SetActive(!_showAchievements);
+        }
+
         private void ConfirmReset()
         {
             if (_dialog != null || _career == null)
                 return;
 
-            _dialog = MenuDialog.Show(transform, "Kariyeri sıfırla",
-                "Tüm harekât kayıtların, tecrübe puanın ve rütben silinecek. Bu işlem geri alınamaz.",
-                "SIFIRLA", DoReset, "VAZGEÇ", OnDialogClosed, true);
+            _dialog = MenuDialog.Show(transform,
+                Loc.Get("career.reset.title", "Kariyeri sıfırla"),
+                Loc.Get("career.reset.body", "Tüm harekât kayıtların, tecrübe puanın ve rütben silinecek. Bu işlem geri alınamaz."),
+                Loc.Get("career.reset.confirm", "SIFIRLA"), DoReset,
+                Loc.Get("career.reset.cancel", "VAZGEÇ"), OnDialogClosed, true);
         }
 
         private void DoReset()
@@ -504,6 +537,7 @@ namespace Project.Presentation.UI
 
         private void Unsubscribe()
         {
+            DetachDeep();
             if (_career != null)
                 _career.Changed -= OnCareerChanged;
         }

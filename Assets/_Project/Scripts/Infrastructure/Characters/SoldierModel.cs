@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Project.Core.Domain;
 using Project.Infrastructure.Combat;
+using Project.Infrastructure.Content;
 using Project.Infrastructure.Rendering;
 using Project.Infrastructure.Weapons;
 using UnityEngine;
@@ -27,27 +28,37 @@ namespace Project.Infrastructure.Characters
     ///    çanta seviyesi ve rütbe periyodik olarak yansıtılır, SetLocomotion çağrılmazsa Combatant.Velocity/Stance kullanılır.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class SoldierModel : MonoBehaviour
+    public sealed partial class SoldierModel : MonoBehaviour
     {
         // ------------------------------------------------------------------ Ölçüler (metre)
-        private const float StandHipHeight = 0.97f;
+        private const float StandHipHeight = SoldierRigMath.StandHipHeight;
         private const float CrouchHipHeight = 0.62f;
         private const float ProneHipHeight = 0.17f;
         private const float HipJointX = 0.095f;
-        private const float HipJointY = -0.07f;
-        private const float ThighLength = 0.42f;
-        private const float ShinLength = 0.40f;
-        private const float AnkleHeight = 0.08f;
+        private const float HipJointY = SoldierRigMath.HipJointY;
+        private const float ThighLength = SoldierRigMath.ThighLength;
+        private const float ShinLength = SoldierRigMath.ShinLength;
+        private const float AnkleHeight = SoldierRigMath.AnkleHeight;
         private const float ShoulderX = 0.215f;
-        private const float UpperArmLength = 0.29f;
+        private const float UpperArmLength = 0.28f;
         private const float ForearmLength = 0.26f;
         private const float DeathDuration = 0.6f;
         private const float EquipmentPollInterval = 0.5f;
         private const int MaxCachedWeapons = 6;
-        private const float MaxArmReach = 0.535f;
+        private const float MaxArmReach = 0.524f;
         private const float OffscreenUpdateInterval = 0.1f;
         private const string LeftHandAnchorName = "LeftHand";
         private const string RightHandAnchorName = "RightHand";
+
+        // Tüfek taşıma duruşu: namlu ileri-aşağı ~24°, hafif sola çapraz — dipçik sağ omuzda, namlu gövde siluetini
+        // keser. Yuva dönüşü birim kalırsa silah tam gövde ekseninde uzanır ve önden/arkadan yalnızca ~4×8 cm'lik
+        // kesiti görünür (gövdenin arkasında kaybolur) — "elinde silah yok" hatasının kökü buydu.
+        private const float RifleCarryPitch = 24f;
+        private const float RifleCarryYaw = -14f;
+
+        /// <summary>Tüfek taşıma dönüşü (weight 0..1: yüzüstünde düzleşir).</summary>
+        private static Quaternion RifleCarry(float weight = 1f) =>
+            Quaternion.Euler(RifleCarryPitch * weight, RifleCarryYaw * weight, 0f);
 
         private static readonly Quaternion BoneToZ = Quaternion.Euler(-90f, 0f, 0f);
 
@@ -100,7 +111,10 @@ namespace Project.Infrastructure.Characters
         {
             public Material Camo;
             public Material Skin;
+            public Material SkinFace;
             public Material Gear;
+            public Material Helmet;
+            public Material NvgLens;
             public Material GearDark;
             public Material Boots;
             public Material Gloves;
@@ -112,6 +126,8 @@ namespace Project.Infrastructure.Characters
             public Material Gold;
             public Material Silver;
             public Material Red;
+            public Material Cloth;
+            public Material White;
         }
 
         // ------------------------------------------------------------------ Durum
@@ -128,6 +144,7 @@ namespace Project.Infrastructure.Characters
         private bool _showBeretOverHelmet = true;
         private SoldierLook _look;
         private Materials _mat;
+        private Renderer _skullRenderer;
         private Combatant _owner;
         private int _visualLayer;
         private bool _built;
@@ -177,6 +194,9 @@ namespace Project.Infrastructure.Characters
         private float _recoil;
         private float _flinch;
         private float _flinchSide;
+        private int _gesture; // 0 yok, 1 şarjör, 2 fırlatma
+        private float _gestureTime;
+        private float _gestureDuration;
         private float _breath;
 
         // Silah
@@ -220,7 +240,10 @@ namespace Project.Infrastructure.Characters
         public Transform Head { get; private set; }
         public Transform Chest { get; private set; }
 
-        /// <summary>Silahın bağlandığı nokta (sağ el kabzası, +Z namlu yönü).</summary>
+        /// <summary>
+        /// Silahın bağlandığı nokta (sağ el kabzası, +Z namlu yönü). Tüfekte yuva taşıma dönüşü alır
+        /// (<see cref="RifleCarry"/>): namlu ileri-aşağı ~24°, hafif sola.
+        /// </summary>
         public Transform WeaponSocket { get; private set; }
 
         // ------------------------------------------------------------------ Ek API
@@ -237,6 +260,12 @@ namespace Project.Infrastructure.Characters
         /// <summary>Elde tutulan silahın namlu ucu (silah yoksa null).</summary>
         public Transform Muzzle => _current != null && _current.Muzzle != null ? _current.Muzzle : null;
 
+        /// <summary>
+        /// Elde tutulan silah görselinin kökü (silah yoksa null). Humanoid override'da silah yuvadan ele taşındığı
+        /// için görünürlük denetimleri WeaponSocket yerine bunu kullanmalıdır.
+        /// </summary>
+        public Transform CurrentWeaponRoot => _current != null && _current.Root != null ? _current.Root.transform : null;
+
         /// <summary>Namlu ucunun dünya konumu (silah yoksa yuva önü tahmini).</summary>
         public Vector3 MuzzlePosition
         {
@@ -251,6 +280,8 @@ namespace Project.Infrastructure.Characters
 
         public Combatant Owner => _owner;
         public SoldierLook Look => _look;
+        /// <summary>Geçerli savaş yıpranması 0..1 (nicemlenmemiş son değer).</summary>
+        public float Wear => _look != null ? _look.Wear : 0f;
         public IReadOnlyList<Hitbox> Hitboxes => _hitboxes;
         public bool IsDead => _dead;
         public bool IsVisible => _visible;
@@ -314,6 +345,9 @@ namespace Project.Infrastructure.Characters
             t.localRotation = Quaternion.identity;
             t.localScale = Vector3.one;
 
+            if (look != null && owner != null && owner.IsLocalPlayer)
+                CosmeticsRuntime.ApplyToLook(look);
+
             var model = go.AddComponent<SoldierModel>();
             model.Construct(look ?? SoldierLook.Default, owner, createHitboxes, layer);
             return model;
@@ -330,6 +364,7 @@ namespace Project.Infrastructure.Characters
             _mat = CreateMaterials(_look);
             BuildSkeleton();
             BuildBody();
+            CombineStaticParts();
             BuildRankInsignia();
 
             if (createHitboxes)
@@ -361,14 +396,405 @@ namespace Project.Infrastructure.Characters
             if (_current == null)
                 ComputeArmIk(null);
             ApplyPose(0f);
+            TryApplyHumanoidOverride();
+        }
+
+        // ------------------------------------------------------------------ ContentOverrides humanoid (hazır asker)
+
+        private GameObject _humanoidRoot;
+        private Animator _humanoidAnimator;
+        private Transform _humanoidHand;
+        private HashSet<string> _animFloats;
+        private HashSet<string> _animBools;
+
+        /// <summary>Hazır humanoid prefab varsa görsel gövde olur; prosedürel parçalar gizlenir (vuruş kutuları kalır). Hata → prosedürel.</summary>
+        private void TryApplyHumanoidOverride()
+        {
+            try
+            {
+                if (!ContentOverrides.TryGetSoldier(out var prefab, out var controller) || prefab == null)
+                    return;
+
+                var instance = UnityEngine.Object.Instantiate(prefab, transform, false);
+                instance.name = "HumanoidVisual";
+                instance.transform.localPosition = Vector3.zero;
+                instance.transform.localRotation = Quaternion.identity;
+
+                var colliders = instance.GetComponentsInChildren<Collider>(true);
+                for (var i = 0; i < colliders.Length; i++)
+                {
+                    colliders[i].enabled = false;
+                    SafeDestroy(colliders[i]);
+                }
+
+                GameLayers.SetLayerRecursively(instance, _visualLayer);
+
+                // Prosedürel görselleri gizle (silahlar hariç; onlar sonradan eklenir/taşınır).
+                for (var i = _renderers.Count - 1; i >= 0; i--)
+                {
+                    var r = _renderers[i].Renderer;
+                    if (r == null)
+                    {
+                        _renderers.RemoveAt(i);
+                        continue;
+                    }
+
+                    if (WeaponSocket != null && r.transform.IsChildOf(WeaponSocket))
+                        continue;
+                    r.enabled = false;
+                    _renderers.RemoveAt(i);
+                }
+
+                _humanoidRoot = instance;
+                var renderers = instance.GetComponentsInChildren<Renderer>(true);
+                for (var i = 0; i < renderers.Length; i++)
+                    RegisterRenderer(renderers[i]);
+
+                _humanoidAnimator = instance.GetComponentInChildren<Animator>(true);
+                if (_humanoidAnimator == null)
+                    _humanoidAnimator = instance.AddComponent<Animator>();
+                _humanoidAnimator.applyRootMotion = false;
+                if (controller != null)
+                    _humanoidAnimator.runtimeAnimatorController = controller;
+
+                _animFloats = new HashSet<string>();
+                _animBools = new HashSet<string>();
+                if (_humanoidAnimator.runtimeAnimatorController != null)
+                {
+                    var ps = _humanoidAnimator.parameters;
+                    for (var i = 0; i < ps.Length; i++)
+                    {
+                        if (ps[i].type == AnimatorControllerParameterType.Float)
+                            _animFloats.Add(ps[i].name);
+                        else if (ps[i].type == AnimatorControllerParameterType.Bool)
+                            _animBools.Add(ps[i].name);
+                    }
+                }
+
+                _humanoidHand = _humanoidAnimator.isHuman ? _humanoidAnimator.GetBoneTransform(HumanBodyBones.RightHand) : null;
+                if (_current != null)
+                    AttachWeaponToHand(_current);
+                SetupHumanoidExtras(instance);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[SoldierModel] Humanoid override uygulanamadı, prosedürel kalıyor: " + e.Message);
+                if (_humanoidRoot != null)
+                    SafeDestroy(_humanoidRoot);
+                _humanoidRoot = null;
+                _humanoidAnimator = null;
+                _humanoidHand = null;
+                _socketHead = null;
+                _socketChest = null;
+            }
+        }
+
+        // ------------------------------------------------------------------ C9: humanoid ekstra (culling, LOD, kamuflaj, soketler, ragdoll)
+
+        private Transform _socketHead;
+        private Transform _socketChest;
+        private SkinnedMeshRenderer[] _humanoidSkins;
+        private int _animTier = -1;
+        private float _animAccum;
+        private bool _ragdoll;
+        private Camera _lodCamera;
+
+        /// <summary>Humanoid kafa aksesuar soketi (kask/bere); override yoksa null.</summary>
+        public Transform HeadSocket => _socketHead;
+
+        /// <summary>Humanoid göğüs aksesuar soketi (yelek/anten/çanta); override yoksa null.</summary>
+        public Transform ChestSocket => _socketChest;
+
+        /// <summary>Humanoid görsel kökü (yoksa null).</summary>
+        public GameObject HumanoidRoot => _humanoidRoot;
+
+        /// <summary>Ragdoll kurucu için humanoid kemik (override/humanoid rig yoksa null).</summary>
+        public Transform GetHumanoidBone(HumanBodyBones bone)
+        {
+            return _humanoidAnimator != null && _humanoidAnimator.isHuman ? _humanoidAnimator.GetBoneTransform(bone) : null;
+        }
+
+        /// <summary>Ragdoll uyumu: Animator durdurulur, kemikler fiziğe bırakılır. Humanoid yoksa false.</summary>
+        public bool EnterRagdollMode()
+        {
+            if (_humanoidAnimator == null)
+                return false;
+            _ragdoll = true;
+            _humanoidAnimator.enabled = false;
+            return true;
+        }
+
+        private Transform MapAccessoryParent(Transform parent)
+        {
+            if (_humanoidRoot == null || parent == null)
+                return parent;
+            if (parent == Head && _socketHead != null)
+                return _socketHead;
+            if (parent == Chest && _socketChest != null)
+                return _socketChest;
+            return parent;
+        }
+
+        private Transform MakeSocket(string name, Transform procedural, HumanBodyBones bone, HumanBodyBones fallback)
+        {
+            var b = _humanoidAnimator.GetBoneTransform(bone);
+            if (b == null)
+                b = _humanoidAnimator.GetBoneTransform(fallback);
+            if (b == null || procedural == null)
+                return null;
+            var go = new GameObject(name);
+            go.layer = _visualLayer;
+            var t = go.transform;
+            t.SetParent(b, false);
+            t.SetPositionAndRotation(procedural.position, procedural.rotation);
+            return t;
+        }
+
+        private void SetupHumanoidExtras(GameObject instance)
+        {
+            try
+            {
+                _humanoidAnimator.cullingMode = AnimatorCullingMode.CullUpdateTransforms;
+                _humanoidSkins = instance.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+                for (var i = 0; i < _humanoidSkins.Length; i++)
+                {
+                    _humanoidSkins[i].updateWhenOffscreen = false;
+                    _humanoidSkins[i].skinnedMotionVectors = false;
+                }
+
+                // Kamuflaj yuvalarını palet malzemesiyle değiştir.
+                Material camo = null;
+                var renderers = instance.GetComponentsInChildren<Renderer>(true);
+                for (var i = 0; i < renderers.Length; i++)
+                {
+                    var mats = renderers[i].sharedMaterials;
+                    var changed = false;
+                    for (var k = 0; k < mats.Length; k++)
+                    {
+                        if (mats[k] == null || !SoldierDetailRules.IsCamoSlotName(mats[k].name))
+                            continue;
+                        if (camo == null)
+                            camo = MaterialLibrary.Get(SoldierDetailRules.CamoMaterialFor(_look != null ? _look.PaletteIndex : 0));
+                        if (camo == null)
+                            continue;
+                        mats[k] = camo;
+                        changed = true;
+                    }
+
+                    if (changed)
+                        renderers[i].sharedMaterials = mats;
+                }
+
+                if (_humanoidAnimator.isHuman)
+                {
+                    _socketHead = MakeSocket("Socket_Head", Head, HumanBodyBones.Head, HumanBodyBones.Neck);
+                    _socketChest = MakeSocket("Socket_Chest", Chest, HumanBodyBones.UpperChest, HumanBodyBones.Chest);
+                    AdoptAccessories(_helmets);
+                    AdoptAccessories(_vests);
+                    AdoptAccessories(_backpacks);
+                    AdoptVariant(_beret);
+                }
+                else
+                {
+                    Debug.LogWarning("[SoldierModel] Humanoid rig değil: rol aksesuarları bağlanamadı.");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[SoldierModel] Humanoid ekstra kurulum hatası: " + e.Message);
+            }
+        }
+
+        private void AdoptAccessories(Variant[] variants)
+        {
+            for (var i = 0; i < variants.Length; i++)
+                AdoptVariant(variants[i]);
+        }
+
+        private void AdoptVariant(Variant v)
+        {
+            if (v == null)
+                return;
+            for (var i = 0; i < v.Objects.Count; i++)
+            {
+                var go = v.Objects[i];
+                if (go == null)
+                    continue;
+                var p = go.transform.parent;
+                var target = MapAccessoryParent(p);
+                if (target == p)
+                    continue;
+                go.transform.SetParent(target, false);
+                var r = go.GetComponent<Renderer>();
+                if (r != null && !_renderers.Exists(e => e.Renderer == r))
+                {
+                    var entry = new RendererEntry { Renderer = r, DefaultShadows = r.shadowCastingMode };
+                    _renderers.Add(entry);
+                    ApplyRendererState(entry);
+                }
+            }
+        }
+
+        /// <summary>Mesafeye göre Animator güncelleme sıklığı, skin kalitesi ve culling.</summary>
+        private void TickHumanoidLod()
+        {
+            if (_ragdoll)
+                return;
+            var dist = 0f;
+            if (_lodCamera == null)
+                _lodCamera = Camera.main;
+            if (_lodCamera != null)
+                dist = Vector3.Distance(_lodCamera.transform.position, transform.position);
+
+            var tier = SoldierDetailRules.EffectiveTier(dist, _dead);
+            _humanoidAnimator.cullingMode = SoldierDetailRules.CullCompletely(_visible, _shadowsOnly)
+                ? AnimatorCullingMode.CullCompletely
+                : AnimatorCullingMode.CullUpdateTransforms;
+
+            if (tier != _animTier)
+            {
+                _animTier = tier;
+                _humanoidAnimator.enabled = tier == 0;
+                _animAccum = 0f;
+                if (_humanoidSkins != null)
+                {
+                    var bones = SoldierDetailRules.SkinBonesFor(tier);
+                    var q = bones >= 4 ? SkinQuality.Bone4 : (bones == 2 ? SkinQuality.Bone2 : SkinQuality.Bone1);
+                    for (var i = 0; i < _humanoidSkins.Length; i++)
+                        if (_humanoidSkins[i] != null)
+                            _humanoidSkins[i].quality = q;
+                }
+            }
+
+            if (tier == 0)
+                return;
+            _animAccum += Time.deltaTime;
+            var interval = SoldierDetailRules.AnimInterval(tier);
+            if (_animAccum >= interval && (_visible || _shadowsOnly))
+            {
+                _humanoidAnimator.Update(_animAccum);
+                _animAccum = 0f;
+            }
+        }
+
+        /// <summary>
+        /// Humanoid override: silahı sağ el kemiğine bağlar. El kemiği eksenleri rastgele olabilir ve kemik ölçeği
+        /// birim olmayabilir — yerel sıfır/birim bırakılırsa silah gövdeye saplanır ya da büzülür. Bu yüzden dünya
+        /// ölçeği 1'e normalize edilir, yön gövdeye göre taşıma duruşuna çevrilir ve kabza bağlantısı avuca oturtulur.
+        /// </summary>
+        private void AttachWeaponToHand(HeldWeapon held)
+        {
+            if (_humanoidHand == null || held == null || held.Root == null)
+                return;
+
+            var t = held.Root.transform;
+            if (t.parent != _humanoidHand)
+                t.SetParent(_humanoidHand, true);
+
+            var s = _humanoidHand.lossyScale;
+            t.localScale = new Vector3(
+                1f / Mathf.Max(Mathf.Abs(s.x), 1e-4f),
+                1f / Mathf.Max(Mathf.Abs(s.y), 1e-4f),
+                1f / Mathf.Max(Mathf.Abs(s.z), 1e-4f));
+
+            t.rotation = transform.rotation * (held.Kind == HoldKind.Rifle ? RifleCarry() : Quaternion.identity);
+
+            var grip = FindDescendant(t, RightHandAnchorName);
+            t.position = grip != null ? t.position + (_humanoidHand.position - grip.position) : _humanoidHand.position;
+        }
+
+        private void SetAnim(string name, float value)
+        {
+            if (_animFloats != null && _animFloats.Contains(name))
+                _humanoidAnimator.SetFloat(name, value);
+        }
+
+        private void SetAnim(string name, bool value)
+        {
+            if (_animBools != null && _animBools.Contains(name))
+                _humanoidAnimator.SetBool(name, value);
+        }
+
+        private void DriveHumanoid()
+        {
+            if (_humanoidAnimator == null)
+                return;
+            SetAnim("Speed", _speed);
+            SetAnim("Crouch", _crouch);
+            SetAnim("Crouch", _crouch > 0.5f);
+            SetAnim("Prone", _prone);
+            SetAnim("Prone", _prone > 0.5f);
+            SetAnim("AimPitch", _aimPitch);
+            SetAnim("Dead", _dead);
+            TickHumanoidLod();
+        }
+
+        /// <summary>
+        /// Savaş yıpranmasını (0..1) ayarlar. Doku seviyesi (0/.33/.66/1) değişmediyse hiçbir şey yapmaz; değiştiyse paylaşımlı
+        /// önbellekli malzemeleri yeniden bağlar (mesh/renderer yeniden kurulmaz). Seviye değiştiyse true döner.
+        /// </summary>
+        public bool SetWear(float wear)
+        {
+            if (_look == null || _mat == null)
+                return false;
+            wear = Mathf.Clamp01(wear);
+            var changed = WearRules.NeedsRebind(_look.Wear, wear);
+            _look.Wear = wear;
+            if (!changed)
+                return false;
+
+            var old = _mat;
+            var next = CreateMaterials(_look);
+            var map = new Dictionary<Material, Material>(16);
+            void Pair(Material a, Material b)
+            {
+                if (a != null && b != null && a != b && !map.ContainsKey(a))
+                    map[a] = b;
+            }
+
+            Pair(old.Camo, next.Camo); Pair(old.Skin, next.Skin); Pair(old.Gear, next.Gear); Pair(old.GearDark, next.GearDark);
+            Pair(old.Helmet, next.Helmet); Pair(old.Boots, next.Boots); Pair(old.Gloves, next.Gloves); Pair(old.Cloth, next.Cloth);
+            var shared = new List<Material>(4);
+            for (var i = 0; i < _renderers.Count; i++)
+            {
+                var r = _renderers[i].Renderer;
+                if (r == null)
+                    continue;
+                if (r == _skullRenderer)
+                {
+                    r.sharedMaterial = next.SkinFace ?? next.Skin;
+                    continue;
+                }
+
+                r.GetSharedMaterials(shared);
+                var dirty = false;
+                for (var k = 0; k < shared.Count; k++)
+                {
+                    if (shared[k] != null && map.TryGetValue(shared[k], out var repl))
+                    {
+                        shared[k] = repl;
+                        dirty = true;
+                    }
+                }
+
+                if (dirty)
+                    r.SetSharedMaterials(shared);
+            }
+
+            // Ortak malzemeleri yeniden kullanan sonradan kurulan parçalar için yeni set geçerli olur.
+            next.Metal = old.Metal;
+            _mat = next;
+            return true;
         }
 
         private static Materials CreateMaterials(SoldierLook look)
         {
             var m = new Materials();
+            var wear = WearRules.Quantize(look.Wear);
             try
             {
-                m.Camo = MaterialLibrary.Camo(look.CamoA, look.CamoB, look.CamoC, look.CamoD, look.CamoSeed, 1f);
+                m.Camo = CharacterMaterials.Camo(look.CamoA, look.CamoB, look.CamoC, look.CamoD, look.CamoSeed, wear)
+                    ?? MaterialLibrary.Camo(look.CamoA, look.CamoB, look.CamoC, look.CamoD, look.CamoSeed, 1f);
             }
             catch (Exception e)
             {
@@ -379,34 +805,47 @@ namespace Project.Infrastructure.Characters
             if (m.Camo == null)
                 m.Camo = MaterialLibrary.Lit(look.CamoA, 0.12f);
 
-            m.Skin = MaterialLibrary.Lit(look.Skin, 0.3f);
-            m.Gear = MaterialLibrary.Lit(look.Gear, 0.15f);
-            m.GearDark = MaterialLibrary.Lit(look.Gear * 0.6f, 0.15f);
-            m.Boots = MaterialLibrary.Get(MaterialId.Boots);
-            m.Gloves = MaterialLibrary.Lit(new Color(0.09f, 0.09f, 0.08f), 0.25f);
+            // Gerçekçi karakter shader'ları (HAREKAT/Character/*); bulunamazsa URP/Lit yedeği.
+            m.Skin = CharacterMaterials.Skin(look.Skin) ?? MaterialLibrary.Lit(look.Skin, 0.3f);
+            m.SkinFace = wear > 0f ? CharacterMaterials.SkinFace(look.Skin, wear, WearRules.FaceVariant(look.CamoSeed)) ?? m.Skin : m.Skin;
+            m.Gear = CharacterMaterials.Solid(CharacterMaterialKind.Cordura, look.Gear, -1f, wear) ?? MaterialLibrary.Lit(look.Gear, 0.15f);
+            m.GearDark = CharacterMaterials.Solid(CharacterMaterialKind.Cordura, look.Gear * 0.8f, -1f, wear) ?? MaterialLibrary.Lit(look.Gear * 0.8f, 0.15f);
+            m.Helmet = CharacterMaterials.Solid(CharacterMaterialKind.HelmetPaint, look.Gear, -1f, wear) ?? m.Gear;
+            m.Boots = CharacterMaterials.Solid(CharacterMaterialKind.Leather, SoldierLook.BootColor, 0.04f, wear) ?? MaterialLibrary.Lit(SoldierLook.BootColor, 0.04f);
+            m.Gloves = CharacterMaterials.Solid(CharacterMaterialKind.Rubber, SoldierLook.GloveColor, 0.06f, wear) ?? MaterialLibrary.Lit(SoldierLook.GloveColor, 0.06f);
+            m.NvgLens = CharacterMaterials.NvgLens() ?? MaterialLibrary.Get(MaterialId.GunMetal);
             m.Armband = ArmbandMaterial(look.Armband);
             m.Metal = MaterialLibrary.Get(MaterialId.GunMetal);
-            m.Beret = MaterialLibrary.Get(MaterialId.Beret);
+            m.Beret = MaterialLibrary.Lit(look.HasBeretColor ? look.BeretColor : SoldierLook.BeretBordo, 0.05f);
             m.Flag = MaterialLibrary.Get(MaterialId.TurkishFlag);
             m.Hair = MaterialLibrary.Lit(new Color(0.07f, 0.055f, 0.045f), 0.2f);
             m.Gold = MaterialLibrary.Lit(new Color(0.86f, 0.68f, 0.2f), 0.6f, 0.8f);
             m.Silver = MaterialLibrary.Lit(new Color(0.76f, 0.77f, 0.79f), 0.6f, 0.8f);
             m.Red = MaterialLibrary.Lit(new Color(0.75f, 0.08f, 0.08f), 0.3f);
+            m.White = MaterialLibrary.Lit(new Color(0.92f, 0.92f, 0.9f), 0.25f);
+            m.Cloth = CharacterMaterials.Solid(CharacterMaterialKind.Fabric, ClothColor(look), -1f, wear) ?? MaterialLibrary.Lit(ClothColor(look), 0.1f);
             return m;
+        }
+
+        /// <summary>Balaklava/şemagh kumaş rengi: palete göre.</summary>
+        private static Color ClothColor(SoldierLook look)
+        {
+            switch (look.PaletteIndex)
+            {
+                case 1: return new Color(0.2f, 0.21f, 0.19f);
+                case 2: return look.FaceCover == FaceCoverKind.Shemagh ? new Color(0.76f, 0.68f, 0.5f) : new Color(0.55f, 0.47f, 0.34f);
+                case 3: return new Color(0.1f, 0.1f, 0.11f);
+                default: return new Color(0.13f, 0.16f, 0.1f);
+            }
         }
 
         /// <summary>Kütüphanedeki parlayan kolluk renklerinden biriyse onu kullan (uzaktan seçilebilir), yoksa düz Lit.</summary>
         private static Material ArmbandMaterial(Color c)
         {
+            // Mat kumaş: emisyon yok, hafif koyu ton (parlayan kütüphane kolluklarının yerine).
             if (Near(c, new Color(0.1f, 0.3f, 0.85f)))
-                return MaterialLibrary.Get(MaterialId.ArmbandBlue);
-            if (Near(c, new Color(0.85f, 0.1f, 0.1f)))
-                return MaterialLibrary.Get(MaterialId.ArmbandRed);
-            if (Near(c, new Color(0.95f, 0.8f, 0.1f)))
-                return MaterialLibrary.Get(MaterialId.ArmbandYellow);
-            if (Near(c, new Color(0.2f, 0.75f, 0.2f)))
-                return MaterialLibrary.Get(MaterialId.ArmbandGreen);
-            return MaterialLibrary.Lit(c, 0.2f);
+                return MaterialLibrary.Lit(SoldierLook.ArmbandMatBlue, 0.02f);
+            return MaterialLibrary.Lit(new Color(c.r * 0.78f, c.g * 0.78f, c.b * 0.78f), 0.04f);
         }
 
         private static bool Near(Color a, Color b)
@@ -452,7 +891,7 @@ namespace Project.Infrastructure.Characters
             var go = new GameObject(name);
             go.layer = _visualLayer;
             var t = go.transform;
-            t.SetParent(parent, false);
+            t.SetParent(MapAccessoryParent(parent), false);
             t.localPosition = localPosition;
             t.localRotation = Quaternion.identity;
             t.localScale = Vector3.one;
@@ -465,7 +904,7 @@ namespace Project.Infrastructure.Characters
             var go = new GameObject(name);
             go.layer = _visualLayer;
             var t = go.transform;
-            t.SetParent(parent, false);
+            t.SetParent(MapAccessoryParent(parent), false);
             t.localPosition = localPosition;
             t.localRotation = localRotation;
             t.localScale = Vector3.one;
@@ -493,6 +932,13 @@ namespace Project.Infrastructure.Characters
         {
             if (renderer == null)
                 return;
+
+            if (_humanoidRoot != null && !renderer.transform.IsChildOf(_humanoidRoot.transform) &&
+                (WeaponSocket == null || !renderer.transform.IsChildOf(WeaponSocket)))
+            {
+                renderer.enabled = false;
+                return;
+            }
 
             var entry = new RendererEntry { Renderer = renderer, DefaultShadows = renderer.shadowCastingMode };
             _renderers.Add(entry);
@@ -523,49 +969,56 @@ namespace Project.Infrastructure.Characters
             var m = _mat;
 
             // Kalça + kemer
-            Part("Pelvis", _body, CharacterMeshes.Frustum("pelvis", -0.12f, 0.08f, new Vector2(0.3f, 0.19f), new Vector2(0.33f, 0.21f)), m.Camo,
-                Vector3.zero);
-            Part("Belt", _body, CharacterMeshes.Box("belt", Vector3.zero, new Vector3(0.345f, 0.055f, 0.225f)), m.GearDark,
+            Part("Pelvis", _body, CharacterMeshes.Cloth("pelvisLSculpt", new[] {
+                new CharacterMeshes.Ring(-0.12f, 0.125f, 0.088f), new CharacterMeshes.Ring(-0.03f, 0.155f, 0.1f), new CharacterMeshes.Ring(0.08f, 0.165f, 0.105f)
+            }), m.Camo, Vector3.zero);
+            Part("Belt", _body, CharacterMeshes.Cylinder("beltSculpt", -0.0275f, 0.0275f, 0.173f, 0.173f, 24, false, 0.66f), m.GearDark,
                 new Vector3(0f, 0.05f, 0f), false);
             Part("Buckle", _body, CharacterMeshes.Box("buckle", Vector3.zero, new Vector3(0.05f, 0.04f, 0.012f)), m.Metal,
                 new Vector3(0f, 0.05f, 0.116f), false);
-            Part("BeltPouch", _body, CharacterMeshes.Box("beltPouch", Vector3.zero, new Vector3(0.07f, 0.09f, 0.05f)), m.GearDark,
+            Part("BeltPouch", _body, CharacterMeshes.RoundedBox("beltPouchRounded", Vector3.zero, new Vector3(0.07f, 0.09f, 0.05f)), m.GearDark,
                 new Vector3(0.13f, 0.02f, -0.08f), false);
 
             BuildLeg(_leftHip, _leftKnee, _leftAnkle, -1f);
             BuildLeg(_rightHip, _rightKnee, _rightAnkle, 1f);
 
             // Gövde
-            Part("Abdomen", _spine, CharacterMeshes.Frustum("abdomen", 0f, 0.21f, new Vector2(0.31f, 0.2f), new Vector2(0.34f, 0.21f)), m.Camo,
-                Vector3.zero);
-            var chestShape = Part("ChestShape", Chest, CharacterMeshes.Frustum("chest", 0f, 0.27f, new Vector2(0.35f, 0.21f), new Vector2(0.43f, 0.22f)),
+            Part("Abdomen", _spine, CharacterMeshes.Cloth("abdomenLSculpt", new[] {
+                new CharacterMeshes.Ring(0f, 0.155f, 0.1f), new CharacterMeshes.Ring(0.1f, 0.146f, 0.097f), new CharacterMeshes.Ring(0.21f, 0.17f, 0.104f)
+            }), m.Camo, Vector3.zero);
+            // Göğüs: koltuk altından omuza doğru genişleyip trapez hattıyla boyuna eğimli daralır (omuz eğimi).
+            var chestShape = Part("ChestShape", Chest, CharacterMeshes.Cloth("chestL2Sculpt", new[] {
+                    new CharacterMeshes.Ring(0f, 0.17f, 0.103f), new CharacterMeshes.Ring(0.1f, 0.185f, 0.112f),
+                    new CharacterMeshes.Ring(0.17f, 0.2f, 0.112f), new CharacterMeshes.Ring(0.22f, 0.19f, 0.1f),
+                    new CharacterMeshes.Ring(0.255f, 0.13f, 0.082f), new CharacterMeshes.Ring(0.285f, 0.075f, 0.068f)
+                }),
                 m.Camo, Vector3.zero);
             _visibilityProbe = chestShape.GetComponent<Renderer>();
-            Part("Collar", Chest, CharacterMeshes.Frustum("collar", 0.24f, 0.3f, new Vector2(0.2f, 0.15f), new Vector2(0.15f, 0.12f)), m.Camo,
-                Vector3.zero, false);
+            Part("Collar", Chest, CharacterMeshes.Lathe("collarL", new[]
+            {
+                new CharacterMeshes.Ring(0.235f, 0.125f, 0.098f), new CharacterMeshes.Ring(0.275f, 0.088f, 0.078f), new CharacterMeshes.Ring(0.31f, 0.07f, 0.07f)
+            }, 10, false, false), m.Camo, Vector3.zero, false);
 
             // Boyun ve baş
-            Part("NeckShape", _neck, CharacterMeshes.Cylinder("neck", -0.02f, 0.09f, 0.055f, 0.05f, 6, false), m.Skin, Vector3.zero);
-            Part("Skull", Head, CharacterMeshes.Ellipsoid("head", new Vector3(0f, 0.09f, 0f), new Vector3(0.095f, 0.115f, 0.105f), 8, 6), m.Skin,
-                Vector3.zero);
-            Part("Hair", Head, CharacterMeshes.Ellipsoid("hair", new Vector3(0f, 0.095f, -0.006f), new Vector3(0.099f, 0.117f, 0.108f), 8, 3, 15f, 90f),
+            Part("NeckShape", _neck, CharacterMeshes.Lathe("neckL", new[]
+            {
+                new CharacterMeshes.Ring(-0.05f, 0.075f, 0.065f), new CharacterMeshes.Ring(0f, 0.058f, 0.056f),
+                new CharacterMeshes.Ring(0.045f, 0.052f, 0.054f, 0.005f), new CharacterMeshes.Ring(0.09f, 0.05f, 0.052f, 0.01f)
+            }, 10, false, false), m.Skin, Vector3.zero);
+            // Kafatası: ~0.235 m yüksekliğinde, çeneye doğru daralan yumurta profili (kutu/küre değil).
+            _skullRenderer = Part("Skull", Head, CharacterMeshes.SculptedHead(), m.SkinFace ?? m.Skin, Vector3.zero).GetComponent<Renderer>();
+            Part("Hair", Head, CharacterMeshes.Ellipsoid("hair2", new Vector3(0f, 0.095f, -0.006f), new Vector3(0.083f, 0.12f, 0.104f), 16, 6, 12f, 90f),
                 m.Hair, Vector3.zero, false);
-            Part("Nose", Head, CharacterMeshes.Box("nose", Vector3.zero, new Vector3(0.028f, 0.045f, 0.03f)), m.Skin,
-                new Vector3(0f, 0.075f, 0.104f), false);
-            Part("Brows", Head, CharacterMeshes.Box("brows", Vector3.zero, new Vector3(0.085f, 0.013f, 0.012f)), m.Hair,
-                new Vector3(0f, 0.122f, 0.097f), false);
-            Part("EyeL", Head, CharacterMeshes.Box("eye", Vector3.zero, new Vector3(0.022f, 0.011f, 0.008f)), m.Hair,
-                new Vector3(-0.034f, 0.104f, 0.099f), false);
-            Part("EyeR", Head, CharacterMeshes.Box("eye", Vector3.zero, new Vector3(0.022f, 0.011f, 0.008f)), m.Hair,
-                new Vector3(0.034f, 0.104f, 0.099f), false);
-            Part("EarL", Head, CharacterMeshes.Box("ear", Vector3.zero, new Vector3(0.02f, 0.05f, 0.035f)), m.Skin,
-                new Vector3(-0.094f, 0.085f, 0f), false);
-            Part("EarR", Head, CharacterMeshes.Box("ear", Vector3.zero, new Vector3(0.02f, 0.05f, 0.035f)), m.Skin,
-                new Vector3(0.094f, 0.085f, 0f), false);
-            if (_look.Mustache)
+            BuildEyes();
+            // Kulaklar: kafatasına yaslanan küçük basık elipsoitler (dışa taşma ~6 mm — eski 9 mm'lik çıkıntı azaltıldı).
+            var ear = CharacterMeshes.Ellipsoid("ear3", Vector3.zero, new Vector3(0.006f, 0.021f, 0.015f), 10, 4);
+            Part("EarL", Head, ear, m.Skin, new Vector3(-0.0755f, 0.083f, -0.004f), false);
+            Part("EarR", Head, ear, m.Skin, new Vector3(0.0755f, 0.083f, -0.004f), false);
+            BuildFaceDetail();
+            if (_look.Mustache && _look.FaceCover == FaceCoverKind.None)
             {
                 Part("Mustache", Head, CharacterMeshes.Box("mustache", Vector3.zero, new Vector3(0.062f, 0.014f, 0.016f)), m.Hair,
-                    new Vector3(0f, 0.051f, 0.1f), false);
+                    new Vector3(0f, 0.052f, 0.101f), false);
             }
 
             BuildArm(_leftShoulder, _leftElbow, _leftHand, -1f);
@@ -575,29 +1028,59 @@ namespace Project.Infrastructure.Characters
         private void BuildLeg(Transform hip, Transform knee, Transform ankle, float side)
         {
             var m = _mat;
-            Part("Thigh", hip, CharacterMeshes.Frustum("thigh", -0.43f, 0.03f, new Vector2(0.12f, 0.13f), new Vector2(0.16f, 0.17f)), m.Camo,
-                Vector3.zero);
-            Part("CargoPocket", hip, CharacterMeshes.Box("cargo", Vector3.zero, new Vector3(0.03f, 0.12f, 0.1f)), m.Camo,
+            Part("Thigh", hip, CharacterMeshes.Cloth("thighL2Sculpt", new[] {
+                new CharacterMeshes.Ring(-0.435f, 0.052f, 0.056f), new CharacterMeshes.Ring(-0.34f, 0.06f, 0.065f),
+                new CharacterMeshes.Ring(-0.2f, 0.076f, 0.082f), new CharacterMeshes.Ring(-0.08f, 0.088f, 0.092f),
+                new CharacterMeshes.Ring(0.03f, 0.085f, 0.088f)
+            }), m.Camo, Vector3.zero);
+            Part("CargoPocket", hip, CharacterMeshes.RoundedBox("cargoSculpt", Vector3.zero, new Vector3(0.03f, 0.12f, 0.1f)), m.Camo,
                 new Vector3(side * 0.071f, -0.21f, 0f), false);
-            Part("Shin", knee, CharacterMeshes.Frustum("shin", -0.36f, 0.02f, new Vector2(0.09f, 0.1f), new Vector2(0.115f, 0.125f)), m.Camo,
-                Vector3.zero);
-            Part("KneePad", knee, CharacterMeshes.Box("kneepad", Vector3.zero, new Vector3(0.11f, 0.12f, 0.04f)), m.Gear,
-                new Vector3(0f, -0.01f, 0.058f), false);
-            Part("BootShaft", ankle, CharacterMeshes.Frustum("bootShaft", -0.06f, 0.1f, new Vector2(0.105f, 0.12f), new Vector2(0.112f, 0.126f)),
+            Part("Shin", knee, CharacterMeshes.Cloth("shinL2Sculpt", new[] {
+                new CharacterMeshes.Ring(-0.38f, 0.05f, 0.054f), new CharacterMeshes.Ring(-0.31f, 0.064f, 0.068f, -0.002f),
+                new CharacterMeshes.Ring(-0.27f, 0.052f, 0.058f, -0.004f), new CharacterMeshes.Ring(-0.2f, 0.056f, 0.064f, -0.012f),
+                new CharacterMeshes.Ring(-0.1f, 0.052f, 0.058f, -0.006f), new CharacterMeshes.Ring(-0.02f, 0.056f, 0.061f),
+                new CharacterMeshes.Ring(0.02f, 0.058f, 0.062f)
+            }), m.Camo, Vector3.zero);
+            Part("KneePad", knee, CharacterMeshes.Ellipsoid("kneepadL2", Vector3.zero, new Vector3(0.036f, 0.048f, 0.014f), 10, 4), m.Gear,
+                new Vector3(0f, -0.012f, 0.058f), false);
+            Part("KneePadStrap", knee, CharacterMeshes.Box("kneepadStrap2", Vector3.zero, new Vector3(0.108f, 0.012f, 0.116f)), m.GearDark,
+                new Vector3(0f, -0.058f, 0f), false);
+            Part("KneePadStrapTop", knee, CharacterMeshes.Box("kneepadStrapTop", Vector3.zero, new Vector3(0.106f, 0.012f, 0.114f)), m.GearDark,
+                new Vector3(0f, 0.036f, 0f), false);
+            // Bot: bilekte daralan kaftan, öne uzanan yumuşak ayak, burun kapağı, taban ve bağcık.
+            Part("BootShaft", ankle, CharacterMeshes.Lathe("bootShaftL", new[]
+            {
+                new CharacterMeshes.Ring(-0.055f, 0.05f, 0.058f), new CharacterMeshes.Ring(0f, 0.049f, 0.056f, -0.002f),
+                new CharacterMeshes.Ring(0.05f, 0.054f, 0.06f, -0.002f), new CharacterMeshes.Ring(0.09f, 0.057f, 0.064f, -0.003f)
+            }, 10, false, true), m.Boots, Vector3.zero);
+            Part("BootFoot", ankle, CharacterMeshes.Ellipsoid("bootFoot2", new Vector3(0f, -0.042f, 0.08f), new Vector3(0.053f, 0.046f, 0.138f), 20, 10),
                 m.Boots, Vector3.zero);
-            Part("BootFoot", ankle, CharacterMeshes.Box("bootFoot", new Vector3(0f, -0.045f, 0.05f), new Vector3(0.1f, 0.07f, 0.27f)), m.Boots,
-                Vector3.zero);
+            Part("BootToe", ankle, CharacterMeshes.RoundedBox("bootToeCap2", new Vector3(0f, -0.05f, 0.195f), new Vector3(0.088f, 0.044f, 0.07f)),
+                m.Gloves, Vector3.zero, false);
+            Part("BootSole", ankle, CharacterMeshes.RoundedBox("bootSoleSculpt", new Vector3(0f, -0.07f, 0.08f), new Vector3(0.110f, 0.025f, 0.278f)), m.Gloves,
+                Vector3.zero, false);
+            Part("BootLaces", ankle, CharacterMeshes.BootLacing(), m.GearDark, Vector3.zero, false);
         }
 
         private void BuildArm(Transform shoulder, Transform elbow, Transform hand, float side)
         {
             var m = _mat;
-            Part("ShoulderCap", shoulder, CharacterMeshes.Ellipsoid("shoulderCap", new Vector3(0f, -0.02f, 0f), new Vector3(0.066f, 0.06f, 0.066f), 6, 4),
+            Part("ShoulderCap", shoulder, CharacterMeshes.Ellipsoid("shoulderCap2", new Vector3(0f, -0.015f, 0f), new Vector3(0.062f, 0.058f, 0.062f), 16, 8),
                 m.Camo, Vector3.zero);
-            Part("UpperArm", shoulder, CharacterMeshes.Frustum("upperArm", -0.29f, 0f, new Vector2(0.09f, 0.095f), new Vector2(0.11f, 0.11f)), m.Camo,
-                Vector3.zero);
-            Part("Armband", shoulder, CharacterMeshes.Frustum("armband", -0.165f, -0.1f, new Vector2(0.106f, 0.109f), new Vector2(0.111f, 0.113f)),
-                m.Armband, Vector3.zero, false);
+            // Deltoid omuz pedi: yelek kenarı ile kol arasındaki sert dikişi örter (yumuşak normal, kolla döner).
+            Part("DeltoidPad", shoulder, CharacterMeshes.Ellipsoid("deltoidPadV1", new Vector3(0f, -0.028f, 0f), new Vector3(0.071f, 0.085f, 0.071f), 10, 4, -38f, 90f),
+                m.Gear, Vector3.zero);
+            Part("UpperArm", shoulder, CharacterMeshes.Cloth("upperArmL2Sculpt", new[] {
+                new CharacterMeshes.Ring(-0.28f, 0.04f, 0.043f), new CharacterMeshes.Ring(-0.2f, 0.047f, 0.049f),
+                new CharacterMeshes.Ring(-0.1f, 0.052f, 0.054f), new CharacterMeshes.Ring(-0.02f, 0.056f, 0.056f),
+                new CharacterMeshes.Ring(0f, 0.05f, 0.05f)
+            }), m.Camo, Vector3.zero);
+            Part("Armband", shoulder, CharacterMeshes.Lathe("armbandL", new[]
+            {
+                new CharacterMeshes.Ring(-0.1425f, 0.0555f, 0.0575f), new CharacterMeshes.Ring(-0.11f, 0.0575f, 0.0595f)
+            }, 10, false, false), m.Armband, Vector3.zero, false);
+            Part("ArmbandSeam", shoulder, CharacterMeshes.Box("armbandSeam", Vector3.zero, new Vector3(0.012f, 0.034f, 0.004f)), m.GearDark,
+                new Vector3(0f, -0.1275f, 0.0595f), false);
             if (side < 0f)
             {
                 // Türk bayrağı arması (sol kol dış yüzü).
@@ -605,10 +1088,15 @@ namespace Project.Infrastructure.Characters
                     Quaternion.Euler(0f, -90f, 0f), false);
             }
 
-            Part("Forearm", elbow, CharacterMeshes.Frustum("forearm", -0.26f, 0.01f, new Vector2(0.075f, 0.07f), new Vector2(0.092f, 0.09f)), m.Camo,
-                Vector3.zero);
-            Part("Glove", hand, CharacterMeshes.Box("hand", new Vector3(0f, -0.045f, 0.005f), new Vector3(0.05f, 0.1f, 0.085f)), m.Gloves,
-                Vector3.zero, false);
+            Part("Forearm", elbow, CharacterMeshes.Cloth("forearmL2Sculpt", new[] {
+                new CharacterMeshes.Ring(-0.26f, 0.032f, 0.032f), new CharacterMeshes.Ring(-0.18f, 0.038f, 0.037f),
+                new CharacterMeshes.Ring(-0.08f, 0.045f, 0.044f), new CharacterMeshes.Ring(0.01f, 0.046f, 0.045f)
+            }), m.Camo, Vector3.zero);
+            // Eldiven manşeti: bilekte koyu kauçuk gauntlet — kamuflaj kol ağzı bileğe kadar iner, ten görünmez.
+            Part("Cuff", elbow, CharacterMeshes.Cylinder("cuff3", -0.275f, -0.22f, 0.0345f, 0.041f, 10, false), m.Gloves, Vector3.zero, false);
+            Part("ElbowPad", elbow, CharacterMeshes.Ellipsoid("elbowPad", Vector3.zero, new Vector3(0.045f, 0.04f, 0.03f), 6, 3), m.Gear,
+                new Vector3(0f, 0.0f, -0.04f), false);
+            Part("Glove", hand, CharacterMeshes.Hand(side < 0f ? "handL" : "handR", -side), m.Gloves, Vector3.zero, false);
         }
 
         // ------------------------------------------------------------------ Rütbe
@@ -850,9 +1338,9 @@ namespace Project.Infrastructure.Characters
 
                 case 1:
                     // Yumuşak yelek.
-                    v.Objects.Add(Part("Vest", Chest, CharacterMeshes.Frustum("vest1", 0f, 0.245f, new Vector2(0.37f, 0.245f), new Vector2(0.44f, 0.252f)),
+                    v.Objects.Add(Part("Vest", Chest, CharacterMeshes.Lathe("vest1L", new[] { new CharacterMeshes.Ring(0f, 0.182f, 0.115f), new CharacterMeshes.Ring(0.1f, 0.197f, 0.124f), new CharacterMeshes.Ring(0.17f, 0.212f, 0.124f), new CharacterMeshes.Ring(0.22f, 0.2f, 0.108f), new CharacterMeshes.Ring(0.245f, 0.165f, 0.092f) }, 10, false, false),
                         m.Gear, Vector3.zero));
-                    v.Objects.Add(Part("VestLow", _spine, CharacterMeshes.Frustum("vest1Low", 0.07f, 0.21f, new Vector2(0.335f, 0.235f), new Vector2(0.36f, 0.24f)),
+                    v.Objects.Add(Part("VestLow", _spine, CharacterMeshes.Lathe("vest1LowL", new[] { new CharacterMeshes.Ring(0.07f, 0.165f, 0.115f), new CharacterMeshes.Ring(0.21f, 0.18f, 0.12f) }, 10, false, false),
                         m.Gear, Vector3.zero));
                     AddMagPouches(v, 0.142f, 2);
                     break;
@@ -860,27 +1348,29 @@ namespace Project.Infrastructure.Characters
                 default:
                     // Plaka taşıyıcı (2) / ağır plaka taşıyıcı (3).
                     var heavy = level == 3;
-                    v.Objects.Add(Part("Cummerbund", Chest, CharacterMeshes.Frustum("cummerbund", 0f, 0.13f, new Vector2(0.38f, 0.24f), new Vector2(0.4f, 0.245f)),
+                    v.Objects.Add(Part("Cummerbund", Chest, CharacterMeshes.Lathe("cummerbundL", new[] { new CharacterMeshes.Ring(0f, 0.186f, 0.118f), new CharacterMeshes.Ring(0.13f, 0.2f, 0.123f) }, 10, false, false),
                         m.Gear, Vector3.zero));
-                    v.Objects.Add(Part("CummerbundLow", _spine, CharacterMeshes.Frustum("cummerbundLow", 0.1f, 0.21f, new Vector2(0.345f, 0.235f), new Vector2(0.37f, 0.24f)),
+                    v.Objects.Add(Part("CummerbundLow", _spine, CharacterMeshes.Lathe("cummerbundLowL", new[] { new CharacterMeshes.Ring(0.1f, 0.172f, 0.116f), new CharacterMeshes.Ring(0.21f, 0.185f, 0.12f) }, 10, false, false),
                         m.Gear, Vector3.zero));
-                    v.Objects.Add(Part("FrontPlate", Chest, CharacterMeshes.Box(heavy ? "plateF3" : "plateF2", Vector3.zero,
+                    v.Objects.Add(Part("FrontPlate", Chest, CharacterMeshes.CarrierPlate(heavy ? "plateF3SculptV2" : "plateF2SculptV2",
                         heavy ? new Vector3(0.33f, 0.33f, 0.06f) : new Vector3(0.3f, 0.3f, 0.05f)), m.Gear, new Vector3(0f, 0.13f, 0.125f)));
-                    v.Objects.Add(Part("BackPlate", Chest, CharacterMeshes.Box(heavy ? "plateB3" : "plateB2", Vector3.zero,
+                    v.Objects.Add(Part("BackPlate", Chest, CharacterMeshes.CarrierPlate(heavy ? "plateB3SculptV2" : "plateB2SculptV2",
                         heavy ? new Vector3(0.33f, 0.34f, 0.06f) : new Vector3(0.3f, 0.32f, 0.05f)), m.Gear, new Vector3(0f, 0.13f, -0.125f)));
-                    v.Objects.Add(Part("StrapL", Chest, CharacterMeshes.Box("vestStrap", Vector3.zero, new Vector3(0.065f, 0.025f, 0.25f)), m.Gear,
+                    v.Objects.Add(Part("StrapL", Chest, CharacterMeshes.RoundedBox("vestStrapSculpt", Vector3.zero, new Vector3(0.065f, 0.025f, 0.25f)), m.Gear,
                         new Vector3(-0.115f, 0.262f, 0f), false));
-                    v.Objects.Add(Part("StrapR", Chest, CharacterMeshes.Box("vestStrap", Vector3.zero, new Vector3(0.065f, 0.025f, 0.25f)), m.Gear,
+                    v.Objects.Add(Part("StrapR", Chest, CharacterMeshes.RoundedBox("vestStrapSculpt", Vector3.zero, new Vector3(0.065f, 0.025f, 0.25f)), m.Gear,
                         new Vector3(0.115f, 0.262f, 0f), false));
                     AddMagPouches(v, heavy ? 0.172f : 0.166f, 3);
-                    v.Objects.Add(Part("RadioPouch", Chest, CharacterMeshes.Box("radioPouch", Vector3.zero, new Vector3(0.05f, 0.12f, 0.07f)), m.GearDark,
+                    AddCarrierPouches(v);
+                    AddCarrierWebbing(v, heavy);
+                    v.Objects.Add(Part("RadioPouch", Chest, CharacterMeshes.RoundedBox("radioPouchRounded", Vector3.zero, new Vector3(0.05f, 0.12f, 0.07f)), m.GearDark,
                         new Vector3(-0.215f, 0.08f, -0.03f), false));
                     v.Objects.Add(Part("Antenna", Chest, CharacterMeshes.Cylinder("antenna", 0f, 0.3f, 0.005f, 0.003f, 4, false), m.Gloves,
                         new Vector3(-0.215f, 0.14f, -0.05f), false));
 
                     if (heavy)
                     {
-                        v.Objects.Add(Part("Collar", Chest, CharacterMeshes.Frustum("vestCollar", 0.24f, 0.31f, new Vector2(0.3f, 0.26f), new Vector2(0.25f, 0.22f)),
+                        v.Objects.Add(Part("Collar", Chest, CharacterMeshes.Lathe("vestCollarL", new[] { new CharacterMeshes.Ring(0.24f, 0.15f, 0.125f), new CharacterMeshes.Ring(0.31f, 0.1f, 0.095f) }, 10, false, false),
                             m.Gear, Vector3.zero));
                         v.Objects.Add(Part("SidePlateL", Chest, CharacterMeshes.Box("sidePlate", Vector3.zero, new Vector3(0.035f, 0.17f, 0.16f)), m.Gear,
                             new Vector3(-0.205f, 0.09f, 0f), false));
@@ -904,11 +1394,13 @@ namespace Project.Infrastructure.Characters
 
         private void AddMagPouches(Variant v, float frontZ, int count)
         {
-            var mesh = CharacterMeshes.Box("magPouch", Vector3.zero, new Vector3(0.07f, 0.11f, 0.04f));
+            var mesh = CharacterMeshes.RoundedBox("magPouchRounded", Vector3.zero, new Vector3(0.07f, 0.11f, 0.04f));
             var start = -(count - 1) * 0.04f;
             for (var i = 0; i < count; i++)
             {
                 v.Objects.Add(Part("MagPouch", Chest, mesh, _mat.GearDark, new Vector3(start + i * 0.08f, 0.065f, frontZ), false));
+                v.Objects.Add(Part("MagFlap", Chest, CharacterMeshes.Box("magFlap", Vector3.zero, new Vector3(0.073f, 0.022f, 0.044f)), _mat.Gear,
+                    new Vector3(start + i * 0.08f, 0.116f, frontZ + 0.002f), false));
             }
         }
 
@@ -922,37 +1414,47 @@ namespace Project.Infrastructure.Characters
             if (level == 0)
             {
                 // Kep (kamuflaj).
-                v.Objects.Add(Part("Cap", Head, CharacterMeshes.Ellipsoid("cap", new Vector3(0f, 0.125f, -0.006f), new Vector3(0.106f, 0.09f, 0.115f), 8, 3, 0f, 90f),
+                v.Objects.Add(Part("Cap", Head, CharacterMeshes.Ellipsoid("cap2", new Vector3(0f, 0.125f, -0.006f), new Vector3(0.088f, 0.082f, 0.108f), 10, 3, 0f, 90f),
                     m.Camo, Vector3.zero));
-                v.Objects.Add(Part("CapBrim", Head, CharacterMeshes.Box("capBrim", Vector3.zero, new Vector3(0.15f, 0.012f, 0.07f)), m.Camo,
-                    new Vector3(0f, 0.128f, 0.12f), Quaternion.Euler(-8f, 0f, 0f), false));
+                v.Objects.Add(Part("CapBrim", Head, CharacterMeshes.Box("capBrim", Vector3.zero, new Vector3(0.13f, 0.012f, 0.06f)), m.Camo,
+                    new Vector3(0f, 0.13f, 0.1f), Quaternion.Euler(-8f, 0f, 0f), false));
             }
             else
             {
                 // TSK kaskı: 1 düz, 2 kamuflaj kılıflı + çene kayışı, 3 + gece görüş bağlantısı, raylar ve kulaklık.
-                var shell = CharacterMeshes.Ellipsoid("helmet", new Vector3(0f, 0.1f, -0.008f), new Vector3(0.122f, 0.126f, 0.13f), 10, 4, 4f, 90f, 0.05f);
-                v.Objects.Add(Part("Helmet", Head, shell, level == 1 ? m.Gear : m.Camo, Vector3.zero));
+                var shell = CharacterMeshes.Ellipsoid("helmet2", new Vector3(0f, 0.115f, -0.01f), new Vector3(0.1f, 0.105f, 0.125f), 20, 8, 0f, 90f, 0.03f);
+                v.Objects.Add(Part("Helmet", Head, shell, level == 1 ? m.Helmet : m.Camo, Vector3.zero));
+                // Kılıf kenar dudağı: kabuğun alt kenarını saran dışa taşkın bez şerit — kask kılıflı kompozit okunur.
+                v.Objects.Add(Part("HelmetRim", Head, CharacterMeshes.Lathe("helmetRimV1", new[]
+                {
+                    new CharacterMeshes.Ring(0.102f, 0.106f, 0.131f), new CharacterMeshes.Ring(0.112f, 0.11f, 0.1355f),
+                    new CharacterMeshes.Ring(0.126f, 0.1035f, 0.1285f)
+                }, 14, false, false), level == 1 ? m.Helmet : m.Camo, new Vector3(0f, 0f, -0.01f), Quaternion.identity, false));
                 if (level >= 2)
                 {
-                    v.Objects.Add(Part("HelmetBand", Head, CharacterMeshes.Cylinder("helmetBand", 0.13f, 0.155f, 0.124f, 0.117f, 10, false, 1.07f),
-                        m.GearDark, new Vector3(0f, 0f, -0.008f), false));
-                    v.Objects.Add(Part("ChinStrapL", Head, CharacterMeshes.Box("chinStrap", Vector3.zero, new Vector3(0.008f, 0.11f, 0.015f)), m.Gloves,
-                        new Vector3(-0.096f, 0.055f, 0.01f), false));
-                    v.Objects.Add(Part("ChinStrapR", Head, CharacterMeshes.Box("chinStrap", Vector3.zero, new Vector3(0.008f, 0.11f, 0.015f)), m.Gloves,
-                        new Vector3(0.096f, 0.055f, 0.01f), false));
+                    v.Objects.Add(Part("HelmetBand", Head, CharacterMeshes.Cylinder("helmetBand2", 0.112f, 0.14f, 0.107f, 0.101f, 12, false, 1.2f),
+                        m.GearDark, new Vector3(0f, 0f, -0.01f), false));
+                    // Çene kayışı: kaskın altından yanaklara inip çene altında birleşir.
+                    v.Objects.Add(Part("ChinStrapL", Head, CharacterMeshes.Box("chinStrap2", Vector3.zero, new Vector3(0.006f, 0.119f, 0.012f)), m.Gloves,
+                        new Vector3(-0.065f, 0.055f, 0.033f), Quaternion.Euler(-16f, 0f, -24f), false));
+                    v.Objects.Add(Part("ChinStrapR", Head, CharacterMeshes.Box("chinStrap2", Vector3.zero, new Vector3(0.006f, 0.119f, 0.012f)), m.Gloves,
+                        new Vector3(0.065f, 0.055f, 0.033f), Quaternion.Euler(-16f, 0f, 24f), false));
+                    v.Objects.Add(Part("ChinCup", Head, CharacterMeshes.Ellipsoid("chinCupSculpt", Vector3.zero, new Vector3(0.036f, 0.009f, 0.024f), 16, 6), m.Gloves,
+                        new Vector3(0f, -0.022f, 0.04f), false));
                 }
 
                 if (level >= 3)
                 {
                     v.Objects.Add(Part("NvgMount", Head, CharacterMeshes.Box("nvgMount", Vector3.zero, new Vector3(0.05f, 0.045f, 0.03f)), m.Metal,
-                        new Vector3(0f, 0.16f, 0.122f), Quaternion.Euler(-20f, 0f, 0f), false));
+                        new Vector3(0f, 0.17f, 0.108f), Quaternion.Euler(-20f, 0f, 0f), false));
                     v.Objects.Add(Part("RailL", Head, CharacterMeshes.Box("helmetRail", Vector3.zero, new Vector3(0.012f, 0.025f, 0.12f)), m.Metal,
-                        new Vector3(-0.124f, 0.135f, -0.008f), false));
+                        new Vector3(-0.098f, 0.16f, -0.01f), false));
                     v.Objects.Add(Part("RailR", Head, CharacterMeshes.Box("helmetRail", Vector3.zero, new Vector3(0.012f, 0.025f, 0.12f)), m.Metal,
-                        new Vector3(0.124f, 0.135f, -0.008f), false));
-                    var cup = CharacterMeshes.Cylinder("earCup", -0.022f, 0.022f, 0.042f, 0.04f, 8, true);
-                    v.Objects.Add(Part("EarCupL", Head, cup, m.GearDark, new Vector3(-0.108f, 0.08f, 0f), Quaternion.Euler(0f, 0f, 90f), false));
-                    v.Objects.Add(Part("EarCupR", Head, cup, m.GearDark, new Vector3(0.108f, 0.08f, 0f), Quaternion.Euler(0f, 0f, -90f), false));
+                        new Vector3(0.098f, 0.16f, -0.01f), false));
+                    AddNvg(v);
+                    var cup = CharacterMeshes.Cylinder("earCup", -0.022f, 0.022f, 0.04f, 0.038f, 8, true);
+                    v.Objects.Add(Part("EarCupL", Head, cup, m.GearDark, new Vector3(-0.088f, 0.085f, -0.002f), Quaternion.Euler(0f, 0f, 90f), false));
+                    v.Objects.Add(Part("EarCupR", Head, cup, m.GearDark, new Vector3(0.088f, 0.085f, -0.002f), Quaternion.Euler(0f, 0f, -90f), false));
                 }
             }
 
@@ -965,13 +1467,12 @@ namespace Project.Infrastructure.Characters
         {
             var v = new Variant();
             var m = _mat;
-            // Bordo bere: sağa yatık, sol önde altın arma.
-            v.Objects.Add(Part("Beret", Head, CharacterMeshes.Ellipsoid("beret", Vector3.zero, new Vector3(0.12f, 0.047f, 0.124f), 10, 4), m.Beret,
-                new Vector3(0.02f, 0.178f, -0.006f), Quaternion.Euler(0f, 0f, -12f)));
-            v.Objects.Add(Part("BeretBand", Head, CharacterMeshes.Cylinder("beretBand", 0.125f, 0.15f, 0.104f, 0.104f, 10, false, 1.08f), m.Beret,
+            // Bordo bere: sola yatık, siyah kenar bandı, sol önde siyah yuvarlak arma (ASKER_REFERANSI).
+            v.Objects.Add(Part("Beret", Head, CharacterMeshes.Ellipsoid("beret2", Vector3.zero, new Vector3(0.094f, 0.045f, 0.108f), 16, 6), m.Beret,
+                new Vector3(-0.015f, 0.188f, -0.006f), Quaternion.Euler(0f, 0f, 12f)));
+            v.Objects.Add(Part("BeretBand", Head, CharacterMeshes.Cylinder("beretBand2", 0.13f, 0.155f, 0.084f, 0.082f, 10, false, 1.19f), BlackTrim,
                 new Vector3(0f, 0f, -0.004f), false));
-            v.Objects.Add(Part("BeretBadge", Head, CharacterMeshes.Box("beretBadge", Vector3.zero, new Vector3(0.026f, 0.032f, 0.01f)), m.Gold,
-                new Vector3(-0.05f, 0.155f, 0.1f), Quaternion.Euler(-10f, -18f, 0f), false));
+            AddBeretBadge(v);
             v.SetActive(false);
             return v;
         }
@@ -987,40 +1488,66 @@ namespace Project.Infrastructure.Characters
             switch (level)
             {
                 case 1:
-                    v.Objects.Add(Part("Pack", root, CharacterMeshes.Box("pack1", new Vector3(0f, 0.13f, -0.065f), new Vector3(0.27f, 0.3f, 0.13f)), m.Gear,
+                    // Hücum çantası: kubbeli tepe, %20 inceltilmiş derinlik (0.13→0.105), iki yan cep.
+                    v.Objects.Add(Part("Pack", root, CharacterMeshes.RoundedBox("pack1RoundedV2", new Vector3(0f, 0.115f, -0.0525f), new Vector3(0.27f, 0.27f, 0.105f)), m.Gear,
                         Vector3.zero));
-                    v.Objects.Add(Part("PackFlap", root, CharacterMeshes.Box("pack1Flap", new Vector3(0f, 0.27f, -0.07f), new Vector3(0.25f, 0.04f, 0.125f)),
-                        m.GearDark, Vector3.zero, false));
+                    v.Objects.Add(Part("PackDome", root, CharacterMeshes.Ellipsoid("pack1DomeV2", Vector3.zero, new Vector3(0.132f, 0.05f, 0.05f), 10, 3, 0f, 90f), m.Gear,
+                        new Vector3(0f, 0.245f, -0.0525f)));
+                    v.Objects.Add(Part("PackSideL", root, CharacterMeshes.RoundedBox("packMiniPouch", Vector3.zero, new Vector3(0.045f, 0.12f, 0.08f)), m.GearDark,
+                        new Vector3(-0.155f, 0.08f, -0.0525f), false));
+                    v.Objects.Add(Part("PackSideR", root, CharacterMeshes.RoundedBox("packMiniPouch", Vector3.zero, new Vector3(0.045f, 0.12f, 0.08f)), m.GearDark,
+                        new Vector3(0.155f, 0.08f, -0.0525f), false));
                     break;
 
                 case 2:
-                    v.Objects.Add(Part("Pack", root, CharacterMeshes.Box("pack2", new Vector3(0f, 0.12f, -0.09f), new Vector3(0.32f, 0.42f, 0.18f)), m.Gear,
+                    // Sırt çantası: kubbeli tepe + üstte yatay yatak rulosu, derinlik 0.18→0.145, yan cepler.
+                    v.Objects.Add(Part("Pack", root, CharacterMeshes.RoundedBox("pack2RoundedV2", new Vector3(0f, 0.1f, -0.0725f), new Vector3(0.32f, 0.36f, 0.145f)), m.Gear,
                         Vector3.zero));
-                    v.Objects.Add(Part("PackFlap", root, CharacterMeshes.Box("pack2Flap", new Vector3(0f, 0.32f, -0.095f), new Vector3(0.3f, 0.05f, 0.17f)),
-                        m.GearDark, Vector3.zero, false));
-                    v.Objects.Add(Part("PackSideL", root, CharacterMeshes.Box("packSide", Vector3.zero, new Vector3(0.05f, 0.2f, 0.12f)), m.GearDark,
-                        new Vector3(-0.185f, 0.06f, -0.09f), false));
-                    v.Objects.Add(Part("PackSideR", root, CharacterMeshes.Box("packSide", Vector3.zero, new Vector3(0.05f, 0.2f, 0.12f)), m.GearDark,
-                        new Vector3(0.185f, 0.06f, -0.09f), false));
+                    v.Objects.Add(Part("PackDome", root, CharacterMeshes.Ellipsoid("pack2DomeV2", Vector3.zero, new Vector3(0.157f, 0.06f, 0.0705f), 12, 3, 0f, 90f), m.Gear,
+                        new Vector3(0f, 0.272f, -0.0725f)));
+                    v.Objects.Add(Part("Bedroll", root, CharacterMeshes.Cylinder("bedroll2", -0.17f, 0.17f, 0.055f, 0.055f, 10, true), m.Camo,
+                        new Vector3(0f, 0.345f, -0.075f), Quaternion.Euler(0f, 0f, 90f)));
+                    v.Objects.Add(Part("PackSideL", root, CharacterMeshes.RoundedBox("packSideRounded", Vector3.zero, new Vector3(0.05f, 0.2f, 0.12f)), m.GearDark,
+                        new Vector3(-0.182f, 0.05f, -0.0725f), false));
+                    v.Objects.Add(Part("PackSideR", root, CharacterMeshes.RoundedBox("packSideRounded", Vector3.zero, new Vector3(0.05f, 0.2f, 0.12f)), m.GearDark,
+                        new Vector3(0.182f, 0.05f, -0.0725f), false));
                     break;
 
                 default:
-                    v.Objects.Add(Part("Pack", root, CharacterMeshes.Box("pack3", new Vector3(0f, 0.14f, -0.11f), new Vector3(0.36f, 0.55f, 0.22f)), m.Gear,
+                    // Büyük sırt çantası: kubbeli tepe + yatak rulosu, derinlik 0.22→0.175, yumuşak kenarlı yan cepler.
+                    v.Objects.Add(Part("Pack", root, CharacterMeshes.RoundedBox("pack3RoundedV2", new Vector3(0f, 0.12f, -0.0875f), new Vector3(0.36f, 0.48f, 0.175f)), m.Gear,
                         Vector3.zero));
-                    v.Objects.Add(Part("PackFlap", root, CharacterMeshes.Box("pack3Flap", new Vector3(0f, 0.4f, -0.115f), new Vector3(0.34f, 0.06f, 0.21f)),
-                        m.GearDark, Vector3.zero, false));
-                    v.Objects.Add(Part("Bedroll", root, CharacterMeshes.Cylinder("bedroll", -0.2f, 0.2f, 0.065f, 0.065f, 8, true), m.Camo,
-                        new Vector3(0f, 0.5f, -0.11f), Quaternion.Euler(0f, 0f, 90f)));
-                    v.Objects.Add(Part("PackSideL", root, CharacterMeshes.Box("packSide3", Vector3.zero, new Vector3(0.06f, 0.26f, 0.14f)), m.GearDark,
-                        new Vector3(-0.21f, 0.05f, -0.11f), false));
-                    v.Objects.Add(Part("PackSideR", root, CharacterMeshes.Box("packSide3", Vector3.zero, new Vector3(0.06f, 0.26f, 0.14f)), m.GearDark,
-                        new Vector3(0.21f, 0.05f, -0.11f), false));
+                    v.Objects.Add(Part("PackDome", root, CharacterMeshes.Ellipsoid("pack3DomeV2", Vector3.zero, new Vector3(0.177f, 0.07f, 0.0855f), 12, 3, 0f, 90f), m.Gear,
+                        new Vector3(0f, 0.352f, -0.0875f)));
+                    v.Objects.Add(Part("Bedroll", root, CharacterMeshes.Cylinder("bedroll3", -0.19f, 0.19f, 0.062f, 0.062f, 10, true), m.Camo,
+                        new Vector3(0f, 0.43f, -0.09f), Quaternion.Euler(0f, 0f, 90f)));
+                    v.Objects.Add(Part("PackSideL", root, CharacterMeshes.RoundedBox("packSide3Rounded", Vector3.zero, new Vector3(0.06f, 0.26f, 0.14f)), m.GearDark,
+                        new Vector3(-0.2f, 0.05f, -0.0875f), false));
+                    v.Objects.Add(Part("PackSideR", root, CharacterMeshes.RoundedBox("packSide3Rounded", Vector3.zero, new Vector3(0.06f, 0.26f, 0.14f)), m.GearDark,
+                        new Vector3(0.2f, 0.05f, -0.0875f), false));
                     break;
             }
 
+            AddPackStraps(v);
+            AddBackpackDetail(v, level);
             v.SetActive(false);
             _backpacks[level] = v;
             return v;
+        }
+
+        /// <summary>Çanta omuz askıları: omuz üzerinden geçen bant + önde göğse inen uç (çanta varyantıyla birlikte açılır/kapanır).</summary>
+        private void AddPackStraps(Variant v)
+        {
+            var over = CharacterMeshes.Box("packStrapOver", Vector3.zero, new Vector3(0.05f, 0.014f, 0.24f));
+            var front = CharacterMeshes.Box("packStrapFront", Vector3.zero, new Vector3(0.048f, 0.17f, 0.014f));
+            for (var i = 0; i < 2; i++)
+            {
+                var sx = i == 0 ? -1f : 1f;
+                v.Objects.Add(Part("PackStrapOver", Chest, over, _mat.GearDark,
+                    new Vector3(sx * 0.1f, 0.277f, -0.005f), Quaternion.Euler(12f, 0f, sx * 4f), false));
+                v.Objects.Add(Part("PackStrapFront", Chest, front, _mat.GearDark,
+                    new Vector3(sx * 0.1f, 0.185f, 0.127f), Quaternion.Euler(4f, 0f, 0f), false));
+            }
         }
 
         // ------------------------------------------------------------------ Silah
@@ -1319,16 +1846,58 @@ namespace Project.Infrastructure.Characters
 
             held.LastUsed = Time.time;
             _hold = held.Kind;
+            AttachWeaponToHand(held);
             if (held.Root != null)
                 held.Root.SetActive(!_dead);
 
+            LogWeaponAttach(held);
             ComputeArmIk(held);
+        }
+
+        /// <summary>Takılan silahın tek satırlık tanı kaydı: boyut/merkez/ebeveyn (görünmez/büzülmüş silah hatalarını yakalar).</summary>
+        private static void LogWeaponAttach(HeldWeapon held)
+        {
+            if (held == null || held.Root == null)
+                return;
+
+            var renderers = held.Root.GetComponentsInChildren<Renderer>(true);
+            var bounds = new Bounds(held.Root.transform.position, Vector3.zero);
+            var any = false;
+            for (var i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] == null)
+                    continue;
+                if (!any)
+                {
+                    bounds = renderers[i].bounds;
+                    any = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(renderers[i].bounds);
+                }
+            }
+
+            Debug.Log("[SILAH] " + held.Key + " boyut=" + bounds.size.ToString("F2") + " merkez=" + bounds.center.ToString("F2")
+                      + " parent=" + TransformPath(held.Root.transform.parent));
+        }
+
+        /// <summary>Hiyerarşi yolu (tanı kaydı için).</summary>
+        private static string TransformPath(Transform t)
+        {
+            if (t == null)
+                return "(yok)";
+            var path = t.name;
+            for (var p = t.parent; p != null; p = p.parent)
+                path = p.name + "/" + path;
+            return path;
         }
 
         /// <summary>
         /// Tutuş türüne göre kolların IK pozunu (ArmsPivot uzayında) silah başına bir kez hesaplar. Silah fabrikası el
         /// bağlantıları verdiyse bilekler oraya, yoksa kategoriye göre tahmini noktalara gider. Sol el uzanamıyorsa
-        /// el kundağı boyunca geriye kaydırılır.
+        /// el kundağı boyunca geriye kaydırılır. Tüfekte yuva taşıma dönüşü alır (<see cref="RifleCarry"/>): namlu
+        /// ileri-aşağı, hafif sola — silah gövde siluetinden her açıdan taşar.
         /// </summary>
         private void ComputeArmIk(HeldWeapon held)
         {
@@ -1336,6 +1905,7 @@ namespace Project.Infrastructure.Characters
                 return;
 
             var kind = held != null ? held.Kind : HoldKind.None;
+            var carry = kind == HoldKind.Rifle ? RifleCarry() : Quaternion.identity;
             Vector3 socket;
             Vector3 rightWrist;
             Vector3 leftWrist;
@@ -1347,23 +1917,24 @@ namespace Project.Infrastructure.Characters
             }
             else
             {
-                socket = new Vector3(0.1f, -0.08f, 0.22f);
+                // z 0.24: dipçik gövde içinde kalmasın, kabza göğüs önüne çıksın.
+                socket = new Vector3(0.1f, -0.08f, 0.24f);
                 var reach = held != null ? held.LeftHandReach : 0.21f;
-                rightWrist = socket + (held != null && held.HasRightGrip ? held.RightGrip : new Vector3(0.0f, -0.035f, -0.035f));
-                leftWrist = socket + (held != null && held.HasLeftGrip ? held.LeftGrip : new Vector3(-0.03f, -0.005f, Mathf.Max(0.12f, reach)));
+                rightWrist = socket + carry * (held != null && held.HasRightGrip ? held.RightGrip : new Vector3(0.0f, -0.035f, -0.035f));
+                leftWrist = socket + carry * (held != null && held.HasLeftGrip ? held.LeftGrip : new Vector3(-0.03f, -0.005f, Mathf.Max(0.12f, reach)));
             }
 
             _socketRest = socket;
             WeaponSocket.localPosition = socket;
-            WeaponSocket.localRotation = Quaternion.identity;
+            WeaponSocket.localRotation = carry;
 
             var rightShoulder = new Vector3(ShoulderX, 0f, 0f);
             var leftShoulder = new Vector3(-ShoulderX, 0f, 0f);
 
             // Uzun silahlarda el kundağı omuzdan erişilemeyecek kadar öndeyse eli namlu ekseni boyunca geri çek.
-            var minZ = socket.z + 0.06f;
-            for (var i = 0; i < 48 && leftWrist.z > minZ && (leftWrist - leftShoulder).sqrMagnitude > MaxArmReach * MaxArmReach; i++)
-                leftWrist.z -= 0.01f;
+            var barrel = carry * Vector3.forward;
+            for (var i = 0; i < 48 && Vector3.Dot(leftWrist - socket, barrel) > 0.06f && (leftWrist - leftShoulder).sqrMagnitude > MaxArmReach * MaxArmReach; i++)
+                leftWrist -= barrel * 0.01f;
             for (var i = 0; i < 48 && rightWrist.z > 0f && (rightWrist - rightShoulder).sqrMagnitude > MaxArmReach * MaxArmReach; i++)
                 rightWrist.z -= 0.01f;
             SolveTwoBone(rightShoulder, rightWrist, rightShoulder + new Vector3(0.3f, -0.4f, -0.2f), UpperArmLength, ForearmLength, -1f,
@@ -1409,6 +1980,13 @@ namespace Project.Infrastructure.Characters
             upper = Quaternion.LookRotation(upperDir, upperFront) * BoneToZ;
             var lower = Quaternion.LookRotation(lowerDir, lowerFront) * BoneToZ;
             lowerLocal = Quaternion.Inverse(upper) * lower;
+
+            // NaN/sonsuz dönüş kemiği (ve altındaki tüm parçaları) uzaya fırlatır: parçalar dağılmış görünür. Güvenli poza düş.
+            if (!SoldierRigMath.IsFinite(upper) || !SoldierRigMath.IsFinite(lowerLocal))
+            {
+                upper = Quaternion.identity;
+                lowerLocal = Quaternion.identity;
+            }
         }
 
         // ------------------------------------------------------------------ Girdiler
@@ -1439,6 +2017,28 @@ namespace Project.Infrastructure.Characters
             _seated = seated;
         }
 
+        /// <summary>Şarjör değiştirme jesti: sol el belden şarjör alır, silaha takar (görsel, süre saniye).</summary>
+        public void PlayReloadGesture(float durationSeconds)
+        {
+            if (_dead)
+                return;
+
+            _gesture = 1;
+            _gestureTime = 0f;
+            _gestureDuration = Mathf.Clamp(durationSeconds, 0.3f, 12f);
+        }
+
+        /// <summary>Bomba atma jesti: sağ kol geri sallanır, öne fırlatır.</summary>
+        public void PlayThrowGesture()
+        {
+            if (_dead)
+                return;
+
+            _gesture = 2;
+            _gestureTime = 0f;
+            _gestureDuration = 0.8f;
+        }
+
         /// <summary>Atış sekmesi (kollar ve silah yukarı-geri teper).</summary>
         public void PlayFire()
         {
@@ -1461,6 +2061,7 @@ namespace Project.Infrastructure.Characters
             _deathTime = 0f;
             _deathWeaponHidden = false;
             SetHitboxesEnabled(false);
+            DriveHumanoid();
 
             var t = transform;
             if (!_poseStored)
@@ -1509,11 +2110,15 @@ namespace Project.Infrastructure.Characters
                 _poseStored = false;
             }
 
+            ExitRagdoll();
+            _hit.Clear();
             _dead = false;
             _deathTime = 0f;
             _deathWeaponHidden = false;
             _recoil = 0f;
             _flinch = 0f;
+            _gesture = 0;
+            DriveHumanoid();
             SetHitboxesEnabled(true);
             if (_current != null && _current.Root != null)
                 _current.Root.SetActive(true);
@@ -1571,7 +2176,10 @@ namespace Project.Infrastructure.Characters
                 dir = transform.position - combatant.LastDamageSource;
             }
 
-            PlayDeath(dir);
+            var weaponId = damage.SourceWeaponId;
+            var explosive = RagdollMath.IsExplosive(weaponId);
+            var force = RagdollMath.ImpulseNs(weaponId, damage.Amount, damage.BodyPart == BodyPart.Head);
+            Die(dir, force, damage.BodyPart, explosive);
         }
 
         private void OnOwnerDamaged(Combatant combatant, DamageInfo damage)
@@ -1581,6 +2189,15 @@ namespace Project.Infrastructure.Characters
 
             _flinch = Mathf.Clamp01(0.4f + damage.Amount / 40f);
             _flinchSide = UnityEngine.Random.value < 0.5f ? -1f : 1f;
+            Stagger(_flinchSide, damage.Amount);
+
+            var hitDir = Vector3.zero;
+            if (damage.HasSourcePosition)
+                hitDir = transform.position - new Vector3(damage.SourcePosition.X, damage.SourcePosition.Y, damage.SourcePosition.Z);
+            else if (combatant != null)
+                hitDir = transform.position - combatant.LastDamageSource;
+            var blast = RagdollMath.IsExplosive(damage.SourceWeaponId);
+            PlayHit(damage.BodyPart, hitDir, blast ? 1f : Mathf.Clamp01(damage.Amount / 55f), blast);
         }
 
         private bool TrySyncFromOwner(bool force)
@@ -1620,6 +2237,10 @@ namespace Project.Infrastructure.Characters
             if (dt > 0.1f)
                 dt = 0.1f;
 
+            // Ragdoll (fizik ya da donmuş): kemikleri fizik yönetir, poz sürücüsü çalışmaz (ResetPose ile geri döner).
+            if (_ragdollPosed)
+                return;
+
             // Yere yatmış ceset: poz sabittir, güncelleme gerekmez (ResetPose ile yeniden başlar).
             if (_dead && _deathTime > DeathDuration + 0.6f)
                 return;
@@ -1651,6 +2272,9 @@ namespace Project.Infrastructure.Characters
                 SyncWeaponFromOwner();
 
             ApplyPose(dt);
+            if (!_dead)
+                ApplyHitReaction(dt);
+            DriveHumanoid();
         }
 
         private void ApplyPose(float dt)
@@ -1687,6 +2311,12 @@ namespace Project.Infrastructure.Characters
             _aimPitch = Mathf.Lerp(_aimPitch, _aimPitchTarget, dt > 0f ? 1f - Mathf.Exp(-15f * dt) : 1f);
             _recoil = Mathf.MoveTowards(_recoil, 0f, dt * 9f);
             _flinch = Mathf.MoveTowards(_flinch, 0f, dt * 5f);
+            if (_gesture != 0)
+            {
+                _gestureTime += dt;
+                if (_gestureTime >= _gestureDuration)
+                    _gesture = 0;
+            }
             _breath += dt * 1.6f;
             if (_breath > Mathf.PI * 2f)
                 _breath -= Mathf.PI * 2f;
@@ -1716,8 +2346,8 @@ namespace Project.Infrastructure.Characters
             var hipY = Mathf.Lerp(uprightHip, ProneHipHeight, prone);
             hipY = Mathf.Lerp(hipY, SeatHeight + 0.12f, seat);
             var hipZ = -0.04f * crouch;
-            _body.localPosition = new Vector3(0f, hipY, hipZ);
-            var hipRoll = moveWeight * sin * 3f * (1f - prone);
+            _body.localPosition = new Vector3(SoldierDetailRules.HipSway(sin, moveWeight, prone, seat), hipY, hipZ);
+            var hipRoll = moveWeight * sin * 3f * (1f - prone) + moveWeight * sin * 5f * prone * (1f - seat) - moveWeight * sin * 1.5f * crouch;
             var bodyPitch = 90f * prone;
             _body.localRotation = Quaternion.Euler(bodyPitch, 0f, hipRoll);
 
@@ -1734,11 +2364,12 @@ namespace Project.Infrastructure.Characters
             var chestX = pitch * 0.25f + crouch * 4f - 15f * prone;
             var spineYaw = -sin * 5f * moveWeight * (1f - prone) * (hasWeapon ? 0.3f : 1f);
             _spine.localRotation = Quaternion.Euler(spineX, spineYaw, _flinch * _flinchSide * 4f);
-            Chest.localRotation = Quaternion.Euler(chestX, 0f, 0f);
+            Chest.localRotation = Quaternion.Euler(chestX, SoldierDetailRules.ChestCounterTwist(sin, moveWeight, hasWeapon) * (1f - prone), -hipRoll * 0.35f);
+            UpdateAntennaMotion(SoldierDetailRules.AntennaTilt(_speed, _phase), Mathf.Sin(_phase) * 2f * moveWeight);
 
             var upperTotal = bodyPitch + spineX + chestX;
             var headTotal = pitch * 0.9f;
-            Head.localRotation = Quaternion.Euler(headTotal - upperTotal, -spineYaw * 0.8f, 0f);
+            Head.localRotation = Quaternion.Euler(headTotal - upperTotal - _flinch * 9f, -spineYaw * 0.8f + _flinch * _flinchSide * 12f, _flinch * _flinchSide * 5f);
 
             if (hasWeapon)
             {
@@ -1747,22 +2378,25 @@ namespace Project.Infrastructure.Characters
                 var armsTotal = pitch + sprintDrop + seatDrop - _recoil * 6f + breathing * 0.3f;
                 var armsYaw = run * 25f;
                 _armsPivot.localRotation = Quaternion.Euler(armsTotal - upperTotal, armsYaw - spineYaw, 0f);
-                WeaponSocket.localPosition = _socketRest + new Vector3(0f, 0.004f * Mathf.Sin(_phase * 2f) * moveWeight, -0.03f * _recoil);
+                WeaponSocket.localPosition = _socketRest + new Vector3(0.006f * cos * moveWeight * (1f + run), 0.004f * Mathf.Sin(_phase * 2f) * moveWeight, -0.03f * _recoil);
+                if (_hold == HoldKind.Rifle)
+                    WeaponSocket.localRotation = RifleCarry(1f - prone); // Yüzüstünde namlu yere saplanmasın.
                 _leftShoulder.localRotation = _ikLeftShoulder;
                 _leftElbow.localRotation = _ikLeftElbow;
                 _rightShoulder.localRotation = _ikRightShoulder;
                 _rightElbow.localRotation = _ikRightElbow;
                 _leftHand.localRotation = Quaternion.Euler(-20f, 0f, 0f);
                 _rightHand.localRotation = Quaternion.Euler(-35f, 0f, 0f);
+                ApplyGesture();
             }
             else
             {
                 // Silahsız: kollar dikey sarkar, yürürken salınır.
                 _armsPivot.localRotation = Quaternion.Euler(-upperTotal * (1f - prone), 0f, 0f);
                 var swing = Mathf.Lerp(18f, 42f, run) * moveWeight * (1f - prone);
-                var elbow = Mathf.Lerp(12f, 85f, run) + crouch * 20f;
-                var leftArm = Quaternion.Euler(sin * swing, 0f, -6f);
-                var rightArm = Quaternion.Euler(-sin * swing, 0f, 6f);
+                var elbow = Mathf.Lerp(14f, 85f, run) + crouch * 20f;
+                var leftArm = Quaternion.Euler(sin * swing, 0f, -4f);
+                var rightArm = Quaternion.Euler(-sin * swing, 0f, 4f);
                 var leftElbow = Quaternion.Euler(-elbow - Mathf.Max(0f, -sin) * 15f * moveWeight, 0f, 0f);
                 var rightElbow = Quaternion.Euler(-elbow - Mathf.Max(0f, sin) * 15f * moveWeight, 0f, 0f);
 
@@ -1796,6 +2430,35 @@ namespace Project.Infrastructure.Characters
                 _leftHand.localRotation = Quaternion.identity;
                 _rightHand.localRotation = Quaternion.identity;
                 WeaponSocket.localPosition = _socketRest;
+            }
+        }
+
+        /// <summary>Şarjör/bomba jesti: IK kol pozunun üstüne eklenen ofsetler.</summary>
+        private void ApplyGesture()
+        {
+            if (_gesture == 0 || _gestureDuration <= 0f)
+                return;
+
+            var t = Mathf.Clamp01(_gestureTime / _gestureDuration);
+            if (_gesture == 1)
+            {
+                // Çıkar (0.1-0.3), cepten yenisi (0.3-0.5), tak (0.5-0.75), toparlan.
+                var reach = Smooth(Mathf.Clamp01((t - 0.08f) / 0.15f)) * (1f - Smooth(Mathf.Clamp01((t - 0.72f) / 0.2f)));
+                var dip = Mathf.Sin(Mathf.Clamp01((t - 0.25f) / 0.3f) * Mathf.PI);
+                _leftShoulder.localRotation = _leftShoulder.localRotation * Quaternion.Euler(22f * reach + 12f * dip, 0f, 10f * reach);
+                _leftElbow.localRotation = _leftElbow.localRotation * Quaternion.Euler(-25f * reach, 0f, 0f);
+                _armsPivot.localRotation = _armsPivot.localRotation * Quaternion.Euler(6f * reach, -4f * reach, 8f * reach);
+                _spine.localRotation = _spine.localRotation * Quaternion.Euler(3f * reach, 0f, 0f);
+            }
+            else
+            {
+                var wind = Smooth(Mathf.Clamp01(t / 0.35f));
+                var release = Smooth(Mathf.Clamp01((t - 0.35f) / 0.15f));
+                var back = Smooth(Mathf.Clamp01((t - 0.65f) / 0.35f));
+                var swing = wind * (1f - release) * 70f - release * (1f - back) * 55f;
+                _rightShoulder.localRotation = _rightShoulder.localRotation * Quaternion.Euler(swing, 0f, -12f * wind * (1f - release));
+                _rightElbow.localRotation = _rightElbow.localRotation * Quaternion.Euler(-40f * wind * (1f - release), 0f, 0f);
+                _spine.localRotation = _spine.localRotation * Quaternion.Euler(0f, 10f * wind * (1f - release) - 8f * release * (1f - back), 0f);
             }
         }
 
@@ -1862,12 +2525,12 @@ namespace Project.Infrastructure.Characters
                 if (t < DeathDuration)
                 {
                     var f = Mathf.Clamp01((t - 0.06f) / (DeathDuration - 0.06f));
-                    angle = 88f * f * f;
+                    angle = 88f * Mathf.Pow(f, 1.7f);
                 }
                 else
                 {
                     var b = Mathf.Clamp01((t - DeathDuration) / 0.22f);
-                    angle = 88f - 6f * Mathf.Sin(b * Mathf.PI);
+                    angle = 88f - 6f * Mathf.Sin(b * Mathf.PI) * (1f - 0.4f * b);
                 }
 
                 var fall = angle / 88f;
@@ -1921,8 +2584,64 @@ namespace Project.Infrastructure.Characters
             return x * x * (3f - 2f * x);
         }
 
+        private readonly List<Mesh> _combinedMeshes = new List<Mesh>(8);
+
+        /// <summary>BuildBody sonrası statik parçaları kemik+malzeme başına tek mesh'e birleştirir (SoldierMeshCombiner.Enabled ile kapatılır).</summary>
+        private void CombineStaticParts()
+        {
+            try
+            {
+                if (!SoldierMeshCombiner.Enabled || _renderers.Count <= SoldierMeshCombinerRules.MinPartCount)
+                    return;
+                var parts = new List<MeshRenderer>(_renderers.Count);
+                for (var i = 0; i < _renderers.Count; i++)
+                {
+                    if (_renderers[i].Renderer is MeshRenderer mr && mr != _skullRenderer && mr != _visibilityProbe)
+                        parts.Add(mr);
+                }
+
+                if (!SoldierMeshCombiner.TryCombine(parts, _visualLayer, out var res))
+                    return;
+
+                var removed = new HashSet<GameObject>(res.Removed);
+                for (var i = _renderers.Count - 1; i >= 0; i--)
+                {
+                    var r = _renderers[i].Renderer;
+                    if (r != null && removed.Contains(r.gameObject))
+                        _renderers.RemoveAt(i);
+                }
+
+                foreach (var go in res.Removed)
+                {
+                    if (go == null)
+                        continue;
+                    go.SetActive(false);
+                    if (UnityEngine.Application.isPlaying)
+                        Destroy(go);
+                    else
+                        DestroyImmediate(go);
+                }
+
+                foreach (var go in res.Created)
+                    RegisterRenderer(go.GetComponent<Renderer>());
+                _combinedMeshes.AddRange(res.Meshes);
+                Debug.Log("[BIRLESTIR] Asker renderer " + res.Before + " -> " + res.After + " (" + res.Created.Count + " birlesik grup)");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[BIRLESTIR] Birlestirme atlandi: " + e.Message);
+            }
+        }
+
         private void OnDestroy()
         {
+            for (var i = 0; i < _combinedMeshes.Count; i++)
+            {
+                if (_combinedMeshes[i] != null)
+                    Destroy(_combinedMeshes[i]);
+            }
+
+            _combinedMeshes.Clear();
             if (_owner != null)
             {
                 _owner.Died -= OnOwnerDied;

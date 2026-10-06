@@ -1,3 +1,4 @@
+using Project.Infrastructure.Localization;
 using Project.Presentation.Bootstrap;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,24 +20,19 @@ namespace Project.Presentation.UI
         private const int AutoHideFrames = 3;
         private const float SafetyTimeoutSeconds = 90f;
 
-        private static readonly string[] Tips =
-        {
-            "İpucu: F1 takip, F2 mevzi tut, F3 nişan noktasına taarruz, F4 toplan emirlerini verir.",
-            "İpucu: Telsizci ya da tim komutanıysan V tuşuyla nişan noktasına topçu atışı isteyebilirsin.",
-            "İpucu: Harekât alanı daralır — mavi bölgenin dışında kalan asker sürekli hasar alır.",
-            "İpucu: Komutan şehit düşerse komuta en kıdemli askere geçer; tim harekâta devam eder.",
-            "İpucu: Q ve E ile siperin arkasından yana eğilerek ateş edebilirsin.",
-            "İpucu: H ile yaralarını sar, J ile takviye kullan. İyileşirken hareket yavaşlar.",
-            "İpucu: Kafadan isabetler kask seviyesine göre çok daha ölümcüldür.",
-            "İpucu: Kirpi zırhlı aracına F ile binebilir, haritada hızla yer değiştirebilirsin.",
-            "İpucu: M ile tam haritayı aç; işaretlediğin nokta tim emirlerinde hedef olur.",
-            "İpucu: Z ile yüzüstü yatmak seni uzak mesafeden görünmez kılar."
-        };
+        private static string TipAt(int i) => Loc.Get("loading.tip2." + i, LoadingTips.Get(i));
 
         private Canvas _canvas;
         private CanvasGroup _group;
         private Text _message;
         private Text _tip;
+        private Text _mapTitle;
+        private Text _briefing;
+        private Text _footer;
+        private RawImage _mapImage;
+        private string _mapId;
+        private float _targetProgress = -1f;
+        private bool _hasPhaseMessage;
         private Image _barFill;
         private RectTransform _barRunner;
         private RectTransform _barTrack;
@@ -93,11 +89,13 @@ namespace Project.Presentation.UI
             _showing = true;
             _shownAt = Time.unscaledTime;
             _progress = -1f;
+            _targetProgress = -1f;
+            _hasPhaseMessage = false;
             UpdateProgressVisual();
-            _tipIndex = Random.Range(0, Tips.Length);
+            _tipIndex = LoadingTips.Next(Random.Range(0, LoadingTips.Count), Random.value);
             _tipTimer = 0f;
             if (_tip != null)
-                _tip.text = Tips[_tipIndex];
+                _tip.text = TipAt(_tipIndex);
 
             _canvas.enabled = true;
             _group.blocksRaycasts = true;
@@ -121,8 +119,52 @@ namespace Project.Presentation.UI
                 _message.text = _dotVariants[_dotIndex];
         }
 
+        /// <summary>Brifing + harita silüetini kurar (harita değişmediyse doku yeniden üretilmez).</summary>
+        internal void SetBriefing(string mapId, Project.Core.Domain.GameMode mode, int teamCount, int teamSize)
+        {
+            var title = LoadingBriefing.MapTitle(MapName(mapId));
+            if (_mapTitle != null)
+                _mapTitle.text = title.ToUpperInvariant();
+            if (_briefing != null)
+                _briefing.text = LoadingBriefing.Build(title, mode, teamCount, teamSize);
+            if (_footer != null)
+                _footer.text = title + " · " + LoadingBriefing.ModeName(mode);
+
+            if (_mapImage != null && _mapId != mapId)
+            {
+                _mapId = mapId;
+                var old = _mapImage.texture;
+                _mapImage.texture = LoadingMapSilhouette.CreateTexture(mapId);
+                _mapImage.enabled = _mapImage.texture != null;
+                if (old != null)
+                    Object.Destroy(old);
+            }
+        }
+
+        private static string MapName(string mapId)
+        {
+            var i = Project.Core.Domain.MapCatalog.IndexOf(mapId);
+            return i < 0 ? Project.Core.Domain.MapCatalog.KuzgunName : Project.Core.Domain.MapCatalog.DisplayNames()[i];
+        }
+
+        /// <summary>Gerçek aşama ilerlemesi: çubuk hedefe yumuşakça yaklaşır, ileti aşama adına döner.</summary>
+        internal void Report(float total01, string phaseLabel)
+        {
+            _framesSinceTouch = 0;
+            _targetProgress = Mathf.Clamp01(total01);
+            if (_progress < 0f)
+            {
+                _progress = 0f;
+                UpdateProgressVisual();
+            }
+
+            _hasPhaseMessage = true;
+            SetMessage(phaseLabel);
+        }
+
         internal void SetProgress(float progress01)
         {
+            _targetProgress = -1f;
             _framesSinceTouch = 0;
             _progress = progress01 < 0f ? -1f : Mathf.Clamp01(progress01);
             UpdateProgressVisual();
@@ -166,6 +208,29 @@ namespace Project.Presentation.UI
                 _canvas.enabled = false;
                 enabled = false;
                 return;
+            }
+
+            if (_showing)
+            {
+                var polled = LoadingScreen.PollSceneProgress();
+                if (polled >= 0f)
+                {
+                    _targetProgress = polled;
+                    _framesSinceTouch = 0;
+                    if (_progress < 0f)
+                        _progress = 0f;
+                    if (!_hasPhaseMessage)
+                    {
+                        _hasPhaseMessage = true;
+                        SetMessage(LoadingScreen.CurrentPhaseLabel);
+                    }
+                }
+
+                if (_targetProgress >= 0f && _progress >= 0f && _progress < _targetProgress)
+                {
+                    _progress = Mathf.MoveTowards(_progress, _targetProgress, dt * 0.9f);
+                    UpdateProgressVisual();
+                }
             }
 
             Animate(dt);
@@ -213,8 +278,8 @@ namespace Project.Presentation.UI
             if (_tipTimer >= TipInterval && _tip != null)
             {
                 _tipTimer = 0f;
-                _tipIndex = (_tipIndex + 1) % Tips.Length;
-                _tip.text = Tips[_tipIndex];
+                _tipIndex = LoadingTips.Next(_tipIndex, Random.value);
+                _tip.text = TipAt(_tipIndex);
             }
 
             var t = Time.unscaledTime;
@@ -291,6 +356,19 @@ namespace Project.Presentation.UI
             UiFactory.SetRect(title, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(140f, 300f), new Vector2(-140f, 420f));
             UiFactory.AddShadow(title, UiTheme.TextShadow, new Vector2(3f, -3f));
 
+            // Büyük HAREKÂT amblemi (sol, başlığın üstünde); sanat üretilemezse atlanır.
+            Sprite emblem = null;
+            try { emblem = EmblemArt.GetEmblemSprite(); }
+            catch (System.Exception e) { Debug.LogWarning("[Yükleme] amblem: " + e.Message); }
+            if (emblem != null)
+            {
+                var emblemImg = UiFactory.Image(background, emblem, new Color(1f, 1f, 1f, 0.9f));
+                emblemImg.gameObject.name = "Emblem";
+                emblemImg.preserveAspect = true;
+                emblemImg.raycastTarget = false;
+                UiFactory.Anchor(emblemImg, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(144f, 450f), new Vector2(220f, 220f));
+            }
+
             var underline = UiFactory.Image(background, null, UiTheme.Accent);
             underline.gameObject.name = "Underline";
             UiFactory.SetRect(underline, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(144f, 284f), new Vector2(144f + 260f, 292f));
@@ -340,15 +418,39 @@ namespace Project.Presentation.UI
             // İpucu (alt).
             _tip = UiFactory.Label(background, string.Empty, UiTheme.FontSmall, TextAnchor.MiddleLeft, UiTheme.TextDim);
             _tip.gameObject.name = "Tip";
-            UiFactory.SetRect(_tip, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(144f, 56f), new Vector2(-144f, 100f));
+            UiFactory.SetRect(_tip, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(144f, 56f), new Vector2(-560f, 100f));
 
-            var footer = UiFactory.Label(background, "Kuzgun Vadisi · Tim Battle Royale", UiTheme.FontTiny, TextAnchor.MiddleRight, UiTheme.TextMuted);
+            // Brifing: sol üst blok (harita adı + görev satırları), sağda harita silüeti.
+            var header = UiFactory.Label(background, "HAREKÂT BRİFİNGİ", UiTheme.FontSmall, TextAnchor.UpperLeft, UiTheme.Accent, FontStyle.Bold);
+            header.gameObject.name = "BriefingHeader";
+            UiFactory.SetRect(header, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(144f, -110f), new Vector2(-144f, -70f));
+
+            _mapTitle = UiFactory.Label(background, string.Empty, 64, TextAnchor.UpperLeft, UiTheme.Text, FontStyle.Bold);
+            _mapTitle.gameObject.name = "MapTitle";
+            _mapTitle.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.SetRect(_mapTitle, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(144f, -200f), new Vector2(-640f, -110f));
+            UiFactory.AddShadow(_mapTitle, UiTheme.TextShadow, new Vector2(3f, -3f));
+
+            _briefing = UiFactory.Label(background, string.Empty, UiTheme.FontMedium, TextAnchor.UpperLeft, UiTheme.TextDim);
+            _briefing.gameObject.name = "Briefing";
+            UiFactory.SetRect(_briefing, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(144f, -420f), new Vector2(-640f, -215f));
+
+            _mapImage = UiFactory.RawImage(background, null);
+            _mapImage.gameObject.name = "MapSilhouette";
+            _mapImage.raycastTarget = false;
+            _mapImage.enabled = false;
+            UiFactory.Anchor(_mapImage, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-144f, -90f), new Vector2(440f, 440f));
+
+            var footer = UiFactory.Label(background, string.Empty, UiTheme.FontTiny, TextAnchor.MiddleRight, UiTheme.TextMuted);
+            _footer = footer;
             footer.gameObject.name = "Footer";
             UiFactory.SetRect(footer, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(144f, 56f), new Vector2(-144f, 100f));
         }
 
         private void OnDestroy()
         {
+            if (_mapImage != null && _mapImage.texture != null)
+                Object.Destroy(_mapImage.texture);
             LoadingScreen.NotifyDestroyed(this);
         }
     }

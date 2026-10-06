@@ -5,6 +5,7 @@
         "Project.Core",
         "Project.Application",
         "Project.Infrastructure",
+        "Project.Presentation",
         "com.rlabrecque.steamworks.net"
     ],
     "includePlatforms": [],

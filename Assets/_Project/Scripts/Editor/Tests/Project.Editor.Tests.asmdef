@@ -1,0 +1,7 @@
+{
+  "name": "Project.Editor.Tests",
+  "references": ["Project.Editor"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

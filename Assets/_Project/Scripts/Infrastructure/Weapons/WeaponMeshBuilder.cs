@@ -26,6 +26,7 @@ namespace Project.Infrastructure.Weapons
         public const string BodyGroup = "Body";
 
         private const float UvScale = 5f;
+        private static readonly Vector2 NoEdge = new Vector2(1000f, 1000f);
 
         private sealed class Section
         {
@@ -41,6 +42,9 @@ namespace Project.Infrastructure.Weapons
             public readonly List<Vector3> Normals = new List<Vector3>(256);
             public readonly List<Vector2> Uvs = new List<Vector2>(256);
             public readonly List<Color32> Colors = new List<Color32>(0);
+            // Silah gölgelendiricisi için: UV1 = dörtgen yerel (u,v), UV2 = dörtgen boyutu (m). Boyut >= 500 ya da 0 = kenar aşınması yok.
+            public readonly List<Vector2> QuadUvs = new List<Vector2>(256);
+            public readonly List<Vector2> QuadSizes = new List<Vector2>(256);
             public readonly List<Section> Sections = new List<Section>(4);
         }
 
@@ -102,16 +106,76 @@ namespace Project.Infrastructure.Weapons
         public void Box(Material m, Vector3 center, Vector3 size, Quaternion rotation)
         {
             var h = size * 0.5f;
-            _corners[0] = center + rotation * new Vector3(-h.x, -h.y, -h.z);
-            _corners[1] = center + rotation * new Vector3(h.x, -h.y, -h.z);
-            _corners[2] = center + rotation * new Vector3(h.x, h.y, -h.z);
-            _corners[3] = center + rotation * new Vector3(-h.x, h.y, -h.z);
-            _corners[4] = center + rotation * new Vector3(-h.x, -h.y, h.z);
-            _corners[5] = center + rotation * new Vector3(h.x, -h.y, h.z);
-            _corners[6] = center + rotation * new Vector3(h.x, h.y, h.z);
-            _corners[7] = center + rotation * new Vector3(-h.x, h.y, h.z);
-            Hull(m, _corners);
+            var radius = Mathf.Min(0.0012f, Mathf.Min(h.x, Mathf.Min(h.y, h.z)) * 0.22f);
+            if (radius <= 0f) return;
+            var inner = h - Vector3.one * radius;
+            var points = new Vector3[4];
+            var normals = new Vector3[4];
+            for (var axis = 0; axis < 3; axis++)
+            {
+                var u = (axis + 1) % 3; var v = (axis + 2) % 3;
+                for (var sign = -1; sign <= 1; sign += 2)
+                for (var y = 0; y < 3; y++)
+                for (var x = 0; x < 3; x++)
+                {
+                    for (var c = 0; c < 4; c++)
+                    {
+                        var ix = x + (c == 1 || c == 2 ? 1 : 0);
+                        var iy = y + (c >= 2 ? 1 : 0);
+                        var q = Vector3.zero;
+                        q[axis] = sign * h[axis];
+                        q[u] = BevelGrid(ix, h[u], inner[u]); q[v] = BevelGrid(iy, h[v], inner[v]);
+                        var near = new Vector3(Mathf.Clamp(q.x, -inner.x, inner.x), Mathf.Clamp(q.y, -inner.y, inner.y),
+                            Mathf.Clamp(q.z, -inner.z, inner.z));
+                        var n = (q - near).normalized;
+                        points[c] = center + rotation * (near + n * radius);
+                        normals[c] = rotation * n;
+                    }
+                    QuadSmooth(m, points[0], points[1], points[2], points[3],
+                        normals[0], normals[1], normals[2], normals[3], center, true);
+                }
+            }
         }
+
+        /// <summary>Toplam köşe sayısı (tüm gruplar). Silah başına köşe bütçesi (WeaponDetailBudget) için.</summary>
+        public int VertexCount
+        {
+            get
+            {
+                var total = 0;
+                for (var i = 0; i < _groups.Count; i++) total += _groups[i].Vertices.Count;
+                return total;
+            }
+        }
+
+        /// <summary>Pahsız ucuz kutu: 24 köşe (Box 216 köşe). Ray dişi, kabartma, nervür gibi küçük detaylar için.</summary>
+        public void FlatBox(Material m, Vector3 center, Vector3 size, Vector3 euler) => FlatBox(m, center, size, Quaternion.Euler(euler));
+
+        public void FlatBox(Material m, Vector3 center, Vector3 size, Quaternion rotation)
+        {
+            var h = size * 0.5f;
+            if (h.x <= 0f || h.y <= 0f || h.z <= 0f) return;
+            for (var axis = 0; axis < 3; axis++)
+            {
+                var u = (axis + 1) % 3; var v = (axis + 2) % 3;
+                for (var sign = -1; sign <= 1; sign += 2)
+                {
+                    var pts = new Vector3[4];
+                    for (var c = 0; c < 4; c++)
+                    {
+                        var q = Vector3.zero;
+                        q[axis] = sign * h[axis];
+                        q[u] = (c == 1 || c == 2) ? h[u] : -h[u];
+                        q[v] = c >= 2 ? h[v] : -h[v];
+                        pts[c] = center + rotation * q;
+                    }
+                    QuadInterior(m, pts[0], pts[1], pts[2], pts[3], center);
+                }
+            }
+        }
+
+        private static float BevelGrid(int i, float half, float inner) =>
+            i == 0 ? -half : i == 1 ? -inner : i == 2 ? inner : half;
 
         /// <summary>Arka ve ön kesitleri farklı (X genişlik, Y yükseklik) konik kutu; kesit merkezleri serbest.</summary>
         public void Taper(Material m, Vector3 backCenter, Vector2 backSize, Vector3 frontCenter, Vector2 frontSize)
@@ -176,6 +240,7 @@ namespace Project.Infrastructure.Weapons
             if ((b - a).sqrMagnitude < 1e-12f || radiusA < 0f || radiusB < 0f)
                 return;
 
+            if (sides >= 8 && Mathf.Max(radiusA, radiusB) < 0.025f) { sides = Mathf.Max(sides, 20); smooth = true; }
             sides = Mathf.Clamp(sides, 3, 32);
             BuildRing(a, b, radiusA, sides, _ringA);
             BuildRing(a, b, radiusB, sides, _ringB, true);
@@ -187,8 +252,9 @@ namespace Project.Infrastructure.Weapons
                 var j = (i + 1) % sides;
                 if (smooth)
                 {
-                    var na = (_ringA[i] - a).normalized;
-                    var nb = (_ringA[j] - a).normalized;
+                    var slope = (radiusA - radiusB) / (b - a).magnitude;
+                    var na = ((_ringA[i] - a).normalized + axis * slope).normalized;
+                    var nb = ((_ringA[j] - a).normalized + axis * slope).normalized;
                     QuadSmooth(m, _ringA[i], _ringA[j], _ringB[j], _ringB[i], na, nb, nb, na, mid);
                 }
                 else
@@ -216,7 +282,7 @@ namespace Project.Infrastructure.Weapons
         /// <summary>İçi boş boru (dış + iç yüzey + uç halkaları). Nişangâh gövdesi, gez halkası için.</summary>
         public void Tube(Material m, Vector3 a, Vector3 b, float outerRadius, float innerRadius, int sides = 10)
         {
-            sides = Mathf.Clamp(sides, 3, 32);
+            sides = Mathf.Clamp(sides * 2, 16, 48);
             innerRadius = Mathf.Clamp(innerRadius, 0.0001f, outerRadius * 0.98f);
             if ((b - a).sqrMagnitude < 1e-10f)
                 return;
@@ -232,7 +298,9 @@ namespace Project.Infrastructure.Weapons
             {
                 var j = (i + 1) % sides;
                 // Dış yüzey: eksenden dışarı.
-                QuadInterior(m, _ringA[i], _ringA[j], _ringB[j], _ringB[i], mid);
+                var na = (_ringA[i] - a).normalized;
+                var nb = (_ringA[j] - a).normalized;
+                QuadSmooth(m, _ringA[i], _ringA[j], _ringB[j], _ringB[i], na, nb, nb, na, mid);
                 // İç yüzey: eksene doğru.
                 var faceCenter = (_ringC[i] + _ringC[j] + _ringD[j] + _ringD[i]) * 0.25f;
                 var toAxis = Vector3.ProjectOnPlane(mid - faceCenter, axis);
@@ -373,7 +441,7 @@ namespace Project.Infrastructure.Weapons
         }
 
         private void QuadSmooth(Material m, Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 na, Vector3 nb, Vector3 nc,
-            Vector3 nd, Vector3 interior)
+            Vector3 nd, Vector3 interior, bool seamless = false)
         {
             a = Apply(a);
             b = Apply(b);
@@ -389,8 +457,10 @@ namespace Project.Infrastructure.Weapons
             if (n.sqrMagnitude < 1e-14f)
                 return;
 
+            var smoothMode = 1;   // 1: a→b facet (u kenarsız), 2: b/d takaslandı (v kenarsız)
             if (Vector3.Dot(n, (a + b + c + d) * 0.25f - interior) < 0f)
             {
+                smoothMode = 2;
                 var tmp = b;
                 b = d;
                 d = tmp;
@@ -399,19 +469,21 @@ namespace Project.Infrastructure.Weapons
                 nd = tn;
             }
 
-            EmitQuad(m, a, b, c, d, na, nb, nc, nd);
+            EmitQuad(m, a, b, c, d, na, nb, nc, nd, seamless ? 3 : smoothMode);
         }
 
-        private void EmitQuad(Material m, Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 na, Vector3 nb, Vector3 nc, Vector3 nd)
+        private void EmitQuad(Material m, Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 na, Vector3 nb, Vector3 nc, Vector3 nd, int smoothMode = 0)
         {
             var group = _current;
             var section = SectionFor(group, m);
             var start = group.Vertices.Count;
             var flat = (na + nb + nc + nd).normalized;
-            AddVertex(group, a, na, ProjectUv(a, flat));
-            AddVertex(group, b, nb, ProjectUv(b, flat));
-            AddVertex(group, c, nc, ProjectUv(c, flat));
-            AddVertex(group, d, nd, ProjectUv(d, flat));
+            // Dörtgen yerel koordinatı + metre boyutu: gölgelendirici kenara uzaklığı buradan çıkarır (eğri yüzeylerde yalnız eksen uçları).
+            var size = new Vector2((smoothMode == 1 || smoothMode == 3) ? 1000f : (b - a).magnitude, (smoothMode == 2 || smoothMode == 3) ? 1000f : (d - a).magnitude);
+            AddVertex(group, a, na, ProjectUv(a, flat), new Vector2(0f, 0f), size);
+            AddVertex(group, b, nb, ProjectUv(b, flat), new Vector2(1f, 0f), size);
+            AddVertex(group, c, nc, ProjectUv(c, flat), new Vector2(1f, 1f), size);
+            AddVertex(group, d, nd, ProjectUv(d, flat), new Vector2(0f, 1f), size);
             section.Triangles.Add(start);
             section.Triangles.Add(start + 1);
             section.Triangles.Add(start + 2);
@@ -453,6 +525,11 @@ namespace Project.Infrastructure.Weapons
                 mesh.SetVertices(group.Vertices);
                 mesh.SetNormals(group.Normals);
                 mesh.SetUVs(0, group.Uvs);
+                if (group.QuadUvs.Count == group.Vertices.Count)
+                {
+                    mesh.SetUVs(1, group.QuadUvs);
+                    mesh.SetUVs(2, group.QuadSizes);
+                }
                 if (withColors && group.Colors.Count == group.Vertices.Count)
                     mesh.SetColors(group.Colors);
 
@@ -505,8 +582,14 @@ namespace Project.Infrastructure.Weapons
             return section;
         }
 
-        private static void AddVertex(Group group, Vector3 modelPosition, Vector3 normal, Vector2 uv)
+        /// <summary>Kenar aşınması verisi olmayan köşe (UV2 = kenarsız).</summary>
+        private static void AddVertex(Group group, Vector3 modelPosition, Vector3 normal, Vector2 uv) =>
+            AddVertex(group, modelPosition, normal, uv, new Vector2(0.5f, 0.5f), NoEdge);
+
+        private static void AddVertex(Group group, Vector3 modelPosition, Vector3 normal, Vector2 uv, Vector2 quadUv, Vector2 quadSize)
         {
+            group.QuadUvs.Add(quadUv);
+            group.QuadSizes.Add(quadSize);
             group.Vertices.Add(modelPosition - group.Pivot);
             group.Normals.Add(normal);
             group.Uvs.Add(uv);

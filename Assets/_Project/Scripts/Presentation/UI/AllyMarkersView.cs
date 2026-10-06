@@ -60,7 +60,7 @@ namespace Project.Presentation.UI
                 UiFactory.AddOutline(marker.Diamond, UiTheme.WithAlpha(Color.black, 0.5f), 1f);
                 marker.Name = HudBuild.Text("Name", marker.Rect, string.Empty, 14, TextAnchor.LowerCenter, UiTheme.AllyBlue, FontStyle.Bold,
                     new Vector2(0.5f, 1f), new Vector2(0.5f, 0f), new Vector2(0f, 2f), new Vector2(260f, 18f));
-                marker.Distance = HudBuild.Text("Distance", marker.Rect, string.Empty, 12, TextAnchor.UpperCenter,
+                marker.Distance = HudBuild.Text("Distance", marker.Rect, string.Empty, 14, TextAnchor.UpperCenter,
                     UiTheme.WithAlpha(UiTheme.Text, 0.85f), FontStyle.Normal, new Vector2(0.5f, 0f), new Vector2(0.5f, 1f),
                     new Vector2(0f, -1f), new Vector2(120f, 16f));
                 HudBuild.SetActive(marker.Rect, false);

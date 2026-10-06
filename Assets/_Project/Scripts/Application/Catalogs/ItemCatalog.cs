@@ -63,6 +63,44 @@ namespace Project.Application.Catalogs
             AddWeapon(WeaponIds.Jng90, "JNG-90", AmmoType.Mm762, 4);
             AddWeapon(WeaponIds.Pmt76, "PMT-76", AmmoType.Mm762, 4);
             AddWeapon(WeaponIds.Escort, "Escort", AmmoType.Gauge12, 2);
+
+            // ---- Eklentiler (sona eklenir: ağ indeksleri kalıcı) ----
+            var attachments = AttachmentCatalog.All;
+            for (var i = 0; i < attachments.Count; i++)
+            {
+                Add(new ItemDefinition
+                {
+                    Id = attachments[i].ItemId,
+                    DisplayName = attachments[i].DisplayName,
+                    Category = ItemCategory.Attachment,
+                    Level = (int)attachments[i].Slot,
+                    Weight = 0f,
+                    PickupQuantity = 1
+                });
+            }
+
+            // ---- Teçhizat (sona eklenir: ağ indeksleri kalıcı) ----
+            Add(new ItemDefinition
+            {
+                Id = ItemIds.NightVision,
+                DisplayName = "Gece Görüş Gözlüğü",
+                Category = ItemCategory.Equipment,
+                Weight = 1.5f,
+                PickupQuantity = 1
+            });
+
+            // ---- silahlar2 (ağ indeksleri kalıcı kalsın diye eklentilerden sonra) ----
+            AddWeapon(WeaponIds.Sar223, "SAR 223", AmmoType.Mm556, 3);
+            AddWeapon(WeaponIds.Mpt76K, "MPT-76K", AmmoType.Mm762, 3);
+            AddWeapon(WeaponIds.Mete, "Canik METE SFT", AmmoType.Mm9, 1);
+            AddWeapon(WeaponIds.Sar762Mt, "SAR 762 MT", AmmoType.Mm762, 4);
+            AddWeapon(WeaponIds.Mg3, "MG3", AmmoType.Mm762, 4);
+            AddWeapon(WeaponIds.EscortMagnum, "Escort Magnum", AmmoType.Gauge12, 2);
+
+            // ---- El bombası çeşitleri (sona eklendi: ağ indeksleri kalıcı) ----
+            AddThrowable(ItemIds.FlashGrenade, "Flaş Bombası", 10f);
+            AddThrowable(ItemIds.MolotovGrenade, "Molotof Kokteyli", 12f);
+            AddThrowable(ItemIds.DecoyGrenade, "Aldatma Bombası", 10f);
         }
 
         /// <summary>Kalıcı sırayla tüm eşyalar (ağ indeksi = liste indeksi).</summary>
@@ -136,7 +174,7 @@ namespace Project.Application.Catalogs
             if (definition == null || definition.Category != ItemCategory.Weapon)
                 return default;
 
-            return new LootItemData(definition.Id, ItemCategory.Weapon, definition.DisplayName, 1, loadedAmmo, -1f);
+            return new LootItemData(definition.Id, ItemCategory.Weapon, NameProfile.Get(definition.Id, definition.DisplayName), 1, loadedAmmo, -1f);
         }
 
         /// <summary>Zırh/kask eşyası: kalan dayanıklılık ile (-1 = yeni).</summary>
@@ -152,7 +190,7 @@ namespace Project.Application.Catalogs
         public static string GetDisplayName(string itemId)
         {
             var definition = Get(itemId);
-            return definition != null ? definition.DisplayName : itemId ?? string.Empty;
+            return definition != null ? NameProfile.Get(definition.Id, definition.DisplayName) : itemId ?? string.Empty;
         }
 
         /// <summary>Kategorinin Türkçe adı (envanter ekranı başlıkları).</summary>
@@ -169,6 +207,7 @@ namespace Project.Application.Catalogs
                 case ItemCategory.Helmet: return "Kask";
                 case ItemCategory.Backpack: return "Sırt Çantası";
                 case ItemCategory.Boost: return "Takviye";
+                case ItemCategory.Equipment: return "Teçhizat";
                 default: return "Eşya";
             }
         }

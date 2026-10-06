@@ -5,10 +5,10 @@
 - Unity oyunu Claude'da; backend, altyapı ve Unity entegrasyonu Cursor'da.
 - **Altyapı:** Windows Server, MSSQL, düz HTML/CSS/JS web. Linux yok.
 - **Görsel strateji:**
-  - Şimdi: kodla üretilen low-poly görünüm.
-  - **Sonra:** hazır varlık paketleri (Asset Store, Mixamo, Sonniss, Poly Haven).
-  - **En son:** gerçekçi özel modeller (PUBG / Call of Duty seviyesi).
-- Faz 3 tasarım görevleri bu geçişi ve oyunun içeriğini hazırlar.
+  - Şimdi: kodla üretilen low-poly görünüm + Unity Terrain splat (Grass/DryGrass/Dirt/Rock…).
+  - **Sonra:** hazır varlık paketleri (Asset Store, Mixamo, Sonniss, Poly Haven) → `ContentOverrides`.
+  - **Kalite aşaması:** mesh foliage (çim/çalı), LOD/instancing; ayrıntı `Design/Art/ENVIRONMENT.md`.
+  - **En son:** gerçekçi özel modeller. **URP** yakın vadede sabit; HDRP yalnızca gerekirse değerlendirilir.
 
 Başlatma cümlesi: *"Docs/CODEX_FAZ3.md içindeki GÖREV C3-X'i baştan sona uygula."* 8 görev de bağımsızdır, paralel çalışabilir.
 

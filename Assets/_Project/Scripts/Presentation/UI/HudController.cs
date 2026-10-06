@@ -40,6 +40,7 @@ namespace Project.Presentation.UI
 
         private HudScreenEffectsView _effects;
         private AllyMarkersView _allyMarkers;
+        private ReconMarkersView _reconMarkers;
         private ScopeOverlayView _scope;
         private DamageIndicatorView _damage;
         private CrosshairView _crosshair;
@@ -50,6 +51,8 @@ namespace Project.Presentation.UI
         private HudWeaponView _weapons;
         private CompassView _compass;
         private HudStatusView _status;
+        private HudMovementView _movement;
+        private GrenadeWarningView _grenadeWarning;
         private SquadPanelView _squad;
         private KillFeedView _killFeed;
         private NotificationView _notifications;
@@ -117,6 +120,7 @@ namespace Project.Presentation.UI
             var canvas = UiFactory.CreateCanvas("[HUD]", CanvasSortOrder);
             var hud = canvas.gameObject.AddComponent<HudController>();
             hud.Initialize(player, canvas);
+            AdvancedDisplay.ApplyHudScale(hud);
             return hud;
         }
 
@@ -129,7 +133,7 @@ namespace Project.Presentation.UI
             _visible = visible;
             if (_group != null)
             {
-                _group.alpha = visible ? 1f : 0f;
+                _group.alpha = visible ? HudStyle.Opacity : 0f;
                 _group.interactable = visible;
                 _group.blocksRaycasts = visible;
             }
@@ -212,6 +216,7 @@ namespace Project.Presentation.UI
         {
             _effects = Make("HudScreenEffectsView", () => HudScreenEffectsView.Create(Root, _ctx));
             _allyMarkers = Make("AllyMarkersView", () => AllyMarkersView.Create(Root, _ctx));
+            _reconMarkers = Make("ReconMarkersView", () => ReconMarkersView.Create(Root, _ctx));
             _scope = Make("ScopeOverlayView", () => ScopeOverlayView.Create(Root, _ctx));
             _damage = Make("DamageIndicatorView", () => DamageIndicatorView.Create(Root, _ctx));
             _crosshair = Make("CrosshairView", () => CrosshairView.Create(Root, _ctx));
@@ -222,12 +227,17 @@ namespace Project.Presentation.UI
             _vitals = Make("HudVitalsView", () => HudVitalsView.Create(_playerLayer, _ctx));
             _weapons = Make("HudWeaponView", () => HudWeaponView.Create(_playerLayer, _ctx));
 
+            _movement = Make("HudMovementView", () => HudMovementView.Create(_playerLayer, _ctx));
+            Make("LimbStateView", () => LimbStateView.Create(_playerLayer, _ctx)); // uzuv yaraları + kanama (kendi Update'i; Combatant.Limbs)
+            _grenadeWarning = Make("GrenadeWarningView", () => GrenadeWarningView.Create(Root, _ctx));
             _compass = Make("CompassView", () => CompassView.Create(Root, _ctx));
             _status = Make("HudStatusView", () => HudStatusView.Create(Root, _ctx));
             _squad = Make("SquadPanelView", () => SquadPanelView.Create(Root, _ctx));
             _killFeed = Make("KillFeedView", () => KillFeedView.Create(Root,
                 new Vector2(-HudStatusView.RightMargin, -(HudStatusView.TopMargin + HudStatusView.Height + 6f))));
             _notifications = Make("NotificationView", () => NotificationView.Create(Root));
+            _zoneTimer = Make("ZoneTimerView", () => ZoneTimerView.Create(Root, _ctx));
+            Make("ScorePanel", () => ScorePanel.Create(Root, _ctx));
         }
 
         /// <summary>Grafik aygıtı olmayan / adanmış sunucu süreci mi?</summary>
@@ -399,6 +409,45 @@ namespace Project.Presentation.UI
                 _status.SetFpsVisible(show);
         }
 
+        private void OnEnable() => Project.Infrastructure.Support.SupportAbilitySystem.Notice += OnSupportNotice;
+
+        private void OnDisable() => Project.Infrastructure.Support.SupportAbilitySystem.Notice -= OnSupportNotice;
+
+        /// <summary>T-129 ATAK Desteği bildirimleri (kendi timi: hazır/yolda/çekiliyor/düştü; düşman: uyarı).</summary>
+        private void OnSupportNotice(int team, Project.Infrastructure.Support.SupportNoticeKind kind, Vector3 position)
+        {
+            if (_notifications == null || _ctx.LocalTeam < 0)
+                return;
+
+            var mine = team == _ctx.LocalTeam;
+            switch (kind)
+            {
+                case Project.Infrastructure.Support.SupportNoticeKind.Ready:
+                    if (mine && _ctx.CommanderId.IsValid && _ctx.IsLocal(_ctx.CommanderId))
+                    {
+                        _notifications.Push("T-129 ATAK desteği hazır — " + Project.Infrastructure.Input.InputBindings.Bracket(BindAction.AttackHeli) + " ile çağırın",
+                            HudNoticeKind.Radio, 5f);
+                        PlaySound(SoundId.RadioBeep, 0.5f);
+                    }
+
+                    break;
+                case Project.Infrastructure.Support.SupportNoticeKind.Incoming:
+                    if (mine)
+                        _notifications.Push("T-129 ATAK helikopteri yolda — 25 sn görev", HudNoticeKind.Radio, 4.5f);
+                    else if (_ctx.LocalAlive)
+                        _notifications.Push("DİKKAT! Düşman saldırı helikopteri sahada", HudNoticeKind.Danger, 5f);
+                    PlaySound(mine ? SoundId.RadioBeep : SoundId.ZoneWarning, 0.5f);
+                    break;
+                case Project.Infrastructure.Support.SupportNoticeKind.Departing:
+                    if (mine)
+                        _notifications.Push("T-129 görevi tamamladı, üsse dönüyor", HudNoticeKind.Info, 3.5f);
+                    break;
+                case Project.Infrastructure.Support.SupportNoticeKind.ShotDown:
+                    _notifications.Push(mine ? "T-129 düşürüldü!" : "Düşman saldırı helikopteri düşürüldü", mine ? HudNoticeKind.Danger : HudNoticeKind.Radio, 4f);
+                    break;
+            }
+        }
+
         private void OnDestroy()
         {
             Unsubscribe();
@@ -440,6 +489,7 @@ namespace Project.Presentation.UI
             }
 
             _effectsReset = false;
+            _group.alpha = HudStyle.Opacity;
 
             var alive = _ctx.LocalAlive;
             if (_wasAlive && !alive)
@@ -475,6 +525,18 @@ namespace Project.Presentation.UI
                 catch (Exception e) { LogOnce("AllyMarkersView.Tick", e); }
             }
 
+            if (_reconMarkers != null)
+            {
+                try
+                {
+                    if (alive || hasPlayer)
+                        _reconMarkers.Tick(dt);
+                    else
+                        _reconMarkers.HideAll();
+                }
+                catch (Exception e) { LogOnce("ReconMarkersView.Tick", e); }
+            }
+
             if (_scope != null)
             {
                 try { _scope.Tick(udt, !alive); }
@@ -483,6 +545,8 @@ namespace Project.Presentation.UI
 
             if (_damage != null)
             {
+                try { TrackHealArmor(); }
+                catch (Exception e) { LogOnce("DamageIndicatorView.HealArmor", e); }
                 try { _damage.Tick(dt); }
                 catch (Exception e) { LogOnce("DamageIndicatorView.Tick", e); }
             }
@@ -512,6 +576,18 @@ namespace Project.Presentation.UI
                     try { _weapons.Tick(udt); }
                     catch (Exception e) { LogOnce("HudWeaponView.Tick", e); }
                 }
+            }
+
+            if (_playerAlpha > 0.001f && _movement != null)
+            {
+                try { _movement.Tick(udt); }
+                catch (Exception e) { LogOnce("HudMovementView.Tick", e); }
+            }
+
+            if (_grenadeWarning != null)
+            {
+                try { _grenadeWarning.Tick(udt, alive); }
+                catch (Exception e) { LogOnce("GrenadeWarningView.Tick", e); }
             }
 
             if (_compass != null)
@@ -576,7 +652,34 @@ namespace Project.Presentation.UI
             if (_crosshair == null || !_ctx.IsLocal(e.AttackerId) || e.VictimId == e.AttackerId)
                 return;
 
-            _crosshair.ShowHit(e.IsHeadshot, e.IsKill, e.ArmorAbsorbed);
+            _crosshair.ShowHit(e.IsHeadshot, e.IsKill, e.ArmorAbsorbed, e.Damage);
+        }
+
+        private ZoneTimerView _zoneTimer;
+        private float _prevHealth = -1f;
+        private bool _prevHadArmor;
+
+        /// <summary>Can yükselince temiz silme (Heal), zırh bitince beyaz parlama + halka (ArmorBreak).</summary>
+        private void TrackHealArmor()
+        {
+            var local = _ctx != null ? _ctx.Local : null;
+            if (local == null || !local.IsInitialized || !local.IsAlive)
+            {
+                _prevHealth = -1f;
+                _prevHadArmor = false;
+                return;
+            }
+
+            var hp = local.State.Current;
+            if (_prevHealth >= 0f && hp > _prevHealth + 0.5f)
+                _damage.Heal();
+            _prevHealth = hp;
+
+            var armor = local.Armor != null ? local.Armor.GetArmorFor(BodyPart.Torso) : null;
+            var has = armor != null && armor.Durability > 0f;
+            if (_prevHadArmor && !has)
+                _damage.ArmorBreak();
+            _prevHadArmor = has;
         }
 
         private void OnPlayerDamaged(PlayerDamagedEvent e)

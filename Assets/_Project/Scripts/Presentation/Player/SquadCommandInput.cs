@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure;
 using Project.Infrastructure.Audio;
 using Project.Infrastructure.Combat;
+using Project.Infrastructure.Drone;
 using Project.Presentation.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,6 +22,8 @@ namespace Project.Presentation.Player
     {
         public const float OrderMaxDistance = 400f;
         private const float AccessRefreshInterval = 0.5f;
+        private const float SmokeMaxDistance = 80f;
+        private const float SmokeCooldown = 30f;
         private const float DangerCloseDistance = 40f;
         private const string OutOfRangeText = "Hedef menzil dışında (en fazla 600 m)";
 
@@ -30,10 +34,13 @@ namespace Project.Presentation.Player
         private float _nextAccessRefresh;
         private bool _isCommander;
         private bool _radiomanAlive;
+        private readonly CommandWheelController _wheel;
+        private float _nextSmokeTime;
 
         public SquadCommandInput(PlayerController owner)
         {
             _owner = owner;
+            _wheel = new CommandWheelController(owner, ExecuteWheel);
         }
 
         /// <summary>Oyuncu timinin komutanı mı (komuta zinciri yoksa Leader rolüne bakılır)?</summary>
@@ -98,9 +105,32 @@ namespace Project.Presentation.Player
         public void Tick(float dt)
         {
             if (_owner.IsDead || Time.timeScale <= 0f)
+            {
+                _wheel.ForceClose();
                 return;
+            }
+
+            // Yaralı asker telsiz/İHA/topçu/emir kullanamaz (yerde sürünür); kaldırılınca geri açılır.
+            var self = _owner.Combatant;
+            if (self != null && !DownedRules.CanUseEquipment(self.IsAlive, self.IsDowned))
+            {
+                _wheel.ForceClose();
+                return;
+            }
+
+            // Konsol açıkken (metin girişi) F1-F4/V/U/Y/orta tuş çalışmaz.
+            if (OverlayState.TextInputActive)
+            {
+                _wheel.ForceClose();
+                return;
+            }
 
             var overlayOpen = !_owner.InputEnabled;
+            if (overlayOpen)
+                _wheel.ForceClose();
+            else
+                _wheel.Tick();
+
             if (overlayOpen && !MapOverlayInput.IsAnyOpen)
                 return;
 
@@ -119,6 +149,103 @@ namespace Project.Presentation.Player
 
             if (keyboard.vKey.wasPressedThisFrame)
                 CallArtillery(overlayOpen);
+
+            if (keyboard.uKey.wasPressedThisFrame)
+                LaunchRecon(overlayOpen);
+
+            if (Project.Infrastructure.Input.InputBindings.Pressed(BindAction.AttackHeli))
+                CallAttackHeli(overlayOpen);
+        }
+
+        // ================================================================ T-129 ATAK desteği
+        private void CallAttackHeli(bool markerOnly)
+        {
+            var combatant = _owner.Combatant;
+            if (combatant == null)
+                return;
+
+            RefreshAccess(true);
+            if (!_isCommander)
+            {
+                _owner.Notify("T-129 ATAK desteğini yalnızca tim komutanı çağırabilir", 2f);
+                return;
+            }
+
+            var team = combatant.Team;
+            if (!Project.Infrastructure.Support.SupportAbilitySystem.IsReady(team))
+            {
+                var kills = Project.Infrastructure.Support.SupportAbilitySystem.GetKills(team);
+                var need = Project.Infrastructure.Support.SupportAbilitySystem.KillsRequired;
+                var wait = Mathf.CeilToInt(Project.Infrastructure.Support.SupportAbilitySystem.GetCooldownRemaining(team));
+                _owner.Notify(wait > 0
+                    ? "T-129 hazır değil (" + kills + "/" + need + " öldürme ya da " + wait + " sn)"
+                    : "T-129 görevde", 2f);
+                return;
+            }
+
+            Vector3 target;
+            if (!markerOnly && _owner.TryGetAimPoint(PlayerController.ArtilleryMaxRange, out var aimPoint))
+                target = aimPoint;
+            else if (_owner.MapMarker.HasValue)
+                target = _owner.MapMarker.Value;
+            else
+            {
+                _owner.Notify(markerOnly ? "Önce haritada hedef işaretleyin" : "T-129 için hedef görülmüyor", 1.8f);
+                return;
+            }
+
+            if (!GameContext.HasAuthority)
+                return;
+
+            if (Project.Infrastructure.Support.SupportAbilitySystem.TryCall(team, combatant.Id, target))
+                PlayerController.PlaySound2D(SoundId.RadioChatter, 0.7f);
+            else
+                _owner.Notify("T-129 ATAK desteği reddedildi", 1.5f);
+        }
+
+        // ================================================================ İHA keşfi
+        private void LaunchRecon(bool markerOnly)
+        {
+            var combatant = _owner.Combatant;
+            if (combatant == null)
+                return;
+
+            RefreshAccess(true);
+            if (!_isCommander && !_radiomanAlive)
+            {
+                _owner.Notify("Telsizci yok — İHA keşfi istenemez", 2f);
+                return;
+            }
+
+            var cooldown = ReconDroneSystem.GetCooldownRemaining(combatant.Team);
+            if (cooldown > 0f)
+            {
+                _owner.Notify("İHA hazır değil (" + Mathf.CeilToInt(cooldown) + " sn)", 1.5f);
+                return;
+            }
+
+            Vector3 target;
+            if (!markerOnly && _owner.TryGetAimPoint(PlayerController.ArtilleryMaxRange, out var aimPoint))
+                target = aimPoint;
+            else if (_owner.MapMarker.HasValue)
+                target = _owner.MapMarker.Value;
+            else
+            {
+                _owner.Notify(markerOnly ? "Önce haritada hedef işaretleyin" : "İHA için hedef görülmüyor", 1.8f);
+                return;
+            }
+
+            if (!GameContext.HasAuthority)
+                return;
+
+            if (!ReconDroneSystem.TryLaunch(combatant.Team, _owner.transform.position, target))
+            {
+                _owner.Notify("İHA kullanılamıyor", 1.5f);
+                return;
+            }
+
+            PlayerController.PlaySound2D(SoundId.RadioBeep, 0.6f);
+            _owner.Notify("İHA keşfi yolda — 12 sn görev", 2f, false);
         }
 
         // ================================================================ emirler
@@ -203,6 +330,68 @@ namespace Project.Presentation.Player
                 default:
                     return "Takip";
             }
+        }
+
+        // ================================================================ komut çarkı
+        private void ExecuteWheel(CommandWheelItem item)
+        {
+            switch (item)
+            {
+                case CommandWheelItem.Follow:
+                    IssueOrder(SquadOrder.Follow, false);
+                    break;
+                case CommandWheelItem.HoldPosition:
+                    IssueOrder(SquadOrder.HoldPosition, false);
+                    break;
+                case CommandWheelItem.Attack:
+                    IssueOrder(SquadOrder.Attack, false);
+                    break;
+                case CommandWheelItem.Regroup:
+                    IssueOrder(SquadOrder.Regroup, false);
+                    break;
+                case CommandWheelItem.Artillery:
+                    CallArtillery(false);
+                    break;
+                default:
+                    ThrowSmoke();
+                    break;
+            }
+        }
+
+        private void ThrowSmoke()
+        {
+            var combatant = _owner.Combatant;
+            if (combatant == null)
+                return;
+
+            if (Time.time < _nextSmokeTime)
+            {
+                _owner.Notify("Sis hazır değil (" + Mathf.CeilToInt(_nextSmokeTime - Time.time) + " sn)", 1.5f);
+                return;
+            }
+
+            if (!_owner.TryGetAimPoint(SmokeMaxDistance, out var point))
+            {
+                _owner.Notify("Sis için hedef görülmüyor", 1.5f);
+                return;
+            }
+
+            if (!GameContext.HasAuthority)
+                return;
+
+            try
+            {
+                ThrowableProjectile.Throw(ThrowableKind.Smoke, point + Vector3.up * 1.5f, Vector3.zero, combatant.Id);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                return;
+            }
+
+            _nextSmokeTime = Time.time + SmokeCooldown;
+            PlayerController.PlaySound2D(SoundId.RadioBeep, 0.6f);
+            _owner.Notify("Sis atıldı", 1.5f, false);
         }
 
         // ================================================================ topçu
@@ -346,6 +535,7 @@ namespace Project.Presentation.Player
 
         public void Dispose()
         {
+            _wheel.Dispose();
             _teamBuffer.Clear();
         }
     }

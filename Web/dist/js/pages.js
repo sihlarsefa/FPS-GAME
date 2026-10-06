@@ -1,9 +1,17 @@
 import { api, WEAPONS, RANKS } from './api.js';
-import { LOCATIONS, PATCHES, MATCH_DEMO } from './mock-data.js';
+import { LOCATIONS, MAPS, PATCHES, MATCH_DEMO } from './mock-data.js';
 import { t } from './i18n.js';
 import { esc, formatNumber, xpProgress, worldToSvg } from './util.js';
 import { CONFIG } from './config.js';
 import { pushCtaHtml } from './push.js';
+
+async function fetchJson(path) {
+  try {
+    const res = await fetch(path, { cache: 'no-cache' });
+    if (res.ok) return await res.json();
+  } catch { /* ignore */ }
+  return null;
+}
 
 function mapGrid(size = 1000) {
   const grid = [];
@@ -24,7 +32,8 @@ export async function renderHome() {
     <h1 id="hero-title">HAREKÂT</h1>
     <p>Mavi ve Kırmızı kuvvetler Kuzgun Vadisi'nde tatbikatta. TSK rütbe zinciri, T-70 / Kirpi intikal, Türk silahları ve topçu desteğiyle hayatta kal.</p>
     <div class="hero-actions">
-      <a class="btn primary" href="#/squad">${esc(t('home_cta'))}</a>
+      <a class="btn primary" href="#/download">${esc(t('nav_download'))}</a>
+      <a class="btn ghost" href="#/squad">${esc(t('home_cta'))}</a>
       <a class="btn ghost" href="#/leaderboards">${esc(t('home_secondary'))}</a>
       <a class="btn ghost" href="#/login">${esc(t('nav_login'))}</a>
     </div>
@@ -79,6 +88,17 @@ export async function renderProfile() {
   const xp = xpProgress(me.stats?.experience ?? me.seasonXp ?? 0, me.rank);
   const weapon = WEAPONS.find((w) => w.id === (me.bestWeaponId || 'ar_mpt76'));
   const recent = me.recentMatches || [2, 5, 1, 8, 3, 4, 1, 6, 2, 7];
+  let cosmetics = [];
+  let achPreview = [];
+  if (api.isAuthed()) {
+    try { cosmetics = await api.cosmetics(); } catch { cosmetics = []; }
+    try {
+      const ach = await api.achievements();
+      achPreview = (ach || []).filter((a) => a.unlocked).slice(0, 8);
+    } catch { achPreview = []; }
+  }
+  const owned = (cosmetics || []).filter((c) => c.owned);
+  const equipped = (cosmetics || []).filter((c) => c.equipped);
   return `
   <section class="section grid cols-2">
     <article class="card">
@@ -105,6 +125,26 @@ export async function renderProfile() {
         <li>En uzun hayatta kalma: ${me.stats?.longestSurvivalSeconds ?? 0}s</li>
         <li>Sezon XP: ${formatNumber(me.seasonXp, CONFIG.lang)}</li>
         <li>Bölge: ${esc(me.region)} · Rol: ${esc(me.role)}</li>
+      </ul>
+    </article>
+  </section>
+  <section class="section grid cols-2">
+    <article class="card">
+      <h2>${esc(t('nav_achievements'))}</h2>
+      ${achPreview.length
+        ? `<ul>${achPreview.map((a) => `<li><strong>${esc(a.title || a.id)}</strong> <span class="muted">${esc(a.description || '')}</span></li>`).join('')}</ul>
+           <p><a class="btn ghost" href="#/achievements">${esc(t('nav_achievements'))} →</a></p>`
+        : `<p class="muted">${api.isAuthed() ? 'Henüz açılan başarım yok.' : `<a href="#/login">${esc(t('nav_login'))}</a>`}</p>`}
+    </article>
+    <article class="card">
+      <h2>Kozmetikler</h2>
+      <p class="muted">Sahiplik ${owned.length} · Kuşanılmış ${equipped.length}</p>
+      <ul>
+        ${(cosmetics || []).slice(0, 12).map((c) =>
+          `<li><strong>${esc(c.name || c.id)}</strong>
+            <span class="pill">${esc(c.slot || '')}</span>
+            ${c.equipped ? '<span class="pill ok">kuşanıldı</span>' : c.owned ? '<span class="pill">sahip</span>' : '<span class="muted">kilitli</span>'}
+          </li>`).join('') || '<li class="muted">Katalog yüklenemedi</li>'}
       </ul>
     </article>
   </section>
@@ -280,19 +320,150 @@ export async function renderMatch(id) {
 }
 
 export async function renderAchievements() {
-  let items = [];
-  try { items = await api.achievements(); } catch { items = []; }
+  const catalog = await fetchJson('content/data/achievements.json');
+  let progress = [];
+  try { progress = await api.achievements(); } catch { progress = []; }
+  const unlocked = new Set((api.currentPlayer()?.unlockedAchievements || []).map(String));
+  const byId = Object.fromEntries((progress || []).map((a) => [a.id, a]));
+  const lang = CONFIG.lang === 'en' ? 'en' : 'tr';
+  const items = catalog?.items || [];
   const cards = items.map((a) => {
-    const pct = Math.min(100, Math.round((a.progress / a.target) * 100));
+    const title = a[`title_${lang}`] || a.title_tr;
+    const desc = a[`desc_${lang}`] || a.desc_tr;
+    const prog = byId[a.id];
+    const done = prog?.unlocked || unlocked.has(a.id);
+    const pct = prog ? Math.min(100, Math.round((prog.progress / Math.max(1, prog.target)) * 100)) : (done ? 100 : 0);
     return `
-    <article class="card ${a.unlocked ? 'ach-unlocked' : ''}">
-      <h3>${esc(a.title)} ${a.unlocked ? '<span class="pill ok">✓</span>' : ''}</h3>
-      <p>${esc(a.description)}</p>
-      <div class="xp-bar" style="margin-top:.75rem" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="--p:${pct}%"></i></div>
-      <p class="muted" style="margin-top:.35rem">${a.progress} / ${a.target}</p>
+    <article class="card ${done ? 'ach-unlocked' : ''}">
+      <h3>${esc(title)} ${done ? '<span class="pill ok">✓</span>' : ''} <span class="pill">+${a.xp} XP</span></h3>
+      <p>${esc(desc)}</p>
+      <p class="muted">${esc(a.condition || '')}</p>
+      ${prog ? `<div class="xp-bar" style="margin-top:.75rem" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="--p:${pct}%"></i></div>
+      <p class="muted" style="margin-top:.35rem">${prog.progress} / ${prog.target}</p>` : ''}
     </article>`;
   }).join('');
-  return `<section class="section"><h2>${esc(t('ach_title'))}</h2><div class="grid cols-3">${cards || '<p class="muted">Giriş gerekli.</p>'}</div></section>`;
+  return `
+  <section class="section">
+    <h2>${esc(t('ach_title'))}</h2>
+    <p class="muted">${items.length} ${esc(t('ach_catalog_hint'))}</p>
+    <div class="grid cols-3">${cards || '<p class="muted">—</p>'}</div>
+  </section>`;
+}
+
+export async function renderDownload() {
+  const data = await fetchJson('content/data/download.json') || {};
+  const lang = CONFIG.lang === 'en' ? 'en' : 'tr';
+  const steps = data[`steps_${lang}`] || data.steps_tr || [];
+  const note = data.installer?.[`note_${lang}`] || data.installer?.note_tr || '';
+  const shaNote = data[`sha256Note_${lang}`] || data.sha256Note_tr || '';
+  const steamLabel = data.steam?.[`label_${lang}`] || data.steam?.label_tr || 'Steam';
+  return `
+  <section class="section">
+    <h2>${esc(t('dl_title'))}</h2>
+    <p class="muted">${esc(t('dl_platform'))}: Windows · ${esc(t('dl_version'))}: ${esc(data.latestVersion || '—')}</p>
+    <div class="grid cols-2" style="margin-top:1rem">
+      <article class="card">
+        <h3>${esc(t('dl_installer'))}</h3>
+        <p><code>${esc(data.installer?.filename || 'HarekatSetup.exe')}</code></p>
+        <p class="muted">${esc(note)}</p>
+        <p style="margin-top:1rem">
+          <a class="btn primary" href="${esc(data.installer?.url || '#')}" ${data.installer?.placeholder ? 'aria-disabled="true"' : ''}>${esc(t('dl_get'))}</a>
+          <span class="btn ghost" aria-disabled="true">${esc(steamLabel)}</span>
+        </p>
+        <h3 style="margin-top:1.5rem">${esc(t('dl_sha'))}</h3>
+        <p class="hash-box"><code id="sha256Value">${esc(data.sha256 || '—')}</code></p>
+        <p class="muted">${esc(shaNote)}</p>
+        <button type="button" class="btn ghost" id="copyShaBtn">${esc(t('dl_copy_sha'))}</button>
+        <p class="muted" id="copyShaMsg" role="status"></p>
+      </article>
+      <article class="card">
+        <h3>${esc(t('dl_steps'))}</h3>
+        <ol class="steps">${steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+        <p style="margin-top:1rem">
+          <a class="btn ghost" href="#/requirements">${esc(t('nav_requirements'))}</a>
+          <a class="btn ghost" href="#/patches">${esc(t('nav_patches'))}</a>
+        </p>
+      </article>
+    </div>
+  </section>`;
+}
+
+export async function renderRequirements() {
+  const data = await fetchJson('content/data/sysreq.json') || {};
+  const lang = CONFIG.lang === 'en' ? 'en' : 'tr';
+  const min = data.minimum || {};
+  const rec = data.recommended || {};
+  const notes = data[`notes_${lang}`] || data.notes_tr || [];
+  const row = (label, value) => `<tr><th scope="row">${esc(label)}</th><td>${esc(value || '—')}</td></tr>`;
+  const labels = lang === 'en'
+    ? { os: 'OS', cpu: 'CPU', ram: 'Memory', gpu: 'GPU', dx: 'DirectX', storage: 'Storage', net: 'Network', extra: 'Other', target: 'Target' }
+    : { os: 'İşletim sistemi', cpu: 'İşlemci', ram: 'Bellek', gpu: 'Ekran kartı', dx: 'DirectX', storage: 'Depolama', net: 'Ağ', extra: 'Ek', target: 'Hedef' };
+  return `
+  <section class="section">
+    <h2>${esc(t('req_title'))}</h2>
+    <p class="muted">${esc(t('req_source'))}</p>
+    <div class="grid cols-2" style="margin-top:1rem">
+      <article class="card">
+        <h3>${esc(t('req_min'))}</h3>
+        <div class="table-wrap"><table class="req-table">
+          <tbody>
+            ${row(labels.os, min.os)}
+            ${row(labels.cpu, min.cpu)}
+            ${row(labels.ram, min.ram)}
+            ${row(labels.gpu, min.gpu)}
+            ${row(labels.dx, min.directx)}
+            ${row(labels.storage, min.storage)}
+            ${row(labels.net, min.network)}
+            ${row(labels.extra, min.extra)}
+            ${row(labels.target, min[`target_${lang}`] || min.target_tr)}
+          </tbody>
+        </table></div>
+      </article>
+      <article class="card">
+        <h3>${esc(t('req_rec'))}</h3>
+        <div class="table-wrap"><table class="req-table">
+          <tbody>
+            ${row(labels.os, rec.os)}
+            ${row(labels.cpu, rec.cpu)}
+            ${row(labels.ram, rec.ram)}
+            ${row(labels.gpu, rec.gpu)}
+            ${row(labels.dx, rec.directx)}
+            ${row(labels.storage, rec.storage)}
+            ${row(labels.net, rec.network)}
+            ${row(labels.extra, rec.audio)}
+            ${row(labels.target, rec[`target_${lang}`] || rec.target_tr)}
+          </tbody>
+        </table></div>
+      </article>
+    </div>
+    <article class="card" style="margin-top:1rem">
+      <h3>${esc(t('req_notes'))}</h3>
+      <ul>${notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+      <p><a class="btn ghost" href="#/download">${esc(t('nav_download'))}</a></p>
+    </article>
+  </section>`;
+}
+
+export async function renderTeams() {
+  const data = await fetchJson('content/data/teams.json') || { teams: [] };
+  const lang = CONFIG.lang === 'en' ? 'en' : 'tr';
+  const disclaimer = data[`disclaimer_${lang}`] || data.disclaimer_tr || '';
+  const cards = (data.teams || []).map((tm) => `
+    <article class="card team-card">
+      <div class="team-emblem" style="--team:${esc(tm.color)}">
+        <img src="${esc(tm.emblem)}" alt="" width="72" height="72" />
+      </div>
+      <h3>${esc(tm[`name_${lang}`] || tm.name_tr)}</h3>
+      <p class="pill" style="border-color:${esc(tm.color)}">${esc(tm[`slogan_${lang}`] || tm.slogan_tr)}</p>
+      <p class="muted">${esc(t('teams_band'))}: <span style="display:inline-block;width:1.25rem;height:.75rem;background:${esc(tm.band)};border:1px solid var(--line);vertical-align:middle"></span></p>
+      <p>${esc(tm[`story_${lang}`] || tm.story_tr)}</p>
+    </article>`).join('');
+  return `
+  <section class="section">
+    <h2>${esc(t('teams_title'))}</h2>
+    <p class="muted">${esc(disclaimer)}</p>
+    <div class="grid cols-3" style="margin-top:1rem">${cards}</div>
+  </section>`;
 }
 
 export async function renderAdmin() {
@@ -300,13 +471,14 @@ export async function renderAdmin() {
   if (!api.canModerate(me)) {
     return `<section class="section card"><h2>${esc(t('admin_title'))}</h2><p class="muted">Yetki gerekli (Admin / Moderator). Mock: <code>admin</code> ile giriş yap.</p></section>`;
   }
-  const [servers, suspects, reports, health, tel, perf] = await Promise.all([
+  const [servers, suspects, reports, health, tel, perf, clientErrors] = await Promise.all([
     api.servers().catch(() => []),
     api.suspects(50).catch(() => []),
     api.reports().catch(() => []),
     api.health().catch(() => ({ status: 'down' })),
     api.telemetryHealth().catch(() => ({ status: 'down' })),
     api.telemetryPerf().catch(() => ({})),
+    api.clientErrors({ take: 30 }).catch(() => ({ items: [], total: 0 })),
   ]);
   const serverRows = (Array.isArray(servers) ? servers : servers.items || []).map((s) => `
     <tr>
@@ -326,6 +498,7 @@ export async function renderAdmin() {
       <a href="#admin-servers" class="pill">${esc(t('admin_servers'))}</a>
       <a href="#admin-reports" class="pill">${esc(t('admin_reports'))}</a>
       <a href="#admin-suspects" class="pill">${esc(t('admin_suspects'))}</a>
+      <a href="#admin-client-errors" class="pill">${esc(t('admin_client_errors'))}</a>
       <a href="#admin-health" class="pill">${esc(t('admin_health'))}</a>
     </div>
     <div class="grid cols-2" style="margin-top:1rem">
@@ -370,6 +543,17 @@ export async function renderAdmin() {
         <h3>${esc(t('admin_suspects'))}</h3>
         <ul>${(suspects || []).map((s) => `<li><strong>${esc(s.playerId)}</strong> skor ${s.totalScore ?? s.score}: ${esc(s.findings?.[0]?.detail || s.reason || '')}</li>`).join('')}</ul>
       </article>
+      <article class="card" id="admin-client-errors">
+        <h3>${esc(t('admin_client_errors'))} <span class="muted">(${(clientErrors && clientErrors.total) || 0})</span></h3>
+        <p class="muted">Uç: <code>/telemetry/client-errors</code></p>
+        <ul>${((clientErrors && clientErrors.items) || []).map((e) => `
+          <li>
+            <strong>${esc(e.exceptionType || e.trigger || 'error')}</strong>
+            ${esc(e.message || '')}
+            <span class="muted">· ${esc(e.scene || '—')} · ${esc(e.version || '')} · ${esc(e.createdAt || '')}</span>
+          </li>`).join('') || '<li class="muted">Boş</li>'}
+        </ul>
+      </article>
     </div>
   </section>`;
 }
@@ -388,38 +572,86 @@ export async function renderArsenal() {
   return `<section class="section"><h2>${esc(t('nav_arsenal'))}</h2><div class="grid cols-3">${cards}</div></section>`;
 }
 
-export async function renderMap() {
-  const marks = LOCATIONS.map((l) => {
+export async function renderMap(mapId) {
+  const maps = MAPS || [{ id: 'kuzgun', name: 'Kuzgun Vadisi', size: '1024×1024 m', mode: 'BR', blurb: '', tactics: [], locations: LOCATIONS }];
+  const id = mapId || 'kuzgun';
+  const map = maps.find((m) => m.id === id) || maps[0];
+  const locs = map.locations || LOCATIONS;
+  const marks = locs.map((l) => {
     const [sx, sy] = worldToSvg(l.x, l.z);
     return `<g><circle cx="${sx}" cy="${sy}" r="10" fill="#e30a17" opacity=".85"/><text x="${sx + 14}" y="${sy + 4}" fill="#e8eef5" font-size="14" font-family="Oswald,sans-serif">${esc(l.name)}</text></g>`;
   }).join('');
+  const tabs = maps.map((m) =>
+    `<a class="btn ${m.id === map.id ? '' : 'ghost'}" href="#/map/${m.id}">${esc(m.name)}</a>`).join(' ');
   return `
   <section class="section">
-    <h2>Kuzgun Vadisi</h2>
-    <p class="muted">1024×1024 m · grid 100 m · A–J / 1–10 · kuzey = +Z</p>
-    <svg class="map-svg" viewBox="0 0 1000 1000" role="img" aria-label="Kuzgun Vadisi paftası">
+    <h2>${esc(t('nav_map'))}</h2>
+    <p class="muted" style="margin-bottom:.75rem">${tabs}</p>
+    <h3>${esc(map.name)}</h3>
+    <p class="muted">${esc(map.size)} · ${esc(map.mode)}</p>
+    <p>${esc(map.blurb || '')}</p>
+    <svg class="map-svg" viewBox="0 0 1000 1000" role="img" aria-label="${esc(map.name)} paftası">
       <rect width="1000" height="1000" fill="#0e1520"/>
       ${mapGrid()}
       <path d="M520 0 C510 120 480 250 500 400 S530 700 510 1000" fill="none" stroke="#3d7eff" stroke-width="8" opacity=".55"/>
       ${marks}
     </svg>
-    <div class="grid cols-3" style="margin-top:1rem">
-      ${LOCATIONS.map((l) => `<article class="card"><h3>${esc(l.name)}</h3><p class="muted">${esc(l.kind)} · (${l.x}, ${l.z})</p></article>`).join('')}
+    <div class="grid cols-2" style="margin-top:1rem">
+      <article class="card">
+        <h3>Taktik notları</h3>
+        <ul>${(map.tactics || []).map((n) => `<li>${esc(n)}</li>`).join('') || '<li class="muted">—</li>'}</ul>
+      </article>
+      <article class="card">
+        <h3>Lokasyonlar</h3>
+        <div class="grid cols-2">
+          ${locs.map((l) => `<div><strong>${esc(l.name)}</strong><br/><span class="muted">${esc(l.kind)} · (${l.x}, ${l.z})</span></div>`).join('')}
+        </div>
+      </article>
     </div>
   </section>`;
 }
 
 export async function renderPatches() {
+  let posts = await fetchJson('content/patchnotes/index.json');
+  if (!Array.isArray(posts) || !posts.length) {
+    posts = PATCHES.map((p) => ({
+      slug: p.v, version: p.v, title: p.v, date: p.date, summary: p.notes.join(' · '),
+    }));
+  }
   return `
   <section class="section">
     <h2>${esc(t('nav_patches'))}</h2>
+    <p class="muted"><a href="content/patchnotes/rss.xml">${esc(t('patches_rss'))}</a></p>
     <div class="grid cols-2">
-      ${PATCHES.map((p) => `
+      ${posts.map((p) => `
         <article class="card">
-          <h3>${esc(p.v)} <span class="muted" style="font-weight:400">${esc(p.date)}</span></h3>
-          <ul>${p.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+          <h3><a href="#/patches/${encodeURIComponent(p.slug || p.version)}">${esc(p.title || p.version || p.v)}</a>
+            <span class="muted" style="font-weight:400">${esc(p.date || '')}</span></h3>
+          <p>${esc(p.summary || (p.notes || []).join(' · ') || '')}</p>
         </article>`).join('')}
     </div>
+  </section>`;
+}
+
+export async function renderPatchPost(slug) {
+  let post = await fetchJson(`content/patchnotes/${slug}.json`);
+  if (!post) {
+    const fallback = PATCHES.find((p) => p.v === slug);
+    if (fallback) {
+      post = {
+        title: fallback.v,
+        date: fallback.date,
+        html: `<ul>${fallback.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>`,
+      };
+    }
+  }
+  if (!post) return renderNotFound();
+  return `
+  <section class="section card" style="max-width:720px">
+    <p><a href="#/patches">← ${esc(t('nav_patches'))}</a> · <a href="content/patchnotes/rss.xml">${esc(t('patches_rss'))}</a></p>
+    <h2>${esc(post.title)}</h2>
+    <p class="muted">${esc(post.date || '')}${post.version ? ` · ${esc(post.version)}` : ''}</p>
+    <div class="prose">${post.html || ''}</div>
   </section>`;
 }
 

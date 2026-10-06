@@ -85,6 +85,10 @@ public sealed record SeasonDto(int Number, string Name, DateTimeOffset StartsAt,
 public sealed record SeasonArchiveDto(int SeasonNumber, Guid PlayerId, string Username, int SeasonXp, int Placement, string RewardBadge);
 
 public sealed record AchievementDto(string Id, string Title, string Description, int Target, int Progress, bool Unlocked);
+public sealed record AchievementSyncRequest(
+    IReadOnlyList<string>? UnlockedIds = null,
+    IReadOnlyDictionary<string, int>? Progress = null);
+public sealed record AchievementSyncResult(IReadOnlyList<string> NewlyUnlocked, IReadOnlyList<AchievementDto> Achievements);
 public sealed record CosmeticDto(string Id, string Name, string Slot, bool Owned, bool Equipped);
 public sealed record EquipCosmeticRequest(string CosmeticId);
 

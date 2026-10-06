@@ -30,6 +30,7 @@ namespace Project.Infrastructure.World
             var waterLevel = layout.WaterLevel;
             var riverHalf = model.RiverWaterHalfWidth;
             var step = model.Size / (resolution - 1);
+            var plan = FieldPlan.Of(model);
 
             for (var az = 0; az < resolution; az++)
             {
@@ -37,7 +38,7 @@ namespace Project.Infrastructure.World
                 for (var ax = 0; ax < resolution; ax++)
                 {
                     var x = model.OriginX + ax * step;
-                    ComputeWeights(model, layout, noise, x, z, waterLevel, riverHalf, w);
+                    ComputeWeights(model, layout, noise, x, z, waterLevel, riverHalf, w, plan);
                     for (var l = 0; l < layers; l++)
                         maps[az, ax, l] = w[l];
                 }
@@ -49,7 +50,7 @@ namespace Project.Infrastructure.World
         /// <summary>Tek bir noktanın normalleştirilmiş katman ağırlıkları (weights uzunluğu ≥ LayerCount).</summary>
         public static void ComputeWeights(TerrainModel model, float x, float z, float[] weights)
         {
-            ComputeWeights(model, model.Layout, model.Noise, x, z, model.Layout.WaterLevel, model.RiverWaterHalfWidth, weights);
+            ComputeWeights(model, model.Layout, model.Noise, x, z, model.Layout.WaterLevel, model.RiverWaterHalfWidth, weights, FieldPlan.Of(model));
         }
 
         /// <summary>Noktadaki baskın katman.</summary>
@@ -67,7 +68,7 @@ namespace Project.Infrastructure.World
         }
 
         private static void ComputeWeights(TerrainModel model, MapLayout layout, TerrainNoise noise, float x, float z, float waterLevel,
-            float riverHalf, float[] w)
+            float riverHalf, float[] w, FieldPlan plan)
         {
             for (var i = 0; i < w.Length; i++)
                 w[i] = 0f;
@@ -88,6 +89,9 @@ namespace Project.Infrastructure.World
                           + 0.1f * n1
                           + 0.2f * Mathf.Max(0f, -normal.z) // güneye bakan yamaç
                           - 0.45f * riverWet;
+            dryness += TerrainPaintRules.MacroVariation(noise.Fbm(x / 420f + 57.3f, z / 420f - 91.1f, 2));
+            // 50-200 m ölçekli ince renk bozulması: düzgün tek tonluluğu kırar.
+            dryness += FieldDetailRules.ColorBreakup(noise.Fbm(x / 55f + 3.9f, z / 55f - 17.2f, 2), noise.Fbm(x / 180f - 44.4f, z / 180f + 8.8f, 2));
             var dry = TerrainNoise.SmoothStep(0.3f, 0.5f, dryness);
             w[(int)TerrainLayerKind.Grass] = 1f - dry;
             w[(int)TerrainLayerKind.DryGrass] = dry;
@@ -97,6 +101,10 @@ namespace Project.Infrastructure.World
             dirt = Mathf.Max(dirt, TerrainNoise.SmoothStep(20f, 28f, slope) * 0.6f); // dik yamaç geçişi
             Over(w, TerrainLayerKind.Dirt, dirt);
 
+            // ---------------------------------------------------------------- Tarla parselleri + yerleşim çevresi ezilmiş çim
+            if (plan != null)
+                ApplyFieldGround(plan, x, z, n2, w);
+
             // ---------------------------------------------------------------- Bölge zemini
             ApplyLocationGround(layout, model, x, z, n2, w);
 
@@ -104,6 +112,21 @@ namespace Project.Infrastructure.World
             var rock = TerrainNoise.SmoothStep(RockSlope - 4f, RockSlope + 6f, slope + n2 * 3f);
             rock = Mathf.Max(rock, TerrainNoise.SmoothStep(112f, 138f, h) * 0.4f * (n2 * 0.5f + 0.5f));
             Over(w, TerrainLayerKind.Rock, rock);
+            Over(w, TerrainLayerKind.Rock, TerrainPaintRules.CliffRock(slope + n2 * 2f, h));
+
+            // ---------------------------------------------------------------- Aşınma: sırt kayası, uçurum dibi döküntü, oluklarda çamur/çakıl
+            var erosion = TerrainErosionMaps.Of(model);
+            if (erosion != null)
+            {
+                var flow = erosion.Sample(erosion.Flow, x, z);
+                var curv = erosion.Sample(erosion.Curvature, x, z);
+                var scree = erosion.Sample(erosion.Scree, x, z);
+                Over(w, TerrainLayerKind.Rock, TerrainPaintRules.RidgeRock(curv, slope));
+                Over(w, TerrainLayerKind.Gravel, TerrainPaintRules.ScreeGravel(scree, n2));
+                Over(w, TerrainLayerKind.Rock, TerrainPaintRules.ScreeRock(scree, n2));
+                Over(w, TerrainLayerKind.Gravel, TerrainPaintRules.GullyGravel(flow, slope, curv));
+                Over(w, TerrainLayerKind.Mud, TerrainPaintRules.GullyMud(flow, slope, curv));
+            }
 
             // ---------------------------------------------------------------- Çamur (dere/göl kıyısı)
             var mud = 1f - TerrainNoise.SmoothStep(riverHalf + 0.5f, riverHalf + 5f + 2f * n2, riverDistance);
@@ -122,9 +145,21 @@ namespace Project.Infrastructure.World
 
             Over(w, TerrainLayerKind.Mud, mud * 0.92f);
 
+            // ---------------------------------------------------------------- Kumsal (kıyı haritaları)
+            if (layout.BeachHeight > 0.01f)
+            {
+                var beach = BeachWeight(h, waterLevel, layout.BeachHeight, slope);
+                if (beach > 0f)
+                {
+                    // Katman setinde kum dokusu yok: açık renkli kuru çim + çakıl karışımı kumsal görünümü verir.
+                    Over(w, TerrainLayerKind.DryGrass, beach * 0.9f);
+                    Over(w, TerrainLayerKind.Gravel, beach * (0.25f + 0.2f * n2));
+                }
+            }
+
             // ---------------------------------------------------------------- Kar
-            var snow = TerrainNoise.SmoothStep(SnowLine - 7f, SnowLine + 6f, h + n1 * 6f) * (1f - TerrainNoise.SmoothStep(40f, 52f, slope));
-            Over(w, TerrainLayerKind.Snow, snow);
+            Over(w, TerrainLayerKind.Rock, TerrainPaintRules.SnowExposedRock(h, layout.SnowLine, slope));
+            Over(w, TerrainLayerKind.Snow, TerrainPaintRules.SlopeSnow(h, layout.SnowLine, slope, n1));
 
             // ---------------------------------------------------------------- Yollar
             var edge = model.SampleRoadEdge(x, z);
@@ -132,7 +167,9 @@ namespace Project.Infrastructure.World
             {
                 var kind = model.SampleRoadKind(x, z);
                 // Yol kenarı: ezilmiş toprak şeridi.
-                var shoulder = 1f - TerrainNoise.SmoothStep(0.5f, 3.5f, edge);
+                // Omuz sınırı gürültüyle oynatılır: düz şerit yerine yumuşak, düzensiz geçiş (+ erozyonlu kenarlık).
+                var softEdge = edge + n2 * 0.9f;
+                var shoulder = 1f - TerrainNoise.SmoothStep(0.3f, 4.5f, softEdge);
                 Over(w, TerrainLayerKind.Dirt, shoulder * 0.7f);
                 var core = 1f - TerrainNoise.SmoothStep(-0.8f, 0.6f, edge);
                 if (kind == 1)
@@ -144,10 +181,65 @@ namespace Project.Infrastructure.World
                 else if (kind == 2)
                 {
                     Over(w, TerrainLayerKind.Gravel, core * 0.92f);
+                    if (plan != null)
+                    {
+                        // Toprak yol: ortada çim şeridi, iki yanda tekerlek izi.
+                        FieldDetailRules.DirtRoadWear(edge, plan.DirtRoadHalfWidth, n2 * 0.5f + 0.5f, out var strip, out var rut);
+                        Over(w, TerrainLayerKind.Mud, rut * 0.3f * core);
+                        Over(w, TerrainLayerKind.DryGrass, strip * 0.55f * core);
+                    }
                 }
             }
 
             Normalize(w);
+        }
+
+        private static void ApplyFieldGround(FieldPlan plan, float x, float z, float n2, float[] w)
+        {
+            var trample = plan.TrampleAt(x, z, n2);
+            if (trample > 0f)
+            {
+                Over(w, TerrainLayerKind.DryGrass, trample * 0.45f * (0.6f + 0.4f * (n2 * 0.5f + 0.5f)));
+                Over(w, TerrainLayerKind.Dirt, trample * 0.18f * (1f - (n2 * 0.5f + 0.5f)));
+            }
+
+            var parcel = plan.Find(x, z, out var inside);
+            if (parcel == null)
+                return;
+            var m = TerrainNoise.SmoothStep(-0.4f, 1.2f, inside);
+            if (m <= 0f)
+                return;
+            parcel.ToLocal(x, z, out var lx, out _);
+            var ridge = FieldDetailRules.RowRidge(lx);
+            switch (parcel.Kind)
+            {
+                case FieldKind.Plowed:
+                    Over(w, TerrainLayerKind.Dirt, m * 0.95f);
+                    Over(w, TerrainLayerKind.Mud, m * 0.42f * (1f - ridge));
+                    break;
+                case FieldKind.Stubble:
+                    Over(w, TerrainLayerKind.DryGrass, m * 0.9f);
+                    Over(w, TerrainLayerKind.Dirt, m * 0.3f * (1f - ridge));
+                    break;
+                default:
+                    Over(w, TerrainLayerKind.Grass, m * 0.5f);
+                    break;
+            }
+
+            // Tarla başı: parsel kenarında çiğnenmiş toprak şeridi.
+            var headland = (1f - TerrainNoise.SmoothStep(0.6f, 2.6f, inside)) * m;
+            Over(w, TerrainLayerKind.Dirt, headland * 0.5f);
+        }
+
+        /// <summary>Kumsal ağırlığı [0,1]: su seviyesinin hemen üstündeki, dik olmayan şerit (yumuşak kenarlı).</summary>
+        public static float BeachWeight(float height, float waterLevel, float beachHeight, float slopeDegrees)
+        {
+            if (beachHeight <= 0.01f)
+                return 0f;
+            var above = height - waterLevel;
+            var band = 1f - TerrainNoise.SmoothStep(beachHeight * 0.6f, beachHeight, above);
+            var wet = TerrainNoise.SmoothStep(-1.5f, -0.2f, above);
+            return band * wet * (1f - TerrainNoise.SmoothStep(25f, 38f, slopeDegrees));
         }
 
         private static void ApplyLocationGround(MapLayout layout, TerrainModel model, float x, float z, float n2, float[] w)
@@ -226,6 +318,65 @@ namespace Project.Infrastructure.World
             var inv = 1f / sum;
             for (var i = 0; i < w.Length; i++)
                 w[i] *= inv;
+        }
+    }
+}
+
+namespace Project.Infrastructure.World
+{
+    /// <summary>Arazi boyama saf kuralları (test edilebilir) ve kalite kademesi başına basemap/ayrıntı tablosu.</summary>
+    public static partial class TerrainPaintRules
+    {
+        /// <summary>Makro (yüzlerce metrelik) çim/kuru çim varyasyonu gücü; 0 = kapalı.</summary>
+        public static float MacroStrength = 0.1f;
+
+        /// <summary>fBm değerinden [-MacroStrength, MacroStrength] aralığında makro kaydırma.</summary>
+        public static float MacroVariation(float fbm)
+        {
+            return Mathf.Clamp(fbm, -1f, 1f) * MacroStrength;
+        }
+
+        /// <summary>Eğim (derece) → kaya ağırlığı [0,1]; RockSlope çevresinde yumuşak geçiş.</summary>
+        public static float SlopeRock(float slopeDegrees)
+        {
+            return TerrainNoise.SmoothStep(TerrainPainter.RockSlope - 4f, TerrainPainter.RockSlope + 6f, slopeDegrees);
+        }
+
+        /// <summary>Yüksekliğe göre kar ağırlığı [0,1].</summary>
+        public static float HeightSnow(float height, float snowLine)
+        {
+            return TerrainNoise.SmoothStep(snowLine - 7f, snowLine + 6f, height);
+        }
+
+        // Düşük, Orta, Yüksek, Ultra
+        private static readonly float[] Basemap = { 160f, 260f, 380f, 520f };
+
+        /// <summary>Kademe başına basemap mesafesi (m): daha uzakta düşük çözünürlüklü tek doku.</summary>
+        public static float BasemapDistance(int level)
+        {
+            return Basemap[Mathf.Clamp(level, 0, 3)];
+        }
+
+        /// <summary>Kademe başına çimen/çiçek mesafesi (m); ayarlardaki çarpan uygulanır.</summary>
+        public static float DetailDistance(int level, float userScale = 1f)
+        {
+            return Rendering.PerformanceProfile.DetailObjectDistance(level) * Mathf.Clamp(userScale, 0f, 2f);
+        }
+
+        /// <summary>Kademe başına çimen/çiçek yoğunluğu [0,1]; ayarlardaki çarpan uygulanır.</summary>
+        public static float DetailDensity(int level, float userScale = 1f)
+        {
+            return Mathf.Clamp01(Rendering.PerformanceProfile.DetailDensityScale(level) * Mathf.Clamp(userScale, 0f, 2f));
+        }
+
+        /// <summary>Tüm etkin arazilere kademeyi uygular (null güvenli).</summary>
+        public static void ApplyTier(Terrain terrain, int level, float detailScale = 1f)
+        {
+            if (terrain == null)
+                return;
+            terrain.basemapDistance = BasemapDistance(level);
+            terrain.detailObjectDistance = DetailDistance(level, detailScale);
+            terrain.detailObjectDensity = DetailDensity(level, detailScale);
         }
     }
 }

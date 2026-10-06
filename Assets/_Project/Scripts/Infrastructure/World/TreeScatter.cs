@@ -15,8 +15,6 @@ namespace Project.Infrastructure.World
         /// <summary>Örnekleme ızgara aralığı (m) — ağaçlar arası en az ~1.6 m.</summary>
         public const float CandidateSpacing = 4f;
 
-        private const float SnowLine = TerrainPainter.SnowLine;
-
         private struct Candidate
         {
             public float X, Z, Density;
@@ -79,7 +77,7 @@ namespace Project.Infrastructure.World
                     widthScale = heightScale * Range(rng, 0.9f, 1.3f);
                 }
 
-                var tint = Range(rng, 0.85f, 1f);
+                var color = TintFor(c.Kind, rng);
                 result.Add(new TreeInstance
                 {
                     prototypeIndex = (int)c.Kind,
@@ -87,12 +85,45 @@ namespace Project.Infrastructure.World
                     heightScale = heightScale,
                     widthScale = widthScale,
                     rotation = Range(rng, 0f, Mathf.PI * 2f),
-                    color = new Color(tint, tint, tint, 1f),
+                    color = color,
                     lightmapColor = Color.white
                 });
             }
 
             return result.ToArray();
+        }
+
+        /// <summary>Kalite kademesine (0 Düşük … 3 Ultra) göre hedef ağaç sayısı (performans bütçesi).</summary>
+        public static int TargetCountForTier(int tier)
+        {
+            switch (Mathf.Clamp(tier, 0, 3))
+            {
+                case 0: return 1400;
+                case 1: return 2400;
+                case 2: return 3200;
+                default: return DefaultTargetCount;
+            }
+        }
+
+        /// <summary>Örnek rengi: tür başına ton/parlaklık çeşitliliği (meşe sarıya, çam maviye, kuru ağaç griye kayar).</summary>
+        internal static Color TintFor(TreeKind kind, System.Random rng)
+        {
+            var v = Range(rng, 0.82f, 1.02f);
+            switch (kind)
+            {
+                case TreeKind.Oak:
+                    var warm = Range(rng, 0f, 0.14f);
+                    return new Color(v, v * (1f - warm * 0.15f), v * (1f - warm), 1f);
+                case TreeKind.PineA:
+                case TreeKind.PineB:
+                    var cool = Range(rng, 0f, 0.08f);
+                    return new Color(v * (1f - cool), v, v * (1f - cool * 0.3f), 1f);
+                case TreeKind.Dead:
+                    return new Color(v, v * 0.97f, v * 0.94f, 1f);
+                default:
+                    var dry = Range(rng, 0f, 0.18f);
+                    return new Color(v, v * (1f - dry * 0.2f), v * (1f - dry), 1f);
+            }
         }
 
         /// <summary>
@@ -184,7 +215,9 @@ namespace Project.Infrastructure.World
                 var forestT = 1f - TerrainNoise.SmoothStep(forest.Radius * 0.75f, forest.Radius * 1.45f, d + (fine - 0.5f) * 30f);
                 if (forestT > 0.05f)
                 {
-                    kind = kindRoll < 0.46f ? TreeKind.PineA : (kindRoll < 0.9f ? TreeKind.PineB : (kindRoll < 0.96f ? TreeKind.Bush : TreeKind.Dead));
+                    var forestEdge = TreeScatterRules.EdgeWeight(forestT);
+                    kind = kindRoll < TreeScatterRules.BushChance(forestEdge) * 0.7f ? TreeKind.Bush
+                        : (kindRoll < 0.93f ? (kindRoll < 0.5f ? TreeKind.PineA : TreeKind.PineB) : TreeKind.Dead);
                     // Orman içinde birkaç küçük açıklık.
                     var clearing = TerrainNoise.SmoothStep(0.72f, 0.82f, fine);
                     return 1.35f * forestT * slopeFactor * (1f - clearing * 0.85f);
@@ -192,10 +225,11 @@ namespace Project.Infrastructure.World
             }
 
             // ---------------------------------------------------------------- Kar çizgisi üstü: seyrek kuru ağaç
-            if (h > SnowLine - 4f)
+            var snowLine = model.Layout.SnowLine;
+            if (h > snowLine - 4f)
             {
                 kind = TreeKind.Dead;
-                return h > SnowLine + 6f ? 0f : 0.015f * slopeFactor;
+                return h > snowLine + 6f ? 0f : 0.015f * slopeFactor;
             }
 
             // ---------------------------------------------------------------- Harabe çevresi: kuru ağaçlar
@@ -221,19 +255,238 @@ namespace Project.Infrastructure.World
                 return 0.22f * bank * slopeFactor * (0.4f + patch);
             }
 
-            // ---------------------------------------------------------------- Sırtlar / dağ yamaçları (çam)
+            // ---------------------------------------------------------------- Sırtlar / vadi: kümeli koru + açıklık + kenar sırası
+            var mask = TreeScatterRules.StandMask(patch, fine);
+            var edgeW = TreeScatterRules.EdgeWeight(mask);
+            var roadLine = TreeScatterRules.RoadLineBoost(model.SampleRoadEdge(x, z));
             var ridgeT = TerrainNoise.SmoothStep(52f, 78f, h);
-            if (ridgeT > 0.01f)
+            kind = TreeScatterRules.PickKind(kindRoll, h, Mathf.Max(edgeW, roadLine > 1.05f ? 0.6f : 0f));
+            var stand = (0.016f + 0.2f * mask) * (0.5f + fine) * (1f + 0.9f * edgeW);
+            var ridgeBoost = 1f + 0.5f * ridgeT;
+            return stand * ridgeBoost * roadLine * slopeFactor;
+        }
+
+        // ================================================================== Çeşitlilik (VegetationVariety)
+
+        /// <summary>Kademeye göre çeşitlilik ağacı/çalı hedef sayısı (0 Düşük … 3 Ultra).</summary>
+        public static int VarietyCountForTier(int tier)
+        {
+            switch (Mathf.Clamp(tier, 0, 3))
             {
-                kind = kindRoll < 0.5f ? TreeKind.PineA : (kindRoll < 0.9f ? TreeKind.PineB : (kindRoll < 0.97f ? TreeKind.Bush : TreeKind.Dead));
-                var clumps = TerrainNoise.SmoothStep(0.42f, 0.66f, patch);
-                return 0.3f * ridgeT * clumps * slopeFactor * (0.5f + fine);
+                case 0: return 120;
+                case 1: return 280;
+                case 2: return 450;
+                default: return 650;
+            }
+        }
+
+        /// <summary>
+        /// Biyom kuralı (saf): kavak su kenari/vadi, bodur mese kuru yamac, calilar orman kenari, ince cam orman ici.
+        /// Agirlik 0 ise o noktaya tur konmaz. forestT: 0..1 orman ici degeri; dryness01: 0 nemli .. 1 kuru.
+        /// </summary>
+        public static float VarietyWeight(float riverDistance, float riverHalf, float heightAboveWater, float slope, float forestT,
+            float dryness01, float roll, out VarietyKind kind)
+        {
+            kind = VarietyKind.ShrubRound;
+            var nearWater = riverDistance < riverHalf + 30f || heightAboveWater < 6f;
+            if (nearWater && forestT < 0.5f)
+            {
+                if (roll < 0.7f)
+                {
+                    kind = VarietyKind.Poplar;
+                    return 1f;
+                }
+
+                kind = VarietyKind.ShrubRound;
+                return 0.6f;
             }
 
-            // ---------------------------------------------------------------- Vadi: meşe koruları + çalılar
-            var groves = TerrainNoise.SmoothStep(0.52f, 0.7f, patch);
-            kind = kindRoll < 0.62f ? TreeKind.Oak : (kindRoll < 0.95f ? TreeKind.Bush : TreeKind.Dead);
-            return (0.016f + 0.15f * groves) * slopeFactor * (0.5f + fine);
+            if (forestT > 0.55f)
+            {
+                kind = VarietyKind.PineSlim;
+                return roll < 0.2f ? 0.7f : 0f;
+            }
+
+            if (forestT > 0.05f)
+            {
+                kind = roll < 0.65f ? VarietyKind.ShrubRound : VarietyKind.ShrubSparse;
+                return 1.2f;
+            }
+
+            if (slope >= 12f && slope <= 36f && dryness01 > 0.35f)
+            {
+                if (roll < 0.6f)
+                {
+                    kind = VarietyKind.DwarfOak;
+                    return 0.9f * dryness01;
+                }
+
+                kind = VarietyKind.ShrubSparse;
+                return 0.5f * dryness01;
+            }
+
+            return 0f;
+        }
+
+        /// <summary>
+        /// Çeşitlilik türlerini (5 prototip) araziye ekler: prototip indeksi = mevcut sayı + VarietyKind. Kalıcı (editör varlığı)
+        /// arazi verisine dokunmaz. Eklenen örnek sayısını döner.
+        /// </summary>
+        public static int AddVariety(Terrain terrain, TerrainModel model, int seed, int tier, Transform holderParent)
+        {
+            if (terrain == null || model == null || terrain.terrainData == null)
+                return 0;
+            var data = terrain.terrainData;
+            if (WorldAssetPersistence.ShouldPersist(data))
+                return 0;
+            var target = VarietyCountForTier(tier);
+            if (target <= 0)
+                return 0;
+
+            var layout = model.Layout;
+            var noise = model.Noise;
+            var half = layout.HalfSize;
+            var forest = layout.FindLocation(LocationKind.Forest);
+            var rng = new System.Random(seed * 9173 + 4409);
+            const float spacing = 6f;
+            var cells = Mathf.Max(1, Mathf.FloorToInt(half * 2f / spacing));
+            var cand = new List<Candidate>(2048);
+            var kinds = new List<VarietyKind>(2048);
+            var total = 0f;
+            var riverHalf = model.RiverWaterHalfWidth;
+            for (var cz = 0; cz < cells; cz++)
+            {
+                for (var cx = 0; cx < cells; cx++)
+                {
+                    var x = -half + (cx + 0.15f + 0.7f * (float)rng.NextDouble()) * spacing;
+                    var z = -half + (cz + 0.15f + 0.7f * (float)rng.NextDouble()) * spacing;
+                    var roll = (float)rng.NextDouble();
+                    if (!model.IsClearOfFeatures(x, z, 3.5f, 2.5f, 1f) || model.EdgeDistance(x, z) < 6f)
+                        continue;
+                    var h = model.SampleHeight(x, z);
+                    if (h < layout.WaterLevel + 0.8f || h > layout.SnowLine - 6f || model.SampleFlatten(x, z) > 0.6f)
+                        continue;
+                    var slope = model.SampleSlope(x, z);
+                    if (slope > 38f)
+                        continue;
+                    var forestT = 0f;
+                    if (forest != null)
+                    {
+                        var dx = x - forest.Center.x;
+                        var dz = z - forest.Center.y;
+                        var d = Mathf.Sqrt(dx * dx + dz * dz);
+                        forestT = 1f - TerrainNoise.SmoothStep(forest.Radius * 0.75f, forest.Radius * 1.45f, d);
+                    }
+
+                    var dry = noise.Fbm(x / 70f + 13.7f, z / 70f - 3.3f, 2) * 0.5f + 0.5f;
+                    var w = VarietyWeight(model.SampleRiverDistance(x, z), riverHalf, h - layout.WaterLevel, slope, forestT, dry, roll, out var kind);
+                    if (w <= 0f)
+                        continue;
+                    cand.Add(new Candidate { X = x, Z = z, Density = w });
+                    kinds.Add(kind);
+                    total += w;
+                }
+            }
+
+            if (cand.Count == 0 || total <= 0f)
+                return 0;
+
+            var baseProtos = data.treePrototypes ?? new TreePrototype[0];
+            var baseCount = baseProtos.Length;
+            var holder = new GameObject("[Çeşitlilik Prototipleri]");
+            if (holderParent != null)
+                holder.transform.SetParent(holderParent, false);
+            holder.transform.position = new Vector3(0f, -2000f, 0f);
+            var protos = new TreePrototype[baseCount + VegetationVariety.KindCount];
+            System.Array.Copy(baseProtos, protos, baseCount);
+            for (var k = 0; k < VegetationVariety.KindCount; k++)
+            {
+                var kind = (VarietyKind)k;
+                var go = VegetationVariety.CreatePrototype(kind, holder.transform, seed + 31 * (k + 1), tier);
+                protos[baseCount + k] = new TreePrototype { prefab = go, bendFactor = VegetationVariety.WindFor(kind, 2).Bend };
+            }
+
+            data.treePrototypes = protos;
+            data.RefreshPrototypes();
+
+            var size = data.size;
+            var scale = target / total;
+            var list = new List<TreeInstance>(data.treeInstances ?? new TreeInstance[0]);
+            var added = 0;
+            for (var i = 0; i < cand.Count && added < target; i++)
+            {
+                var c = cand[i];
+                if ((float)rng.NextDouble() >= Mathf.Min(1f, c.Density * scale))
+                    continue;
+                var kind = kinds[i];
+                var hs = Range(rng, 0.8f, 1.25f);
+                var tint = TintFor(kind == VarietyKind.DwarfOak ? TreeKind.Oak : kind == VarietyKind.PineSlim ? TreeKind.PineA : TreeKind.Bush, rng);
+                list.Add(new TreeInstance
+                {
+                    prototypeIndex = baseCount + (int)kind,
+                    position = new Vector3((c.X + half) / size.x, Mathf.Clamp01(model.SampleHeight(c.X, c.Z) / Mathf.Max(1f, size.y)), (c.Z + half) / size.z),
+                    heightScale = hs,
+                    widthScale = hs * Range(rng, 0.9f, 1.15f),
+                    rotation = Range(rng, 0f, Mathf.PI * 2f),
+                    color = tint,
+                    lightmapColor = Color.white
+                });
+                added++;
+            }
+
+            data.SetTreeInstances(list.ToArray(), false);
+            return added;
+        }
+
+        /// <summary>Orman maskesi (0..1) — kütük/prop yerleşimi için dış kullanım.</summary>
+        public static float StandMaskAt(TerrainModel model, float x, float z)
+        {
+            var noise = model.Noise;
+            var patch = noise.Fbm(x / 85f + 41.3f, z / 85f - 17.9f, 3) * 0.5f + 0.5f;
+            var fine = noise.Fbm(x / 23f - 5.1f, z / 23f + 9.4f, 2) * 0.5f + 0.5f;
+            return TreeScatterRules.StandMask(patch, fine);
+        }
+
+        public struct LogSpot
+        {
+            public Vector3 Position;
+            public float Yaw;
+            public float Length;
+        }
+
+        /// <summary>
+        /// Orman içi düşmüş kütük noktaları (~36 m hücre). ENTEGRASYON: prop üretimi (PropFactory/MicroPoi "kütük") bu listeyi tüketir.
+        /// Belirlenimci; serbest alan + eğim kontrolü yapılır.
+        /// </summary>
+        public static System.Collections.Generic.List<LogSpot> ScatterLogSpots(TerrainModel model, int seed, int maxCount = 160)
+        {
+            var list = new System.Collections.Generic.List<LogSpot>();
+            if (model == null)
+                return list;
+            var rng = new System.Random(seed * 4421 + 977);
+            var half = model.Layout.HalfSize;
+            const float cell = 36f;
+            var n = Mathf.Max(1, Mathf.FloorToInt(half * 2f / cell));
+            for (var cz = 0; cz < n && list.Count < maxCount; cz++)
+            {
+                for (var cx = 0; cx < n && list.Count < maxCount; cx++)
+                {
+                    var x = -half + (cx + (float)rng.NextDouble()) * cell;
+                    var z = -half + (cz + (float)rng.NextDouble()) * cell;
+                    var roll = (float)rng.NextDouble();
+                    var yaw = (float)rng.NextDouble() * 360f;
+                    var len = Range(rng, 2.6f, 5.2f);
+                    if (!model.IsClearOfFeatures(x, z, 5f, 4f, 1f) || model.SampleSlope(x, z) > 24f)
+                        continue;
+                    if (model.SampleHeight(x, z) < model.Layout.WaterLevel + 1.2f)
+                        continue;
+                    if (!TreeScatterRules.AcceptsLog(StandMaskAt(model, x, z), roll))
+                        continue;
+                    list.Add(new LogSpot { Position = new Vector3(x, model.SampleHeight(x, z), z), Yaw = yaw, Length = len });
+                }
+            }
+
+            return list;
         }
 
         private static float Range(System.Random rng, float min, float max)

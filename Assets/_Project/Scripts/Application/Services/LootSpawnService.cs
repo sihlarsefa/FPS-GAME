@@ -112,11 +112,12 @@ namespace Project.Application.Services
         {
             switch (tier)
             {
-                case LootTier.Low: return 0.45f;
-                case LootTier.Medium: return 0.6f;
-                case LootTier.High: return 0.75f;
-                case LootTier.Military: return 0.85f;
-                default: return 0.45f;
+                // Konum kademesi: tarla/yol (Low) < köy (Medium) < kasaba/sanayi (High) < askeri üs (Military). Docs/MAC_AKISI.md
+                case LootTier.Low: return 0.38f;
+                case LootTier.Medium: return 0.58f;
+                case LootTier.High: return 0.74f;
+                case LootTier.Military: return 0.9f;
+                default: return 0.38f;
             }
         }
 
@@ -174,6 +175,112 @@ namespace Project.Application.Services
                 if (bonus.IsValid && bonus.Category != ItemCategory.Weapon)
                     output.Add(bonus);
             }
+        }
+
+        // ------------------------------------------------------------------ Başlangıç kiti + ikmal sandığı
+
+        private static readonly string[] StartSidearms = { WeaponIds.Sar9, WeaponIds.Tp9, WeaponIds.Mete };
+        private static readonly string[] StartPrimaries = { WeaponIds.Sar109, WeaponIds.Mpt55, WeaponIds.Sar223, WeaponIds.Escort };
+
+        /// <summary>İkmal sandığı silah havuzu (id, ağırlık): yüksek kademe 7.62 + nadir keskin nişancı/MG.</summary>
+        private static readonly Entry[] CrateWeapons =
+        {
+            new Entry(WeaponIds.Mpt76, 4f),
+            new Entry(WeaponIds.Knt76, 3f),
+            new Entry(WeaponIds.Sar762Mt, 3f),
+            new Entry(WeaponIds.Pmt76, 1.5f),
+            new Entry(WeaponIds.Jng90, 1.5f),
+            new Entry(WeaponIds.Mg3, 0.8f)
+        };
+
+        private static readonly string[] CrateAttachments =
+            { ItemIds.Scope4x, ItemIds.Suppressor, ItemIds.ExtMag, ItemIds.SniperStock };
+
+        /// <summary>Sandıkta 3. seviye sırt çantasının çıkma olasılığı (zırh+kask garantidir).</summary>
+        public const float CrateBackpackChance = 0.5f;
+
+        /// <summary>Takım başlangıç kitinde birincil silah verilen üye aralığı: her N. üye (0, N, 2N...).</summary>
+        public const int StartPrimaryEvery = 3;
+
+        /// <summary>
+        /// Garantili asgari başlangıç kiti (intikal inişi yakınında): yan silah + 2 mermi yığını + 2 sargı; includePrimary ise ek olarak
+        /// bir ana silah + 2 mermi yığını. Rastgelelik yalnızca hangi silahın çıkacağıdır; içerik kümesi her zaman aynı boyuttadır.
+        /// </summary>
+        public void RollStartKit(IRandom random, List<LootItemData> output, bool includePrimary)
+        {
+            if (output == null)
+                return;
+
+            random ??= FallbackRandom();
+            AddWeaponWithAmmo(StartSidearms[PickIndex(random, StartSidearms.Length)], output);
+            output.Add(ItemCatalog.CreateLoot(ItemIds.Bandage));
+            output.Add(ItemCatalog.CreateLoot(ItemIds.Bandage));
+            if (includePrimary)
+                AddWeaponWithAmmo(StartPrimaries[PickIndex(random, StartPrimaries.Length)], output);
+        }
+
+        /// <summary>
+        /// İkmal sandığı içeriği (yüksek kademe, garantili): 1 yüksek kademe silah + 2 mermi yığını, 3. seviye zırh + kask,
+        /// MedKit + İlk Yardım, 1 el bombası, 1 aksesuar; %50 3. seviye çanta.
+        /// </summary>
+        public void RollSupplyCrate(IRandom random, List<LootItemData> output)
+        {
+            if (output == null)
+                return;
+
+            random ??= FallbackRandom();
+            var table = new Table(CrateWeapons);
+            if (table.Entries.Length > 0)
+            {
+                var roll = Clamp01(random.NextFloat()) * table.TotalWeight;
+                var chosen = table.Entries[table.Entries.Length - 1].ItemId;
+                for (var i = 0; i < table.Entries.Length; i++)
+                {
+                    roll -= table.Entries[i].Weight;
+                    if (roll < 0f)
+                    {
+                        chosen = table.Entries[i].ItemId;
+                        break;
+                    }
+                }
+
+                AddWeaponWithAmmo(chosen, output);
+            }
+
+            AddIfKnown(ItemIds.Vest3, output);
+            AddIfKnown(ItemIds.Helmet3, output);
+            AddIfKnown(ItemIds.MedKit, output);
+            AddIfKnown(ItemIds.FirstAid, output);
+            AddIfKnown(ItemIds.FragGrenade, output);
+            AddIfKnown(CrateAttachments[PickIndex(random, CrateAttachments.Length)], output);
+            if (random.NextFloat() < CrateBackpackChance)
+                AddIfKnown(ItemIds.Backpack3, output);
+        }
+
+        private static int PickIndex(IRandom random, int length)
+        {
+            var i = (int)(Clamp01(random.NextFloat()) * length);
+            return i >= length ? length - 1 : i;
+        }
+
+        private static void AddIfKnown(string itemId, List<LootItemData> output)
+        {
+            if (ItemCatalog.Contains(itemId))
+                output.Add(ItemCatalog.CreateLoot(itemId));
+        }
+
+        private static void AddWeaponWithAmmo(string weaponId, List<LootItemData> output)
+        {
+            if (!ItemCatalog.Contains(weaponId))
+                return;
+
+            output.Add(ItemCatalog.CreateWeaponLoot(weaponId, -1));
+            var ammoId = ItemCatalog.AmmoItemId(ItemCatalog.WeaponAmmoType(weaponId));
+            if (ammoId == null)
+                return;
+
+            for (var i = 0; i < AmmoStacksPerWeapon; i++)
+                output.Add(ItemCatalog.CreateLoot(ammoId));
         }
 
         /// <summary>Tablodaki bir eşyanın göreli ağırlığı (test/denge için). Yoksa 0.</summary>
@@ -240,12 +347,23 @@ namespace Project.Application.Services
             new Entry(ItemIds.Vest2, 1f),
             new Entry(ItemIds.Helmet2, 1f),
             new Entry(ItemIds.Backpack2, 1f),
+            new Entry(ItemIds.RedDot, 1f),
+            new Entry(ItemIds.Suppressor, 0.5f),
+            new Entry(ItemIds.ExtMag, 0.8f),
+            new Entry(ItemIds.VerticalGrip, 0.8f),
             new Entry(WeaponIds.Sar9, 5f),
             new Entry(WeaponIds.Tp9, 4f),
             new Entry(WeaponIds.Sar109, 3f),
             new Entry(WeaponIds.Escort, 4f),
             new Entry(WeaponIds.Mpt55, 2f),
-            new Entry(WeaponIds.G3, 1f)
+            new Entry(WeaponIds.G3, 1f),
+            new Entry(WeaponIds.Mete, 3f),
+            new Entry(WeaponIds.Sar223, 1f),
+            new Entry(WeaponIds.EscortMagnum, 0.8f),
+            // El bombası çeşitleri (sona eklendi)
+            new Entry(ItemIds.FlashGrenade, 0.6f),
+            new Entry(ItemIds.MolotovGrenade, 0.5f),
+            new Entry(ItemIds.DecoyGrenade, 0.4f),
         };
 
         private static Entry[] MediumEntries() => new[]
@@ -270,6 +388,12 @@ namespace Project.Application.Services
             new Entry(ItemIds.Vest3, 0.3f),
             new Entry(ItemIds.Helmet3, 0.3f),
             new Entry(ItemIds.Backpack3, 0.3f),
+            new Entry(ItemIds.RedDot, 2f),
+            new Entry(ItemIds.Scope2x, 1.2f),
+            new Entry(ItemIds.Suppressor, 1.2f),
+            new Entry(ItemIds.ExtMag, 1.5f),
+            new Entry(ItemIds.VerticalGrip, 1.5f),
+            new Entry(ItemIds.SniperStock, 0.8f),
             new Entry(WeaponIds.Sar9, 3f),
             new Entry(WeaponIds.Tp9, 3f),
             new Entry(WeaponIds.Sar109, 4f),
@@ -277,7 +401,16 @@ namespace Project.Application.Services
             new Entry(WeaponIds.Mpt55, 4f),
             new Entry(WeaponIds.G3, 3f),
             new Entry(WeaponIds.Mpt76, 1.5f),
-            new Entry(WeaponIds.Knt76, 0.5f)
+            new Entry(WeaponIds.Knt76, 0.5f),
+            new Entry(WeaponIds.Mete, 2.5f),
+            new Entry(WeaponIds.Sar223, 3f),
+            new Entry(WeaponIds.Mpt76K, 1.5f),
+            new Entry(WeaponIds.EscortMagnum, 1.5f),
+            new Entry(WeaponIds.Sar762Mt, 0.3f),
+            // El bombası çeşitleri (sona eklendi)
+            new Entry(ItemIds.FlashGrenade, 1.0f),
+            new Entry(ItemIds.MolotovGrenade, 0.9f),
+            new Entry(ItemIds.DecoyGrenade, 0.7f),
         };
 
         private static Entry[] HighEntries() => new[]
@@ -302,6 +435,13 @@ namespace Project.Application.Services
             new Entry(ItemIds.Vest3, 1f),
             new Entry(ItemIds.Helmet3, 1f),
             new Entry(ItemIds.Backpack3, 1f),
+            new Entry(ItemIds.RedDot, 2f),
+            new Entry(ItemIds.Scope2x, 1.5f),
+            new Entry(ItemIds.Scope4x, 1f),
+            new Entry(ItemIds.Suppressor, 1.5f),
+            new Entry(ItemIds.ExtMag, 2f),
+            new Entry(ItemIds.VerticalGrip, 1.8f),
+            new Entry(ItemIds.SniperStock, 1.2f),
             new Entry(WeaponIds.Sar9, 1.5f),
             new Entry(WeaponIds.Tp9, 2f),
             new Entry(WeaponIds.Sar109, 3f),
@@ -311,7 +451,17 @@ namespace Project.Application.Services
             new Entry(WeaponIds.Mpt76, 3f),
             new Entry(WeaponIds.Knt76, 1.5f),
             new Entry(WeaponIds.Jng90, 0.6f),
-            new Entry(WeaponIds.Pmt76, 0.6f)
+            new Entry(WeaponIds.Pmt76, 0.6f),
+            new Entry(WeaponIds.Mete, 1.5f),
+            new Entry(WeaponIds.Sar223, 3.5f),
+            new Entry(WeaponIds.Mpt76K, 2.5f),
+            new Entry(WeaponIds.EscortMagnum, 1.8f),
+            new Entry(WeaponIds.Sar762Mt, 1.2f),
+            new Entry(WeaponIds.Mg3, 0.3f),
+            // El bombası çeşitleri (sona eklendi)
+            new Entry(ItemIds.FlashGrenade, 1.4f),
+            new Entry(ItemIds.MolotovGrenade, 1.2f),
+            new Entry(ItemIds.DecoyGrenade, 1.0f),
         };
 
         private static Entry[] MilitaryEntries() => new[]
@@ -327,6 +477,7 @@ namespace Project.Application.Services
             new Entry(ItemIds.Painkiller, 4f),
             new Entry(ItemIds.FragGrenade, 5f),
             new Entry(ItemIds.SmokeGrenade, 3.5f),
+            new Entry(ItemIds.NightVision, 1.2f),
             new Entry(ItemIds.Vest1, 0.5f),
             new Entry(ItemIds.Helmet1, 0.5f),
             new Entry(ItemIds.Vest2, 4.5f),
@@ -335,6 +486,12 @@ namespace Project.Application.Services
             new Entry(ItemIds.Vest3, 2.5f),
             new Entry(ItemIds.Helmet3, 2.5f),
             new Entry(ItemIds.Backpack3, 2f),
+            new Entry(ItemIds.Scope2x, 1.5f),
+            new Entry(ItemIds.Scope4x, 2f),
+            new Entry(ItemIds.Suppressor, 2f),
+            new Entry(ItemIds.ExtMag, 2.5f),
+            new Entry(ItemIds.VerticalGrip, 2f),
+            new Entry(ItemIds.SniperStock, 1.8f),
             new Entry(WeaponIds.Tp9, 1f),
             new Entry(WeaponIds.Sar109, 1.5f),
             new Entry(WeaponIds.Escort, 1f),
@@ -343,7 +500,16 @@ namespace Project.Application.Services
             new Entry(WeaponIds.Mpt76, 4.5f),
             new Entry(WeaponIds.Knt76, 3f),
             new Entry(WeaponIds.Jng90, 2f),
-            new Entry(WeaponIds.Pmt76, 2f)
+            new Entry(WeaponIds.Pmt76, 2f),
+            new Entry(WeaponIds.Sar223, 2f),
+            new Entry(WeaponIds.Mpt76K, 2.5f),
+            new Entry(WeaponIds.EscortMagnum, 1f),
+            new Entry(WeaponIds.Sar762Mt, 2.5f),
+            new Entry(WeaponIds.Mg3, 1.5f),
+            // El bombası çeşitleri (sona eklendi)
+            new Entry(ItemIds.FlashGrenade, 1.8f),
+            new Entry(ItemIds.MolotovGrenade, 1.6f),
+            new Entry(ItemIds.DecoyGrenade, 1.2f),
         };
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Şimşek Timi">
+  <title>Şimşek Timi — özgün stilize amblem</title>
+  <circle cx="64" cy="64" r="60" fill="#0D2137" stroke="#2E8BC0" stroke-width="3"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#2E8BC0" stroke-width="1" opacity="0.45"/>
+  <path d="M70 22L42 70h18l-8 36 40-56H70l12-28z" fill="#2E8BC0"/>
+  <path d="M66 30L48 66h12l-4 22 24-34H66l8-24z" fill="#ECEBE0" opacity="0.85"/>
+  <circle cx="64" cy="104" r="6" fill="#2E8BC0"/>
+  <circle cx="65.8" cy="103.64" r="4.2" fill="#0D2137"/>
+  <polygon points="70.9,104 67.3,101.9 69.1,104 67.3,106.1" fill="#2E8BC0"/>
+</svg>

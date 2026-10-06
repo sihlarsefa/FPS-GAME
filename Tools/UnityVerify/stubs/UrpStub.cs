@@ -18,7 +18,15 @@ namespace UnityEngine.Rendering.Universal
     }
     public static class CameraExtensions { public static UniversalAdditionalCameraData GetUniversalAdditionalCameraData(this Camera camera) => throw null; }
     public class PostProcessData : ScriptableObject { }
-    public abstract partial class ScriptableRendererData : ScriptableObject { }
+    public abstract class ScriptableRendererFeature : ScriptableObject, System.IDisposable
+    {
+        public bool isActive => true; public void SetActive(bool active) { }
+        public abstract void Create();
+        public abstract void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData);
+        public void Dispose() { }
+        protected virtual void Dispose(bool disposing) { }
+    }
+    public abstract partial class ScriptableRendererData : ScriptableObject { public List<ScriptableRendererFeature> rendererFeatures => null; public void SetDirty() { } }
     public partial class UniversalRendererData : ScriptableRendererData { public PostProcessData postProcessData = null; }
     public partial class UniversalRenderPipelineAsset : RenderPipelineAsset
     {
@@ -58,5 +66,47 @@ namespace UnityEngine.Rendering.Universal
         public ColorParameter color = new ColorParameter(Color.black, false, false, true);
         public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f);
         public ClampedFloatParameter smoothness = new ClampedFloatParameter(0.2f, 0.01f, 1f);
+    }
+
+    public enum DepthOfFieldMode { Off, Gaussian, Bokeh }
+    public sealed class DepthOfFieldModeParameter : VolumeParameter<DepthOfFieldMode> { public DepthOfFieldModeParameter(DepthOfFieldMode value, bool overrideState = false) : base(value, overrideState) { } }
+    public sealed class DepthOfField : VolumeComponent
+    {
+        public DepthOfFieldModeParameter mode = new DepthOfFieldModeParameter(DepthOfFieldMode.Off);
+        public MinFloatParameter gaussianStart = new MinFloatParameter(10f, 0f);
+        public MinFloatParameter gaussianEnd = new MinFloatParameter(30f, 0f);
+        public ClampedFloatParameter gaussianMaxRadius = new ClampedFloatParameter(1f, 0.5f, 1.5f);
+        public BoolParameter highQualitySampling = new BoolParameter(false);
+    }
+    public enum MotionBlurMode { CameraOnly, CameraAndObjects }
+    public enum MotionBlurQuality { Low, Medium, High }
+    public sealed class MotionBlurModeParameter : VolumeParameter<MotionBlurMode> { public MotionBlurModeParameter(MotionBlurMode value, bool overrideState = false) : base(value, overrideState) { } }
+    public sealed class MotionBlurQualityParameter : VolumeParameter<MotionBlurQuality> { public MotionBlurQualityParameter(MotionBlurQuality value, bool overrideState = false) : base(value, overrideState) { } }
+    public sealed class MotionBlur : VolumeComponent
+    {
+        public MotionBlurModeParameter mode = new MotionBlurModeParameter(MotionBlurMode.CameraOnly);
+        public MotionBlurQualityParameter quality = new MotionBlurQualityParameter(MotionBlurQuality.Low);
+        public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f);
+        public ClampedFloatParameter clamp = new ClampedFloatParameter(0.05f, 0f, 0.2f);
+    }
+    public enum FilmGrainLookup { Thin1, Thin2, Medium1, Medium2, Medium3, Medium4, Medium5, Medium6, Large01, Large02, Custom }
+    public sealed class FilmGrainLookupParameter : VolumeParameter<FilmGrainLookup> { public FilmGrainLookupParameter(FilmGrainLookup value, bool overrideState = false) : base(value, overrideState) { } }
+    public sealed class FilmGrain : VolumeComponent
+    {
+        public FilmGrainLookupParameter type = new FilmGrainLookupParameter(FilmGrainLookup.Thin1);
+        public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f);
+        public ClampedFloatParameter response = new ClampedFloatParameter(0.8f, 0f, 1f);
+    }
+    public sealed class ChromaticAberration : VolumeComponent { public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f); }
+    public sealed class WhiteBalance : VolumeComponent
+    {
+        public ClampedFloatParameter temperature = new ClampedFloatParameter(0f, -100f, 100f);
+        public ClampedFloatParameter tint = new ClampedFloatParameter(0f, -100f, 100f);
+    }
+    public sealed class ShadowsMidtonesHighlights : VolumeComponent
+    {
+        public Vector4Parameter shadows = new Vector4Parameter(new Vector4(1f, 1f, 1f, 0f));
+        public Vector4Parameter midtones = new Vector4Parameter(new Vector4(1f, 1f, 1f, 0f));
+        public Vector4Parameter highlights = new Vector4Parameter(new Vector4(1f, 1f, 1f, 0f));
     }
 }

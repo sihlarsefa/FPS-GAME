@@ -570,6 +570,46 @@ namespace Project.Infrastructure.Transport
             return renderer;
         }
 
+        /// <summary>ContentOverrides prefab'ını görsel olarak kurar (collider'sız, Vehicle katmanı). Hata → null (prosedürel yol).</summary>
+        internal static GameObject InstantiateVisualOverride(GameObject prefab, Transform parent, string name)
+        {
+            if (prefab == null)
+                return null;
+            try
+            {
+                var go = UnityEngine.Object.Instantiate(prefab, parent, false);
+                go.name = name;
+                go.transform.localPosition = Vector3.zero;
+                go.transform.localRotation = Quaternion.identity;
+                var colliders = go.GetComponentsInChildren<Collider>(true);
+                for (var i = 0; i < colliders.Length; i++)
+                {
+                    colliders[i].enabled = false;
+                    UnityEngine.Object.Destroy(colliders[i]);
+                }
+
+                GameLayers.SetLayerRecursively(go, GameLayers.Vehicle);
+                return go;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[Transport] Arac prefab'i kurulamadi, prosedurel kullaniliyor: " + e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>Prefab altında ada göre (derin) alt nesne arar; yoksa null.</summary>
+        internal static Transform FindNamed(GameObject root, string childName)
+        {
+            if (root == null)
+                return null;
+            var all = root.GetComponentsInChildren<Transform>(true);
+            for (var i = 0; i < all.Length; i++)
+                if (all[i].name == childName)
+                    return all[i];
+            return null;
+        }
+
         /// <summary>Görünmez kutu çarpıştırıcısı (mermi/hareket engeli için; Vehicle katmanı).</summary>
         internal static BoxCollider CreateBoxCollider(Transform parent, Vector3 center, Vector3 size, string name = "Carpisma")
         {

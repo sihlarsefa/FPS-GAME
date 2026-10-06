@@ -14,6 +14,7 @@
 | C2-8 | `Marketing/LiveOps/` | ✅ | turnuva/lig/takvim/SSS/sysreq |
 
 ## Günlük
+- 2026-10-05 — C3-8 tamamlandı: QA +30 senaryo (KRP/DEV/PNL/SRV/OVR), QA/RegresyonListesi.md (60), QA/dashboard.html; Wiki katalogdan yeniden üretildi, `npm run ci` geçti (8/8 test).
 - 2026-10-05 20:25 — İkinci dalga 8 ajan **hepsi success**. Doğrulama komutları geçti.
 - 2026-10-05 20:09 — İlk dalga limit yüzünden öldü; yeniden başlatıldı.
 
@@ -30,7 +31,7 @@
 | C3-5 | `Design/Tutorial/` | ✅ | tutorial_steps + poligon/zorluk |
 | C3-6 | `Design/Progression/` | ✅ | achievements/cosmetics/season1/ekonomi |
 | C3-7 | `Web/` | ✅ | İndir / sysreq / patchnotes→HTML+RSS / Tim / Başarımlar |
-| C3-8 | `QA/`, `Wiki/` | ⏳ | Claude ENTEGRASYON sonrası |
+| C3-8 | `QA/`, `Wiki/` | ✅ | 398 senaryo (+30 FAZ3), RegresyonListesi 60, dashboard.html, Wiki 83 sayfa CI geçti |
 
 ## C3-7 notları (2026-10-05)
 - `#/download`: Windows kurulum yer tutucu, SHA-256, Steam yakında, kurulum adımları.

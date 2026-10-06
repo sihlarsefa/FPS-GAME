@@ -4,6 +4,8 @@ using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure;
 using Project.Infrastructure.Audio;
+using Project.Infrastructure.Audio.Foley;
+using Project.Infrastructure.Audio.HdrMix;
 using Project.Infrastructure.Combat;
 using UnityEngine;
 
@@ -43,6 +45,8 @@ namespace Project.Presentation.Player
         private bool _hiddenApplied;
         private float _appliedZoom = -1f;
         private ItemUseService _hookedItemUse;
+        private readonly ScopeInput _scope = new ScopeInput();
+        private string _lastZeroingToast;
 
         public PlayerWeaponHandler(PlayerController owner)
         {
@@ -72,7 +76,9 @@ namespace Project.Presentation.Player
             if (weapon == null)
                 return false;
 
-            return input.Aim || input.Fire || weapon.IsBurstActive;
+            var toggle = _owner.Settings != null && _owner.Settings.ToggleAds;
+            var aim = toggle ? (_toggles.AdsLatched || _toggles.PendingPress || ((input.Aim || input.AimPressed) && !_toggles.AimHeldPrev)) : input.Aim;
+            return aim || input.Fire || weapon.IsBurstActive;
         }
 
         // ================================================================ yaya
@@ -83,6 +89,7 @@ namespace Project.Presentation.Player
                 return;
 
             HookItemUse(combatant.ItemUse);
+            EnsureFoley(combatant);
             var inventory = combatant.Inventory;
             var itemUse = combatant.ItemUse;
 
@@ -91,6 +98,7 @@ namespace Project.Presentation.Player
 
             var weapon = inventory?.ActiveWeapon;
             SyncEquipped(weapon, inventory);
+            SyncAttachmentVisuals(weapon);
 
             weapon?.Tick(dt);
 
@@ -104,6 +112,7 @@ namespace Project.Presentation.Player
             }
 
             UpdateAim(input, weapon, itemUse, dt);
+            TickScope(weapon, dt);
             HandleTrigger(input, weapon, itemUse, combatant);
 
             if (input.ThrowGrenade)
@@ -122,6 +131,27 @@ namespace Project.Presentation.Player
         }
 
         /// <summary>Araçta/intikalde: ateş yok, nişan kapalı, yalnızca zamanlayıcılar işler.</summary>
+        private readonly AimAssist _aimAssist = new AimAssist();
+        private readonly ToggleInputAdapter _toggles = new ToggleInputAdapter();
+
+        /// <summary>Gamepad nişan yardımı (yavaşlama + ADS mıknatısı) uygulanmış bakış. Fare girdisinde değişmez.</summary>
+        public LookInputState ModifyLook(LookInputState look, float dt)
+        {
+            var settings = _owner.Settings;
+            if (settings == null || settings.AimAssistStrength <= 0)
+                return look;
+
+            var cam = _owner.CameraRig != null ? _owner.CameraRig.transform : (Camera.main != null ? Camera.main.transform : null);
+            return _aimAssist.Modify(look, cam, _owner.Combatant, IsAiming, _owner.CurrentSensitivity, settings.InvertY,
+                settings.AimAssistStrength, AimAssist.GamepadLookActive(), dt);
+        }
+
+        /// <summary>Aç/kapa eğilme ayarını girdiye uygular.</summary>
+        public MovementInputState AdaptMovement(MovementInputState movement)
+        {
+            return _toggles.AdaptMovement(movement, _owner.Settings != null && _owner.Settings.ToggleCrouch);
+        }
+
         public void TickPassive(float dt)
         {
             var combatant = _owner.Combatant;
@@ -130,8 +160,12 @@ namespace Project.Presentation.Player
 
             var weapon = _owner.ActiveWeapon;
             SyncEquipped(weapon, _owner.Inventory);
+            SyncAttachmentVisuals(weapon);
             weapon?.Tick(dt);
+            TickFireFeel(dt);
 
+            if (IsAiming)
+                AudioMix.SetAdsFocus(false);
             IsAiming = false;
             IsScoped = false;
             _aimBlend = 0f;
@@ -147,6 +181,8 @@ namespace Project.Presentation.Player
         {
             _owner.ActiveWeapon?.CancelReload();
             CancelItemUse(_owner.ItemUse);
+            if (IsAiming)
+                AudioMix.SetAdsFocus(false);
             IsAiming = false;
             IsScoped = false;
             _aimBlend = 0f;
@@ -205,7 +241,7 @@ namespace Project.Presentation.Player
                 return;
             }
 
-            if (input.CycleWeapon != 0)
+            if (input.CycleWeapon != 0 && !_scope.ConsumesWheel)
             {
                 if (!inventory.HasAnyWeapon)
                     return;
@@ -252,7 +288,6 @@ namespace Project.Presentation.Player
             if (_equipSynced && ReferenceEquals(weapon, _equipped))
                 return;
 
-            var hadWeapon = _equipSynced;
             _equipSynced = true;
             _equipped = weapon;
             _reloadShown = false;
@@ -268,11 +303,81 @@ namespace Project.Presentation.Player
                 viewModel.Equip(weapon?.Definition);
             }
 
-            if (hadWeapon && weapon != null)
-                PlayerController.PlaySound2D(SoundId.WeaponEquip, 0.5f);
+            // Çek/kılıfla sesi WeaponFoleyDriver'da (oyuncu + bot tek yol); eski tek-ses çağrısı çift çalardı.
+        }
+
+        private readonly System.Collections.Generic.List<string> _attIds = new System.Collections.Generic.List<string>(5);
+        private string _attSig = "";
+        private Project.Infrastructure.Weapons.WeaponModel _attModel;
+
+        /// <summary>Takılı aksesuar mesh'lerini viewmodel üzerinde günceller (imza/model değişince; her karede kurmaz).</summary>
+        private void SyncAttachmentVisuals(WeaponRuntimeService weapon)
+        {
+            var vm = _owner.ViewModel;
+            var model = vm != null ? vm.Model : null;
+            if (model == null)
+                return;
+
+            _attIds.Clear();
+            weapon?.GetAttachments(_attIds);
+            var sig = string.Join("|", _attIds);
+            if (ReferenceEquals(model, _attModel) && sig == _attSig)
+                return;
+
+            _attModel = model;
+            _attSig = sig;
+            try
+            {
+                Project.Infrastructure.Weapons.WeaponAttachmentVisuals.Apply(model, _attIds, vm.Layer, true);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        private bool _foleyAttached;
+
+        /// <summary>Oyuncu nesnesine teçhizat + silah foley bileşenlerini bir kez ekler.</summary>
+        private void EnsureFoley(Combatant combatant)
+        {
+            if (_foleyAttached || combatant == null)
+                return;
+
+            _foleyAttached = true;
+            try
+            {
+                GearFoleyEmitter.Attach(combatant.gameObject, true,
+                    () => combatant.Inventory != null && combatant.Inventory.ActiveWeapon != null ? combatant.Inventory.ActiveWeapon.WeaponId : null);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
         }
 
         // ================================================================ ateş modu / şarjör
+        private void TickScope(WeaponRuntimeService weapon, float dt)
+        {
+            try
+            {
+                var rig = _owner.CameraRig;
+                _scope.Tick(weapon != null ? weapon.WeaponId : null, IsAiming, IsScoped, _aimBlend, IsHoldingBreath,
+                    BreathRemaining, rig != null ? rig.WorldCamera : null, null, null, Vector2.zero, dt);
+                var toast = _scope.ZeroingToast;
+                if (toast != _lastZeroingToast)
+                {
+                    _lastZeroingToast = toast;
+                    if (toast != null)
+                        _owner.Notify(toast, 1.2f);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
         private void HandleFireModeToggle(WeaponRuntimeService weapon)
         {
             var before = weapon.CurrentFireMode;
@@ -285,7 +390,8 @@ namespace Project.Presentation.Player
                 return;
             }
 
-            PlayerController.PlaySound2D(SoundId.FireModeSwitch, 0.6f);
+            // Seçici tıkı WeaponFoleyDriver'da (mod değişimini izler).
+            _owner.ViewModel?.PlayFireModeSwitch();
             _owner.Notify(FireModeName(after, weapon.Definition), 1.2f);
         }
 
@@ -317,7 +423,7 @@ namespace Project.Presentation.Player
 
                 _reloadShown = true;
                 _ammoAtReloadStart = weapon.CurrentAmmo;
-                viewModel?.PlayReload(weapon.ReloadDuration);
+                viewModel?.PlayReload(weapon.CurrentAmmo == 0, weapon.ReloadDuration);
                 return;
             }
 
@@ -334,26 +440,67 @@ namespace Project.Presentation.Player
         private void UpdateAim(CombatInputState input, WeaponRuntimeService weapon, ItemUseService itemUse, float dt)
         {
             var motor = _owner.Motor;
-            var wantsAim = input.Aim
-                           && weapon != null
-                           && !weapon.IsReloading
-                           && (itemUse == null || !itemUse.IsUsing)
-                           && (motor == null || !motor.IsSprinting);
+            var canAim = weapon != null
+                         && !weapon.IsReloading
+                         && (itemUse == null || !itemUse.IsUsing)
+                         && (motor == null || !motor.IsSprinting);
+            var wantsAim = _toggles.ResolveAim(input.Aim, input.AimPressed, _owner.Settings != null && _owner.Settings.ToggleAds, canAim, dt) && canAim;
 
             var definition = weapon?.Definition;
             var scoped = definition != null && definition.HasScope;
-            var duration = AdsSeconds + (scoped ? ScopeExtraSeconds : 0f);
-            _aimBlend = Mathf.MoveTowards(_aimBlend, wantsAim ? 1f : 0f, dt / duration);
+            var adsTime = definition != null && definition.AdsTime > 0f ? definition.AdsTime : AdsSeconds;
+            if (_owner.Combatant != null)
+                adsTime *= _owner.Combatant.LimbAdsTimeMultiplier; // RC1: yaralı kol ADS yavaş
+            var duration = adsTime + (scoped ? ScopeExtraSeconds : 0f);
+            _aimBlend = AdsBlend.Step(_aimBlend, wantsAim, Mathf.Min(dt, 0.05f), duration); // ilk kare/hitch'te sıçrama yok
 
             var targetZoom = definition != null && definition.AdsZoom > 1f ? definition.AdsZoom : 1f;
-            var eased = _aimBlend * _aimBlend * (3f - 2f * _aimBlend);
+            var eased = AdsBlend.Smooth(_aimBlend);
             ApplyZoom(Mathf.Lerp(1f, targetZoom, eased));
+            if (!Mathf.Approximately(eased, _lastAimBlur))
+            {
+                _lastAimBlur = eased;
+                Project.Infrastructure.Rendering.PostProcessing.SetAimBlur(eased);
+            }
+
+            if (wantsAim != IsAiming)
+            {
+                AudioMix.SetAdsFocus(wantsAim);
+                if (wantsAim && weapon != null)
+                    WeaponFoley.PlayAds(weapon.WeaponId, _owner.AimOrigin, true);
+            }
 
             IsAiming = wantsAim;
             IsScoped = wantsAim && scoped && _aimBlend >= ScopedBlendThreshold;
+            UpdateHoldBreath(dt);
             _owner.ViewModel?.SetAim(wantsAim);
             ApplyViewModelVisibility();
         }
+
+        private float _lastAimBlur;
+        private readonly HoldBreathState _breath = new HoldBreathState();
+
+        /// <summary>Nefes tutma kalan süre (sn); dürbünlü silahta Shift basılıyken azalır.</summary>
+        public float BreathRemaining => _breath.Remaining;
+
+        public bool IsHoldingBreath => _breath.IsHolding;
+
+        private void UpdateHoldBreath(float dt)
+        {
+            var wantsHold = false;
+            try
+            {
+                wantsHold = IsScoped && Project.Infrastructure.Input.InputBindings.Held(BindAction.Sprint);
+            }
+            catch (Exception)
+            {
+                // Girdi sistemi hazır değilse nefes tutma devre dışı.
+            }
+
+            _breath.Update(dt, wantsHold, IsScoped);
+        }
+
+        private float SwayMultiplier => (IsScoped ? _breath.SwayMultiplier : 1f) * Suppression.SwayMultiplier * (_owner.Combatant != null ? _owner.Combatant.LimbSwayMultiplier : 1f); // RC1: yaralı kol
 
         private void ApplyZoom(float zoom)
         {
@@ -362,7 +509,7 @@ namespace Project.Presentation.Player
                 return;
 
             _appliedZoom = zoom;
-            _owner.CameraController?.SetZoom(zoom);
+            _owner.CameraController?.SetZoom(_scope.MainCameraZoom(zoom));
         }
 
         private void ApplyViewModelVisibility()
@@ -408,7 +555,8 @@ namespace Project.Presentation.Player
 
             if (input.FirePressed && weapon.CurrentAmmo <= 0 && !weapon.IsReloading)
             {
-                PlayerController.PlaySound2D(SoundId.DryFire, 0.7f);
+                // Boş tetik sesi: WeaponFoleyDriver (WeaponRuntimeService.DryFired).
+                _owner.ViewModel?.PlayDryFire();
                 if (weapon.CanReload)
                     weapon.TryBeginReload();
                 else
@@ -425,7 +573,7 @@ namespace Project.Presentation.Player
             var speed = motor != null ? motor.SpeedNormalized : 0f;
             var grounded = motor == null || motor.IsGrounded;
 
-            var spread = weapon.GetSpreadAngle(IsAiming, speed, grounded, stance);
+            var spread = weapon.GetBlendedSpread(_aimBlend, speed, grounded, stance, SwayMultiplier);
             var viewModel = _owner.ViewModel;
             var muzzle = viewModel != null ? viewModel.MuzzleWorldPosition : Vector3.zero;
             if (muzzle.sqrMagnitude < 1e-6f)
@@ -444,7 +592,60 @@ namespace Project.Presentation.Player
 
             weapon.GetRecoilKick(IsAiming, stance, UnityEngine.Random.value, out var pitch, out var yaw);
             _owner.CameraController?.AddRecoil(pitch, yaw);
+            ApplyFireFeel(weapon, pitch, yaw, muzzle, forward);
             viewModel?.OnFire();
+        }
+
+        private float _feelShake;
+        private float _pumpReboundAt = -1f;
+        private float _pumpReboundPitch;
+
+        /// <summary>Kalibre bazlı his katmanı: yalnızca kamera vuruşu + flaş/duman; recoil değerleri değişmez.</summary>
+        private void ApplyFireFeel(WeaponRuntimeService weapon, float pitch, float yaw, Vector3 muzzle, Vector3 forward)
+        {
+            var def = weapon.Definition;
+            var suppressed = weapon.IsSuppressed;
+            var shots = weapon.SprayShots;
+            var feel = FireFeelRules.For(def.Category, def.AmmoType);
+
+            var kickP = pitch * FireFeelRules.KickPitchMultiplier(def.Category, def.AmmoType, shots, suppressed);
+            var kickY = yaw * FireFeelRules.KickYawMultiplier(def.Category, def.AmmoType, shots, suppressed);
+
+            _feelShake = FireFeelRules.ShakeAccumulate(_feelShake, def.Category, def.AmmoType);
+            if (_feelShake > 0f)
+            {
+                kickP += (UnityEngine.Random.value * 2f - 1f) * _feelShake;
+                kickY += (UnityEngine.Random.value * 2f - 1f) * _feelShake;
+            }
+
+            _owner.AddCameraKick(kickP, kickY);
+
+            if (feel.PumpDelay > 0f)
+            {
+                _pumpReboundAt = Time.time + feel.PumpDelay;
+                _pumpReboundPitch = FireFeelRules.PumpReboundPitch(kickP);
+            }
+
+            try
+            {
+                Project.Infrastructure.Vfx.GameVfx.FireFeelLayer(muzzle, forward,
+                    FireFeelRules.FlashScale(def.Category, def.AmmoType, shots, suppressed),
+                    FireFeelRules.SmokeRate(def.Category, def.AmmoType, shots, weapon.FireIntervalSeconds, suppressed));
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        private void TickFireFeel(float dt)
+        {
+            _feelShake = FireFeelRules.ShakeDecay(_feelShake, dt);
+            if (_pumpReboundAt > 0f && Time.time >= _pumpReboundAt)
+            {
+                _pumpReboundAt = -1f;
+                _owner.AddCameraKick(_pumpReboundPitch, 0f);
+            }
         }
 
         private static BallisticsSystem ResolveBallistics()
@@ -466,7 +667,23 @@ namespace Project.Presentation.Player
             _owner.ViewModel?.PlayMelee();
 
             if (!GameContext.HasAuthority)
+            {
+                // İstemci: vuruşu sunucuya iste (hasar yalnızca otoritede).
+                if (GameContext.Network is Project.Core.Interfaces.IPlayerActionSink sink)
+                {
+                    try
+                    {
+                        sink.SubmitMelee(new MeleeRequest(combatant.Id, ToF3(_owner.AimOrigin), ToF3(_owner.AimForward),
+                            MeleeRange, (uint)Time.frameCount));
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
+                }
+
                 return;
+            }
 
             try
             {
@@ -485,14 +702,16 @@ namespace Project.Presentation.Player
             if (inventory == null || Time.time < _throwReadyAt)
                 return;
 
-            var itemId = kind == ThrowableKind.Frag ? ItemIds.FragGrenade : ItemIds.SmokeGrenade;
+            var itemId = ThrowableRules.ItemIdFor(kind);
             if (inventory.GetCount(itemId) <= 0)
             {
-                _owner.Notify(kind == ThrowableKind.Frag ? "El bombası yok" : "Sis bombası yok", 1.5f);
+                _owner.Notify(kind == ThrowableKind.Frag ? "El bombası yok" : kind == ThrowableKind.Smoke ? "Sis bombası yok"
+                    : kind == ThrowableKind.Flash ? "Flaş bombası yok" : kind == ThrowableKind.Molotov ? "Molotof yok" : "Yem bombası yok", 1.5f);
                 return;
             }
 
-            if (!GameContext.HasAuthority)
+            var remote = !GameContext.HasAuthority;
+            if (remote && !(GameContext.Network is Project.Core.Interfaces.IPlayerActionSink))
                 return;
 
             CancelItemUse(itemUse);
@@ -524,16 +743,40 @@ namespace Project.Presentation.Player
 
             try
             {
-                ThrowableProjectile.Throw(kind, spawn, velocity, combatant.Id);
+                if (remote)
+                {
+                    // İstemci: bombayı sunucu üretir; yerel yalnızca animasyon/ses.
+                    ((Project.Core.Interfaces.IPlayerActionSink)GameContext.Network).SubmitThrow(new ThrowRequest(
+                        combatant.Id, ThrowCodeFor(kind),
+                        ToF3(spawn), ToF3(velocity), (uint)Time.frameCount));
+                }
+                else
+                {
+                    ThrowableProjectile.Throw(kind, spawn, velocity, combatant.Id);
+                }
             }
             catch (Exception e)
             {
                 Debug.LogException(e);
             }
 
-            _owner.ViewModel?.PlayThrow();
+            _owner.ViewModel?.PlayThrow(kind == ThrowableKind.Smoke);
             PlayerController.PlaySound2D(SoundId.GrenadePin, 0.7f);
         }
+
+        private static ThrowKindCode ThrowCodeFor(ThrowableKind kind)
+        {
+            switch (kind)
+            {
+                case ThrowableKind.Smoke: return ThrowKindCode.Smoke;
+                case ThrowableKind.Flash: return ThrowKindCode.Flash;
+                case ThrowableKind.Molotov: return ThrowKindCode.Molotov;
+                case ThrowableKind.Decoy: return ThrowKindCode.Decoy;
+                default: return ThrowKindCode.Frag;
+            }
+        }
+
+        private static Float3 ToF3(Vector3 v) => new Float3(v.x, v.y, v.z);
 
         // ================================================================ iyileşme / takviye
         private void TryHeal(ItemUseService itemUse, InventoryService inventory, WeaponRuntimeService weapon)
@@ -605,7 +848,7 @@ namespace Project.Presentation.Player
         {
             var duration = _hookedItemUse != null ? _hookedItemUse.Duration : 0f;
             if (duration > 0f)
-                _owner.ViewModel?.PlayUse(duration);
+                _owner.ViewModel?.PlayUse(duration, itemId);
 
             var definition = ItemCatalog.Get(itemId);
             var sound = definition != null && definition.Category == ItemCategory.Boost ? SoundId.Drink : SoundId.Bandage;
@@ -630,7 +873,7 @@ namespace Project.Presentation.Player
             var stance = motor != null ? motor.CurrentStance : Stance.Standing;
             var speed = motor != null ? motor.SpeedNormalized : 0f;
             var grounded = motor == null || motor.IsGrounded;
-            SpreadAngle = weapon.GetSpreadAngle(IsAiming, speed, grounded, stance);
+            SpreadAngle = weapon.GetBlendedSpread(_aimBlend, speed, grounded, stance, SwayMultiplier);
         }
 
         private void UpdateViewModelMotion(LookInputState look)
@@ -645,8 +888,22 @@ namespace Project.Presentation.Player
                 motor != null ? motor.SpeedNormalized : 0f,
                 motor != null && motor.IsSprinting,
                 motor == null || motor.IsGrounded,
-                look.YawDelta * sensitivity,
-                look.PitchDelta * sensitivity);
+                look.YawDelta * sensitivity * Suppression.SwayMultiplier,
+                look.PitchDelta * sensitivity * Suppression.SwayMultiplier);
+
+            var stance = ViewmodelStance.Stand;
+            var strafe = 0f;
+            if (motor != null)
+            {
+                if (motor.IsSliding) stance = ViewmodelStance.Slide;
+                else if (motor.CurrentStance == Stance.Crouching) stance = ViewmodelStance.Crouch;
+                else if (motor.CurrentStance == Stance.Prone) stance = ViewmodelStance.Prone;
+                strafe = Vector3.Dot(motor.Velocity, motor.transform.right) / 5f;
+            }
+
+            viewModel.SetStance(stance);
+            viewModel.SetStrafe(strafe);
+            viewModel.SetHoldingBreath(IsHoldingBreath);
         }
 
         public static string FireModeName(FireMode mode, WeaponDefinitionData definition)
@@ -665,6 +922,7 @@ namespace Project.Presentation.Player
         public void Dispose()
         {
             UnhookItemUse();
+            _scope.Dispose();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Project.Presentation.UI
     [DisallowMultipleComponent]
     public sealed class HudWeaponView : MonoBehaviour
     {
+        private string _tagG = "", _tagT = "", _tagH = "", _tagJ = "";
         private const float AmmoWidth = 460f;
         private const float AmmoHeight = 76f;
         private const float SlotWidth = 300f;
@@ -46,6 +47,9 @@ namespace Project.Presentation.UI
         private Image _fireModeBox;
         private Text _fireMode;
         private Text _reloadHint;
+        private Text _magCheck;
+        private float _lastActivity;
+        private float _magCheckUntil;
         private RectTransform _slotsRoot;
         private readonly Slot[] _slots = new Slot[InventoryService.WeaponSlotCount];
         private Text _throwables;
@@ -116,9 +120,13 @@ namespace Project.Presentation.UI
             _fireMode = HudBuild.Text("FireMode", _fireModeBox.transform, string.Empty, UiTheme.FontTiny, TextAnchor.MiddleCenter,
                 UiTheme.Amber, FontStyle.Bold, HudBuild.Center, HudBuild.Center, Vector2.zero, new Vector2(64f, 26f), false);
 
-            _reloadHint = HudBuild.Text("Reload", _ammoRoot, "[R] ŞARJÖR DEĞİŞTİR", UiTheme.FontTiny, TextAnchor.MiddleLeft,
+            _reloadHint = HudBuild.Text("Reload", _ammoRoot, Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Reload) + " ŞARJÖR DEĞİŞTİR", UiTheme.FontTiny, TextAnchor.MiddleLeft,
                 UiTheme.Amber, FontStyle.Bold, new Vector2(0.5f, 0f), new Vector2(0f, 0f), new Vector2(136f, 42f), new Vector2(200f, 20f));
             HudBuild.SetActive(_reloadHint, false);
+
+            _magCheck = HudBuild.Text("MagCheck", _ammoRoot, string.Empty, UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.Amber,
+                FontStyle.Bold, new Vector2(0.5f, 1f), new Vector2(0.5f, 0f), new Vector2(0f, 2f), new Vector2(AmmoWidth, 20f));
+            HudBuild.SetActive(_magCheck, false);
 
             // ---------------------------------------------------------- sağ alt: yuvalar
             var slotsHeight = InventoryService.WeaponSlotCount * (SlotHeight + SlotSpacing) + 44f;
@@ -233,6 +241,7 @@ namespace Project.Presentation.UI
         {
             if (!_hasShownWeapon || !ReferenceEquals(weapon, _shownWeapon))
             {
+                _lastActivity = Time.unscaledTime;
                 _hasShownWeapon = true;
                 _shownWeapon = weapon;
                 _shownMagazine = int.MinValue;
@@ -249,12 +258,12 @@ namespace Project.Presentation.UI
                 UiFactory.SetColor(_magazine, UiTheme.TextMuted);
                 HudBuild.SetActive(_fireModeBox, false);
                 HudBuild.SetActive(_reloadHint, false);
-                _ammoGroup.alpha = 0.75f;
+                _ammoGroup.alpha = 0.75f * HudRules.AmmoAlpha(Time.unscaledTime - _lastActivity);
                 return;
             }
 
-            _ammoGroup.alpha = 1f;
             HudBuild.SetActive(_fireModeBox, true);
+            UpdateIdleFadeAndMagCheck(weapon);
 
             var magazine = Mathf.Max(0, weapon.CurrentAmmo);
             var infinite = weapon.HasInfiniteReserve || weapon.ReserveAmmo < 0;
@@ -263,6 +272,7 @@ namespace Project.Presentation.UI
 
             if (magazine != _shownMagazine || reloading != _shownReloading)
             {
+                _lastActivity = Time.unscaledTime;
                 _shownMagazine = magazine;
                 _shownReloading = reloading;
                 UiFactory.SetText(_magazine, UiWidgets.Number(magazine));
@@ -291,6 +301,7 @@ namespace Project.Presentation.UI
             var mode = (int)weapon.CurrentFireMode;
             if (mode != _shownFireMode)
             {
+                _lastActivity = Time.unscaledTime;
                 _shownFireMode = mode;
                 UiFactory.SetText(_fireMode, HudFormat.FireMode(weapon.CurrentFireMode));
                 var modes = weapon.FireModes;
@@ -298,7 +309,58 @@ namespace Project.Presentation.UI
             }
 
             var showHint = !reloading && magazine <= 0 && (infinite || reserve > 0);
+            if (showHint)
+            {
+                var label = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Reload) + " ŞARJÖR DEĞİŞTİR";
+                if (_reloadHint.text != label)
+                    _reloadHint.text = label;
+            }
             HudBuild.SetActive(_reloadHint, showHint);
+        }
+
+        /// <summary>Boştayken sayaç solar; şarjör kontrol tuşu (Inspect) yaklaşık doluluğu gösterir.</summary>
+        private void UpdateIdleFadeAndMagCheck(WeaponRuntimeService weapon)
+        {
+            var now = Time.unscaledTime;
+            var aiming = false;
+            try
+            {
+                aiming = _ctx.Player != null && _ctx.Player.IsAiming;
+            }
+            catch (Exception)
+            {
+                aiming = false;
+            }
+
+            if (aiming || weapon.IsReloading)
+                _lastActivity = now;
+
+            bool check;
+            try
+            {
+                check = Project.Infrastructure.Input.InputBindings.Pressed(BindAction.Inspect);
+            }
+            catch (Exception)
+            {
+                check = false;
+            }
+
+            if (check)
+            {
+                _magCheckUntil = now + HudRules.MagCheckSeconds;
+                _lastActivity = now;
+            }
+
+            var showCheck = now < _magCheckUntil;
+            if (showCheck)
+            {
+                var label = "ŞARJÖR: " + HudRules.MagCheckLabel(Mathf.Max(0, weapon.CurrentAmmo), weapon.MagazineSize);
+                if (_magCheck.text != label)
+                    _magCheck.text = label;
+            }
+
+            HudBuild.SetActive(_magCheck, showCheck);
+            _ammoGroup.alpha = HudRules.AmmoAlpha(now - _lastActivity);
         }
 
         private void UpdateSlots(InventoryService inventory, WeaponRuntimeService active)
@@ -368,19 +430,26 @@ namespace Project.Presentation.UI
                 ? inventory.GetCount(ItemIds.EnergyDrink) + inventory.GetCount(ItemIds.Painkiller)
                 : 0;
 
-            if (frag != _frag || smoke != _smoke)
+            var tagG = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Grenade);
+            var tagT = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Smoke);
+            var tagH = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Heal);
+            var tagJ = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Boost);
+            var tagsChanged = tagG != _tagG || tagT != _tagT || tagH != _tagH || tagJ != _tagJ;
+            _tagG = tagG; _tagT = tagT; _tagH = tagH; _tagJ = tagJ;
+
+            if (frag != _frag || smoke != _smoke || tagsChanged)
             {
                 _frag = frag;
                 _smoke = smoke;
-                UiFactory.SetText(_throwables, "[G] El Bombası " + UiWidgets.Number(frag) + "    [T] Sis " + UiWidgets.Number(smoke));
+                UiFactory.SetText(_throwables, _tagG + " El Bombası " + UiWidgets.Number(frag) + "    " + _tagT + " Sis " + UiWidgets.Number(smoke));
                 UiFactory.SetColor(_throwables, frag + smoke > 0 ? UiTheme.TextDim : UiTheme.TextMuted);
             }
 
-            if (heal != _heal || boost != _boostItems)
+            if (heal != _heal || boost != _boostItems || tagsChanged)
             {
                 _heal = heal;
                 _boostItems = boost;
-                UiFactory.SetText(_consumables, "[H] Tedavi " + UiWidgets.Number(heal) + "    [J] Takviye " + UiWidgets.Number(boost));
+                UiFactory.SetText(_consumables, _tagH + " Tedavi " + UiWidgets.Number(heal) + "    " + _tagJ + " Takviye " + UiWidgets.Number(boost));
                 UiFactory.SetColor(_consumables, heal + boost > 0 ? UiTheme.TextDim : UiTheme.TextMuted);
             }
         }

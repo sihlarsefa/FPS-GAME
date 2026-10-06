@@ -12,3 +12,6 @@ Kolon adları **sabit** (F3-4 Varlık Eşleyici bunları okur). İçerik satırl
 Kimlik örnekleri: `WeaponIds.*`, `asker`, `kirpi`, `t70`, `BuildingStyle` adları.
 
 Unity eşleme: **HAREKÂT → İçerik → Varlık Eşleyici → CSV Ön Doldur**.
+
+Arazi / çim / foliage kalite sırası: [Design/Art/ENVIRONMENT.md](../Art/ENVIRONMENT.md).
+`materials.csv` satırlarında zemin katmanları (Grass, DryGrass, Dirt, Rock, Mud) için Poly Haven / ambientCG önerileri öncelikli kalsın; mesh foliage paketleri kalite aşamasında `Environment/` altına not edilir.

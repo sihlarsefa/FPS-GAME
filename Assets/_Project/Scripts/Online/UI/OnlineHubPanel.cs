@@ -14,7 +14,7 @@ namespace Project.Online.UI
     public sealed class OnlineHubPanel : MonoBehaviour
     {
         private const float WindowWidth = 520f;
-        private const float WindowHeight = 480f;
+        private const float WindowHeight = 620f;
 
         private Action _onClosed;
         private bool _closed;
@@ -69,6 +69,7 @@ namespace Project.Online.UI
 
             _firstButton = AddNavButton(body, "TİM", OpenSquad);
             AddNavButton(body, "EŞLEŞTİRME", OpenMatchmaking);
+            AddNavButton(body, "SUNUCU / KATIL", OpenServer);
             AddNavButton(body, "SIRALAMA", OpenLeaderboard);
             AddNavButton(body, "ÇIKIŞ YAP", Logout, UiButtonStyle.Danger);
 
@@ -90,6 +91,11 @@ namespace Project.Online.UI
         private void OpenMatchmaking()
         {
             OpenChild((parent, onClosed) => OnlineMatchmakingPanel.Show(parent, onClosed));
+        }
+
+        private void OpenServer()
+        {
+            OpenChild((parent, onClosed) => OnlineServerPanel.Show(parent, onClosed));
         }
 
         private void OpenLeaderboard()

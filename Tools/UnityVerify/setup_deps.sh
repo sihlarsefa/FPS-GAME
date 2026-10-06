@@ -20,5 +20,5 @@ csc -nologo -noconfig -nostdlib -target:library -langversion:9.0 -unsafe -nowarn
   "${REFS[@]}" -r:$D/UnityEngine.UI.dll -out:$D/Unity.InputSystem.dll $(find $D/pkgs/inputsystem/InputSystem -name "*.cs" | grep -v "/Plugins/InputForUI/" | grep -v "/InputSystem/Editor/") 2>&1 | grep "error CS" | head
 echo "URP stubs..."
 csc -nologo -noconfig -nostdlib -target:library -langversion:9.0 "${REFS[@]}" -out:$D/Unity.RenderPipelines.Core.Runtime.dll $T/stubs/UrpCoreStub.cs 2>&1 | grep "error CS" | head
-csc -nologo -noconfig -nostdlib -target:library -langversion:9.0 "${REFS[@]}" -r:$D/Unity.RenderPipelines.Core.Runtime.dll -out:$D/Unity.RenderPipelines.Universal.Runtime.dll $T/stubs/UrpStub.cs 2>&1 | grep "error CS" | head
+csc -nologo -noconfig -nostdlib -target:library -langversion:9.0 "${REFS[@]}" -r:$D/Unity.RenderPipelines.Core.Runtime.dll -out:$D/Unity.RenderPipelines.Universal.Runtime.dll $T/stubs/UrpStub.cs $T/stubs/UrpRenderGraphStub.cs 2>&1 | grep "error CS" | head
 ls -la $D/*.dll

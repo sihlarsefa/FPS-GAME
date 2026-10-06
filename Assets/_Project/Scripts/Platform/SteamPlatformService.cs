@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Steamworks;
+using Project.Core.Domain;
+using Project.Presentation.Bootstrap;
 using UnityEngine;
 using UnityEngine.Networking;
 using Debug = UnityEngine.Debug;
@@ -92,9 +94,6 @@ namespace Project.Platform
         readonly HashSet<string> _pendingAchievements = new HashSet<string>(StringComparer.Ordinal);
         readonly HashSet<string> _warnedApiNames = new HashSet<string>(StringComparer.Ordinal);
         string _lastPresenceSignature;
-
-        SteamPresenceDriver _presence;
-        SteamOnlineBridge _online;
 
         /// <summary>Steam başarıyla başlatıldıysa servis; aksi halde null.</summary>
         public static SteamPlatformService Instance => _instance;
@@ -236,9 +235,8 @@ namespace Project.Platform
                 // SDK ≥1.61 (Steamworks.NET 2025.x): RequestCurrentStats kaldırıldı; Steam açılışta senkronlar.
                 _statsReady = !TryRequestCurrentStats();
 
-                _presence = new SteamPresenceDriver(this);
-                _online = new SteamOnlineBridge(this);
-                _presence.MatchFinished += _online.OnMatchFinished;
+                GameSession.MatchStarting += OnMatchStarting;
+                GameSession.MatchFinished += OnMatchFinished;
 
                 Debug.Log($"[Steam] Hazır — {PersonaName} ({SteamId}), AppID {AppId}, dil '{GameLanguage}'.");
                 return true;
@@ -262,9 +260,6 @@ namespace Project.Platform
 
             SteamAPI.RunCallbacks();
 
-            var now = Time.unscaledTime;
-            _presence?.Tick(now);
-            _online?.Tick(now);
         }
 
         void OnApplicationQuit()
@@ -287,8 +282,8 @@ namespace Project.Platform
 
             try
             {
-                if (_presence != null && _online != null)
-                    _presence.MatchFinished -= _online.OnMatchFinished;
+                GameSession.MatchStarting -= OnMatchStarting;
+                GameSession.MatchFinished -= OnMatchFinished;
                 CancelAuthTicket();
                 _statsReceived?.Dispose();
                 _webApiTicketReceived?.Dispose();
@@ -304,8 +299,6 @@ namespace Project.Platform
                 _statsReceived = null;
                 _webApiTicketReceived = null;
                 _sessionTicketReceived = null;
-                _presence = null;
-                _online = null;
                 _initialized = false;
                 _statsReady = false;
                 _lastPresenceSignature = null;
@@ -367,6 +360,25 @@ namespace Project.Platform
                 _pendingAchievements.Clear();
                 UnlockAchievements(pending);
             }
+        }
+
+        // ——— Oyun kancaları (GameSession olayları) ———
+
+        void OnMatchStarting(MatchConfig config)
+        {
+            SetMatchRichPresence(config != null ? config.MapName : null, config != null ? config.MaxPlayers : 0);
+        }
+
+        void OnMatchFinished(MatchResult result)
+        {
+            SetPresence(SteamPresenceState.MatchEnded);
+            var ids = new List<string>(2);
+            if (result.IsWinner)
+                ids.Add("first_victory");
+            if (result.Kills > 0)
+                ids.Add("first_blood");
+            if (ids.Count > 0)
+                UnlockAchievements(ids);
         }
 
         // ——— Rich presence ———

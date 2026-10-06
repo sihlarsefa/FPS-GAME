@@ -1,0 +1,31 @@
+### C1 done. New PipelineTiers.cs is the single 4-tier table (render scale 67/77/87/100%, STP on with MSAA forced off, Forward+, GRD, GPU occlusion from Medium up, 
+  - PerformanceProfile.ApplyPipeline(level) is added but nothing calls it yet. A runtime caller such as the quality-change hook still has to be wired in.
+### C3 Atmosfer tamamlandı. Yeni saf AtmosphereMath (HeightFogFactor, AerialBlend/AerialDensity, MiePhase, MieHaloGain, SkyId, VolumetricAllowed). Atmosphere.cs: ka
+  - Volumetrik ışık yalnızca entegrasyon kancası (Atmosphere.VolumetricChanged/VolumetricEnabled); gerçek volumetrik render yok, bir sonraki ajan/Cursor bağlamalı. Kalite kademesi Atmosphere.QualityLevel ile set edilmezse QualitySettings'ten türetilir.
+  - SkyEnvironment.cs'ye küçük kanca eklendi (satır dışı dosya); SkyOverrideEntry/TryGetSky zaten vardı, yeni slot eklenmedi.
+  - Kullanıcı mesajı ('başka teknoloji yok mu') göreve bağlanamadı; HDRP/başka teknolojiye geçilmedi, URP korundu.
+### C7 tamam. Slot tipleri ve TryGet* API'si ContentOverrideEntries.cs ve ContentOverrides.cs içinde zaten vardı, onlara dokunmadım. Eklediklerim: saf doğrulama kur
+  - Atmosphere'de SkyOverrideProvider yok. ContentOverrides.TryGetSky hazır, C3 hook'u gelince bağlanmalı.
+### C13 done. The existing PerfOverlay now toggles with F3 (F10 still works) and shows CPU/GPU ms from FrameTimingManager, which prints n/a if unavailable. The new 
+### C11 is implemented. Verify shows 0 compile errors in every assembly, including player builds and the tests. 817 tests pass and 1 fails (ViewmodelDynamicsTests.S
+### C15 implemented: NameProfile (Gercek/Kurgusal) wired into weapon/item/vehicle display names with localization-key resolver hook. 0 compile errors; 817 tests pas
+  - Cursor doğrulaması: NameProfile.Resolver henüz LocalizationTable/LocalizationService'e bağlanmadı; dil JSON'larına name.<id> ve name.k.<id> anahtarları eklenmedi (yerleşik tablo yedek olarak çalışıyor).
+### C4 tamam. MaterialSpec'e detay albedo/normal, triplanar, makro varyasyon ve texel density alanları eklendi; hepsi varsayılan kapalı, yani override ya da yeni al
+### C5 Arazi implemented. TerrainTextureFactory.CreateLayers now uses ContentOverrides.TryGetTerrainLayer for each of the 8 layers (procedural fallback unchanged wh
+  - Cursor doğrulaması: TerrainPaintRules.ApplyTier hiçbir yerden çağrılmıyor. Sadece PerformanceProfile.ApplyToTerrains basemap kancası var. Ayarlardan detail ölçeği için bir çağrı noktası (SettingsService/kalite uygulayıcı) eklenmeli.
+### C6 implemented. Verify: 0 compile errors, 818 tests passed. VegetationOverride/RockOverride per-species prefab selection, auto LOD warning plus procedural LODGr
+### C8 tamam. Saf ViewmodelDynamics sınıfı kapalı-form (analitik) yay çözümü kullanıyor, bu yüzden 60/144/240 FPS'te aynı sonucu veriyor. WeaponViewModel sway, mode
+  - Cursor doğrulaması: ViewmodelAnimatorDriver'ın Animator IK'sı (OnAnimatorIK, IK Pass katmanı) ve override prefab ile Grip_L bağlantısı test edilmedi. Animation Rigging yalnızca reflection ile algılanıyor, Two Bone IK kurulmuyor, sadece bilgi logu var.
+  - Cursor doğrulaması: CameraRig kamera tepmesi (CameraKickEnabled) varsayılan KAPALI. Oyuncu denetleyicisi kamera dönüşünü her kare mutlak yazıyorsa açılabilir; denetleyici dosyaları bu satırın kapsamı dışında olduğu için bağlanmadı.
+  - Viewmodel FOV: CameraRig.SetViewmodelFieldOfView ve WeaponViewModel.ViewmodelHipFov eklendi, ancak GameSettings'e viewmodel FOV ayarı ve ayarlar menüsü bağlantısı yok. Varsayılan hip 60 derece, nişanda yaklaşık %8 daralıyor. Bu, eski sabit 60 derece davranışına göre küçük bir görsel değişiklik.
+  - WeaponAnimationOverride için yalnızca ContentOverrides.TryGetWeaponAnimation kullanıldı. Override prefab'ın model olarak kurulması başka satırın işi. Animator model altında yoksa sürücü bağlanmaz ve prosedürel yol aynen çalışır.
+### C10 VFX is implemented. All projects compile with 0 errors, but the test assembly has 1 error in GpuVfxBudgetTests.cs, which I did not touch (another agent's fi
+  - Nothing in the codebase calls RotorWash yet, so rotor dust shows nothing until a helicopter system calls it.
+### C14 Credits implemented. All assemblies compile with 0 errors (Core, Application, Infrastructure, Presentation, Editor, player builds). The test project does no
+  - C7 hook is not wired: ContentOverridesValidator is outside my row. To connect it, call CreditsAudit.AppendTo(sb) at the end of ContentOverridesValidator.Validate and add the returned error count to the HATA total.
+### C9 implemented. Humanoid override now has distance-tiered Animator updates (4 tiers, manual Animator.Update at reduced rate), Animator culling (CullUpdateTransf
+  - Projede ragdoll sistemi yok; yalnızca EnterRagdollMode/GetHumanoidBone/HumanoidRoot kancaları eklendi, ragdoll kurucu başka satırın işi.
+### C12 araç soketleri tamamlandı. Verify temiz: 0 derleme hatası, 836 test geçti. Override prefab sözleşmesi (Rotor_Main/Tail/Blur, Wheel_FL/FR/RL/RR, Door_*, Seat
+  - Cursor doğrulaması: SetCondition'ın MaterialPropertyBlock ile verdiği temiz/kirli/yanmış görünüm. Şu an hiçbir çağıran yok, hasar sistemine bağlanması gerekiyor.
+  - Plandaki Vehicles/*ModelBuilder.cs, HelicopterModel.cs, KirpiModel.cs ve TransportFactory.cs dosyalarına dokunmadım. Bunun yerine Helicopter.cs ve ArmoredCarrier.cs'e küçük kancalar ekledim.
+### C2 Post 2.0 is implemented. Verification could not finish cleanly because other agents' in-progress files fail to compile. In the last run, Infrastructure repor

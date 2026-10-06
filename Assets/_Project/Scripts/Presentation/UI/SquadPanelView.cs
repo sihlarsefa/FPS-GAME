@@ -110,7 +110,7 @@ namespace Project.Presentation.UI
                     Vector2.zero, new Vector2(3f, RowHeight - 2f));
                 row.Highlight.enabled = false;
 
-                row.Role = HudBuild.Text("Role", row.Rect, string.Empty, 12, TextAnchor.MiddleCenter, UiTheme.TextMuted, FontStyle.Bold,
+                row.Role = HudBuild.Text("Role", row.Rect, string.Empty, 14, TextAnchor.MiddleCenter, UiTheme.TextMuted, FontStyle.Bold,
                     new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(6f, 1f), new Vector2(34f, RowHeight));
                 row.Star = HudBuild.Image("Star", row.Rect, UiSprites.Star, UiTheme.Amber, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                     new Vector2(42f, 2f), new Vector2(14f, 14f));
@@ -120,9 +120,9 @@ namespace Project.Presentation.UI
                 row.Name.horizontalOverflow = HorizontalWrapMode.Wrap;
                 row.Name.verticalOverflow = VerticalWrapMode.Truncate;
 
-                row.Distance = HudBuild.Text("Distance", row.Rect, string.Empty, 12, TextAnchor.MiddleRight, UiTheme.TextDim, FontStyle.Normal,
+                row.Distance = HudBuild.Text("Distance", row.Rect, string.Empty, 14, TextAnchor.MiddleRight, UiTheme.TextDim, FontStyle.Normal,
                     new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-8f, 3f), new Vector2(64f, RowHeight - 8f));
-                row.Status = HudBuild.Text("Status", row.Rect, "ŞEHİT", 12, TextAnchor.MiddleRight, UiTheme.HealthLow, FontStyle.Bold,
+                row.Status = HudBuild.Text("Status", row.Rect, "ŞEHİT", 14, TextAnchor.MiddleRight, UiTheme.HealthLow, FontStyle.Bold,
                     new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-8f, 0f), new Vector2(64f, RowHeight));
                 row.Status.enabled = false;
 

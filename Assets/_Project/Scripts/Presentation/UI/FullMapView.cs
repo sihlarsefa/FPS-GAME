@@ -1,16 +1,20 @@
 using System;
 using System.Collections.Generic;
+using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure;
+using Project.Infrastructure.AI;
 using Project.Infrastructure.Audio;
 using Project.Infrastructure.Combat;
+using Project.Infrastructure.Vehicles;
 using Project.Infrastructure.World;
 using Project.Presentation.Player;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Project.Infrastructure.Localization;
 
 namespace Project.Presentation.UI
 {
@@ -21,7 +25,9 @@ namespace Project.Presentation.UI
     /// intikal rotası + iniş bölgesi (LZ) + intikal aracı, topçu hedefi, taarruz emri hedefi ve harita işareti.
     /// Sağda durum/lejant/kontrol paneli. Sol tık işaret koyar (<see cref="PointMarked"/> → pres-player tim taarruz
     /// emri / topçu hedefi), sağ tık işareti kaldırır, tekerlek imleç etrafında yakınlaştırır, sürükleme kaydırır,
-    /// Boşluk oyuncuya ortalar. Açıkken imleç serbesttir ve oyun girdisi kapalıdır (kapanınca önceki durum geri gelir).
+    /// Boşluk oyuncuya ortalar. Shift+sol tık tehlike (düşman) işareti koyar, sağ sürükleme mesafe/kerteriz ölçer,
+    /// WASD/oklar kaydırır. Askeri karelaj koordinatı (36S KD 051 087), alt pafta çizgileri, görüş konili tim simgeleri
+    /// (rütbeli), araçlar, düşen tim arkadaşları ve sonraki bölge sayacı gösterilir. Açıkken imleç serbesttir ve oyun girdisi kapalıdır (kapanınca önceki durum geri gelir).
     /// Kapalıyken hiçbir iş yapmaz; açıkken kare başına tahsis yapmaz (yazılar yalnızca değişince güncellenir).
     /// </summary>
     public sealed class FullMapView : MonoBehaviour
@@ -43,18 +49,30 @@ namespace Project.Presentation.UI
         private const float ZoomStep = 1.25f;
         private const float AllyNameZoom = 2.5f;
         private const float TextRefreshInterval = 0.2f;
+        private const float SubGridZoom = 2f;
+        private const int SubGridDivisions = 5;
+        private const float AllyConeMeters = 30f;
+        private const float AllyConeAngle = 70f;
+        private const float PlayerConeMeters = 45f;
+        private const float KeyboardPanSpeed = 0.6f;
 
         private static readonly Color OffMapColor = UiTheme.Hex(0x1A, 0x1F, 0x14);
         private static readonly Color FallbackMapColor = new Color(0.36f, 0.38f, 0.33f, 1f);
         private static readonly Color GridColor = new Color(0f, 0f, 0f, 0.32f);
+        private static readonly Color SubGridColor = new Color(0f, 0f, 0f, 0.12f);
+        private static readonly Color DangerColor = UiTheme.EnemyRed;
+        private static readonly Color VehicleColor = UiTheme.Hex(0xB5, 0xB0, 0x8A);
+        private static readonly Color FallenColor = UiTheme.Hex(0xC9, 0x6A, 0x5E);
+        private static readonly Color MeasureColor = UiTheme.Text;
         private static readonly Color ZoneEdgeColor = UiTheme.WithAlpha(UiTheme.ZoneBlue, 1f);
         private static readonly Color ZoneTintColor = UiTheme.WithAlpha(UiTheme.ZoneBlue, 0.24f);
         private static readonly Color RouteColor = UiTheme.WithAlpha(UiTheme.Amber, 0.9f);
         private static readonly Color LandingZoneColor = UiTheme.Success;
         private static readonly Color WaypointColor = UiTheme.Amber;
-        private static readonly Color ArtilleryColor = UiTheme.EnemyRed;
+        private static Color ArtilleryColor => UiTheme.EnemyRed;
         private static readonly Color AttackColor = UiTheme.Accent;
         private static readonly Color PlayerColor = UiTheme.Amber;
+        private static readonly Color LootColor = UiTheme.Hex(0xE0, 0xB4, 0x4A);
         private static readonly Color DeadPlayerColor = UiTheme.TextMuted;
         private static readonly Color LocationMajorColor = UiTheme.Text;
         private static readonly Color LocationMinorColor = UiTheme.Khaki;
@@ -67,8 +85,34 @@ namespace Project.Presentation.UI
             public Text Name;
             public Combatant Bound;
             public bool Visible;
-            public bool NameVisible;
+            public int NameMode = -1;
+            public int Downed = -1;
+            public MapConeGraphic Cone;
+            public float ConeYaw = float.NaN;
+            public float ConePpm = -1f;
             public Vector2 Anchor = new Vector2(-1f, -1f);
+        }
+
+        private sealed class VehicleMarker
+        {
+            public RectTransform Root;
+            public RectTransform Body;
+            public Image Fill;
+            public Text Label;
+            public DrivableVehicle Bound;
+            public int Occupied = -1;
+            public bool Visible;
+            public Vector2 Anchor = new Vector2(-1f, -1f);
+            public float Yaw = float.NaN;
+        }
+
+        private sealed class FallenIcon
+        {
+            public RectTransform Root;
+            public Text Label;
+            public int BoundIndex = -1;
+            public int BoundSerial = -1;
+            public bool Visible;
         }
 
         private MapDataSource _data;
@@ -99,6 +143,30 @@ namespace Project.Presentation.UI
         private Text _artilleryLabel;
         private RectTransform _attackMarker;
         private readonly List<AllyMarker> _allies = new List<AllyMarker>(12);
+        private readonly List<VehicleMarker> _vehicles = new List<VehicleMarker>(8);
+        private readonly List<FallenIcon> _fallen = new List<FallenIcon>(MapMarkers.MaxFallen);
+        private RectTransform _subGridRoot;
+        private bool _subGridShown;
+        private MapConeGraphic _playerCone;
+        private float _playerConePpm = -1f;
+        private Text _nextZoneLabel;
+        private int _shownNextZoneKey = int.MinValue;
+        private RectTransform _dangerPing;
+        private MapRingGraphic _dangerRing;
+        private Text _dangerLabel;
+        private MapLineGraphic _measureLine;
+        private RectTransform _measureA;
+        private RectTransform _measureB;
+        private Text _measureLabel;
+        private bool _measureActive;
+        private bool _measuring;
+        private Vector2 _measureStartUv;
+        private Vector2 _measureEndUv;
+        private int _shownMeasureKey = int.MinValue;
+        private Text _coordValue;
+        private int _shownCoordKey = int.MinValue;
+        private int _shownCursorEasting = -1;
+        private int _shownCursorNorthing = -1;
         private readonly Text[] _columnTop = new Text[MapMath.GridDivisions];
         private readonly Text[] _columnBottom = new Text[MapMath.GridDivisions];
         private readonly Text[] _rowLeft = new Text[MapMath.GridDivisions];
@@ -108,6 +176,27 @@ namespace Project.Presentation.UI
         private Text _cursorLabel;
         private Text _zoomLabel;
         private Text _noMapLabel;
+        private RectTransform _legendOverlay;
+        private bool _legendShown = true;
+        private RectTransform _cursorTag;
+        private Text _cursorTagText;
+        private Vector2 _lastPointer = new Vector2(float.NaN, float.NaN);
+        private string _shownTagGrid;
+        private RectTransform _radial;
+        private readonly Image[] _radialSlices = new Image[4];
+        private bool _radialOpen;
+        private int _radialSel = -1;
+        private Vector2 _radialCenterScreen;
+        private Vector2 _radialUv;
+        private Vector2 _lootUv;
+        private RectTransform _lootMarker;
+        private bool _hasLoot;
+        private Vector2 _lootAnchor = new Vector2(-1f, -1f);
+        private Vector2 _nextZoneLabelPos = new Vector2(float.NaN, float.NaN);
+        private int _shownZoomPercent = -1;
+        private const float RadialDeadZone = 26f;
+        private static readonly string[] RadialNames = { "GİDİYORUM", "DÜŞMAN", "YAĞMA", "TEHLİKE" };
+        private static readonly Vector2[] RadialOffsets = { new Vector2(0f, 58f), new Vector2(84f, 0f), new Vector2(0f, -58f), new Vector2(-84f, 0f) };
 
         // Başlık / panel
         private Text _zoneHeader;
@@ -233,6 +322,8 @@ namespace Project.Presentation.UI
                 return;
 
             IsOpen = false;
+            _measuring = false;
+            CloseRadial();
             if (_panel != null)
                 _panel.gameObject.SetActive(false);
             MapOverlayInput.Release(this);
@@ -253,6 +344,7 @@ namespace Project.Presentation.UI
         {
             _playerSource = player;
             _data = new MapDataSource(player);
+            MapMarkers.StartTrackingFallen();
 
             var root = (RectTransform)transform;
             UiFactory.Stretch(root);
@@ -284,7 +376,7 @@ namespace Project.Presentation.UI
             accent.gameObject.name = "Accent";
             UiFactory.SetRect(accent, new Vector2(0f, 0.18f), new Vector2(0f, 0.82f), new Vector2(10f, 0f), new Vector2(16f, 0f));
 
-            var title = UiFactory.Label(header, "HAREKÂT HARİTASI", UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.TextHeader, FontStyle.Bold);
+            var title = UiFactory.Label(header, Loc.Get("map.full_title", "HAREKÂT HARİTASI"), UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.TextHeader, FontStyle.Bold);
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.Stretch(title, 30f, 0f, 0f, 0f);
             UiFactory.AddShadow(title, UiTheme.TextShadow, new Vector2(1f, -1f));
@@ -327,7 +419,9 @@ namespace Project.Presentation.UI
             _viewport.gameObject.AddComponent<RectMask2D>();
             _surface = _viewport.gameObject.AddComponent<MapClickSurface>();
             _surface.Clicked = OnMapClicked;
+            _surface.DragStarted = OnMapDragStarted;
             _surface.Dragged = OnMapDragged;
+            _surface.DragEnded = OnMapDragEnded;
             _surface.Scrolled = OnMapScrolled;
 
             // Hareketli içerik (pivot sol-alt; çocuklar harita UV'sine çapalı).
@@ -343,6 +437,7 @@ namespace Project.Presentation.UI
             UiFactory.Stretch(_mapImage);
             _mapImage.color = FallbackMapColor;
 
+            BuildSubGrid(_content);
             BuildGrid(_content);
 
             _zoneTint = MapRingGraphic.Create(_content, "ZoneTint", ZoneTintColor);
@@ -354,6 +449,8 @@ namespace Project.Presentation.UI
 
             _routeLine = MapLineGraphic.Create(_content, "Route", RouteColor, 3f);
             _routeLine.SetDash(12f, 7f);
+
+            _measureLine = MapLineGraphic.Create(_content, "Measure", MeasureColor, 2.5f);
 
             _locationLayer = UiFactory.CreateRect("Locations", _content);
 
@@ -383,7 +480,29 @@ namespace Project.Presentation.UI
             _waypointLabel = MapIcons.Badge(_waypoint, "Label", string.Empty, UiTheme.FontTiny - 1, WaypointColor, new Vector2(0f, 36f), 90f);
             _waypoint.gameObject.SetActive(false);
 
+            _nextZoneLabel = MapIcons.Badge(_iconLayer, "NextZoneLabel", string.Empty, UiTheme.FontTiny, UiTheme.SafeZoneWhite, Vector2.zero, 200f);
+            _nextZoneLabel.enabled = false;
+
+            _dangerRing = MapRingGraphic.Create(_iconLayer, "DangerRing", UiTheme.WithAlpha(DangerColor, 0.9f));
+            _dangerRing.enabled = false;
+            _dangerPing = MapIcons.Diamond(_iconLayer, "DangerPing", 20f, DangerColor, out _);
+            _dangerLabel = MapIcons.Badge(_dangerPing, "Label", "TEHLİKE!", UiTheme.FontTiny - 1, DangerColor, new Vector2(0f, 22f), 100f);
+            _dangerPing.gameObject.SetActive(false);
+
+            _lootMarker = MapIcons.Diamond(_iconLayer, "LootPing", 16f, LootColor, out _);
+            MapIcons.Badge(_lootMarker, "Label", "YAĞMA", UiTheme.FontTiny - 1, LootColor, new Vector2(0f, -18f), 80f);
+            _lootMarker.gameObject.SetActive(false);
+
+            _measureA = MapIcons.Dot(_iconLayer, "MeasureA", 9f, MeasureColor, out _);
+            _measureB = MapIcons.Dot(_iconLayer, "MeasureB", 9f, MeasureColor, out _);
+            _measureLabel = MapIcons.Badge(_iconLayer, "MeasureLabel", string.Empty, UiTheme.FontSmall - 1, MeasureColor, Vector2.zero, 220f);
+            _measureA.gameObject.SetActive(false);
+            _measureB.gameObject.SetActive(false);
+            _measureLabel.gameObject.SetActive(false);
+
             _playerArrow = MapIcons.Arrow(_iconLayer, "Player", 20f, PlayerColor, out _playerArrowFill);
+            _playerCone = MapConeGraphic.Create(_playerArrow, "ViewCone", UiTheme.WithAlpha(PlayerColor, 0.38f));
+            _playerCone.transform.SetAsFirstSibling();
 
             // Sabit katman: ölçek çubuğu, imleç bilgisi, yakınlaştırma göstergesi.
             var overlay = UiFactory.CreateRect("Overlay", _viewport);
@@ -413,10 +532,15 @@ namespace Project.Presentation.UI
 
             _zoomLabel = UiFactory.Label(overlay, string.Empty, UiTheme.FontTiny, TextAnchor.UpperRight, UiTheme.TextDim, FontStyle.Bold);
             _zoomLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.Stretch(_zoomLabel, 0f, 10f, 14f, 0f);
+            UiFactory.Stretch(_zoomLabel, 0f, 12f, 52f, 0f);
             UiFactory.AddOutline(_zoomLabel, MapIcons.OutlineColor, 1f);
 
-            _noMapLabel = UiFactory.Label(overlay, "Harita verisi yükleniyor…", UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.TextDim, FontStyle.Bold);
+            BuildNorthArrow(overlay);
+            BuildLegendOverlay(overlay);
+            BuildCursorTag(overlay);
+            BuildRadial(overlay);
+
+            _noMapLabel = UiFactory.Label(overlay, Loc.Get("map.loading", "Harita verisi yükleniyor…"), UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.TextDim, FontStyle.Bold);
             _noMapLabel.enabled = false;
         }
 
@@ -438,6 +562,41 @@ namespace Project.Presentation.UI
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.sizeDelta = new Vector2(RulerSize, RulerSize);
             return label;
+        }
+
+        private void BuildSubGrid(RectTransform content)
+        {
+            _subGridRoot = UiFactory.CreateRect("SubGrid", content);
+            UiFactory.Stretch(_subGridRoot);
+            var total = MapMath.GridDivisions * SubGridDivisions;
+            for (var i = 1; i < total; i++)
+            {
+                if (i % SubGridDivisions == 0)
+                    continue;
+
+                var t = i / (float)total;
+                var vertical = UiFactory.Image(_subGridRoot, null, SubGridColor);
+                vertical.gameObject.name = "SubV" + i;
+                vertical.raycastTarget = false;
+                var vrt = vertical.rectTransform;
+                vrt.anchorMin = new Vector2(t, 0f);
+                vrt.anchorMax = new Vector2(t, 1f);
+                vrt.pivot = new Vector2(0.5f, 0.5f);
+                vrt.sizeDelta = new Vector2(0.8f, 0f);
+                vrt.anchoredPosition = Vector2.zero;
+
+                var horizontal = UiFactory.Image(_subGridRoot, null, SubGridColor);
+                horizontal.gameObject.name = "SubH" + i;
+                horizontal.raycastTarget = false;
+                var hrt = horizontal.rectTransform;
+                hrt.anchorMin = new Vector2(0f, t);
+                hrt.anchorMax = new Vector2(1f, t);
+                hrt.pivot = new Vector2(0.5f, 0.5f);
+                hrt.sizeDelta = new Vector2(0f, 0.8f);
+                hrt.anchoredPosition = Vector2.zero;
+            }
+
+            _subGridRoot.gameObject.SetActive(false);
         }
 
         private static void BuildGrid(RectTransform content)
@@ -478,6 +637,7 @@ namespace Project.Presentation.UI
 
             UiWidgets.Header(list, "DURUM", UiTheme.FontNormal);
             UiWidgets.KeyValueRow(list, "Pafta", "-", out _gridValue, UiTheme.FontSmall);
+            UiWidgets.KeyValueRow(list, "Koordinat", "-", out _coordValue, UiTheme.FontSmall);
             UiWidgets.KeyValueRow(list, "Bölge", "-", out _locationValue, UiTheme.FontSmall);
             UiWidgets.KeyValueRow(list, "Harekât alanı", "-", out _zoneValue, UiTheme.FontSmall);
             UiWidgets.KeyValueRow(list, "Güvenli bölgeye", "-", out _safeValue, UiTheme.FontSmall);
@@ -496,19 +656,19 @@ namespace Project.Presentation.UI
             LegendRow(list, "İntikal rotası / aracı", r => LegendLine(r));
             LegendRow(list, "Topçu atış hedefi", r => MapIcons.Cross(r, "Icon", 14f, ArtilleryColor, out _));
             LegendRow(list, "Taarruz hedefi", r => MapIcons.Target(r, "Icon", 17f, AttackColor, out _));
-            LegendRow(list, "Harita işareti", r =>
-            {
-                var pin = MapIcons.Pin(r, "Icon", 16f, WaypointColor, out _);
-                pin.anchoredPosition += new Vector2(0f, -6f);
-                return pin;
-            });
-
+            LegendRow(list, "Tehlike işareti", r => MapIcons.Diamond(r, "Icon", 14f, DangerColor, out _));
+            LegendRow(list, "Araç", r => VehicleIcon(r, "Icon", VehicleColor, out _, out _));
             UiFactory.Spacer(list, 6f);
             UiWidgets.Header(list, "KONTROLLER", UiTheme.FontNormal);
             HintRow(list, "Sol tık", "İşaret koy (taarruz / topçu hedefi)");
-            HintRow(list, "Sağ tık", "İşareti kaldır");
+            HintRow(list, "Çift tık", "Hızlı \"Gidiyorum\" pingi");
+            HintRow(list, "Orta tık", "Ping menüsü (basılı tut)");
+            HintRow(list, "L", "Lejantı göster / gizle");
+            HintRow(list, "Shift+Sol tık", "Tehlike işareti (düşman)");
+            HintRow(list, "Sağ sürükle", "Mesafe / kerteriz ölç");
+            HintRow(list, "Sağ tık", "İşareti ve ölçümü kaldır");
             HintRow(list, "Tekerlek", "Yakınlaştır / uzaklaştır");
-            HintRow(list, "Sürükle", "Haritayı kaydır");
+            HintRow(list, "Sürükle / WASD", "Haritayı kaydır");
             HintRow(list, "Boşluk", "Konumuma ortala");
             HintRow(list, "M / Esc", "Haritayı kapat");
         }
@@ -516,7 +676,7 @@ namespace Project.Presentation.UI
         private static void LegendRow(RectTransform list, string text, Func<RectTransform, RectTransform> icon)
         {
             var row = UiFactory.CreateRect("Legend_" + text, list);
-            UiFactory.LayoutSize(row, -1f, 26f, 1f);
+            UiFactory.LayoutSize(row, -1f, 24f, 1f);
 
             var holder = UiFactory.CreateRect("IconHolder", row);
             UiFactory.Anchor(holder, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(4f, 0f), new Vector2(28f, 26f));
@@ -526,6 +686,213 @@ namespace Project.Presentation.UI
             var label = UiFactory.Label(row, text, UiTheme.FontTiny + 1, TextAnchor.MiddleLeft, UiTheme.TextDim);
             label.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.Stretch(label, 42f, 0f, 0f, 0f);
+        }
+
+        private static void BuildNorthArrow(RectTransform overlay)
+        {
+            var holder = UiFactory.CreateRect("NorthArrow", overlay);
+            UiFactory.Anchor(holder, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -8f), new Vector2(30f, 38f));
+            var arrow = MapIcons.Arrow(holder, "Icon", 16f, UiTheme.Text, out _);
+            arrow.anchorMin = arrow.anchorMax = new Vector2(0.5f, 0.5f);
+            arrow.anchoredPosition = new Vector2(0f, -4f);
+            var n = UiFactory.Label(holder, "K", UiTheme.FontTiny, TextAnchor.UpperCenter, UiTheme.Text, FontStyle.Bold);
+            n.horizontalOverflow = HorizontalWrapMode.Overflow;
+            n.raycastTarget = false;
+            UiFactory.Stretch(n, 0f, 0f, 0f, 0f);
+            UiFactory.AddOutline(n, MapIcons.OutlineColor, 1f);
+        }
+
+        private void BuildLegendOverlay(RectTransform overlay)
+        {
+            var panel = UiFactory.Panel(overlay, UiTheme.WithAlpha(UiTheme.PanelDark, 0.84f), UiSprites.ChamferRect);
+            panel.gameObject.name = "LegendOverlay";
+            panel.GetComponent<Image>().raycastTarget = false;
+            UiFactory.Anchor(panel, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(12f, 48f), new Vector2(196f, 150f));
+            _legendOverlay = panel;
+            var list = UiFactory.VerticalList(panel, 2f, 6);
+            list.gameObject.name = "List";
+            LegendRow(list, "Tim", r => MapIcons.Dot(r, "Icon", 11f, UiTheme.AllyBlue, out _));
+            LegendRow(list, "Düşman (bilinen)", r => MapIcons.Diamond(r, "Icon", 14f, DangerColor, out _));
+            LegendRow(list, "Araç", r => VehicleIcon(r, "Icon", VehicleColor, out _, out _));
+            LegendRow(list, "İkmal / yağma", r => MapIcons.Diamond(r, "Icon", 13f, LootColor, out _));
+            LegendRow(list, "Bölge", r => LegendRing(r, ZoneEdgeColor, 0));
+            foreach (var graphic in panel.GetComponentsInChildren<Graphic>(true))
+                graphic.raycastTarget = false;
+        }
+
+        private void BuildCursorTag(RectTransform overlay)
+        {
+            var tag = UiFactory.Panel(overlay, UiTheme.WithAlpha(UiTheme.PanelDark, 0.88f), UiSprites.GetRoundedRect(4));
+            tag.gameObject.name = "CursorTag";
+            tag.GetComponent<Image>().raycastTarget = false;
+            UiFactory.Anchor(tag, new Vector2(0.5f, 0.5f), new Vector2(0f, 1f), Vector2.zero, new Vector2(44f, 20f));
+            _cursorTagText = UiFactory.Label(tag, string.Empty, UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.Text, FontStyle.Bold);
+            _cursorTagText.raycastTarget = false;
+            _cursorTagText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.Stretch(_cursorTagText);
+            _cursorTag = tag;
+            tag.gameObject.SetActive(false);
+        }
+
+        private void BuildRadial(RectTransform overlay)
+        {
+            _radial = UiFactory.CreateRect("PingRadial", overlay);
+            UiFactory.Anchor(_radial, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(4f, 4f));
+            MapIcons.Dot(_radial, "Hub", 10f, UiTheme.Text, out _);
+            for (var i = 0; i < 4; i++)
+            {
+                var slice = UiFactory.Panel(_radial, UiTheme.WithAlpha(UiTheme.PanelDark, 0.92f), UiSprites.GetRoundedRect(6));
+                slice.gameObject.name = "Slice_" + RadialNames[i];
+                slice.GetComponent<Image>().raycastTarget = false;
+                UiFactory.Anchor(slice, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), RadialOffsets[i], new Vector2(104f, 32f));
+                var label = UiFactory.Label(slice, RadialNames[i], UiTheme.FontSmall - 1, TextAnchor.MiddleCenter, UiTheme.Text, FontStyle.Bold);
+                label.raycastTarget = false;
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                UiFactory.Stretch(label);
+                _radialSlices[i] = slice.GetComponent<Image>();
+            }
+
+            _radial.gameObject.SetActive(false);
+        }
+
+        private static Color RadialColor(int index, bool selected)
+        {
+            if (!selected)
+                return UiTheme.WithAlpha(UiTheme.PanelDark, 0.92f);
+            switch (index)
+            {
+                case 1:
+                case 3:
+                    return DangerColor;
+                case 2:
+                    return LootColor;
+                default:
+                    return WaypointColor;
+            }
+        }
+
+        private void OpenRadial()
+        {
+            var mouse = Mouse.current;
+            if (mouse == null || _radial == null)
+                return;
+
+            var screen = mouse.position.ReadValue();
+            if (!ScreenToContentUv(screen, null, out var uv)
+                || !RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, screen, null, out var local))
+                return;
+
+            _radialUv = ClampUv(uv);
+            _radialCenterScreen = screen;
+            _radial.anchoredPosition = local - _viewport.rect.center;
+            _radialSel = -1;
+            for (var i = 0; i < 4; i++)
+                _radialSlices[i].color = RadialColor(i, false);
+            _radial.gameObject.SetActive(true);
+            _radialOpen = true;
+            if (_cursorTag != null)
+                _cursorTag.gameObject.SetActive(false);
+        }
+
+        private void UpdateRadial()
+        {
+            var mouse = Mouse.current;
+            if (mouse == null)
+                return;
+
+            if (!_radialOpen)
+            {
+                if (mouse.middleButton.wasPressedThisFrame && _surface != null && _surface.IsHovered)
+                    OpenRadial();
+                return;
+            }
+
+            var sel = MapMath.RadialSlice((mouse.position.ReadValue() - _radialCenterScreen) / CanvasScale(), RadialDeadZone);
+            if (sel != _radialSel)
+            {
+                if (_radialSel >= 0)
+                    _radialSlices[_radialSel].color = RadialColor(_radialSel, false);
+                _radialSel = sel;
+                if (sel >= 0)
+                    _radialSlices[sel].color = RadialColor(sel, true);
+            }
+
+            if (!mouse.middleButton.isPressed)
+            {
+                var chosen = _radialSel;
+                CloseRadial();
+                if (chosen >= 0)
+                    ApplyRadialChoice(chosen, _radialUv);
+                else
+                    CenterOn(_data.Frame.WorldToUV(_data.PlayerPosition));
+            }
+        }
+
+        private void CloseRadial()
+        {
+            _radialOpen = false;
+            _radialSel = -1;
+            if (_radial != null)
+                _radial.gameObject.SetActive(false);
+        }
+
+        private Vector3 WorldAtUv(Vector2 uv)
+        {
+            var world = _data.Frame.UVToWorld(uv);
+            var metadata = _data.World;
+            if (metadata != null)
+            {
+                try
+                {
+                    world.y = metadata.SampleGroundHeight(world);
+                }
+                catch (Exception)
+                {
+                    world.y = 0f;
+                }
+            }
+
+            return world;
+        }
+
+        private void ApplyRadialChoice(int slice, Vector2 uv)
+        {
+            var world = WorldAtUv(uv);
+            if (!MapMath.IsFinite(world))
+                return;
+
+            switch (slice)
+            {
+                case 0: // Gidiyorum
+                    MapMarkers.SetWaypoint(world);
+                    _waypointPulse = 1f;
+                    _shownMarkerKey = int.MinValue;
+                    PlacePing(world, false);
+                    UiWidgets.PlaySound(SoundId.UiConfirm);
+                    PointMarked?.Invoke(world);
+                    break;
+                case 1: // Düşman
+                case 3: // Tehlike
+                    PlacePing(world, true);
+                    UiWidgets.PlaySound(SoundId.RadioBeep);
+                    break;
+                default: // Yağma
+                    _hasLoot = true;
+                    _lootUv = uv;
+                    _lootAnchor = new Vector2(-1f, -1f);
+                    PlacePing(world, false);
+                    UiWidgets.PlaySound(SoundId.UiClick);
+                    break;
+            }
+        }
+
+        private void UpdateLoot()
+        {
+            if (_lootMarker == null)
+                return;
+            SetActive(_lootMarker, _hasLoot);
+            if (_hasLoot)
+                SetAnchor(_lootMarker, _lootUv, ref _lootAnchor);
         }
 
         private static RectTransform LegendRing(RectTransform holder, Color color, int dashes)
@@ -552,13 +919,22 @@ namespace Project.Presentation.UI
             var keyBox = UiFactory.Panel(row, UiTheme.Hex(0xEC, 0xEB, 0xE0, 0xE6), UiSprites.GetRoundedRect(4));
             keyBox.gameObject.name = "Key";
             keyBox.GetComponent<Image>().raycastTarget = false;
-            UiFactory.Anchor(keyBox, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(2f, 0f), new Vector2(96f, 22f));
+            UiFactory.Anchor(keyBox, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(2f, 0f), new Vector2(104f, 22f));
             var keyText = UiFactory.Label(keyBox, key, UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.Background, FontStyle.Bold);
             keyText.horizontalOverflow = HorizontalWrapMode.Overflow;
 
             var label = UiFactory.Label(row, action, UiTheme.FontTiny + 1, TextAnchor.MiddleLeft, UiTheme.TextDim);
             label.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.Stretch(label, 110f, 0f, 0f, 0f);
+            UiFactory.Stretch(label, 118f, 0f, 0f, 0f);
+        }
+
+        private static RectTransform VehicleIcon(Transform parent, string name, Color color, out RectTransform body, out Image fill)
+        {
+            var root = MapIcons.Container(parent, name, 18f);
+            body = MapIcons.Container(root, "Body", 18f);
+            MapIcons.Shape(body, "Outline", UiSprites.White, MapIcons.OutlineColor, 12f, 18f);
+            fill = MapIcons.Shape(body, "Fill", UiSprites.White, color, 8f, 14f);
+            return root;
         }
 
         // ================================================================== Kare döngüsü
@@ -591,8 +967,14 @@ namespace Project.Presentation.UI
             UpdateInsertion(frame);
             UpdateArtilleryAndOrders(frame, ppm);
             UpdateWaypoint(frame);
-            UpdateAllies(frame);
-            UpdatePlayer(frame, playerPos);
+            UpdateDangerPing(frame);
+            UpdateVehicles(frame);
+            UpdateFallen(frame);
+            UpdateAllies(frame, ppm);
+            UpdatePlayer(frame, playerPos, ppm);
+            UpdateMeasure(frame);
+            UpdateLoot();
+            UpdateRadial();
             UpdateCursor(frame, playerPos);
 
             if (force || Time.unscaledTime >= _nextTextRefresh)
@@ -615,6 +997,20 @@ namespace Project.Presentation.UI
 
             _textureApplied = true;
             _appliedTexture = texture;
+            if (texture != null)
+            {
+                // Arazi renkli haritası yakınlaştırınca bulanık ama yumuşak kalsın (kenar sızıntısı yok).
+                try
+                {
+                    texture.filterMode = FilterMode.Bilinear;
+                    texture.wrapMode = TextureWrapMode.Clamp;
+                }
+                catch (Exception)
+                {
+                    // Okunamaz doku: varsayılan örnekleme kalır.
+                }
+            }
+
             _mapImage.texture = texture;
             _mapImage.color = texture != null ? Color.white : FallbackMapColor;
         }
@@ -664,6 +1060,13 @@ namespace Project.Presentation.UI
             _zoom = Mathf.Clamp(_zoom, 1f, MaxZoom);
             ClampFocus();
 
+            var showSubGrid = _zoom >= SubGridZoom;
+            if (showSubGrid != _subGridShown)
+            {
+                _subGridShown = showSubGrid;
+                _subGridRoot.gameObject.SetActive(showSubGrid);
+            }
+
             _mapPixels = ViewportSize * _zoom;
             _content.sizeDelta = new Vector2(_mapPixels, _mapPixels);
             _content.anchoredPosition = -_focus * _mapPixels;
@@ -695,7 +1098,12 @@ namespace Project.Presentation.UI
 
             _scaleBar.sizeDelta = new Vector2(Mathf.Max(8f, meters * ppm), 6f);
             UiFactory.SetText(_scaleLabel, UiWidgets.Number(meters) + " m");
-            UiFactory.SetText(_zoomLabel, _zoom > 1.01f ? "×" + MapMath.FormatDecimal(_zoom, 1) : string.Empty);
+            var zoomPercent = MapMath.ZoomPercent(_zoom);
+            if (zoomPercent != _shownZoomPercent)
+            {
+                _shownZoomPercent = zoomPercent;
+                UiFactory.SetText(_zoomLabel, "%" + zoomPercent);
+            }
         }
 
         private static void PlaceRulerLabel(Text label, Vector2 position, bool visible)
@@ -741,10 +1149,55 @@ namespace Project.Presentation.UI
                 SetAnchor(_nextZone.rectTransform, nextUv, ref _nextZoneAnchor);
                 SetEnabled(_nextZone, true);
                 _nextZone.SetStroke(next.Radius * ppm, 2.2f);
+                UpdateNextZoneLabel(nextUv, next.Radius * ppm);
             }
             else
             {
                 SetEnabled(_nextZone, false);
+                SetEnabled(_nextZoneLabel, false);
+            }
+        }
+
+        private void UpdateNextZoneLabel(Vector2 nextUv, float radiusPx)
+        {
+            var zone = _data.Zone;
+            if (zone == null)
+            {
+                SetEnabled(_nextZoneLabel, false);
+                return;
+            }
+
+            SetEnabled(_nextZoneLabel, true);
+            var rt = _nextZoneLabel.rectTransform;
+            rt.anchorMin = nextUv;
+            rt.anchorMax = nextUv;
+            var toView = _focus - nextUv;
+            var dir = toView.sqrMagnitude > 1e-8f ? toView.normalized : Vector2.up;
+            var labelPos = dir * (radiusPx + 12f);
+            if ((labelPos - _nextZoneLabelPos).sqrMagnitude > 0.25f || float.IsNaN(_nextZoneLabelPos.x))
+            {
+                _nextZoneLabelPos = labelPos;
+                rt.anchoredPosition = labelPos;
+            }
+
+            var stage = zone.Stage;
+            var seconds = Mathf.CeilToInt(Mathf.Max(0f, zone.StageRemainingSeconds));
+            var key = ((int)stage + 1) * 100000 + Mathf.Clamp(seconds, 0, 99999);
+            if (key == _shownNextZoneKey)
+                return;
+
+            _shownNextZoneKey = key;
+            switch (stage)
+            {
+                case ZoneStage.Waiting:
+                    _nextZoneLabel.text = "SONRAKİ ALAN  " + UiWidgets.Clock(seconds);
+                    break;
+                case ZoneStage.Shrinking:
+                    _nextZoneLabel.text = "DARALIYOR  " + UiWidgets.Clock(seconds);
+                    break;
+                default:
+                    _nextZoneLabel.text = "SON GÜVENLİ ALAN";
+                    break;
             }
         }
 
@@ -840,11 +1293,196 @@ namespace Project.Presentation.UI
             }
         }
 
-        private void UpdateAllies(MapFrame frame)
+        private void UpdateDangerPing(MapFrame frame)
+        {
+            var self = _data.Self;
+            if (self == null || !PingBoard.TryGet(self.Team, Time.time, out var ping) || !ping.IsEnemy)
+            {
+                SetActive(_dangerPing, false);
+                SetEnabled(_dangerRing, false);
+                return;
+            }
+
+            var uv = ClampUv(frame.WorldToUV(ping.Position));
+            SetActive(_dangerPing, true);
+            PlaceAtUv(_dangerPing, uv);
+
+            // Nabız halkası: ömür azaldıkça solar.
+            var remaining = ping.Remaining01(Time.time);
+            var phase = Mathf.Repeat(Time.unscaledTime * 1.4f, 1f);
+            SetEnabled(_dangerRing, true);
+            PlaceAtUv(_dangerRing.rectTransform, uv);
+            _dangerRing.SetStroke(10f + phase * 26f, 2.5f);
+            _dangerRing.color = UiTheme.WithAlpha(DangerColor, (1f - phase) * Mathf.Clamp01(remaining * 1.5f));
+        }
+
+        private void UpdateVehicles(MapFrame frame)
+        {
+            var used = 0;
+            var list = VehicleRegistry.All;
+            for (var i = 0; i < list.Count; i++)
+            {
+                var vehicle = list[i];
+                if (vehicle == null || !vehicle.isActiveAndEnabled)
+                    continue;
+
+                var marker = GetVehicleMarker(used++);
+                if (!marker.Visible)
+                {
+                    marker.Visible = true;
+                    marker.Root.gameObject.SetActive(true);
+                }
+
+                if (!ReferenceEquals(marker.Bound, vehicle))
+                {
+                    marker.Bound = vehicle;
+                    marker.Occupied = -1;
+                    var config = vehicle.Config;
+                    marker.Label.text = config != null && !string.IsNullOrEmpty(config.DisplayName)
+                        ? MapMath.ToUpperTurkish(config.DisplayName)
+                        : "ARAÇ";
+                }
+
+                var uv = ClampUv(frame.WorldToUV(vehicle.transform.position));
+                if ((uv - marker.Anchor).sqrMagnitude > 1e-10f)
+                {
+                    marker.Anchor = uv;
+                    PlaceAtUv(marker.Root, uv);
+                }
+
+                var yaw = vehicle.transform.eulerAngles.y;
+                if (float.IsNaN(marker.Yaw) || Mathf.Abs(Mathf.DeltaAngle(yaw, marker.Yaw)) > 0.5f)
+                {
+                    marker.Yaw = yaw;
+                    marker.Body.localRotation = Quaternion.Euler(0f, 0f, MapMath.YawToUiAngle(yaw));
+                }
+
+                var occupied = vehicle.HasDriver ? 1 : 0;
+                if (occupied != marker.Occupied)
+                {
+                    marker.Occupied = occupied;
+                    marker.Fill.color = occupied == 1 ? UiTheme.Amber : VehicleColor;
+                }
+            }
+
+            for (var i = used; i < _vehicles.Count; i++)
+            {
+                var marker = _vehicles[i];
+                if (!marker.Visible)
+                    continue;
+                marker.Visible = false;
+                marker.Bound = null;
+                marker.Root.gameObject.SetActive(false);
+            }
+        }
+
+        private VehicleMarker GetVehicleMarker(int index)
+        {
+            while (_vehicles.Count <= index)
+            {
+                var root = VehicleIcon(_iconLayer, "Vehicle" + _vehicles.Count, VehicleColor, out var body, out var fill);
+                var label = MapIcons.Badge(root, "Label", string.Empty, UiTheme.FontTiny - 2, VehicleColor, new Vector2(0f, -17f), 90f);
+                root.gameObject.SetActive(false);
+                _vehicles.Add(new VehicleMarker { Root = root, Body = body, Fill = fill, Label = label });
+            }
+
+            return _vehicles[index];
+        }
+
+        private void UpdateFallen(MapFrame frame)
+        {
+            var list = MapMarkers.Fallen;
+            var count = list.Count;
+            for (var i = 0; i < count; i++)
+            {
+                var icon = GetFallenIcon(i);
+                var record = list[i];
+                if (!icon.Visible)
+                {
+                    icon.Visible = true;
+                    icon.Root.gameObject.SetActive(true);
+                }
+
+                // Aynı kayıt (konum+zaman karması) için etiketi yeniden kurma.
+                var serial = Mathf.RoundToInt(record.Time * 10f) ^ (int)record.Rank;
+                if (icon.BoundIndex != i || icon.BoundSerial != serial)
+                {
+                    icon.BoundIndex = i;
+                    icon.BoundSerial = serial;
+                    icon.Label.text = RankCatalog.FormatName(record.Rank, record.Name);
+                }
+
+                PlaceAtUv(icon.Root, ClampUv(frame.WorldToUV(record.Position)));
+            }
+
+            for (var i = count; i < _fallen.Count; i++)
+            {
+                var icon = _fallen[i];
+                if (!icon.Visible)
+                    continue;
+                icon.Visible = false;
+                icon.BoundIndex = -1;
+                icon.Root.gameObject.SetActive(false);
+            }
+        }
+
+        private FallenIcon GetFallenIcon(int index)
+        {
+            while (_fallen.Count <= index)
+            {
+                var root = MapIcons.Cross(_iconLayer, "Fallen" + _fallen.Count, 13f, FallenColor, out _);
+                var label = MapIcons.Badge(root, "Label", string.Empty, UiTheme.FontTiny - 2, FallenColor, new Vector2(0f, -15f), 160f);
+                root.gameObject.SetActive(false);
+                _fallen.Add(new FallenIcon { Root = root, Label = label });
+            }
+
+            return _fallen[index];
+        }
+
+        private void UpdateMeasure(MapFrame frame)
+        {
+            if (!_measureActive)
+            {
+                if (_measureLabel.gameObject.activeSelf)
+                {
+                    _measureLine.ClearPoints();
+                    _measureA.gameObject.SetActive(false);
+                    _measureB.gameObject.SetActive(false);
+                    _measureLabel.gameObject.SetActive(false);
+                }
+
+                return;
+            }
+
+            _measureA.gameObject.SetActive(true);
+            _measureB.gameObject.SetActive(true);
+            _measureLabel.gameObject.SetActive(true);
+            _measureLine.SetSegment(_measureStartUv * _mapPixels, _measureEndUv * _mapPixels);
+            PlaceAtUv(_measureA, _measureStartUv);
+            PlaceAtUv(_measureB, _measureEndUv);
+
+            var mid = (_measureStartUv + _measureEndUv) * 0.5f;
+            var rt = _measureLabel.rectTransform;
+            rt.anchorMin = mid;
+            rt.anchorMax = mid;
+            rt.anchoredPosition = new Vector2(0f, 16f);
+
+            var a = frame.UVToWorld(_measureStartUv);
+            var b = frame.UVToWorld(_measureEndUv);
+            var distance = Mathf.RoundToInt(MapMath.DistanceXZ(a, b));
+            var key = distance * 1000 + MapMath.BearingDegrees(MapMath.BearingTo(a, b));
+            if (key == _shownMeasureKey)
+                return;
+
+            _shownMeasureKey = key;
+            _measureLabel.text = MapMath.FormatMeasure(a, b);
+        }
+
+        private void UpdateAllies(MapFrame frame, float ppm)
         {
             var used = 0;
             var self = _data.Self;
-            var showNames = _zoom >= AllyNameZoom;
+            var nameMode = _zoom >= AllyNameZoom ? 1 : 0;
             if (self != null)
             {
                 var team = self.Team;
@@ -862,10 +1500,18 @@ namespace Project.Presentation.UI
                         marker.Root.gameObject.SetActive(true);
                     }
 
-                    if (!ReferenceEquals(marker.Bound, c))
+                    var rebind = !ReferenceEquals(marker.Bound, c);
+                    if (rebind)
                     {
                         marker.Bound = c;
-                        marker.Name.text = ShortName(c);
+                        marker.NameMode = -1;
+                        marker.Downed = -1;
+                    }
+
+                    if (marker.NameMode != nameMode)
+                    {
+                        marker.NameMode = nameMode;
+                        marker.Name.text = nameMode == 1 ? ShortName(c) : RankCatalog.GetShortName(c.Rank);
                     }
 
                     var uv = ClampUv(frame.WorldToUV(c.transform.position));
@@ -875,10 +1521,29 @@ namespace Project.Presentation.UI
                         PlaceAtUv(marker.Root, uv);
                     }
 
-                    if (marker.NameVisible != showNames)
+                    // Görüş konisi (bakış yönü) — yaralı (yerde) tim arkadaşında koni kapalı.
+                    var downed = c.IsDowned ? 1 : 0;
+                    if (downed != marker.Downed)
                     {
-                        marker.NameVisible = showNames;
-                        marker.Name.enabled = showNames;
+                        marker.Downed = downed;
+                        marker.Fill.color = downed == 1 ? UiTheme.Amber : UiTheme.AllyBlue;
+                        marker.Cone.enabled = downed == 0;
+                    }
+
+                    if (downed == 0)
+                    {
+                        if (Mathf.Abs(marker.ConePpm - ppm) > 1e-4f)
+                        {
+                            marker.ConePpm = ppm;
+                            marker.Cone.SetShape(AllyConeMeters * ppm, AllyConeAngle);
+                        }
+
+                        var yaw = c.transform.eulerAngles.y;
+                        if (float.IsNaN(marker.ConeYaw) || Mathf.Abs(Mathf.DeltaAngle(yaw, marker.ConeYaw)) > 1f)
+                        {
+                            marker.ConeYaw = yaw;
+                            marker.Cone.rectTransform.localRotation = Quaternion.Euler(0f, 0f, MapMath.YawToUiAngle(yaw));
+                        }
                     }
                 }
             }
@@ -903,9 +1568,10 @@ namespace Project.Presentation.UI
             {
                 var root = MapIcons.Dot(_iconLayer, "Ally" + _allies.Count, 11f, UiTheme.AllyBlue, out var fill);
                 var name = MapIcons.Badge(root, "Name", string.Empty, UiTheme.FontTiny - 2, UiTheme.AllyBlue, new Vector2(0f, 13f), 160f);
-                name.enabled = false;
+                var cone = MapConeGraphic.Create(root, "ViewCone", UiTheme.WithAlpha(UiTheme.AllyBlue, 0.34f));
+                cone.transform.SetAsFirstSibling();
                 root.gameObject.SetActive(false);
-                _allies.Add(new AllyMarker { Root = root, Fill = fill, Name = name });
+                _allies.Add(new AllyMarker { Root = root, Fill = fill, Name = name, Cone = cone });
             }
 
             return _allies[index];
@@ -919,12 +1585,20 @@ namespace Project.Presentation.UI
             return string.IsNullOrEmpty(name) ? combatant.DisplayName ?? string.Empty : name;
         }
 
-        private void UpdatePlayer(MapFrame frame, Vector3 playerPos)
+        private void UpdatePlayer(MapFrame frame, Vector3 playerPos, float ppm)
         {
             var hasPlayer = _data.HasPlayer;
             SetActive(_playerArrow, hasPlayer);
             if (!hasPlayer)
                 return;
+
+            var coneOn = !_data.IsPlayerDead;
+            SetEnabled(_playerCone, coneOn);
+            if (coneOn && Mathf.Abs(_playerConePpm - ppm) > 1e-4f)
+            {
+                _playerConePpm = ppm;
+                _playerCone.SetShape(PlayerConeMeters * ppm, AllyConeAngle);
+            }
 
             var uv = ClampUv(frame.WorldToUV(playerPos));
             if ((uv - _playerAnchor).sqrMagnitude > 1e-10f)
@@ -953,8 +1627,11 @@ namespace Project.Presentation.UI
             var uv = default(Vector2);
             var show = _surface != null && _surface.IsHovered && TryGetPointerUv(out uv)
                        && uv.x >= 0f && uv.x <= 1f && uv.y >= 0f && uv.y <= 1f;
-            if (!show)
+            if (!show || _radialOpen)
             {
+                if (_cursorTag != null && _cursorTag.gameObject.activeSelf)
+                    _cursorTag.gameObject.SetActive(false);
+                _lastPointer = new Vector2(float.NaN, float.NaN);
                 if (_cursorShown)
                 {
                     _cursorShown = false;
@@ -968,14 +1645,50 @@ namespace Project.Presentation.UI
 
             var world = frame.UVToWorld(uv);
             var grid = MapMath.GridLabel(frame, world);
+            UpdateCursorTag(grid);
             var meters = Mathf.RoundToInt(MapMath.DistanceXZ(playerPos, world) / 5f) * 5;
-            if (_cursorShown && ReferenceEquals(grid, _shownCursorGrid) && meters == _shownCursorMeters)
+            MapMath.GridDigits(frame, world, out var easting, out var northing);
+            if (_cursorShown && ReferenceEquals(grid, _shownCursorGrid) && meters == _shownCursorMeters
+                && easting == _shownCursorEasting && northing == _shownCursorNorthing)
                 return;
 
             _cursorShown = true;
             _shownCursorGrid = grid;
             _shownCursorMeters = meters;
-            _cursorLabel.text = grid + "  ·  " + MapMath.FormatDistance(meters);
+            _shownCursorEasting = easting;
+            _shownCursorNorthing = northing;
+            _cursorLabel.text = MapMath.FormatMilitaryGrid(easting, northing) + "  ·  " + grid + "  ·  " + MapMath.FormatDistance(meters);
+        }
+
+        /// <summary>İmleç yanındaki küçük pafta etiketi; yalnız imleç/hücre değişince güncellenir.</summary>
+        private void UpdateCursorTag(string grid)
+        {
+            var mouse = Mouse.current;
+            if (_cursorTag == null || mouse == null)
+                return;
+
+            var screen = mouse.position.ReadValue();
+            if (!_cursorTag.gameObject.activeSelf)
+                _cursorTag.gameObject.SetActive(true);
+
+            if ((screen - _lastPointer).sqrMagnitude >= 1f || float.IsNaN(_lastPointer.x))
+            {
+                _lastPointer = screen;
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_viewport, screen, null, out var local))
+                {
+                    var p = local - _viewport.rect.center + new Vector2(14f, -10f);
+                    var half = ViewportSize * 0.5f;
+                    p.x = Mathf.Min(p.x, half - 50f);
+                    p.y = Mathf.Max(p.y, -half + 24f);
+                    _cursorTag.anchoredPosition = p;
+                }
+            }
+
+            if (!ReferenceEquals(grid, _shownTagGrid))
+            {
+                _shownTagGrid = grid;
+                _cursorTagText.text = grid;
+            }
         }
 
         private void UpdatePanelTexts(MapFrame frame, Vector3 playerPos)
@@ -994,6 +1707,14 @@ namespace Project.Presentation.UI
             {
                 _shownLocation = location;
                 _locationValue.text = string.IsNullOrEmpty(location) ? "Açık arazi" : location;
+            }
+
+            MapMath.GridDigits(frame, playerPos, out var easting, out var northing);
+            var coordKey = easting * 1000 + northing;
+            if (coordKey != _shownCoordKey)
+            {
+                _shownCoordKey = coordKey;
+                _coordValue.text = MapMath.FormatMilitaryGrid(easting, northing);
             }
 
             UpdateZoneTexts(playerPos);
@@ -1191,9 +1912,33 @@ namespace Project.Presentation.UI
             if (keyboard == null)
                 return;
 
+            if (keyboard.lKey.wasPressedThisFrame && _legendOverlay != null)
+            {
+                _legendShown = !_legendShown;
+                _legendOverlay.gameObject.SetActive(_legendShown);
+            }
+
             if (keyboard.spaceKey.wasPressedThisFrame)
             {
                 CenterOn(_data.Frame.WorldToUV(_data.PlayerPosition));
+            }
+
+            if (_zoom > 1.001f)
+            {
+                var pan = Vector2.zero;
+                if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
+                    pan.y += 1f;
+                if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
+                    pan.y -= 1f;
+                if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
+                    pan.x += 1f;
+                if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
+                    pan.x -= 1f;
+                if (pan != Vector2.zero)
+                {
+                    _focus += pan.normalized * (KeyboardPanSpeed / _zoom * Time.unscaledDeltaTime);
+                    _viewDirty = true;
+                }
             }
 
             if (keyboard.equalsKey.wasPressedThisFrame || keyboard.numpadPlusKey.wasPressedThisFrame)
@@ -1209,6 +1954,14 @@ namespace Project.Presentation.UI
 
             if (eventData.button == PointerEventData.InputButton.Right)
             {
+                if (_measureActive)
+                {
+                    _measureActive = false;
+                    _shownMeasureKey = int.MinValue;
+                    UiWidgets.PlaySound(SoundId.UiClick);
+                    return;
+                }
+
                 if (MapMarkers.HasWaypoint)
                 {
                     MapMarkers.ClearWaypoint();
@@ -1223,8 +1976,22 @@ namespace Project.Presentation.UI
             }
 
             if (eventData.button == PointerEventData.InputButton.Middle)
+                return; // Radyal ping menüsü UpdateRadial içinde yönetilir.
+
+            if (eventData.clickCount >= 2 && !IsDangerModifierHeld())
             {
-                CenterOn(_data.Frame.WorldToUV(_data.PlayerPosition));
+                // Çift tık: hızlı "Gidiyorum" pingi (işaret ilk tıkta konmuştu).
+                if (ScreenToContentUv(eventData.position, eventData.pressEventCamera, out var quickUv))
+                {
+                    var quickWorld = WorldAtUv(ClampUv(quickUv));
+                    if (MapMath.IsFinite(quickWorld))
+                    {
+                        _waypointPulse = 1f;
+                        PlacePing(quickWorld, false);
+                        UiWidgets.PlaySound(SoundId.RadioBeep);
+                    }
+                }
+
                 return;
             }
 
@@ -1249,6 +2016,13 @@ namespace Project.Presentation.UI
             if (!MapMath.IsFinite(world))
                 return;
 
+            if (IsDangerModifierHeld())
+            {
+                PlacePing(world, true);
+                UiWidgets.PlaySound(SoundId.RadioBeep);
+                return;
+            }
+
             MapMarkers.SetWaypoint(world);
             _waypointPulse = 1f;
             _shownMarkerKey = int.MinValue;
@@ -1256,9 +2030,65 @@ namespace Project.Presentation.UI
             PointMarked?.Invoke(world);
         }
 
+        private static bool IsDangerModifierHeld()
+        {
+            var keyboard = Keyboard.current;
+            return keyboard != null && (keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed
+                                        || keyboard.leftAltKey.isPressed || keyboard.rightAltKey.isPressed);
+        }
+
+        /// <summary>Tim ping panosuna yazar (düşmansa botları da bilgilendirir); dünya HUD'u görünür olur.</summary>
+        private void PlacePing(Vector3 world, bool isEnemy)
+        {
+            var self = _data.Self;
+            if (self == null || !self.IsAlive || !MapMath.IsFinite(world))
+                return;
+
+            var now = Time.time;
+            PingBoard.Place(self.Team, world, isEnemy, now);
+            PingWorldView.EnsureExists();
+
+            if (isEnemy && GameContext.HasAuthority)
+            {
+                var director = BotDirector.Instance;
+                if (director != null)
+                    director.ReportPing(self.Team, world, now);
+            }
+        }
+
+        private void OnMapDragStarted(PointerEventData eventData)
+        {
+            if (!IsOpen || eventData == null || eventData.button != PointerEventData.InputButton.Right)
+                return;
+
+            if (!ScreenToContentUv(eventData.pressPosition, eventData.pressEventCamera, out var uv))
+                return;
+
+            _measuring = true;
+            _measureActive = true;
+            _measureStartUv = ClampUv(uv);
+            _measureEndUv = _measureStartUv;
+            _shownMeasureKey = int.MinValue;
+        }
+
+        private void OnMapDragEnded(PointerEventData eventData)
+        {
+            _measuring = false;
+        }
+
         private void OnMapDragged(PointerEventData eventData)
         {
-            if (!IsOpen || eventData == null || _zoom <= 1.001f)
+            if (!IsOpen || eventData == null)
+                return;
+
+            if (_measuring)
+            {
+                if (ScreenToContentUv(eventData.position, eventData.pressEventCamera, out var end))
+                    _measureEndUv = ClampUv(end);
+                return;
+            }
+
+            if (_zoom <= 1.001f)
                 return;
 
             var scale = CanvasScale();
@@ -1287,11 +2117,10 @@ namespace Project.Presentation.UI
             if (Mathf.Approximately(zoom, _zoom))
                 return;
 
-            // İmlecin görüntü alanı merkezine göre konumu korunur.
-            var offsetPx = (pivotUv - _focus) * _mapPixels;
+            // İmlecin altındaki nokta ekranda sabit kalır.
+            var oldPixels = _mapPixels;
             _zoom = zoom;
-            var newPixels = ViewportSize * _zoom;
-            _focus = pivotUv - offsetPx / newPixels;
+            _focus = MapMath.ZoomFocus(_focus, pivotUv, oldPixels, ViewportSize * _zoom);
             _viewDirty = true;
         }
 
@@ -1305,9 +2134,7 @@ namespace Project.Presentation.UI
 
         private void ClampFocus()
         {
-            var half = 0.5f / Mathf.Max(1f, _zoom);
-            _focus.x = Mathf.Clamp(float.IsNaN(_focus.x) ? 0.5f : _focus.x, half, 1f - half);
-            _focus.y = Mathf.Clamp(float.IsNaN(_focus.y) ? 0.5f : _focus.y, half, 1f - half);
+            _focus = MapMath.ClampFocus(_focus, _zoom);
         }
 
         private Vector2 ViewportCenterUv() => _focus;

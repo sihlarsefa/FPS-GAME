@@ -87,5 +87,8 @@
   "error_generic": "Something went wrong",
   "not_found": "Page not found",
   "a11y_skip": "Skip to content",
-  "footer": "HAREKÂT © Exercise — Blue / Red forces. No pay-to-win; cosmetics only."
+  "footer": "HAREKÂT © Exercise — Blue / Red forces. No pay-to-win; cosmetics only.",
+  "nav_maps": "Maps",
+  "map_tactics": "Tactical notes",
+  "map_locations": "Locations"
 }

@@ -15,32 +15,21 @@ namespace Project.Infrastructure.Vehicles
     [RequireComponent(typeof(Rigidbody))]
     public sealed class DrivableVehicle : MonoBehaviour
     {
-        public const float MaxHealth = 1200f;
-        public const float MaxSpeedKmh = 85f;
+        public const float MaxHealth = 1200f; // Kirpi varsayılanı (geri uyumluluk); araç başına değer Config.MaxHealth
         public const float RoadkillSpeedKmh = 25f;
-        public const float ExplosionRadius = 8f;
-        public const float ExplosionDamage = 180f;
 
-        private const float MassKg = 14000f;
-        private const float SpringForce = 52000f;
-        private const float DamperForce = 6500f;
-        private const float SuspensionRest = 0.55f;
-        private const float WheelRadius = 0.48f;
-        private const float DriveForce = 38000f;
-        private const float BrakeForce = 52000f;
-        private const float SteerAngle = 32f;
-        private const float LateralGrip = 9000f;
-        private const float AntiRoll = 18000f;
-        private const float WheelBaseZ = 1.55f;
-        private const float TrackX = 1.05f;
-
-        private static readonly Vector3[] WheelLocal =
-        {
-            new Vector3(-TrackX, 0.48f, WheelBaseZ),
-            new Vector3(TrackX, 0.48f, WheelBaseZ),
-            new Vector3(-TrackX, 0.48f, -WheelBaseZ),
-            new Vector3(TrackX, 0.48f, -WheelBaseZ)
-        };
+        public VehicleConfig Config { get; private set; } = VehicleConfig.Kirpi;
+        private Vector3[] _wheelLocal;
+        private float MaxSpeedKmh => Config.MaxSpeedKmh;
+        private float SpringForce => Config.SpringForce;
+        private float DamperForce => Config.DamperForce;
+        private float SuspensionRest => Config.SuspensionRest;
+        private float WheelRadius => Config.WheelRadius;
+        private float DriveForce => Config.DriveForce;
+        private float BrakeForce => Config.BrakeForce;
+        private float SteerAngle => Config.SteerAngle;
+        private float LateralGrip => Config.LateralGrip;
+        private float AntiRoll => Config.AntiRoll;
 
         private Rigidbody _rb;
         private KirpiModelBuilder.Result _model;
@@ -55,13 +44,41 @@ namespace Project.Infrastructure.Vehicles
         private bool _exploded;
         private float _roadkillCooldown;
         private Combatant _driver;
-        private readonly Combatant[] _passengers = new Combatant[9];
+        private Combatant[] _passengers = new Combatant[9];
 
         public bool HasDriver => _driver != null;
         public Combatant Driver => _driver;
         public Transform DriverViewPoint => _model != null ? _model.DriverView : transform;
+        public KirpiTurret Turret { get; private set; }
+        public VehicleFeel Feel { get; private set; }
+
+        /// <summary>Tekerlek süspansiyon sıkışması 0..1 (görsel yatış/sarsıntı için).</summary>
+        internal float WheelCompression(int i) => i >= 0 && i < _suspension.Length ? _suspension[i] : 0f;
+        internal Transform WheelVisual(int i) => _model?.WheelVisuals != null && i >= 0 && i < _model.WheelVisuals.Length ? _model.WheelVisuals[i] : null;
+        internal bool WheelGrounded(int i) => i >= 0 && i < _suspension.Length && _suspension[i] > 0.001f;
+
+        /// <summary>Oyuncunun şu an baktığı koltuk noktası: nişancıysa taret, değilse sürücü.</summary>
+        public Transform ActiveViewPoint =>
+            Turret != null && Turret.PlayerGunner && Turret.GunnerView != null ? Turret.GunnerView : DriverViewPoint;
+
+        /// <summary>Bu savaşan araçta (sürücü ya da yolcu) mı? Kendi aracına mermi/hasar uygulanmasın diye.</summary>
+        public bool IsOccupant(PlayerId id)
+        {
+            if (!id.IsValid)
+                return false;
+            if (_driver != null && _driver.Id == id)
+                return true;
+            for (var i = 0; i < _passengers.Length; i++)
+                if (_passengers[i] != null && _passengers[i].Id == id)
+                    return true;
+            return false;
+        }
+
+        public Combatant GetPassenger(int index) => index >= 0 && index < _passengers.Length ? _passengers[index] : null;
+        public int SeatCount => _passengers.Length;
+
         public float SpeedKmh { get; private set; }
-        public float Health { get; private set; } = MaxHealth;
+        public float Health { get; private set; } = 1200f;
 
         public int PassengerCount
         {
@@ -88,37 +105,68 @@ namespace Project.Infrastructure.Vehicles
             return _model.PassengerViews[index];
         }
 
-        public static DrivableVehicle Spawn(Vector3 position, float yaw)
+        public static DrivableVehicle Spawn(Vector3 position, float yaw) => Spawn(position, yaw, VehicleConfig.Kirpi);
+
+        public static DrivableVehicle Spawn(Vector3 position, float yaw, VehicleConfig config)
         {
-            var go = new GameObject("Kirpi");
+            config ??= VehicleConfig.Kirpi;
+            var go = new GameObject(config.ObjectName);
             go.transform.SetPositionAndRotation(position, Quaternion.Euler(0f, yaw, 0f));
             go.layer = GameLayers.Vehicle;
 
             var rb = go.AddComponent<Rigidbody>();
-            rb.mass = MassKg;
+            rb.mass = config.MassKg;
             rb.linearDamping = 0.15f;
             rb.angularDamping = 1.8f;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rb.centerOfMass = new Vector3(0f, -0.35f, 0.1f);
+            rb.centerOfMass = config.CenterOfMass;
 
             var vehicle = go.AddComponent<DrivableVehicle>();
             vehicle._rb = rb;
-            vehicle._model = KirpiModelBuilder.Build(go.transform);
+            vehicle.Config = config;
+            vehicle.Health = config.MaxHealth;
+            vehicle._passengers = new Combatant[config.SeatCount];
+            vehicle._wheelLocal = BuildWheelLocal(config);
+            vehicle._model = config.Kind == VehicleKind.Cobra
+                ? CobraModelBuilder.Build(go.transform)
+                : KirpiModelBuilder.Build(go.transform);
             vehicle.SetupAudioAndDust();
+            vehicle.Turret = go.AddComponent<KirpiTurret>();
+            vehicle.Turret.Setup(vehicle._model, config);
+            go.AddComponent<KirpiCrew>();
+            vehicle.Feel = VehicleFeel.Attach(vehicle, vehicle._model?.Root != null ? vehicle._model.Root.transform : null,
+                vehicle._model != null ? vehicle._model.GunnerView : null);
             VehicleRegistry.Register(vehicle);
             return vehicle;
         }
 
+        private static Vector3[] BuildWheelLocal(VehicleConfig c) => new[]
+        {
+            new Vector3(-c.TrackX, c.WheelY, c.WheelBaseZ),
+            new Vector3(c.TrackX, c.WheelY, c.WheelBaseZ),
+            new Vector3(-c.TrackX, c.WheelY, -c.WheelBaseZ),
+            new Vector3(c.TrackX, c.WheelY, -c.WheelBaseZ)
+        };
+
         private void Awake()
         {
+            _wheelLocal ??= BuildWheelLocal(Config);
             if (_rb == null)
                 _rb = GetComponent<Rigidbody>();
         }
 
-        private void OnEnable() => VehicleRegistry.Register(this);
+        private void OnEnable()
+        {
+            VehicleRegistry.Register(this);
+            try { Project.Infrastructure.World.GrassSystem.AddInteractor(transform, 2.5f); } catch (Exception) { /* yok sayılır */ }
+        }
 
-        private void OnDisable() => VehicleRegistry.Unregister(this);
+        private void OnDisable()
+        {
+            VehicleRegistry.Unregister(this);
+            try { Project.Infrastructure.World.GrassSystem.RemoveInteractor(transform); } catch (Exception) { /* yok sayılır */ }
+        }
 
         private void OnDestroy()
         {
@@ -133,12 +181,14 @@ namespace Project.Infrastructure.Vehicles
 
         public bool TryEnter(Combatant combatant)
         {
-            if (combatant == null || !combatant.IsAlive || _exploded || Health <= 0f)
+            if (combatant == null || !Project.Application.Services.DownedRules.CanBoardVehicle(combatant.IsAlive, combatant.IsDowned) || _exploded || Health <= 0f)
                 return false;
             if (_driver != null)
                 return false;
 
             _driver = combatant;
+            if (Turret != null)
+                Turret.PlayerGunner = false;
             combatant.IsTargetable = false;
             return true;
         }
@@ -147,7 +197,7 @@ namespace Project.Infrastructure.Vehicles
         public bool TryEnterPassenger(Combatant combatant, out int seatIndex)
         {
             seatIndex = -1;
-            if (combatant == null || !combatant.IsAlive || _exploded || Health <= 0f)
+            if (combatant == null || !Project.Application.Services.DownedRules.CanBoardVehicle(combatant.IsAlive, combatant.IsDowned) || _exploded || Health <= 0f)
                 return false;
 
             for (var i = 0; i < _passengers.Length; i++)
@@ -170,6 +220,8 @@ namespace Project.Infrastructure.Vehicles
                 PlaceBeside(_driver);
                 _driver.IsTargetable = true;
                 _driver = null;
+                if (Turret != null)
+                    Turret.PlayerGunner = false;
             }
 
             _throttle = 0f;
@@ -204,6 +256,28 @@ namespace Project.Infrastructure.Vehicles
             Health = Mathf.Max(0f, Health - amount);
             if (Health <= 0f)
                 Explode(attackerId);
+            RefreshCondition();
+        }
+
+        private Project.Application.Services.VehicleCondition _condition = Project.Application.Services.VehicleCondition.Clean;
+
+        /// <summary>Can/yıkım durumuna göre temiz/kirli/yanmış görünüm (MaterialPropertyBlock; değişimde bir kez).</summary>
+        private void RefreshCondition()
+        {
+            try
+            {
+                var max = Mathf.Max(1f, Config != null ? Config.MaxHealth : MaxHealth);
+                var next = Project.Application.Services.VehicleSocketRules.ConditionFor(Health / max, _exploded || Health <= 0f);
+                if (next == _condition)
+                    return;
+                _condition = next;
+                if (_model != null && _model.Root != null)
+                    Project.Infrastructure.Transport.VehicleSockets.ApplyCondition(_model.Root, next);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[DrivableVehicle] Condition: " + e.Message);
+            }
         }
 
         private void FixedUpdate()
@@ -236,7 +310,7 @@ namespace Project.Infrastructure.Vehicles
 
         private bool SimulateWheel(int index, float dt)
         {
-            var local = WheelLocal[index];
+            var local = _wheelLocal[index];
             var origin = transform.TransformPoint(local + Vector3.up * 0.2f);
             var rayLen = SuspensionRest + WheelRadius + 0.2f;
             var hitGround = Physics.Raycast(origin, -transform.up, out var hit, rayLen, GameLayers.GroundMask,
@@ -299,8 +373,8 @@ namespace Project.Infrastructure.Vehicles
         private void ApplyAntiRoll(int left, int right)
         {
             var force = (_suspension[left] - _suspension[right]) * AntiRoll;
-            var posL = transform.TransformPoint(WheelLocal[left]);
-            var posR = transform.TransformPoint(WheelLocal[right]);
+            var posL = transform.TransformPoint(_wheelLocal[left]);
+            var posR = transform.TransformPoint(_wheelLocal[right]);
             _rb.AddForceAtPosition(transform.up * -force, posL, ForceMode.Force);
             _rb.AddForceAtPosition(transform.up * force, posR, ForceMode.Force);
         }
@@ -325,7 +399,10 @@ namespace Project.Infrastructure.Vehicles
             if (_engine == null)
                 return;
             var speed01 = Mathf.Clamp01(SpeedKmh / MaxSpeedKmh);
-            _engine.pitch = 0.75f + speed01 * 0.9f + Mathf.Abs(_throttle) * 0.15f;
+            // Vites basamaklı devir perdesi (VehicleFeel); yoksa eski doğrusal formül.
+            _engine.pitch = Feel != null
+                ? Feel.EnginePitch(Mathf.Abs(_throttle))
+                : 0.75f + speed01 * 0.9f + Mathf.Abs(_throttle) * 0.15f;
             _engine.volume = HasDriver ? 0.25f + speed01 * 0.45f : 0.05f;
         }
 
@@ -348,7 +425,7 @@ namespace Project.Infrastructure.Vehicles
 
         private void HandleCollision(Collision collision)
         {
-            if (_exploded || _roadkillCooldown > 0f || SpeedKmh < RoadkillSpeedKmh)
+            if (_exploded || _roadkillCooldown > 0f || SpeedKmh < Config.RoadkillSpeedKmh)
                 return;
             if (collision.collider == null)
                 return;
@@ -359,9 +436,12 @@ namespace Project.Infrastructure.Vehicles
             for (var i = 0; i < _passengers.Length; i++)
                 if (_passengers[i] == combatant)
                     return;
+            // Dost ateşi kapalıyken sürücünün timine ezme hasarı yok (bot takım arkadaşları yoldan kaçmaz).
+            if (_driver != null && combatant.Team == _driver.Team && !CombatContext.FriendlyFire)
+                return;
 
             _roadkillCooldown = 0.4f;
-            var damage = Mathf.Lerp(25f, 120f, Mathf.Clamp01((SpeedKmh - RoadkillSpeedKmh) / 60f));
+            var damage = Mathf.Lerp(25f, 120f, Mathf.Clamp01((SpeedKmh - Config.RoadkillSpeedKmh) / 60f));
             var combat = CombatContext.Combat;
             if (combat != null)
                 combat.ApplyEnvironmentalDamage(combatant.Id, DamageSourceIds.Vehicle, damage);
@@ -371,7 +451,7 @@ namespace Project.Infrastructure.Vehicles
 
         private void OnNearbyExplosion(Vector3 position, float radius)
         {
-            if (_exploded)
+            if (_exploded || !GameContext.HasAuthority)
                 return;
             var d = Vector3.Distance(transform.position, position);
             if (d > radius * 1.2f)
@@ -388,9 +468,6 @@ namespace Project.Infrastructure.Vehicles
             Health = 0f;
 
             var driver = _driver;
-            Exit();
-            for (var i = 0; i < _passengers.Length; i++)
-                ExitPassenger(i);
 
             if (_rb != null)
             {
@@ -400,7 +477,7 @@ namespace Project.Infrastructure.Vehicles
 
             try
             {
-                ExplosionSystem.Explode(transform.position + Vector3.up, ExplosionRadius, ExplosionDamage,
+                ExplosionSystem.Explode(transform.position + Vector3.up, Config.ExplosionRadius, Config.ExplosionDamage,
                     attackerId.IsValid ? attackerId : (driver != null ? driver.Id : PlayerId.Invalid),
                     DamageSourceIds.Vehicle);
             }
@@ -408,6 +485,11 @@ namespace Project.Infrastructure.Vehicles
             {
                 Debug.LogException(e, this);
             }
+
+            // Mürettebat patlama bitince fırlatılır: koltukta hedef alınamaz oldukları için kendi araçlarının patlamasından korunur.
+            Exit();
+            for (var i = 0; i < _passengers.Length; i++)
+                ExitPassenger(i);
 
             if (_model?.Root != null)
             {
@@ -418,6 +500,7 @@ namespace Project.Infrastructure.Vehicles
                 }
             }
 
+            RefreshCondition();
             Destroy(gameObject, 12f);
         }
 
@@ -439,6 +522,7 @@ namespace Project.Infrastructure.Vehicles
         private void SetupAudioAndDust()
         {
             _engine = gameObject.AddComponent<AudioSource>();
+            Project.Infrastructure.Audio.HdrMix.MixerRouting.Route(_engine, Project.Infrastructure.Audio.HdrMix.MixChannel.Arac); // mikser Arac grubu (yoksa no-op)
             _engine.loop = true;
             _engine.spatialBlend = 1f;
             _engine.rolloffMode = AudioRolloffMode.Linear;
@@ -460,7 +544,7 @@ namespace Project.Infrastructure.Vehicles
 
             var dustGo = new GameObject("Toz");
             dustGo.transform.SetParent(transform, false);
-            dustGo.transform.localPosition = new Vector3(0f, 0.1f, -1.8f);
+            dustGo.transform.localPosition = Config.DustOffset;
             _dust = dustGo.AddComponent<ParticleSystem>();
             var main = _dust.main;
             main.startLifetime = 1.2f;

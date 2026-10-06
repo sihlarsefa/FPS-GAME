@@ -1,4 +1,5 @@
 using System;
+using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Core.Interfaces;
 using Project.Infrastructure.Config;
@@ -23,7 +24,7 @@ namespace Project.Infrastructure.Player
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     [DisallowMultipleComponent]
-    public sealed class CharacterControllerMotor : MonoBehaviour, IPlayerMotor
+    public sealed partial class CharacterControllerMotor : MonoBehaviour, IPlayerMotor
     {
         /// <summary>Yerdeyken zemine bastırma hızı (CharacterController'ın isGrounded'ı güvenilir kalsın).</summary>
         private const float GroundStickSpeed = 2f;
@@ -64,6 +65,20 @@ namespace Project.Infrastructure.Player
         private float _targetHeight = 1.8f;
         private float _appliedHeight = -1f;
 
+        // Duruş geçiş eğrisi (ease-in-out): from -> target, süre boy farkından.
+        private float _stanceFrom = 1.8f;
+        private float _stanceTrackTarget = 1.8f;
+        private float _stanceT = 1f;
+        private float _stanceDuration = 0.3f;
+
+        // Stamina / yük / ritim
+        private readonly StaminaModel _stamina = new StaminaModel();
+        private float _loadFraction;
+        private float _armorScore;
+        private float _burden;
+        private float _stepDistance;
+        private bool _wasExhausted;
+
         // Eğilme / diğer
         private float _lean;
         private float _speedMultiplier = 1f;
@@ -73,6 +88,15 @@ namespace Project.Infrastructure.Player
         private bool _collectingContacts;
         private float _bestGroundNormalY;
         private Vector3 _bestGroundNormal;
+
+        /// <summary>Stamina tükendi (nefes nefese). PlayerBreathing/WearDriver abone.</summary>
+        public event Action StaminaExhausted;
+
+        /// <summary>Stamina eşiği aşıp tükenmişlikten çıkıldı.</summary>
+        public event Action StaminaRecovered;
+
+        /// <summary>Bir adım atıldı (mesafe tabanlı, hız/duruşa göre ritim); parametre 0..1 koşu hızına göre şiddet. FootstepEmitter kendi ritmini tutar; bu olay ek abonelere açıktır.</summary>
+        public event Action<float> FootstepTaken;
 
         /// <summary>Yere iniş; parametre çarpma (aşağı) hızı m/s. Düşme hasarı: DamageCalculator.ComputeFallDamage.</summary>
         public event Action<float> Landed;
@@ -107,6 +131,42 @@ namespace Project.Infrastructure.Player
         public bool IsGrounded => _grounded;
         public bool IsSprinting => _isSprinting;
         public float SpeedNormalized => _speedNormalized;
+
+        /// <summary>Stamina 0..1.</summary>
+        public float StaminaNormalized => _stamina.Normalized;
+
+        public float StaminaValue => _stamina.Current;
+        public bool IsExhausted => _stamina.Exhausted;
+
+        /// <summary>Nefes sesi şiddeti 0..1 (PlayerBreathing okur).</summary>
+        public float BreathingIntensity => MovementRules.BreathingIntensity(_stamina.Normalized, _stamina.Exhausted);
+
+        /// <summary>Yük/zırh etkisi 0..1 (0 = yüksüz).</summary>
+        public float LoadBurden => _burden;
+
+        /// <summary>Anlık adım ritmi (adım/sn).</summary>
+        public float StepsPerSecond =>
+            _grounded ? MovementRules.StepsPerSecond(HorizontalSpeed, MovementRules.StrideLength(_stance == Stance.Crouching, _stance == Stance.Prone, _isSprinting)) : 0f;
+
+        /// <summary>
+        /// Taşınan yükü bildirir: envanter doluluk oranı (CurrentWeight/Capacity) ve zırh puanı (yelek seviyesi + kask seviyesi/2).
+        /// Hız, ivme (atalet), zıplama ve stamina harcamasını etkiler. Sunucu-otoriter modda aynı değerler envanterden gelir.
+        /// </summary>
+        public void SetLoad(float loadFraction, float armorScore)
+        {
+            _loadFraction = float.IsNaN(loadFraction) ? 0f : Mathf.Max(0f, loadFraction);
+            _armorScore = float.IsNaN(armorScore) ? 0f : Mathf.Max(0f, armorScore);
+            RecomputeBurden();
+        }
+
+        private void RecomputeBurden()
+        {
+            var scale = config != null ? config.loadEffectScale : 1f;
+            _burden = Mathf.Clamp01(MovementRules.LoadBurden(_loadFraction, _armorScore) * scale);
+        }
+
+        /// <summary>Staminayı doldurur (doğma/iyileşme).</summary>
+        public void RefillStamina() => _stamina.Refill();
 
         /// <summary>-1 sol, +1 sağ (yumuşatılmış).</summary>
         public float Lean => _lean;
@@ -204,6 +264,7 @@ namespace Project.Infrastructure.Player
             }
 
             ApplyControllerSettings();
+            _stamina.Configure(config.ToStaminaTuning());
             _stance = Stance.Standing;
             _targetHeight = config.HeightFor(_stance);
             _currentHeight = _targetHeight;
@@ -221,6 +282,8 @@ namespace Project.Infrastructure.Player
             }
 
             ApplyControllerSettings();
+            _stamina.Configure(config.ToStaminaTuning());
+            RecomputeBurden();
             _targetHeight = config.HeightFor(_stance);
             _currentHeight = _targetHeight;
             ApplyShape(true);
@@ -294,6 +357,7 @@ namespace Project.Infrastructure.Player
             // --- Zamanlayıcılar ve tampon
             _jumpCooldownTimer = Mathf.Max(0f, _jumpCooldownTimer - dt);
             _jumpBufferTimer = Mathf.Max(0f, _jumpBufferTimer - dt);
+            _slideCooldown = Mathf.Max(0f, _slideCooldown - dt);
             if (input.Jump)
                 _jumpBufferTimer = Mathf.Max(0.0001f, config.jumpBufferTime);
 
@@ -302,21 +366,43 @@ namespace Project.Infrastructure.Player
             var sprintPressed = input.Sprint && !_sprintHeldLastFrame;
             _sprintHeldLastFrame = input.Sprint;
 
+            // --- Tırmanma sürüyorsa yalnız onu ilerlet
+            if (_mantling)
+            {
+                TickMantle(controller, dt);
+                return;
+            }
+
             // --- Duruş
+            var stanceBefore = _stance;
+            var wasSprintingBefore = _isSprinting;
             UpdateStanceToggles(input, forward, sprintPressed);
             ResolveStance(input.Crouch);
+            BeginSlideIfNeeded(stanceBefore, wasSprintingBefore);
             UpdateHeight(dt);
+
+            // --- Engel üstü tırmanma (zıplama tuşu + ileri girdi + ≤1,2 m engel)
+            if (_jumpBufferTimer > 0f && forward > 0.3f && !_proneToggled && TryStartMantle(controller))
+            {
+                TickMantle(controller, dt);
+                return;
+            }
 
             // --- Koşu
             var standingReady = _stance == Stance.Standing && _currentHeight >= config.standingHeight - 0.08f;
-            var wantsSprint = input.Sprint && forward >= config.sprintForwardThreshold && standingReady;
+            var wantsSprint = input.Sprint && forward >= config.sprintForwardThreshold && standingReady
+                              && _stamina.CanSprint(_isSprinting);
             var sprinting = wantsSprint && (_grounded || _isSprinting);
 
             // --- Eğilme
             var leanTarget = 0f;
             if (!sprinting && _stance != Stance.Prone)
                 leanTarget = (input.LeanRight ? 1f : 0f) - (input.LeanLeft ? 1f : 0f);
-            _lean = Mathf.MoveTowards(_lean, leanTarget, config.leanSpeed * dt);
+            if (_sliding)
+                leanTarget = 0f;
+            leanTarget = ClampLeanToClearance(leanTarget);
+            // Ağır yükte eğilme biraz yavaş.
+            _lean = Mathf.MoveTowards(_lean, leanTarget, config.leanSpeed * (1f - 0.25f * _burden) * dt);
 
             // --- İstenen yatay hız
             var wish = ComputeWishVelocity(forward, right, sprinting);
@@ -324,6 +410,12 @@ namespace Project.Infrastructure.Player
             if (_grounded && !_onSteepSlope)
             {
                 var accel = hasInput ? config.groundAcceleration : config.groundDeceleration;
+                accel *= MovementRules.LoadAccelFactor(_burden);
+                // Koşuya geçiş ve koşudan durma ağır: gerçek atalet hissi.
+                if (sprinting && hasInput)
+                    accel *= 0.72f;
+                else if (!hasInput && _isSprinting)
+                    accel *= 0.8f;
                 _planarVelocity = Vector3.MoveTowards(_planarVelocity, wish, Mathf.Max(0f, accel) * dt);
             }
             else if (hasInput)
@@ -332,11 +424,15 @@ namespace Project.Infrastructure.Player
                 _planarVelocity = Vector3.MoveTowards(_planarVelocity, wish, airAccel * dt);
             }
 
+            TickSlide(dt, input);
+
             // --- Dikey hız + zıplama
             var jumpedThisFrame = false;
             if (_jumpBufferTimer > 0f && CanJump())
             {
-                _verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(config.gravity) * Mathf.Max(0f, config.jumpHeight));
+                _verticalVelocity = Mathf.Sqrt(2f * Mathf.Abs(config.gravity) * Mathf.Max(0f, config.jumpHeight))
+                                    * MovementRules.LoadJumpFactor(_burden);
+                SpendStamina(MovementRules.JumpStaminaCost);
                 _jumpBufferTimer = 0f;
                 _jumpedSinceGrounded = true;
                 _grounded = false;
@@ -404,6 +500,69 @@ namespace Project.Infrastructure.Player
             var sprintRef = Mathf.Max(0.01f, config.sprintSpeed);
             _speedNormalized = Mathf.Clamp01(horizontal / sprintRef);
             _isSprinting = sprinting && horizontal > 0.5f;
+
+            TickStaminaAndSteps(dt, horizontal);
+        }
+
+        private void SpendStamina(float cost)
+        {
+            if (_stamina.Spend(cost))
+                NotifyExhaustion();
+        }
+
+        private void NotifyExhaustion()
+        {
+            if (_stamina.Exhausted && !_wasExhausted)
+            {
+                _wasExhausted = true;
+                StaminaExhausted?.Invoke();
+            }
+        }
+
+        private void TickStaminaAndSteps(float dt, float horizontal)
+        {
+            var moving = horizontal > 0.4f;
+            var regen = MovementRules.RegenMultiplier(moving, _stance != Stance.Standing, _stance == Stance.Prone);
+            if (_stamina.Tick(dt, _isSprinting, regen, MovementRules.LoadDrainMultiplier(_burden)))
+                NotifyExhaustion();
+
+            if (_wasExhausted && !_stamina.Exhausted)
+            {
+                _wasExhausted = false;
+                StaminaRecovered?.Invoke();
+            }
+
+            // Adım ritmi: kat edilen mesafe / adım uzunluğu (hıza bağlı, durunca sıfırlanır).
+            if (_grounded && !_mantling && horizontal > 0.6f && !_sliding)
+            {
+                _stepDistance += horizontal * dt;
+                var stride = MovementRules.StrideLength(_stance == Stance.Crouching, _stance == Stance.Prone, _isSprinting);
+                if (_stepDistance >= stride)
+                {
+                    _stepDistance -= stride;
+                    FootstepTaken?.Invoke(Mathf.Clamp01(horizontal / Mathf.Max(0.01f, config.sprintSpeed)));
+                }
+            }
+            else if (!_grounded || horizontal <= 0.6f)
+            {
+                _stepDistance = 0f;
+            }
+        }
+
+        /// <summary>Eğilmeyi yan boşluğa göre sınırlar (duvara gömülmesin): yan ışın, eğilme ofsetini karşılamıyorsa oran düşer.</summary>
+        private float ClampLeanToClearance(float leanTarget)
+        {
+            if (Mathf.Abs(leanTarget) < 0.01f)
+                return leanTarget;
+
+            var offset = Mathf.Max(0.01f, config.leanOffset);
+            var side = leanTarget > 0f ? transform.right : -transform.right;
+            var origin = transform.position + Vector3.up * Mathf.Max(0.3f, _currentHeight * 0.8f);
+            if (!PlayerPhysicsQueries.SphereCastOther(origin, 0.14f, side, offset + 0.05f, GameLayers.MovementBlockMask, transform, out var hit))
+                return leanTarget;
+
+            var allowed = MovementRules.LeanAllowed(hit.distance, offset);
+            return leanTarget * allowed;
         }
 
         // ------------------------------------------------------------------ Public extras
@@ -474,6 +633,10 @@ namespace Project.Infrastructure.Player
             _groundNormal = Vector3.up;
             _isSprinting = false;
             _speedNormalized = 0f;
+            _sliding = false;
+            _mantling = false;
+            _slideCooldown = 0f;
+            _stepDistance = 0f;
         }
 
         /// <summary>Ayağa kalkmak için yeterli tavan boşluğu var mı.</summary>
@@ -584,14 +747,24 @@ namespace Project.Infrastructure.Player
                     ApplyShape(false);
                 }
 
+                _stanceTrackTarget = _targetHeight;
+                _stanceFrom = _currentHeight;
+                _stanceT = 1f;
                 return;
             }
 
-            var k = Mathf.Max(0.1f, config.stanceTransitionSpeed);
-            var next = Mathf.Lerp(_currentHeight, _targetHeight, 1f - Mathf.Exp(-k * dt));
-            // Asgari geçiş hızı (üstel yaklaşım sonsuza uzamasın).
-            next = Mathf.MoveTowards(next, _targetHeight, 0.25f * dt);
-            if (Mathf.Abs(next - _targetHeight) <= StanceHeightEpsilon)
+            // Hedef değiştiyse yeni ease-in-out geçişi başlat (boy farkına orantılı süre).
+            if (!Mathf.Approximately(_stanceTrackTarget, _targetHeight))
+            {
+                _stanceTrackTarget = _targetHeight;
+                _stanceFrom = _currentHeight;
+                _stanceT = 0f;
+                _stanceDuration = MovementRules.StanceDuration(_currentHeight, _targetHeight, config.stanceTransitionSpeed);
+            }
+
+            _stanceT = Mathf.Min(1f, _stanceT + dt / Mathf.Max(0.01f, _stanceDuration));
+            var next = Mathf.Lerp(_stanceFrom, _stanceTrackTarget, MovementRules.StanceEase(_stanceT));
+            if (_stanceT >= 1f || Mathf.Abs(next - _targetHeight) <= StanceHeightEpsilon)
                 next = _targetHeight;
 
             _currentHeight = next;
@@ -652,6 +825,9 @@ namespace Project.Infrastructure.Player
             }
 
             speed *= _speedMultiplier;
+            speed *= MovementRules.LoadSpeedFactor(_burden);
+            speed *= MovementRules.ExhaustedSpeedFactor(_stamina.Exhausted);
+            speed *= MovementRules.StanceTransitionSpeedFactor(_currentHeight, _targetHeight);
 
             var fwd = transform.forward;
             fwd.y = 0f;
@@ -660,7 +836,19 @@ namespace Project.Infrastructure.Player
             fwd.Normalize();
             var rgt = new Vector3(fwd.z, 0f, -fwd.x);
 
-            return (fwd * input.y + rgt * input.x) * speed;
+            var dir = fwd * input.y + rgt * input.x;
+            if (config.slopeSpeedModifier && _grounded && !_onSteepSlope)
+            {
+                var downhill = Vector3.ProjectOnPlane(Vector3.down, _groundNormal);
+                if (downhill.sqrMagnitude > 0.0001f && dir.sqrMagnitude > 0.0001f)
+                {
+                    var slopeDeg = Vector3.Angle(_groundNormal, Vector3.up);
+                    var dot = Vector3.Dot(dir.normalized, downhill.normalized);
+                    speed *= MovementRules.SlopeSpeedFactor(slopeDeg, dot);
+                }
+            }
+
+            return dir * speed;
         }
 
         private bool CanJump()
@@ -670,6 +858,8 @@ namespace Project.Infrastructure.Player
             if (_stance != Stance.Standing || _proneToggled || _crouchToggled)
                 return false;
             if (_currentHeight < config.standingHeight - 0.08f)
+                return false;
+            if (!_stamina.CanAfford(MovementRules.JumpStaminaCost))
                 return false;
 
             return _grounded || _timeSinceGrounded <= Mathf.Max(0f, config.coyoteTime);
@@ -709,6 +899,9 @@ namespace Project.Infrastructure.Player
                     _jumpedSinceGrounded = false;
                     _jumpCooldownTimer = Mathf.Max(_jumpCooldownTimer, config.jumpCooldown);
                     SetStepOffsetForAir(false);
+                    // Sert iniş: nefes kesilir, yatay hız söner (diz kırılması).
+                    SpendStamina(MovementRules.LandingStaminaCost(impactSpeed));
+                    _planarVelocity *= MovementRules.LandingVelocityKeep(impactSpeed);
                     if (impactSpeed >= config.landedEventMinSpeed || airTime >= LandedMinAirTime)
                         Landed?.Invoke(impactSpeed);
                 }

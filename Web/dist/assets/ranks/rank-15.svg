@@ -1,5 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
-  <rect width="64" height="64" rx="8" fill="#121820" stroke="#243040"/>
-  <polyline points="16,28 32,20 48,28" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,24 32,16 48,24" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,20 32,12 48,20" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,16 32,8 48,16" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,12 32,4 48,12" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,8 32,0 48,8" fill="none" stroke="#E30A17" stroke-width="3"/><rect x="18" y="40" width="28" height="3" fill="#E8EEF5"/><rect x="18" y="45" width="28" height="3" fill="#E8EEF5"/><rect x="18" y="50" width="28" height="3" fill="#E8EEF5"/><circle cx="32" cy="12" r="4" fill="#F0B429"/>
-  <text x="32" y="58" text-anchor="middle" fill="#8FA3B8" font-size="8" font-family="monospace">15</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Yüzbaşı — stilize nişan</title>
+  <path d="M32 6L50 18v18c0 14-12 22-18 26-6-4-18-12-18-26V18L32 6z" fill="#23291B" stroke="#F2A900" stroke-width="2"/>
+  <polygon points="32,13 33.75,17.25 37,18 33.75,18.75 32,23 30.25,18.75 27,18 30.25,17.25" fill="#F2A900"/>
+  <polygon points="32,27 33.75,31.25 37,32 33.75,32.75 32,37 30.25,32.75 27,32 30.25,31.25" fill="#F2A900"/>
+  <polygon points="32,41.5 33.575,45.325 36.5,46 33.575,46.675 32,50.5 30.425,46.675 27.5,46 30.425,45.325" fill="#E30A17"/>
 </svg>

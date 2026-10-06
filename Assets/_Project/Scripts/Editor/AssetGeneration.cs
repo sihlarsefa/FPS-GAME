@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Project.Infrastructure.Config;
 using Project.Infrastructure.Rendering;
@@ -17,13 +18,9 @@ namespace Project.EditorTools
         public static void EnsureAll()
         {
             EnsureFolder(Folder);
-            var tiers = new[]
-            {
-                ("Low", 0.75f, 40f, 1, false, false),
-                ("Medium", 0.9f, 60f, 2, true, false),
-                ("High", 1f, 90f, 4, true, true),
-                ("Ultra", 1f, 120f, 4, true, true)
-            };
+            var tiers = new (string, int)[PipelineTiers.Count];
+            for (var k = 0; k < tiers.Length; k++)
+                tiers[k] = (PipelineTiers.Get(k).Name, k);
 
             UniversalRenderPipelineAsset defaultAsset = null;
             var qualityNames = new string[tiers.Length];
@@ -34,7 +31,8 @@ namespace Project.EditorTools
             {
                 for (var i = 0; i < tiers.Length; i++)
                 {
-                    var (name, scale, shadow, msaa, hdr, soft) = tiers[i];
+                    var name = tiers[i].Item1;
+                    var tier = PipelineTiers.Get(i);
                     qualityNames[i] = name;
                     var rendererPath = Folder + "/URP_Renderer_" + name + ".asset";
                     var assetPath = Folder + "/URP_" + name + ".asset";
@@ -47,6 +45,10 @@ namespace Project.EditorTools
                     }
 
                     TryAssignPostProcess(renderer);
+                    // Görüntü kalitesi: SSAO (Orta+) ve Decal (Orta+; kurşun izi/kan) renderer özellikleri.
+                    TryEnsureRendererFeature(renderer, "UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion", "HK_SSAO", tier.Ssao);
+                    TryEnsureRendererFeature(renderer, "UnityEngine.Rendering.Universal.DecalRendererFeature", "HK_Decal", tier.Decals);
+                    TrySetRendererInt(renderer, "m_RenderingMode", PipelineTiers.RenderingModeForwardPlus);
 
                     var pipeline = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(assetPath);
                     if (pipeline == null)
@@ -55,11 +57,30 @@ namespace Project.EditorTools
                         AssetDatabase.CreateAsset(pipeline, assetPath);
                     }
 
-                    pipeline.renderScale = scale;
-                    pipeline.shadowDistance = shadow;
-                    pipeline.msaaSampleCount = msaa;
-                    pipeline.supportsHDR = hdr;
-                    pipeline.supportsSoftShadows = soft;
+                    pipeline.renderScale = tier.RenderScale;
+                    pipeline.shadowDistance = tier.ShadowDistance;
+                    pipeline.msaaSampleCount = PipelineTiers.EffectiveMsaa(tier);
+                    pipeline.supportsHDR = tier.Hdr;
+                    // URP 17+: bazı alanlar salt okunur; SerializedObject ile yazılır, yoksa uyarı.
+                    var pipelineSo = new SerializedObject(pipeline);
+                    SetBool(pipelineSo, "m_SoftShadowsSupported", tier.SoftShadows);
+                    SetInt(pipelineSo, "m_ShadowCascadeCount", tier.ShadowCascades);
+                    SetInt(pipelineSo, "m_MainLightShadowmapResolution", tier.ShadowResolution);
+                    SetInt(pipelineSo, "m_SoftShadowQuality", tier.SoftShadowQuality);
+                    SetVec3(pipelineSo, "m_Cascade4Split", tier.CascadeSplits);
+                    SetBool(pipelineSo, "m_UseSRPBatcher", true);
+                    // SSR-lite pürüzsüzlük alfası (_WRITE_SMOOTHNESS) varyantı build'de atılmasın.
+                    SetBool(pipelineSo, "m_PrefilterWriteSmoothness", false);
+                    // URP 17.3+ reads the named upscaler, not the legacy enum.
+                    var upscaler = pipelineSo.FindProperty("m_SelectedUpscalerName");
+                    if (upscaler != null)
+                        upscaler.stringValue = tier.UseStp ? "Spatial-Temporal Post-Processing" : "Bilinear";
+                    else
+                        SetInt(pipelineSo, "m_UpscalingFilter", tier.UseStp ? PipelineTiers.UpscalingStp : 0);
+                    SetInt(pipelineSo, "m_GPUResidentDrawerMode", tier.GpuResidentDrawer ? PipelineTiers.GpuResidentDrawerInstanced : 0);
+                    SetBool(pipelineSo, "m_GPUResidentDrawerEnableOcclusionCullingInCameras", tier.GpuOcclusion);
+                    SetInt(pipelineSo, "m_LightProbeSystem", PipelineTiers.LightProbeSystemProbeVolumes);
+                    pipelineSo.ApplyModifiedPropertiesWithoutUndo();
                     EditorUtility.SetDirty(pipeline);
                     pipelines[i] = pipeline;
                     if (name == "High" || defaultAsset == null)
@@ -72,6 +93,21 @@ namespace Project.EditorTools
             }
 
             GraphicsSettings.defaultRenderPipeline = defaultAsset;
+            // GPU Resident Drawer, DOTS-instancing varyantları olmadan player'da URP/Lit nesnelerini ÇİZMEZ (editörde
+            // kendini kapattığı için hata yalnız build'de görünür: asker bacak/kol/yüzü kayboluyordu).
+            var anyGrd = false;
+            for (var g = 0; g < PipelineTiers.Count; g++)
+                anyGrd |= PipelineTiers.Get(g).GpuResidentDrawer;
+            const int brgKeepAll = (int)UnityEditor.Rendering.BatchRendererGroupStrippingMode.KeepAll;
+            var graphicsSo = new SerializedObject(GraphicsSettings.GetGraphicsSettings());
+            var brgStripping = graphicsSo.FindProperty("m_BrgStripping");
+            if (anyGrd && brgStripping != null && brgStripping.intValue != brgKeepAll)
+            {
+                brgStripping.intValue = brgKeepAll;
+                graphicsSo.ApplyModifiedPropertiesWithoutUndo();
+                Debug.Log("[AssetGeneration] BatchRendererGroup Variants = Keep All (GPU Resident Drawer için zorunlu).");
+            }
+
             try
             {
                 // Quality level count / names via SerializedObject is more reliable
@@ -105,6 +141,86 @@ namespace Project.EditorTools
 
             AssetDatabase.SaveAssets();
             Debug.Log("[HAREKÂT] URP Low/Medium/High/Ultra hazır.");
+        }
+
+        private static void SetInt(SerializedObject so, string name, int value)
+        {
+            var prop = so.FindProperty(name);
+            if (prop != null)
+                prop.intValue = value;
+            else
+                Debug.LogWarning("[HAREKÂT] URP alanı yok (sürüm farkı?): " + name);
+        }
+
+        private static void SetBool(SerializedObject so, string name, bool value)
+        {
+            var prop = so.FindProperty(name);
+            if (prop != null)
+                prop.boolValue = value;
+            else
+                Debug.LogWarning("[HAREKÂT] URP alanı yok (sürüm farkı?): " + name);
+        }
+
+        private static void SetVec3(SerializedObject so, string name, Vector3 value)
+        {
+            var prop = so.FindProperty(name);
+            if (prop != null)
+                prop.vector3Value = value;
+            else
+                Debug.LogWarning("[HAREKÂT] URP alanı yok (sürüm farkı?): " + name);
+        }
+
+        private static void TrySetRendererInt(UniversalRendererData renderer, string name, int value)
+        {
+            var so = new SerializedObject(renderer);
+            SetInt(so, name, value);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(renderer);
+        }
+
+        /// <summary>Renderer özelliğini (tür adıyla, yansıma) ekler/etkinleştirir; tür yoksa sessizce geçer.</summary>
+        private static void TryEnsureRendererFeature(UniversalRendererData renderer, string typeName, string featureName, bool enabled)
+        {
+            try
+            {
+                var type = typeof(UniversalRendererData).Assembly.GetType(typeName);
+                if (type == null)
+                    return;
+                var so = new SerializedObject(renderer);
+                var list = so.FindProperty("m_RendererFeatures");
+                var map = so.FindProperty("m_RendererFeatureMap");
+                if (list == null || map == null)
+                    return;
+                for (var i = 0; i < list.arraySize; i++)
+                {
+                    var existing = list.GetArrayElementAtIndex(i).objectReferenceValue as ScriptableRendererFeature;
+                    if (existing != null && existing.GetType() == type)
+                    {
+                        existing.SetActive(enabled);
+                        EditorUtility.SetDirty(existing);
+                        return;
+                    }
+                }
+
+                var feature = ScriptableObject.CreateInstance(type) as ScriptableRendererFeature;
+                if (feature == null)
+                    return;
+                feature.name = featureName;
+                AssetDatabase.AddObjectToAsset(feature, renderer);
+                if (!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out _, out long localId))
+                    return;
+                list.arraySize++;
+                list.GetArrayElementAtIndex(list.arraySize - 1).objectReferenceValue = feature;
+                map.arraySize++;
+                map.GetArrayElementAtIndex(map.arraySize - 1).longValue = localId;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                feature.SetActive(enabled);
+                EditorUtility.SetDirty(renderer);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[HAREKÂT] Renderer özelliği eklenemedi (" + featureName + "): " + e.Message);
+            }
         }
 
         private static void TryAssignPostProcess(UniversalRendererData renderer)
@@ -159,6 +275,7 @@ namespace Project.EditorTools
             EnsureFolder(ResFolder);
 
             var materials = new Material[MaterialLibrary.Count];
+            var pbrJobs = new List<KeyValuePair<Material, MaterialSpec>>();
             AssetDatabase.StartAssetEditing();
             try
             {
@@ -179,6 +296,8 @@ namespace Project.EditorTools
                         SaveTexturePng(ProceduralTextures.TurkishFlag, TexFolder + "/TurkishFlag.png");
 
                     materials[i] = mat;
+                    if (spec != null && mat != null && spec.Pbr != PbrSurface.None)
+                        pbrJobs.Add(new KeyValuePair<Material, MaterialSpec>(mat, spec));
                 }
 
                 SaveTexturePng(ProceduralTextures.SoftCircle, TexFolder + "/SoftParticle.png");
@@ -187,6 +306,11 @@ namespace Project.EditorTools
             {
                 AssetDatabase.StopAssetEditing();
             }
+
+            for (var j = 0; j < pbrJobs.Count; j++)
+                PersistPbr(pbrJobs[j].Key, pbrJobs[j].Value);
+            if (pbrJobs.Count > 0)
+                AssetDatabase.SaveAssets();
 
             var libPath = ResFolder + "/GameArtLibrary.asset";
             var lib = AssetDatabase.LoadAssetAtPath<GameArtLibrary>(libPath);
@@ -251,6 +375,76 @@ namespace Project.EditorTools
             {
                 PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Standalone, new[] { icon });
             }
+        }
+
+        /// <summary>ProceduralPbr normal/maske dokularını PNG olarak kaydeder ve .mat dosyasına atar (build'de runtime üretim gerekmez).</summary>
+        private static void PersistPbr(Material mat, MaterialSpec spec)
+        {
+            try
+            {
+                var set = ProceduralPbr.Get(spec.Pbr, spec.TextureSeed);
+                if (set == null || !set.IsValid)
+                    return;
+                var key = spec.Pbr + "_" + spec.TextureSeed;
+                var nPath = TexFolder + "/HK_Pbr_" + key + "_N.png";
+                var mPath = TexFolder + "/HK_Pbr_" + key + "_M.png";
+                var n = SavePbrPng(set.Normal, nPath, true);
+                var m = SavePbrPng(set.Mask, mPath, false);
+                if (n == null || m == null)
+                    return;
+                var changed = false;
+                if (mat.HasProperty("_BumpMap") && mat.GetTexture("_BumpMap") != n)
+                {
+                    mat.SetTexture("_BumpMap", n);
+                    mat.SetTextureScale("_BumpMap", spec.Tiling);
+                    mat.EnableKeyword("_NORMALMAP");
+                    changed = true;
+                }
+                if (mat.HasProperty("_MetallicGlossMap") && mat.GetTexture("_MetallicGlossMap") != m)
+                {
+                    mat.SetTexture("_MetallicGlossMap", m);
+                    mat.SetTextureScale("_MetallicGlossMap", spec.Tiling);
+                    mat.EnableKeyword("_METALLICSPECGLOSSMAP");
+                    changed = true;
+                }
+                if (mat.HasProperty("_OcclusionMap") && mat.GetTexture("_OcclusionMap") != m)
+                {
+                    mat.SetTexture("_OcclusionMap", m);
+                    mat.EnableKeyword("_OCCLUSIONMAP");
+                    changed = true;
+                }
+                if (mat.HasProperty("_MaskMap") && mat.GetTexture("_MaskMap") != m)
+                {
+                    mat.SetTexture("_MaskMap", m);
+                    changed = true;
+                }
+                if (changed)
+                    EditorUtility.SetDirty(mat);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[HAREKÂT] PBR doku kaydedilemedi " + mat.name + ": " + e.Message);
+            }
+        }
+
+        private static Texture2D SavePbrPng(Texture2D src, string path, bool normalMap)
+        {
+            if (src == null)
+                return null;
+            if (!File.Exists(path))
+            {
+                File.WriteAllBytes(path, src.EncodeToPNG());
+                AssetDatabase.ImportAsset(path);
+                if (AssetImporter.GetAtPath(path) is TextureImporter imp)
+                {
+                    imp.textureType = normalMap ? TextureImporterType.NormalMap : TextureImporterType.Default;
+                    imp.sRGBTexture = false;
+                    imp.mipmapEnabled = true;
+                    imp.wrapMode = TextureWrapMode.Repeat;
+                    imp.SaveAndReimport();
+                }
+            }
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
         private static void SaveTexturePng(Texture2D src, string path)

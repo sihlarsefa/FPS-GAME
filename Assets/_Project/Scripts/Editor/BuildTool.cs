@@ -88,6 +88,8 @@ namespace Project.EditorTools
 
         private static void EnsureScenesOrDie()
         {
+            try { SceneBuilder.EnsureMissingScenes(); }
+            catch (Exception e) { Debug.LogWarning("[HAREKÂT] Eksik sahneler üretilemedi: " + e.Message); }
             SceneBuilder.EnsureBuildSettings();
             var scenes = ScenePaths();
             if (scenes.Length == 0)

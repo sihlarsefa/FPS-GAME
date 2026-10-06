@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Generic;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure;
 using Project.Infrastructure.Audio;
+using Project.Infrastructure.Characters;
 using Project.Presentation.Bootstrap;
+using Project.Infrastructure.Localization;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace Project.Presentation.UI
@@ -26,9 +30,14 @@ namespace Project.Presentation.UI
         public const int SortOrder = 70;
 
         private const float RevealDelay = 0.35f;
-        private const float CountSeconds = 1.3f;
-        private const float XpDelay = 1.1f;
-        private const float XpSeconds = 1.8f;
+        private const float CountSeconds = MatchEndProgression.CountSeconds;   // Tüm sayılar 0'dan 0,6 sn'de dolar.
+        private const float RowStart = 0.9f;
+        private const float RowStep = 0.4f;
+        private const float BarSeconds = 1.2f;
+        private const float ToastIn = 0.3f;
+        private const float ToastHold = 2.2f;
+        private const float ToastOut = 0.25f;
+        private static readonly Color Bronze = new Color(0.804f, 0.498f, 0.196f, 1f);
         private const string DefaultTeamName = "Kartal Timi";
 
         private enum Outcome
@@ -75,6 +84,43 @@ namespace Project.Presentation.UI
         private bool _promotionShown;
         private int _xpShown = int.MinValue;
 
+        // Dökümü sırayla beliren TP satırları.
+        private sealed class XpRow
+        {
+            public CanvasGroup Group;
+            public Text Value;
+            public int Amount;
+            public bool Revealed;
+        }
+
+        private List<XpLine> _lines;
+        private XpRow[] _rows;
+        private float _rowsEnd;
+        private RectTransform _badge;
+        private CanvasGroup _buttonsGroup;
+        private int _buttonsReadyFrame = int.MaxValue;
+        private Text _skipHint;
+        private float _nextTick;
+
+        // Sezon kartı şeridi.
+        private SeasonPassService _season;
+        private int _seasonBefore;
+        private int _seasonAfter;
+        private int _seasonGained;
+        private int _seasonTierShown;
+        private int _seasonShown = int.MinValue;
+        private UiProgressBar _seasonBar;
+        private Text _seasonTitle;
+        private Text _seasonGainText;
+        private float _flashUntil;
+
+        // Açılış bildirimleri kuyruğu.
+        private readonly Queue<string> _toasts = new Queue<string>();
+        private RectTransform _toastRect;
+        private Text _toastText;
+        private float _toastStart = -1f;
+        private bool _toastActive;
+
         private float _openedAt;
         private bool _acted;
         private bool _animating = true;
@@ -113,6 +159,8 @@ namespace Project.Presentation.UI
 
             UiFactory.SetCursorFree(true);
             PlayOutcomeSound(screen._outcome);
+            if (screen._outcome == Outcome.Victory)
+                BootstrapUtility.Try(() => MatchIntro.PlayVictory(screen.TeamName()), "MatchIntro.PlayVictory");
             return screen;
         }
 
@@ -175,6 +223,86 @@ namespace Project.Presentation.UI
 
             _rankBefore = RankCatalog.RankForExperience(_xpBefore);
             _rankShown = _rankBefore;
+            _lines = MatchEndProgression.CareerBreakdown(_result);
+            ResolveSeason();
+            BuildToastQueue(career);
+        }
+
+        private void ResolveSeason()
+        {
+            try
+            {
+                _season = SeasonPassPanel.Service;
+            }
+            catch (Exception)
+            {
+                _season = null;
+            }
+
+            if (_season == null)
+                return;
+
+            _seasonGained = SeasonPassService.XpForMatch(_result);
+            var recorded = GameSession.LastResult.HasValue && SameResult(GameSession.LastResult.Value, _result);
+            if (recorded)
+            {
+                _seasonAfter = _season.Xp;
+                _seasonBefore = Mathf.Max(0, _seasonAfter - _seasonGained);
+            }
+            else
+            {
+                _seasonBefore = _season.Xp;
+                _seasonAfter = Mathf.Min(_season.MaxXp, _seasonBefore + _seasonGained);
+            }
+
+            _seasonGained = _seasonAfter - _seasonBefore;
+            _seasonTierShown = _season.TierForXp(_seasonBefore);
+        }
+
+        private void BuildToastQueue(CareerStatsService career)
+        {
+            try
+            {
+                var rankAfter = RankCatalog.RankForExperience(_xpAfter);
+                if (rankAfter > _rankBefore)
+                    _toasts.Enqueue("TERFİ  ·  " + RankCatalog.GetName(rankAfter));
+
+                CosmeticsService cosmetics = null;
+                try { cosmetics = CosmeticsRuntime.Service; } catch (Exception) { cosmetics = null; }
+
+                if (cosmetics != null)
+                {
+                    var unlocks = MatchEndProgression.CareerUnlocks(cosmetics.Items, _xpBefore, _xpAfter);
+                    for (var i = 0; i < unlocks.Count; i++)
+                        _toasts.Enqueue("YENİ KOZMETİK  ·  " + unlocks[i].name);
+                }
+
+                if (_season != null)
+                {
+                    var tiers = MatchEndProgression.TiersCrossed(_seasonBefore, _seasonAfter, _season.Definition.xpPerTier, _season.MaxTier);
+                    for (var i = 0; i < tiers.Count; i++)
+                    {
+                        var reward = _season.FreeAt(tiers[i]);
+                        var text = "SEZON KADEMESİ " + tiers[i];
+                        if (reward != null && cosmetics != null && cosmetics.TryGet(reward.cosmeticId, out var def))
+                            text += "  ·  Ödül: " + def.name;
+                        _toasts.Enqueue(text);
+                    }
+                }
+
+                var progress = GameSession.Progress;
+                if (progress != null && GameSession.LastResult.HasValue && SameResult(GameSession.LastResult.Value, _result))
+                {
+                    var after = progress.Level;
+                    var before = CareerService.LevelForXp(Mathf.Max(0, progress.Experience - CareerService.MatchXp(_result)));
+                    if (after > before)
+                        _toasts.Enqueue("KARİYER SEVİYESİ " + after);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[EndScreen] Bildirim kuyruğu kurulamadı: " + e.Message);
+            }
         }
 
         private static bool SameResult(MatchResult a, MatchResult b)
@@ -213,7 +341,7 @@ namespace Project.Presentation.UI
             var victory = _outcome == Outcome.Victory;
             var accent = victory ? MenuRankInsignia.Gold : UiTheme.Accent;
 
-            var background = UiFactory.Panel(root, new Color(0.03f, 0.035f, 0.025f, 0.88f));
+            var background = UiFactory.Panel(root, new Color(0.03f, 0.035f, 0.025f, victory ? 0.6f : 0.88f));
             background.gameObject.name = "Background";
 
             var glow = UiFactory.Image(root, UiSprites.VerticalGradient, UiTheme.WithAlpha(victory ? MenuRankInsignia.Gold : UiTheme.AccentDark, 0.28f));
@@ -236,12 +364,14 @@ namespace Project.Presentation.UI
             BuildHeadline(_content, accent);
             BuildStats(_content);
             BuildExperience(_content);
+            BuildSeason(_content);
             BuildButtons(_content);
+            BuildToast(root);
         }
 
         private void BuildHeadline(RectTransform parent, Color accent)
         {
-            var caption = UiFactory.Label(parent, "HAREKÂT SONU  ·  KUZGUN VADİSİ", UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.Khaki, FontStyle.Bold);
+            var caption = UiFactory.Label(parent, Loc.Get("end.caption", "HAREKÂT SONU  ·  KUZGUN VADİSİ"), UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.Khaki, FontStyle.Bold);
             caption.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(caption, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -96f), new Vector2(0f, -56f));
 
@@ -252,20 +382,20 @@ namespace Project.Presentation.UI
             switch (_outcome)
             {
                 case Outcome.Victory:
-                    title = "ZAFER!";
-                    subtitle = teamUpper + " HAREKÂTI KAZANDI";
+                    title = Loc.Get("end.title.victory", "ZAFER!");
+                    subtitle = Loc.Format("end.subtitle.won", "{0} HAREKÂTI KAZANDI", teamUpper);
                     titleColor = MenuRankInsignia.Gold;
                     break;
                 case Outcome.TeamEliminated:
-                    title = "TİMİN ELENDİ";
-                    subtitle = teamUpper + " — " + MenuText.FormatPlacement(TeamPlacement(), TeamTotal()) + " SIRADA HAREKÂTTAN ÇEKİLDİ";
+                    title = Loc.Get("end.title.team_down", "TİMİN ELENDİ");
+                    subtitle = Loc.Format("end.subtitle.eliminated", "{0} — {1} SIRADA HAREKÂTTAN ÇEKİLDİ", teamUpper, MenuText.FormatPlacement(TeamPlacement(), TeamTotal()));
                     titleColor = UiTheme.AccentLight;
                     break;
                 default:
-                    title = "ŞEHİT DÜŞTÜN";
+                    title = Loc.Get("match.msg.kia", "ŞEHİT DÜŞTÜN");
                     subtitle = string.IsNullOrWhiteSpace(_result.KillerName)
-                        ? "TİMİN HAREKÂTA DEVAM EDİYOR"
-                        : "SENİ ETKİSİZ BIRAKAN: " + MenuText.ToUpperTr(_result.KillerName.Trim());
+                        ? Loc.Get("end.subtitle.team_continues", "TİMİN HAREKÂTA DEVAM EDİYOR")
+                        : Loc.Format("end.subtitle.killed_by", "SENİ ETKİSİZ BIRAKAN: {0}", MenuText.ToUpperTr(_result.KillerName.Trim()));
                     titleColor = UiTheme.AccentLight;
                     break;
             }
@@ -287,18 +417,23 @@ namespace Project.Presentation.UI
             UiFactory.Anchor(underline, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -318f), new Vector2(360f, 6f));
 
             // Tim sıralaması rozeti.
-            var badge = UiFactory.Panel(parent, UiTheme.PanelDark, UiSprites.ChamferRect);
+            var badge = UiKitPanel.Card(parent, UiKitTokens.Surface, 14);
             badge.gameObject.name = "Placement";
+            UiKitPanel.AddSoftShadow(badge, 22f, 0.5f, -6f);
             UiFactory.Anchor(badge, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -344f), new Vector2(360f, 96f));
-            var badgeBorder = UiFactory.Image(badge, UiSprites.GetRoundedRectOutline(UiTheme.CornerRadius), UiTheme.WithAlpha(accent, 0.8f));
+            _badge = badge;
+            var podium = MatchEndProgression.PodiumClass(TeamPlacement(), _result.IsWinner);
+            var placeColor = podium == 1 ? MenuRankInsignia.Gold : podium == 2 ? MenuRankInsignia.Silver : podium == 3 ? Bronze : UiTheme.Text;
+            var badgeBorder = UiFactory.Image(badge, UiSprites.GetRoundedRectOutline(14), UiTheme.WithAlpha(podium > 0 ? placeColor : accent, 0.9f));
+            badgeBorder.raycastTarget = false;
             UiFactory.Stretch(badgeBorder);
 
             var placement = UiFactory.Label(badge, MenuText.FormatPlacement(TeamPlacement(), TeamTotal()), UiTheme.FontTitle, TextAnchor.MiddleCenter,
-                _outcome == Outcome.Victory ? MenuRankInsignia.Gold : UiTheme.Text, FontStyle.Bold);
+                placeColor, FontStyle.Bold);
             placement.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(placement, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 26f), new Vector2(0f, -4f));
 
-            var placementCaption = UiFactory.Label(badge, "TİM SIRALAMASI", UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.Khaki, FontStyle.Bold);
+            var placementCaption = UiFactory.Label(badge, _result.IsWinner ? Loc.Get("end.victory_caption", "ZAFER") : Loc.Get("end.team_rank", "TİM SIRALAMASI"), UiTheme.FontTiny, TextAnchor.MiddleCenter, podium > 0 ? placeColor : UiTheme.Khaki, FontStyle.Bold);
             UiFactory.SetRect(placementCaption, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f), new Vector2(0f, 28f));
         }
 
@@ -314,29 +449,34 @@ namespace Project.Presentation.UI
             var survival = Mathf.Max(0f, _result.SurvivalSeconds);
             _tiles = new[]
             {
-                Tile(row, "ETKİSİZ BIRAKMA", _result.Kills, v => MenuText.FormatThousands((long)v)),
-                Tile(row, "VERİLEN HASAR", _result.DamageDealt, v => MenuText.FormatDamage(v)),
-                Tile(row, "KAFADAN İSABET", _result.Headshots, v => MenuText.FormatThousands((long)v)),
-                Tile(row, "İSABET ORANI", Mathf.Clamp01(_result.Accuracy) * 1000f, v => MenuText.FormatPercent(v / 1000f, true)),
-                Tile(row, "HAYATTA KALMA", survival, v => MenuText.FormatDuration(v)),
-                Tile(row, "TİM ETKİSİZ", Mathf.Max(_result.TeamKills, _result.Kills), v => MenuText.FormatThousands((long)v))
+                Tile(row, Loc.Get("end.kills", "ETKİSİZ BIRAKMA"), _result.Kills, v => MenuText.FormatThousands((long)v)),
+                Tile(row, Loc.Get("end.damage", "VERİLEN HASAR"), _result.DamageDealt, v => MenuText.FormatDamage(v)),
+                Tile(row, Loc.Get("end.headshots", "KAFADAN İSABET"), _result.Headshots, v => MenuText.FormatThousands((long)v)),
+                Tile(row, Loc.Get("end.accuracy", "İSABET ORANI"), Mathf.Clamp01(_result.Accuracy) * 1000f, v => MenuText.FormatPercent(v / 1000f, true)),
+                Tile(row, Loc.Get("end.survival", "HAYATTA KALMA"), survival, v => MenuText.FormatDuration(v)),
+                Tile(row, Loc.Get("end.team_kills", "TİM ETKİSİZ"), Mathf.Max(_result.TeamKills, _result.Kills), v => MenuText.FormatThousands((long)v))
             };
         }
 
         private static StatTile Tile(Transform parent, string caption, float target, Func<float, string> format)
         {
-            var tile = UiFactory.Panel(parent, UiTheme.WithAlpha(UiTheme.PanelDark, 0.92f), UiSprites.ChamferRect);
+            var tile = UiKitPanel.Card(parent, UiTheme.WithAlpha(UiKitTokens.Surface, 0.95f), 12);
             tile.gameObject.name = "Tile_" + caption;
             UiFactory.LayoutSize(tile, 200f, 128f, 1f);
-            var border = UiFactory.Image(tile, UiSprites.GetRoundedRectOutline(UiTheme.CornerRadius), UiTheme.WithAlpha(UiTheme.PanelBorder, 0.7f));
+            UiKitPanel.AddSoftShadow(tile, 18f, 0.45f, -4f);
+            var border = UiFactory.Image(tile, UiSprites.GetRoundedRectOutline(12), UiKitTokens.Border);
+            border.raycastTarget = false;
             UiFactory.Stretch(border);
+            var topBar = UiFactory.Image(tile, null, UiKitTokens.Sand);
+            topBar.raycastTarget = false;
+            UiFactory.SetRect(topBar, new Vector2(0.18f, 1f), new Vector2(0.82f, 1f), new Vector2(0f, -3f), Vector2.zero);
 
-            var value = UiFactory.Label(tile, format(0f), UiTheme.FontTitle - 6, TextAnchor.MiddleCenter, UiTheme.Text, FontStyle.Bold);
+            var value = UiFactory.Label(tile, format(0f), UiTheme.FontTitle - 6, TextAnchor.MiddleCenter, UiKitTokens.Text, FontStyle.Bold);
             value.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(value, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 38f), new Vector2(0f, -10f));
             UiFactory.AddShadow(value, UiTheme.TextShadow, new Vector2(2f, -2f));
 
-            var label = UiFactory.Label(tile, caption, UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.Khaki, FontStyle.Bold);
+            var label = UiFactory.Label(tile, caption, UiTheme.FontTiny, TextAnchor.MiddleCenter, UiKitTokens.Sand, FontStyle.Bold);
             label.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(label, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 12f), new Vector2(0f, 38f));
 
@@ -345,14 +485,16 @@ namespace Project.Presentation.UI
 
         private void BuildExperience(RectTransform parent)
         {
-            var card = UiFactory.Panel(parent, UiTheme.WithAlpha(UiTheme.PanelDark, 0.95f), UiSprites.ChamferRect);
+            var card = UiKitPanel.Card(parent, UiTheme.WithAlpha(UiKitTokens.Surface, 0.97f), 14);
             card.gameObject.name = "Experience";
+            UiKitPanel.AddSoftShadow(card, 26f, 0.5f, -6f);
             UiFactory.Anchor(card, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -620f), new Vector2(1400f, 230f));
-            var border = UiFactory.Image(card, UiSprites.GetRoundedRectOutline(UiTheme.CornerRadius), UiTheme.WithAlpha(MenuRankInsignia.Gold, 0.45f));
+            var border = UiFactory.Image(card, UiSprites.GetRoundedRectOutline(14), UiTheme.WithAlpha(MenuRankInsignia.Gold, 0.5f));
+            border.raycastTarget = false;
             UiFactory.Stretch(border);
 
             // Sol: TP dökümü.
-            var header = UiFactory.Label(card, "KAZANILAN TECRÜBE", UiTheme.FontSmall, TextAnchor.MiddleLeft, UiTheme.Khaki, FontStyle.Bold);
+            var header = UiFactory.Label(card, Loc.Get("end.xp", "KAZANILAN TECRÜBE"), UiTheme.FontSmall, TextAnchor.MiddleLeft, UiTheme.Khaki, FontStyle.Bold);
             UiFactory.SetRect(header, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(32f, -54f), new Vector2(32f + 420f, -18f));
 
             _xpGainedText = UiFactory.Label(card, "+0 TP", UiTheme.FontTitle, TextAnchor.MiddleLeft, MenuRankInsignia.Gold, FontStyle.Bold);
@@ -360,9 +502,7 @@ namespace Project.Presentation.UI
             UiFactory.SetRect(_xpGainedText, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(32f, -116f), new Vector2(32f + 420f, -54f));
             UiFactory.AddShadow(_xpGainedText, UiTheme.TextShadow, new Vector2(2f, -2f));
 
-            var breakdown = UiFactory.Label(card, BuildBreakdown(), UiTheme.FontSmall, TextAnchor.UpperLeft, UiTheme.TextDim);
-            breakdown.lineSpacing = 1.1f;
-            UiFactory.SetRect(breakdown, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(32f, 14f), new Vector2(32f + 560f, -122f));
+            BuildBreakdownRows(card);
 
             var divider = UiFactory.Image(card, null, UiTheme.WithAlpha(UiTheme.PanelBorder, 0.8f));
             UiFactory.SetRect(divider, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(620f, 20f), new Vector2(622f, -20f));
@@ -395,20 +535,76 @@ namespace Project.Presentation.UI
             UpdateRankVisual(_xpBefore, true);
         }
 
-        private string BuildBreakdown()
+        private void BuildBreakdownRows(RectTransform card)
         {
-            var kills = Mathf.Max(0, _result.Kills);
-            var headshots = Mathf.Max(0, _result.Headshots);
-            var outlasted = Mathf.Max(0, _result.TeamCount - _result.TeamPlacement);
-            var lines = "Etkisiz bırakma  " + kills + " × " + CareerStatsService.ExperiencePerKill + "  =  +" +
-                        MenuText.FormatThousands((long)kills * CareerStatsService.ExperiencePerKill) +
-                        "\nKafadan isabet  " + headshots + " × " + CareerStatsService.ExperiencePerHeadshot + "  =  +" +
-                        MenuText.FormatThousands((long)headshots * CareerStatsService.ExperiencePerHeadshot) +
-                        "\nGeride bırakılan tim  " + outlasted + " × " + CareerStatsService.ExperiencePerTeamOutlasted + "  =  +" +
-                        MenuText.FormatThousands((long)outlasted * CareerStatsService.ExperiencePerTeamOutlasted);
-            if (_result.IsWinner)
-                lines += "\nZafer  +" + MenuText.FormatThousands(CareerStatsService.ExperienceForWin);
-            return lines;
+            _rows = new XpRow[_lines.Count];
+            for (var i = 0; i < _lines.Count; i++)
+            {
+                var row = UiFactory.CreateRect("XpRow" + i, card);
+                var top = -124f - 25f * i;
+                UiFactory.SetRect(row, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(32f, top - 24f), new Vector2(32f + 560f, top));
+                var group = UiFactory.EnsureCanvasGroup(row);
+                group.alpha = 0f;
+
+                var label = UiFactory.Label(row, _lines[i].Label, UiTheme.FontSmall, TextAnchor.MiddleLeft, UiTheme.TextDim);
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                UiFactory.SetRect(label, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(-130f, 0f));
+
+                var value = UiFactory.Label(row, "+0", UiTheme.FontSmall, TextAnchor.MiddleRight, _lines[i].Amount > 0 ? UiTheme.Text : UiTheme.TextDim, FontStyle.Bold);
+                value.horizontalOverflow = HorizontalWrapMode.Overflow;
+                UiFactory.SetRect(value, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-120f, 0f), new Vector2(0f, 0f));
+
+                _rows[i] = new XpRow { Group = group, Value = value, Amount = _lines[i].Amount };
+            }
+
+            _rowsEnd = RowStart + RowStep * _rows.Length + CountSeconds * 0.5f;
+        }
+
+        private void BuildSeason(RectTransform parent)
+        {
+            if (_season == null)
+                return;
+
+            var card = UiKitPanel.Card(parent, UiTheme.WithAlpha(UiKitTokens.Surface, 0.97f), 12);
+            card.gameObject.name = "Season";
+            UiKitPanel.AddSoftShadow(card, 18f, 0.45f, -4f);
+            UiFactory.Anchor(card, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -862f), new Vector2(1400f, 72f));
+            var border = UiFactory.Image(card, UiSprites.GetRoundedRectOutline(12), UiTheme.WithAlpha(UiTheme.Accent, 0.7f));
+            border.raycastTarget = false;
+            UiFactory.Stretch(border);
+
+            _seasonTitle = UiFactory.Label(card, string.Empty, UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.Text, FontStyle.Bold);
+            _seasonTitle.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.SetRect(_seasonTitle, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(32f, 8f), new Vector2(32f + 420f, -8f));
+
+            _seasonBar = UiFactory.ProgressBar(card, UiTheme.Accent, UiTheme.Track);
+            _seasonBar.TrailEnabled = false;
+            UiFactory.SetRect(_seasonBar, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(500f, 26f), new Vector2(-250f, -26f));
+
+            _seasonGainText = UiFactory.Label(card, "+0 SEZON TP", UiTheme.FontMedium, TextAnchor.MiddleRight, UiTheme.AccentLight, FontStyle.Bold);
+            _seasonGainText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.SetRect(_seasonGainText, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-230f, 8f), new Vector2(-24f, -8f));
+
+            UpdateSeason(0f, false);
+        }
+
+        private void BuildToast(RectTransform parent)
+        {
+            var toast = UiKitPanel.Card(parent, UiTheme.WithAlpha(UiKitTokens.Surface, 0.98f), 12);
+            toast.gameObject.name = "Toast";
+            UiKitPanel.AddSoftShadow(toast, 18f, 0.5f, -4f);
+            UiFactory.Anchor(toast, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(560f, 70f), new Vector2(480f, 84f));
+            var border = UiFactory.Image(toast, UiSprites.GetRoundedRectOutline(12), UiTheme.WithAlpha(MenuRankInsignia.Gold, 0.9f));
+            border.raycastTarget = false;
+            UiFactory.Stretch(border);
+            var bar = UiFactory.Image(toast, null, UiTheme.Accent);
+            bar.raycastTarget = false;
+            UiFactory.SetRect(bar, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 8f), new Vector2(5f, -8f));
+            _toastText = UiFactory.Label(toast, string.Empty, UiTheme.FontMedium, TextAnchor.MiddleLeft, MenuRankInsignia.Gold, FontStyle.Bold);
+            _toastText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.SetRect(_toastText, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(22f, 6f), new Vector2(-14f, -6f));
+            _toastRect = toast;
+            toast.gameObject.SetActive(false);
         }
 
         private void BuildButtons(RectTransform parent)
@@ -419,10 +615,17 @@ namespace Project.Presentation.UI
             var layout = row.GetComponent<HorizontalLayoutGroup>();
             layout.childForceExpandWidth = false;
 
-            _restartButton = UiFactory.Button(row, "TEKRAR", OnRestartClicked, UiButtonStyle.Primary);
-            UiFactory.LayoutSize(_restartButton, 330f, 64f);
-            _menuButton = UiFactory.Button(row, "ANA MENÜ", OnMainMenuClicked, UiButtonStyle.Default);
-            UiFactory.LayoutSize(_menuButton, 330f, 64f);
+            _restartButton = UiKitButton.Create(row, Loc.Get("end.btn.restart", "TEKRAR"), OnRestartClicked, UiKitButtonKind.Primary, 330f, 64f);
+            _menuButton = UiKitButton.Create(row, Loc.Get("end.btn.main_menu", "ANA MENÜ"), OnMainMenuClicked, UiKitButtonKind.Default, 330f, 64f);
+
+            _buttonsGroup = UiFactory.EnsureCanvasGroup(row);
+            _buttonsGroup.alpha = 0f;
+            _buttonsGroup.interactable = false;
+            _buttonsGroup.blocksRaycasts = false;
+
+            _skipHint = UiFactory.Label(parent, Loc.Get("end.skip_hint", "BOŞLUK  ·  ATLA"), UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.TextDim, FontStyle.Bold);
+            _skipHint.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.Anchor(_skipHint, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 90f), new Vector2(400f, 30f));
         }
 
         // ------------------------------------------------------------------ Canlandırma
@@ -443,23 +646,69 @@ namespace Project.Presentation.UI
             if (!Cursor.visible)
                 Cursor.visible = true;
 
-            if (!_animating)
-                return;
+            var kb = Keyboard.current;
+            if ((_animating || _toastActive || _toasts.Count > 0) && kb != null && kb.spaceKey.wasPressedThisFrame)
+                Skip();
 
+            if (_animating)
+                Animate();
+            else
+                PumpToasts();
+        }
+
+        /// <summary>Boşluk: tüm canlandırmaları anında bitirir (ölçüleri son değere getirir).</summary>
+        private void Skip()
+        {
+            _openedAt = Time.unscaledTime - 1000f;
+            if (!_animating && _toastActive)
+                _toastStart -= 100f;
+        }
+
+        private void Animate()
+        {
             var elapsed = Time.unscaledTime - _openedAt;
             if (_group != null)
                 _group.alpha = Mathf.Clamp01(elapsed / 0.35f);
 
-            // İstatistikler sayarak artar.
-            var countT = Ease(Mathf.Clamp01((elapsed - RevealDelay) / CountSeconds));
+            // İstatistikler sayarak artar (0 → değer, 0,6 sn).
+            var countT = MatchEndProgression.EaseOut(MatchEndProgression.CountT(elapsed, RevealDelay));
             if (_tiles != null)
             {
                 for (var i = 0; i < _tiles.Length; i++)
                     UpdateTile(_tiles[i], countT);
             }
 
-            // TP çubuğu.
-            var xpT = Ease(Mathf.Clamp01((elapsed - RevealDelay - XpDelay) / XpSeconds));
+            // Sıralama rozeti: hafif büyüyüp yerine oturur.
+            if (_badge != null)
+            {
+                var pop = MatchEndProgression.EaseOut(MatchEndProgression.CountT(elapsed, 0.15f, 0.4f));
+                _badge.localScale = Vector3.one * Mathf.Lerp(1.3f, 1f, pop);
+            }
+
+            // TP döküm satırları sırayla belirir ve sayarak dolar.
+            var rowsDone = true;
+            if (_rows != null)
+            {
+                for (var i = 0; i < _rows.Length; i++)
+                {
+                    var row = _rows[i];
+                    var start = RowStart + RowStep * i;
+                    var t = MatchEndProgression.CountT(elapsed, start);
+                    row.Group.alpha = Mathf.Clamp01((elapsed - start) / 0.18f);
+                    row.Value.text = "+" + MenuText.FormatThousands(Mathf.RoundToInt(row.Amount * MatchEndProgression.EaseOut(t)));
+                    if (!row.Revealed && elapsed >= start)
+                    {
+                        row.Revealed = true;
+                        UiSounds.Play(UiSfx.Tab);
+                    }
+
+                    if (t < 1f)
+                        rowsDone = false;
+                }
+            }
+
+            // TP + rütbe çubuğu.
+            var xpT = MatchEndProgression.EaseOut(MatchEndProgression.CountT(elapsed, _rowsEnd, BarSeconds));
             var xp = Mathf.RoundToInt(Mathf.Lerp(_xpBefore, _xpAfter, xpT));
             if (xp != _xpShown)
             {
@@ -469,15 +718,115 @@ namespace Project.Presentation.UI
                     _xpGainedText.text = "+" + MenuText.FormatThousands(Mathf.RoundToInt(_xpGained * xpT)) + " TP";
             }
 
-            if (countT >= 1f && xpT >= 1f)
+            // Sezon çubuğu (kademe atlayınca parlar).
+            var seasonT = MatchEndProgression.EaseOut(MatchEndProgression.CountT(elapsed, _rowsEnd + 0.3f, BarSeconds));
+            UpdateSeason(seasonT, true);
+
+            if (xpT > 0f && (xpT < 1f || seasonT < 1f) && Time.unscaledTime >= _nextTick)
+            {
+                _nextTick = Time.unscaledTime + 0.07f;
+                UiSounds.Play(UiSfx.Hover);
+            }
+
+            if (countT >= 1f && rowsDone && xpT >= 1f && seasonT >= 1f)
             {
                 _animating = false;
                 if (_group != null)
                     _group.alpha = 1f;
+                if (_badge != null)
+                    _badge.localScale = Vector3.one;
+                if (_skipHint != null)
+                    _skipHint.gameObject.SetActive(false);
+                _buttonsReadyFrame = Time.frameCount + 1;
+                if (_buttonsGroup != null)
+                    _buttonsGroup.alpha = 1f;
             }
         }
 
-        private static float Ease(float t) => 1f - (1f - t) * (1f - t) * (1f - t);
+        private void LateUpdate()
+        {
+            // Devam düğmeleri canlandırma bittikten bir kare sonra tıklanabilir (Boşluk atlama gönderimi tetiklemesin).
+            if (_buttonsGroup != null && !_animating && Time.frameCount >= _buttonsReadyFrame && !_buttonsGroup.interactable)
+            {
+                _buttonsGroup.interactable = true;
+                _buttonsGroup.blocksRaycasts = true;
+            }
+        }
+
+        private void UpdateSeason(float t, bool sound)
+        {
+            if (_seasonBar == null || _season == null)
+                return;
+
+            var xp = Mathf.RoundToInt(Mathf.Lerp(_seasonBefore, _seasonAfter, t));
+            var perTier = Mathf.Max(1, _season.Definition.xpPerTier);
+            var tier = _season.TierForXp(xp);
+            if (xp != _seasonShown)
+            {
+                _seasonShown = xp;
+                _seasonBar.SetValue(tier >= _season.MaxTier ? 1f : (xp % perTier) / (float)perTier, true);
+                if (_seasonGainText != null)
+                    _seasonGainText.text = "+" + MenuText.FormatThousands(Mathf.RoundToInt(_seasonGained * t)) + " SEZON TP";
+            }
+
+            if (tier > _seasonTierShown)
+            {
+                _seasonTierShown = tier;
+                _flashUntil = Time.unscaledTime + 0.6f;
+                if (sound)
+                    UiSounds.Play(UiSfx.MatchFound);
+            }
+
+            var flash = Mathf.Clamp01((_flashUntil - Time.unscaledTime) / 0.6f);
+            if (_seasonBar.Fill != null)
+                _seasonBar.Fill.color = Color.Lerp(UiTheme.Accent, Color.white, flash);
+            if (_seasonTitle != null)
+            {
+                var up = flash > 0f;
+                _seasonTitle.text = up ? "KADEME ATLADI!  ·  " + tier : "SEZON KARTI  ·  KADEME " + tier;
+                _seasonTitle.color = up ? UiTheme.AccentLight : UiTheme.Text;
+            }
+        }
+
+        /// <summary>Açılış bildirimleri tek tek kayarak girer, bekler, çıkar.</summary>
+        private void PumpToasts()
+        {
+            if (_toastRect == null)
+                return;
+
+            var now = Time.unscaledTime;
+            if (!_toastActive)
+            {
+                if (_toasts.Count == 0)
+                    return;
+                _toastText.text = _toasts.Dequeue();
+                _toastRect.gameObject.SetActive(true);
+                _toastActive = true;
+                _toastStart = now;
+                UiSounds.Play(UiSfx.Press);
+            }
+
+            var t = now - _toastStart;
+            const float offscreen = 560f;
+            const float shown = -40f;
+            float x;
+            if (t < ToastIn)
+                x = Mathf.Lerp(offscreen, shown, MatchEndProgression.EaseOut(t / ToastIn));
+            else if (t < ToastIn + ToastHold)
+                x = shown;
+            else if (t < ToastIn + ToastHold + ToastOut)
+                x = Mathf.Lerp(shown, offscreen, (t - ToastIn - ToastHold) / ToastOut);
+            else
+            {
+                _toastActive = false;
+                _toastRect.gameObject.SetActive(false);
+                return;
+            }
+
+            var pos = _toastRect.anchoredPosition;
+            pos.x = x;
+            _toastRect.anchoredPosition = pos;
+        }
 
         private static void UpdateTile(StatTile tile, float t)
         {
@@ -521,7 +870,7 @@ namespace Project.Presentation.UI
             {
                 _xpText.text = hasNext
                     ? MenuText.FormatThousands(xp) + " / " + MenuText.FormatThousands(RankCatalog.RequiredExperience(next)) + " TP  ·  sonraki: " + RankCatalog.GetName(next)
-                    : MenuText.FormatThousands(xp) + " TP  ·  en yüksek rütbe";
+                    : Loc.Format("end.max_rank", "{0} TP  ·  en yüksek rütbe", MenuText.FormatThousands(xp));
             }
         }
 
@@ -607,6 +956,15 @@ namespace Project.Presentation.UI
         {
             UiWidgets.SetInteractable(_restartButton, interactable);
             UiWidgets.SetInteractable(_menuButton, interactable);
+        }
+
+        private void OnEnable() => Loc.LanguageChanged += OnLanguageChanged;
+        private void OnDisable() => Loc.LanguageChanged -= OnLanguageChanged;
+
+        private void OnLanguageChanged(string code)
+        {
+            UiFactory.SetButtonLabel(_restartButton, Loc.Get("end.btn.restart", "TEKRAR"));
+            UiFactory.SetButtonLabel(_menuButton, Loc.Get("end.btn.main_menu", "ANA MENÜ"));
         }
 
         private void OnDestroy()

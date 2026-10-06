@@ -10,6 +10,39 @@ namespace Project.Infrastructure.World
     {
         public const float HalfSize = 150f;
 
+        /// <summary>Eğitim yol noktası (işaret direği + yer halkası).</summary>
+        public readonly struct Waypoint
+        {
+            public readonly string Id;
+            public readonly Vector3 Position;
+            public readonly float Radius;
+
+            public Waypoint(string id, Vector3 position, float radius)
+            {
+                Id = id;
+                Position = position;
+                Radius = radius;
+            }
+        }
+
+        private static readonly List<Waypoint> WaypointList = new List<Waypoint>();
+
+        /// <summary>Son kurulan poligonun yol noktaları.</summary>
+        public static IReadOnlyList<Waypoint> Waypoints => WaypointList;
+
+        /// <summary>Kimliğe göre yol noktası arar.</summary>
+        public static bool TryGetWaypoint(string id, out Waypoint waypoint)
+        {
+            for (var i = 0; i < WaypointList.Count; i++)
+                if (string.Equals(WaypointList[i].Id, id, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    waypoint = WaypointList[i];
+                    return true;
+                }
+            waypoint = default;
+            return false;
+        }
+
         public static WorldMetadata Build(Transform parent)
         {
             var root = new GameObject("[Atış Poligonu]");
@@ -21,6 +54,7 @@ namespace Project.Infrastructure.World
             BuildLanes(root.transform, rng);
             BuildKillHouse(root.transform, rng);
             BuildExtras(root.transform, rng);
+            BuildWaypoints(root.transform);
 
             var meta = root.AddComponent<WorldMetadata>();
             meta.MapHalfSize = HalfSize;
@@ -40,7 +74,7 @@ namespace Project.Infrastructure.World
             meta.GroundSpawnPoints = new List<Vector3> { new Vector3(0f, 0.1f, -120f) };
             meta.LandingZones = new List<Vector3> { new Vector3(0f, 0.1f, -100f) };
             meta.LootPoints = new List<LootSpawnPointData>();
-            meta.VehicleSpawns = new List<VehicleSpawnData>();
+            meta.VehicleSpawns = new List<VehicleSpawnData> { new VehicleSpawnData(new Vector3(-14f, 0.3f, -118f), 0f) };
             meta.StructureBounds = new List<Bounds>();
 
             // Silah rafı yağma noktaları
@@ -159,6 +193,42 @@ namespace Project.Infrastructure.World
             }
 
             PropFactory.Hesco(house.transform, new Vector3(0f, 0f, 45f), 0f, rng);
+        }
+
+        private static void BuildWaypoints(Transform parent)
+        {
+            WaypointList.Clear();
+            AddWaypoint(parent, "poly_start_pad", new Vector3(0f, 0f, -92f), 3f);
+
+            // Meydan okuma başlangıç pedleri (E ile menü): Hızlı Atış, Keskin Nişancı, Kill House, Bomba Atma.
+            AddWaypoint(parent, "challenge_quickfire", new Vector3(-30f, 0f, -96f), 2.5f);
+            AddWaypoint(parent, "challenge_sniper", new Vector3(-15f, 0f, -96f), 2.5f);
+            AddWaypoint(parent, "challenge_killhouse", new Vector3(15f, 0f, -96f), 2.5f);
+            AddWaypoint(parent, "challenge_grenade", new Vector3(30f, 0f, -96f), 2.5f);
+        }
+
+        private static void AddWaypoint(Transform parent, string id, Vector3 position, float radius)
+        {
+            WaypointList.Add(new Waypoint(id, position, radius));
+            var root = new GameObject("Yolnoktası_" + id);
+            root.transform.SetParent(parent, false);
+            root.transform.localPosition = position;
+
+            // Parlayan direk (çarpışmasız) ve yer halkası.
+            StructureKit.CreateBox(root.transform, "Direk", new Vector3(0f, 3f, 0f), new Vector3(0.18f, 6f, 0.18f),
+                Quaternion.identity, MaterialId.LandingZone, false);
+            StructureKit.CreateBox(root.transform, "Tepe", new Vector3(0f, 6.1f, 0f), new Vector3(0.7f, 0.25f, 0.7f),
+                Quaternion.identity, MaterialId.LandingZone, false);
+            const int segments = 20;
+            var segLen = 2f * Mathf.PI * radius / segments * 1.05f;
+            for (var i = 0; i < segments; i++)
+            {
+                var a = i * Mathf.PI * 2f / segments;
+                var pos = new Vector3(Mathf.Cos(a) * radius, 0.05f, Mathf.Sin(a) * radius);
+                var rot = Quaternion.Euler(0f, -a * Mathf.Rad2Deg + 90f, 0f);
+                StructureKit.CreateBox(root.transform, "Halka" + i, pos, new Vector3(segLen, 0.06f, 0.25f),
+                    rot, MaterialId.LandingZone, false);
+            }
         }
 
         private static void BuildExtras(Transform parent, System.Random rng)

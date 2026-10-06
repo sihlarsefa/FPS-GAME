@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "note": "Varsayılan havuz DailyMissions.DefaultPool ile aynıdır.",
+  "missions": [
+    {
+      "id": "d_kills",
+      "title": "{0} leş düşür",
+      "metric": "kills",
+      "target": 3,
+      "tp": 150,
+      "keys": 1
+    },
+    {
+      "id": "d_headshots",
+      "title": "{0} kafadan vuruş yap",
+      "metric": "headshots",
+      "target": 2,
+      "tp": 180,
+      "keys": 1
+    },
+    {
+      "id": "d_zones",
+      "title": "{0} bölge daralmasında hayatta kal",
+      "metric": "zones",
+      "target": 3,
+      "tp": 200,
+      "keys": 1
+    },
+    {
+      "id": "d_loot",
+      "title": "{0} ganimet topla",
+      "metric": "loot",
+      "target": 10,
+      "tp": 120,
+      "keys": 1
+    },
+    {
+      "id": "d_distance",
+      "title": "{0} m koş",
+      "metric": "distance",
+      "target": 2000,
+      "tp": 140,
+      "keys": 1
+    },
+    {
+      "id": "d_orders",
+      "title": "{0} kez timine komut ver",
+      "metric": "orders",
+      "target": 5,
+      "tp": 130,
+      "keys": 1
+    },
+    {
+      "id": "d_smoke",
+      "title": "{0} sis bombası kullan",
+      "metric": "smoke",
+      "target": 2,
+      "tp": 120,
+      "keys": 1
+    },
+    {
+      "id": "d_revives",
+      "title": "{0} yaralı arkadaşını ayağa kaldır",
+      "metric": "revives",
+      "target": 1,
+      "tp": 160,
+      "keys": 1
+    },
+    {
+      "id": "d_grenade",
+      "title": "{0} el bombasıyla leş düşür",
+      "metric": "grenade_kills",
+      "target": 1,
+      "tp": 170,
+      "keys": 1
+    },
+    {
+      "id": "d_matches",
+      "title": "{0} maç oyna",
+      "metric": "matches",
+      "target": 2,
+      "tp": 110,
+      "keys": 1
+    },
+    {
+      "id": "d_damage",
+      "title": "{0} hasar ver",
+      "metric": "damage",
+      "target": 500,
+      "tp": 150,
+      "keys": 1
+    },
+    {
+      "id": "d_wins",
+      "title": "{0} maç kazan",
+      "metric": "wins",
+      "target": 1,
+      "tp": 300,
+      "keys": 2
+    }
+  ]
+}

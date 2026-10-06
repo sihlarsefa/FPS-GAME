@@ -2,6 +2,7 @@ using System;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Presentation.Bootstrap;
+using Project.Infrastructure.Localization;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -192,7 +193,7 @@ namespace Project.Presentation.UI
             var column = UiFactory.CreateRect("Column", _content);
             UiFactory.Anchor(column, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(140f, 0f), new Vector2(520f, 640f));
 
-            var title = UiFactory.Label(column, "DURAKLATILDI", UiTheme.FontTitle + 8, TextAnchor.LowerLeft, UiTheme.Text, FontStyle.Bold);
+            var title = UiFactory.Label(column, Loc.Get("pause.title", "DURAKLATILDI"), UiTheme.FontTitle + 8, TextAnchor.LowerLeft, UiTheme.Text, FontStyle.Bold);
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(title, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -90f), new Vector2(0f, 0f));
             UiFactory.AddShadow(title, UiTheme.TextShadow, new Vector2(2f, -2f));
@@ -206,14 +207,14 @@ namespace Project.Presentation.UI
             var list = UiFactory.VerticalList(column, 14f);
             UiFactory.SetRect(list, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -560f), new Vector2(-60f, -190f));
 
-            _resumeButton = UiFactory.Button(list, "DEVAM ET", OnResumeClicked, UiButtonStyle.Primary);
+            _resumeButton = UiFactory.Button(list, Loc.Get("pause.btn.resume", "DEVAM ET"), OnResumeClicked, UiButtonStyle.Primary);
             UiFactory.LayoutSize(_resumeButton, -1f, 64f, 1f);
-            var settingsButton = UiFactory.Button(list, "AYARLAR", OpenSettings);
-            UiFactory.LayoutSize(settingsButton, -1f, 64f, 1f);
-            var menuButton = UiFactory.Button(list, "ANA MENÜ", ConfirmMainMenu, UiButtonStyle.Danger);
-            UiFactory.LayoutSize(menuButton, -1f, 64f, 1f);
+            _settingsButton = UiFactory.Button(list, Loc.Get("pause.btn.settings", "AYARLAR"), OpenSettings);
+            UiFactory.LayoutSize(_settingsButton, -1f, 64f, 1f);
+            _menuButton = UiFactory.Button(list, Loc.Get("pause.btn.main_menu", "ANA MENÜ"), ConfirmMainMenu, UiButtonStyle.Danger);
+            UiFactory.LayoutSize(_menuButton, -1f, 64f, 1f);
 
-            var hint = UiFactory.Label(column, "ESC — devam et", UiTheme.FontSmall, TextAnchor.LowerLeft, UiTheme.TextMuted);
+            var hint = UiFactory.Label(column, Loc.Get("pause.esc_hint", "ESC — devam et"), UiTheme.FontSmall, TextAnchor.LowerLeft, UiTheme.TextMuted);
             UiFactory.SetRect(hint, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(0f, 30f));
 
             BuildControls(_content);
@@ -446,6 +447,19 @@ namespace Project.Presentation.UI
             {
                 Debug.LogException(e);
             }
+        }
+
+        private UnityEngine.UI.Button _settingsButton;
+        private UnityEngine.UI.Button _menuButton;
+
+        private void OnEnable() => Loc.LanguageChanged += OnLanguageChanged;
+        private void OnDisable() => Loc.LanguageChanged -= OnLanguageChanged;
+
+        private void OnLanguageChanged(string code)
+        {
+            UiFactory.SetButtonLabel(_resumeButton, Loc.Get("pause.btn.resume", "DEVAM ET"));
+            UiFactory.SetButtonLabel(_settingsButton, Loc.Get("pause.btn.settings", "AYARLAR"));
+            UiFactory.SetButtonLabel(_menuButton, Loc.Get("pause.btn.main_menu", "ANA MENÜ"));
         }
 
         private void OnDestroy()

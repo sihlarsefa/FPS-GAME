@@ -44,6 +44,11 @@ namespace Project.Infrastructure.Rendering
                 PostProcessing.Rebuild(this);
         }
 
+        private void Update()
+        {
+            PostProcessing.Tick(Time.unscaledDeltaTime);
+        }
+
         private void OnDestroy()
         {
             if (PostProcessing.Current == this)

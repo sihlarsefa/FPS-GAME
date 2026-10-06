@@ -18,6 +18,62 @@ export const RANKS = [
   'Yüzbaşı', 'Binbaşı', 'Yarbay', 'Albay',
 ];
 
+
+export const MAPS = [
+  {
+    id: 'kuzgun',
+    name: 'Kuzgun Vadisi',
+    size: '1024×1024 m',
+    mode: 'Battle Royale',
+    blurb: 'Dağ vadisi, baraj ve köyler. Ana harekât alanı.',
+    tactics: ['Baraj üstü sniper açıları', 'Köy içi yakın muharebe', 'Röle Tepesi erken loot'],
+    locations: [
+      { name: 'Kuzgun Köyü', kind: 'Köy', x: -118, z: 22 },
+      { name: 'Yamaç Köyü', kind: 'Köy', x: 208, z: 178 },
+      { name: 'Sınır Karakolu', kind: 'Karakol', x: 140, z: 392 },
+      { name: 'İleri Üs Bölgesi', kind: 'İleri Üs', x: 262, z: -92 },
+      { name: 'Taş Ocağı', kind: 'Ocak', x: -282, z: -150 },
+      { name: 'Kuzgun Barajı', kind: 'Baraj', x: 20, z: -345 },
+      { name: 'Röle Tepesi', kind: 'Röle', x: -322, z: 302 },
+      { name: 'Çam Sırtı', kind: 'Orman', x: 318, z: 318 },
+      { name: 'Ağıl', kind: 'Çiftlik', x: -196, z: -330 },
+      { name: 'Yıkık Köy', kind: 'Harabe', x: 178, z: -298 },
+    ],
+  },
+  {
+    id: 'ayaz',
+    name: 'Ayaz Geçidi',
+    size: '896×896 m',
+    mode: 'Battle Royale',
+    blurb: 'Karlı geçit, tünel ve sırt yolları. Görüş kısadır.',
+    tactics: ['Tünel çıkışlarında pusu', 'Sırt hattında DMR', 'Kirpi ile geçit kontrolü'],
+    locations: [
+      { name: 'Karakol Kapısı', kind: 'Kapı', x: -60, z: 280 },
+      { name: 'Buz Tüneli', kind: 'Tünel', x: 40, z: 40 },
+      { name: 'Sırt Kampı', kind: 'Kamp', x: 220, z: -120 },
+      { name: 'Donmuş Dere', kind: 'Dere', x: -180, z: -200 },
+      { name: 'Radar Kulesi', kind: 'Kule', x: 160, z: 240 },
+      { name: 'Çığ Yatağı', kind: 'Yamaç', x: -240, z: 80 },
+    ],
+  },
+  {
+    id: 'mavi',
+    name: 'Mavi Liman',
+    size: '960×960 m',
+    mode: 'Battle Royale / Çatışma',
+    blurb: 'Liman, konteyner sahası ve iskele. Dikey kapak bol.',
+    tactics: ['Konteyner labirentinde SMG', 'İskele uzun koridor DMR', 'Vinç üstü gözetleme'],
+    locations: [
+      { name: 'Ana İskele', kind: 'İskele', x: 0, z: -280 },
+      { name: 'Konteyner Sahası', kind: 'Depo', x: 180, z: -40 },
+      { name: 'Gümrük', kind: 'Bina', x: -160, z: 60 },
+      { name: 'Fener', kind: 'Kule', x: 260, z: -220 },
+      { name: 'Tersane', kind: 'Atölye', x: -220, z: -100 },
+      { name: 'Yakıt Deposu', kind: 'Depo', x: 80, z: 200 },
+    ],
+  },
+];
+
 export const LOCATIONS = [
   { name: 'Kuzgun Köyü', kind: 'Köy', x: -118, z: 22 },
   { name: 'Yamaç Köyü', kind: 'Köy', x: 208, z: 178 },

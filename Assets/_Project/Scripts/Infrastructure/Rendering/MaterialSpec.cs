@@ -17,7 +17,9 @@ namespace Project.Infrastructure.Rendering
         SmokePuff,
         BulletHole,
         Starburst,
-        WhitePixel
+        WhitePixel,
+        /// <summary>Prosedürel PBR albedo (Pbr yüzeyine göre; normal + maske haritaları da eklenir).</summary>
+        PbrAlbedo
     }
 
     /// <summary>Gölgelendirme türü.</summary>
@@ -62,6 +64,35 @@ namespace Project.Infrastructure.Rendering
         public MaterialTextureKey Texture = MaterialTextureKey.None;
         public Vector2 Tiling = Vector2.one;
         public int TextureSeed;
+
+        /// <summary>Prosedürel PBR yüzeyi: None dışındaysa Lit malzemeye normal (_NORMALMAP) ve maske (metalik/AO/pürüzsüzlük) haritası eklenir.</summary>
+        public PbrSurface Pbr = PbrSurface.None;
+
+        /// <summary>Normal harita gücü (_BumpScale).</summary>
+        public float NormalStrength = 1f;
+
+        // ---- C4: detay / triplanar / makro / texel density (hepsi varsayılan kapalı; override yoksa davranış değişmez)
+
+        /// <summary>Detay albedo çarpanı (_DetailAlbedoMapScale); detay dokusu DetailAlbedo ya da prosedürel gürültüden gelir.</summary>
+        public Texture2D DetailAlbedo;
+        /// <summary>Detay normal haritası (_DetailNormalMap).</summary>
+        public Texture2D DetailNormal;
+        /// <summary>Detay karo sayısı (_DetailAlbedoMap ölçeği). 0 → detay kapalı.</summary>
+        public float DetailTiling;
+        public float DetailAlbedoScale = 1f;
+        public float DetailNormalScale = 1f;
+        /// <summary>Triplanar projeksiyon (yalnızca shader destekliyorsa; yoksa bir kez uyarı, UV'ye düşer).</summary>
+        public bool Triplanar;
+        /// <summary>Makro varyasyon gücü 0..1 (düşük frekanslı lekeler; detay albedo yuvasından uygulanır). 0 → kapalı.</summary>
+        public float MacroVariation;
+        /// <summary>Makro lekelerin dünya boyutu (metre).</summary>
+        public float MacroScaleMeters = 12f;
+        /// <summary>Hedef texel yoğunluğu (texel/metre). 0 → Tiling olduğu gibi.</summary>
+        public float TexelDensity;
+        /// <summary>Texel yoğunluğu hesabında bir karonun kapladığı dünya boyutu (metre).</summary>
+        public float TileWorldMeters = 1f;
+
+        public bool HasDetail => DetailTiling > 0.0001f && (DetailAlbedo != null || DetailNormal != null);
 
         /// <summary>DigitalCamo dokusu için 4 renk (a zemin, b/c lekeler, d koyu benekler).</summary>
         public Color CamoA = Color.gray, CamoB = Color.gray, CamoC = Color.gray, CamoD = Color.black;
@@ -120,7 +151,7 @@ namespace Project.Infrastructure.Rendering
             {
                 Id = id, Name = id.ToString(), Color = Color.white, Smoothness = 0.12f, Shading = MaterialShading.Lit,
                 Texture = MaterialTextureKey.DigitalCamo, TextureSeed = seed, Tiling = new Vector2(2f, 2f),
-                CamoA = a, CamoB = b, CamoC = c, CamoD = d
+                CamoA = a, CamoB = b, CamoC = c, CamoD = d, Pbr = PbrSurface.CamoFabric
             };
         }
 

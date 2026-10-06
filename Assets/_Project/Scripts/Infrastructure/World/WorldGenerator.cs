@@ -1,3 +1,4 @@
+using Project.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,6 +28,9 @@ namespace Project.Infrastructure.World
         /// <summary>Hazır yerleşim (null → <see cref="MapLayout.CreateKuzgunVadisi"/>).</summary>
         public MapLayout Layout;
 
+        /// <summary>Harita kimliği (<see cref="MapCatalog"/>): Layout verilmediyse yerleşimi seçer. Varsayılan "kuzgun".</summary>
+        public string MapId = MapCatalog.Kuzgun;
+
         /// <summary>Yapıları kur (LocationBuilder). Kapalıysa yalnızca arazi + yedek noktalar.</summary>
         public bool BuildLocations = true;
 
@@ -34,9 +38,12 @@ namespace Project.Infrastructure.World
         public bool BuildMissingBridges = true;
 
         public bool ScatterRocks = true;
+
+        /// <summary>Yerleşimler arası mikro-POI geçişi (kaya öbeği, koru, kulübe, ağıl, siperlik...).</summary>
+        public bool ScatterMicroPoi = true;
         public int RockCount = RockScatter.DefaultCount;
         public int TreeCount = TreeScatter.DefaultTargetCount;
-        public int AlphamapResolution = TerrainPainter.DefaultAlphamapResolution;
+        public int AlphamapResolution = TerrainGenerator.DefaultAlphamapResolution;
         public int LayerTextureSize = TerrainTextureFactory.DefaultTextureSize;
 
         /// <summary>NavMesh voksel boyu (m). Sözleşme ~0.18; çalışma zamanı pişirmesini hızlandırmak için büyütülebilir.</summary>
@@ -132,10 +139,10 @@ namespace Project.Infrastructure.World
             var timer = Stopwatch.StartNew();
             var report = new System.Text.StringBuilder(256);
 
-            var layout = options.Layout ?? MapLayout.CreateKuzgunVadisi(seed);
+            var layout = options.Layout ?? MapLayout.Create(options.MapId, seed);
             LastLayout = layout;
 
-            var root = new GameObject(RootNamePrefix + (string.IsNullOrEmpty(layout.Name) ? "Kuzgun Vadisi" : layout.Name));
+            var root = new GameObject(RootNamePrefix + (string.IsNullOrEmpty(layout.Name) ? "Harita" : layout.Name));
             root.layer = GameLayers.Default;
             if (options.Parent != null)
                 root.transform.SetParent(options.Parent, false);
@@ -195,20 +202,84 @@ namespace Project.Infrastructure.World
                 Guard("WorldBridges", () => WorldBridges.BuildMissing(layout, structures, root.transform, structures));
             }
 
+            if (model != null)
+                Guard("Yol detayları", () => RoadsideDetails.Build(layout, model, terrain, root.transform, structures));
+
+            if (model != null && !options.Headless)
+                Guard("Bitki çeşitliliği", () =>
+                {
+                    var vt = Mathf.Clamp(QualitySettings.GetQualityLevel(), 0, 3);
+                    var n = TreeScatter.AddVariety(terrain, model, seed, vt, root.transform);
+                    UnityEngine.Debug.Log("[Bitki] Çeşitlilik örnekleri: " + n);
+                });
+
+            Guard("Cephe hattı", () => FrontlineBuilder.BuildIfApplicable(layout, model, root.transform, seed, structures, options.Headless));
+
             Guard("Ağaç temizliği", () => TreeScatter.RemoveTreesInBounds(terrain, structures, 1.5f));
+            Guard("Çimen temizliği", () => VegetationPainter.RemoveDetailsInBounds(terrain, structures, 1.2f));
 
             // ------------------------------------------------------------ 3) Su ve kayalar
             if (!options.Headless)
                 Guard("WorldWater", () => WorldWater.Build(layout, model, root.transform));
 
+            // Mikro-POI: yerleşimler arası boşluğu doldurur; izleri (kulübe/ağıl/siperlik) kaya ve doğma noktalarından kaçınılır.
+            var obstacles = new List<Bounds>(structures);
+            if (options.ScatterMicroPoi && model != null)
+            {
+                Guard("MicroPoi", () =>
+                {
+                    var micro = MicroPoi.Build(model, terrain, root.transform, seed, structures);
+                    if (micro != null)
+                    {
+                        obstacles.AddRange(micro.Footprints);
+                        Debug.Log("[WorldGenerator] Mikro-POI: " + micro.PoiCount + " nokta, " + micro.ItemCount + " öğe.");
+                    }
+                });
+                Mark(report, "mikro-poi", timer);
+            }
+
+            if (model != null && !options.Headless)
+            {
+                Guard("Düşmüş kütükler", () =>
+                {
+                    var spots = TreeScatter.ScatterLogSpots(model, seed);
+                    if (spots == null || spots.Count == 0)
+                        return;
+                    var logRoot = new GameObject("FallenLogs").transform;
+                    logRoot.SetParent(root.transform, false);
+                    var placed = 0;
+                    for (var i = 0; i < spots.Count; i++)
+                    {
+                        var spot = spots[i];
+                        var pos = spot.Position;
+                        var blocked = false;
+                        for (var k = 0; k < obstacles.Count; k++)
+                        {
+                            if (obstacles[k].Contains(pos))
+                            {
+                                blocked = true;
+                                break;
+                            }
+                        }
+
+                        if (blocked)
+                            continue;
+                        PropFactory.FallenLog(logRoot, pos, spot.Yaw, spot.Length);
+                        placed++;
+                    }
+
+                    Debug.Log("[WorldGenerator] Düşmüş kütük: " + placed + ".");
+                });
+            }
+
             if (options.ScatterRocks && model != null)
-                Guard("RockScatter", () => RockScatter.Scatter(model, root.transform, seed, structures, options.RockCount));
+                Guard("RockScatter", () => RockScatter.Scatter(model, root.transform, seed, obstacles, options.RockCount));
             Mark(report, "su+kaya", timer);
 
             // ------------------------------------------------------------ 4) Metadata noktaları
             meta.StructureBounds = new List<Bounds>(structures);
             LastStructureBounds = meta.StructureBounds;
-            Guard("Dünya noktaları", () => FillPoints(meta, options, model, terrain, structures, loot, vehicles, seed));
+            Guard("Dünya noktaları", () => FillPoints(meta, options, model, terrain, obstacles, loot, vehicles, seed));
             Mark(report, "noktalar", timer);
 
             // ------------------------------------------------------------ 5) Mini harita
@@ -308,8 +379,12 @@ namespace Project.Infrastructure.World
                 meta.LootPoints.AddRange(supplement);
             }
 
-            if (meta.VehicleSpawns.Count < options.MinVehicleSpawns)
-                meta.VehicleSpawns.AddRange(planner.PlanRoadsideVehicles(options.MinVehicleSpawns - meta.VehicleSpawns.Count, meta.VehicleSpawns));
+            var groundVehicles = 0;
+            for (var vi = 0; vi < meta.VehicleSpawns.Count; vi++)
+                if (!meta.VehicleSpawns[vi].IsAir)
+                    groundVehicles++;
+            if (groundVehicles < options.MinVehicleSpawns)
+                meta.VehicleSpawns.AddRange(planner.PlanRoadsideVehicles(options.MinVehicleSpawns - groundVehicles, meta.VehicleSpawns));
 
             meta.GroundSpawnPoints.AddRange(planner.PlanGroundSpawns(Mathf.Max(0, options.GroundSpawnCount), 55f));
             meta.LandingZones.AddRange(planner.PlanLandingZones(Mathf.Max(0, options.LandingZoneCount), 70f));

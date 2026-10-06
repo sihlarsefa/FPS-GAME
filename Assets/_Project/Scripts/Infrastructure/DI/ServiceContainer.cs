@@ -65,7 +65,17 @@ namespace Project.Infrastructure.DI
             foreach (var instance in _singletons.Values)
             {
                 if (instance is IDisposable disposable && disposed.Add(instance))
-                    disposable.Dispose();
+                {
+                    // Bir servisin hatası diğerlerinin serbest bırakılmasını (olay abonelikleri) engellemesin.
+                    try
+                    {
+                        disposable.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.LogException(e);
+                    }
+                }
             }
 
             _singletons.Clear();

@@ -163,7 +163,7 @@ namespace Project.Presentation.DevTools
                     SuggestTokens(argPartial, result, "here");
                     break;
                 case "loadscene":
-                    SuggestTokens(argPartial, result, SceneNames.MainMenu, SceneNames.Operation, SceneNames.Training);
+                    SuggestTokens(argPartial, result, SceneNames.MainMenu, SceneNames.Operation, SceneNames.AyazGecidi, SceneNames.MaviLiman, SceneNames.Training);
                     break;
                 case "help":
                     for (var i = 0; i < Names.Count; i++)
@@ -502,7 +502,7 @@ namespace Project.Presentation.DevTools
                     bots[i].enabled = _aiEnabled;
             }
 
-            return "AI: " + (_aiEnabled ? "AÇIK" : "KAPALI") + " (" + bots.Count + " bot).";
+            return "AI: " + (_aiEnabled ? "AÇIK" : "KAPALI") + " (" + bots.Count + " bot). " + BotLod.StatsLine;
         }
 
         private static string CmdZone(string[] args)
@@ -699,7 +699,7 @@ namespace Project.Presentation.DevTools
                 name = SceneNames.MainMenu;
             else if (string.Equals(name, "match", StringComparison.OrdinalIgnoreCase) ||
                      string.Equals(name, "op", StringComparison.OrdinalIgnoreCase))
-                name = SceneNames.Operation;
+                name = SceneNames.OperationSceneFor(GameSession.SelectedMap);
             else if (string.Equals(name, "train", StringComparison.OrdinalIgnoreCase) ||
                      string.Equals(name, "range", StringComparison.OrdinalIgnoreCase))
                 name = SceneNames.Training;
@@ -924,7 +924,7 @@ namespace Project.Presentation.DevTools
         private static void TickNoclip(PlayerController player, float dt)
         {
             var keyboard = UnityEngine.InputSystem.Keyboard.current;
-            if (keyboard == null || dt <= 0f)
+            if (keyboard == null || dt <= 0f || UI.OverlayState.TextInputActive)
                 return;
 
             var cam = Camera.main;
@@ -934,17 +934,19 @@ namespace Project.Presentation.DevTools
             right.Normalize();
 
             var move = Vector3.zero;
-            if (keyboard.wKey.isPressed) move += forward;
-            if (keyboard.sKey.isPressed) move -= forward;
-            if (keyboard.dKey.isPressed) move += right;
-            if (keyboard.aKey.isPressed) move -= right;
-            if (keyboard.eKey.isPressed || keyboard.spaceKey.isPressed) move += Vector3.up;
-            if (keyboard.qKey.isPressed || keyboard.leftCtrlKey.isPressed) move += Vector3.down;
+            // Hareket tuşları InputBindings'ten (yeniden atamaya uyar); yukarı = Zıpla / sağa eğil, aşağı = Eğil (basılı) / sola eğil.
+            Func<BindAction, bool> bind = Infrastructure.Input.InputBindings.Held;
+            if (bind(BindAction.MoveForward)) move += forward;
+            if (bind(BindAction.MoveBack)) move -= forward;
+            if (bind(BindAction.MoveRight)) move += right;
+            if (bind(BindAction.MoveLeft)) move -= right;
+            if (bind(BindAction.Jump) || bind(BindAction.LeanRight)) move += Vector3.up;
+            if (bind(BindAction.CrouchHold) || bind(BindAction.LeanLeft)) move += Vector3.down;
 
             if (move.sqrMagnitude < 1e-6f)
                 return;
 
-            var speed = keyboard.leftShiftKey.isPressed ? 36f : 12f;
+            var speed = bind(BindAction.Sprint) ? 36f : 12f;
             player.transform.position += move.normalized * (speed * dt);
         }
 

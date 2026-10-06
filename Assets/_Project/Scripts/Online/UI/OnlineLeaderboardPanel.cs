@@ -77,7 +77,7 @@ namespace Project.Online.UI
 
             var scrollRoot = UiFactory.CreateRect("ScrollHost", body);
             UiFactory.LayoutSize(scrollRoot, -1f, 420f, 1f);
-            var scroll = UiWidgets.ScrollList(scrollRoot, out _content, 4f, 4f);
+            var scroll = UiWidgets.ScrollList(scrollRoot, out _content, 4f, 4);
             UiFactory.Stretch(scroll);
 
             _refreshButton = UiFactory.Button(body, "YENİLE", () => { _ = FetchAsync(); }, UiButtonStyle.Default);

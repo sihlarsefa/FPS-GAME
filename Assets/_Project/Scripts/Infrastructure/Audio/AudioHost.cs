@@ -1,3 +1,4 @@
+using Project.Infrastructure.Audio.HdrMix;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -53,6 +54,10 @@ namespace Project.Infrastructure.Audio
             Flat = new AudioPool(CreateGroup(root, "Flat"), "Sfx2D", flatVoices, flatVoices, false);
             Loops = new AudioPool(CreateGroup(root, "Loops"), "Loop", loopVoices, maxLoopVoices, true);
 
+            Spatial.SetMixChannel(MixChannel.Efekt);
+            Flat.SetMixChannel(MixChannel.Efekt);
+            Loops.SetMixChannel(MixChannel.Efekt);
+
             var ambienceRoot = CreateGroup(root, "Ambience");
             _ambience = new AudioSource[2];
             _ambienceLevel = new float[2];
@@ -70,6 +75,7 @@ namespace Project.Infrastructure.Audio
                 s.dopplerLevel = 0f;
                 s.priority = 32;
                 s.volume = 0f;
+                MixerRouting.Route(s, MixChannel.Ortam);
                 _ambience[i] = s;
             }
 
@@ -105,6 +111,8 @@ namespace Project.Infrastructure.Audio
             position = default;
             return false;
         }
+
+        internal Transform ListenerTransform => EnsureListener(Time.unscaledTime) ? _listenerTransform : null;
 
         public bool HasListener => EnsureListener(Time.unscaledTime);
 
@@ -314,7 +322,7 @@ namespace Project.Infrastructure.Audio
                 return;
 
             var step = dt / AmbienceFadeSeconds;
-            var ambient = GameAudio.AmbientVolume;
+            var ambient = GameAudio.AmbientVolume * Dialogue.DialogueDirector.DuckGain;
             for (var i = 0; i < 2; i++)
             {
                 var src = _ambience[i];

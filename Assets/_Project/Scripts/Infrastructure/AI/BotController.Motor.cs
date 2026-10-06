@@ -88,7 +88,6 @@ namespace Project.Infrastructure.AI
 
         private Combatant _aimTarget;
         private BodyPart _aimPart = BodyPart.Torso;
-        private float _aimSettle = 1f;
         private float _aimErrorYaw;
         private float _aimErrorPitch;
         private float _aimErrorTargetYaw;
@@ -174,7 +173,7 @@ namespace Project.Infrastructure.AI
             {
                 if (_moveSpeed >= MoveSpeed.Run || Time.time < _evadeUntil)
                     desired = Stance.Standing;
-                else if (desired == Stance.Prone)
+                else if (desired == Stance.Prone && !_allowCrawl)
                     desired = Stance.Crouching;
             }
 
@@ -263,7 +262,7 @@ namespace Project.Infrastructure.AI
                 TryAcquireNavMesh();
             }
 
-            var speed = SpeedFor(_moveSpeed) * StanceSpeedFactor(combatant.Stance) * combatant.MovementSpeedMultiplier;
+            var speed = SpeedFor(_moveSpeed) * StanceSpeedFactor(combatant.Stance) * combatant.MovementSpeedMultiplier * LimpExtraScale();
             if (speed < 0.2f)
                 speed = 0.2f;
 
@@ -598,15 +597,13 @@ namespace Project.Infrastructure.AI
             if (!ReferenceEquals(target, _aimTarget))
             {
                 _aimTarget = target;
-                _aimSettle = 1.7f;
+                _aimAcquiredAt = now; // ilk atış hatası: hedef değişiminde yeniden açılır, zamanla yakınsar (BotSkill.AimSettle)
                 _aimPart = RollAimPart(FlatDistance(transform.position, target.transform.position));
                 var initial = AimErrorMagnitude(target, FlatDistance(transform.position, target.transform.position), now);
                 _aimErrorYaw = Gaussian() * initial * 0.75f;
                 _aimErrorPitch = Gaussian() * initial * 0.45f;
                 _nextAimErrorTime = 0f;
             }
-
-            _aimSettle = Mathf.MoveTowards(_aimSettle, 0.65f, dt * 0.6f);
 
             var point = target.GetAimPosition(_aimPart);
             var toTarget = point - eye;
@@ -672,7 +669,7 @@ namespace Project.Infrastructure.AI
             if (now - _perception.LastEnemyDamageTime < 0.8f)
                 magnitude *= 1.5f;
 
-            return magnitude * _aimSettle;
+            return magnitude * AimSettleFactor(now);
         }
 
         private BodyPart RollAimPart(float distance)

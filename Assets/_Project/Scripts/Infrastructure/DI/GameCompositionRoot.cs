@@ -70,6 +70,7 @@ namespace Project.Infrastructure.DI
 
             container.RegisterSingleton(settings);
             container.RegisterSingleton(career);
+            container.RegisterSingleton(AchievementServiceProvider.GetOrCreate(store ?? CreateStore()));
             container.RegisterSingleton(config);
 
             // Ağ oturumu (çevrimdışı: her zaman otorite; online adaptörü fabrika ile verir).
@@ -138,8 +139,12 @@ namespace Project.Infrastructure.DI
             var chain = new ChainOfCommandService(eventBus);
             container.RegisterSingleton(chain);
 
-            // Sabit tick: maç → bölge → topçu.
-            var tick = new GameTickCoordinator(match, zone, artillery);
+            // İkmal düşürme (bot hedefleme ve sandık açılışı buna bağlı); InMatch'e geçişte kendi kendine silahlanır.
+            var airdrop = new AirdropService(eventBus, zone, new SeededRandom(DeriveSeed(seed, 0xA1D0)), config);
+            container.RegisterSingleton(airdrop);
+
+            // Sabit tick: maç → bölge → topçu → ikmal düşürme.
+            var tick = new GameTickCoordinator(match, zone, artillery, airdrop);
             container.RegisterSingleton(tick);
             container.RegisterSingleton<IGameTickService>(tick);
 

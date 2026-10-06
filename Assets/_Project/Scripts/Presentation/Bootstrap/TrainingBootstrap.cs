@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Project.Presentation.DevTools;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
@@ -13,6 +14,8 @@ using Project.Infrastructure.Player;
 using Project.Infrastructure.Rendering;
 using Project.Infrastructure.World;
 using Project.Presentation.Player;
+using Project.Presentation.Training;
+using Project.Presentation.Tutorial;
 using UnityEngine;
 
 namespace Project.Presentation.Bootstrap
@@ -49,6 +52,7 @@ namespace Project.Presentation.Bootstrap
 
         private ServiceContainer _container;
         private MatchConfig _config;
+        private AchievementTracker _achievementTracker;
         private IEventBus _eventBus;
         private MatchService _match;
         private CombatService _combat;
@@ -97,6 +101,8 @@ namespace Project.Presentation.Bootstrap
             GameContext.Set(_container);
 
             _container.TryResolve(out _eventBus);
+            _achievementTracker?.Dispose();
+            _achievementTracker = AchievementTracker.Create(_eventBus, LocalPlayerId, 0);
             _container.TryResolve(out _match);
             _container.TryResolve(out _combat);
             _container.TryResolve(out _artillery);
@@ -129,6 +135,7 @@ namespace Project.Presentation.Bootstrap
             BootstrapUtility.Try(SpawnPlayer, "Oyuncu");
             BootstrapUtility.Try(SpawnRacks, "Silah rafları");
             BootstrapUtility.Try(SpawnTargets, "Hedefler");
+            BootstrapUtility.Try(SpawnVehicle, "Eğitim aracı");
             BootstrapUtility.Try(() => SetupPresentation(sceneCameras), "Arayüz");
             BootstrapUtility.Try(SetupLoop, "Simülasyon döngüsü");
 
@@ -138,8 +145,17 @@ namespace Project.Presentation.Bootstrap
             BootstrapUtility.Try(() => GameAudio.SetAmbience(SoundId.Wind, 0.4f), "GameAudio.SetAmbience");
 
             if (_ui != null)
-                _ui.ShowMessage("ATIŞ POLİGONU — Mermi sınırsız. Raflardan silah alabilirsin.", 6f);
+                _ui.ShowMessage("ATIŞ POLİGONU — Mermi sınırsız. Raflardan silah alabilirsin. F6: skor tablosu.", 6f);
 
+            if (GameSession.StartTutorial)
+            {
+                GameSession.StartTutorial = false;
+                BootstrapUtility.Try(() => TutorialPresenter.Begin(_runtimeRoot, _eventBus, _player != null ? _player.transform : null, _player), "Eğitim");
+            }
+
+            BootstrapUtility.Try(SetupChallenges, "Meydan okumalar");
+            BootstrapUtility.Try(SetupRangePro, "Poligon Pro");
+            BootstrapUtility.Try(() => DevConsole.Ensure(), "DevConsole.Ensure");
             _setupComplete = true;
             GameSession.HideLoading();
         }
@@ -161,6 +177,7 @@ namespace Project.Presentation.Bootstrap
 
         private void OnDestroy()
         {
+            _achievementTracker?.Dispose();
             Teardown();
         }
 
@@ -336,6 +353,15 @@ namespace Project.Presentation.Bootstrap
             }
         }
 
+        private void SpawnVehicle()
+        {
+            var spawns = _world != null ? _world.VehicleSpawns : null;
+            if (spawns == null || spawns.Count == 0)
+                return;
+            var data = spawns[0];
+            Project.Infrastructure.Vehicles.DrivableVehicle.Spawn(data.Position, data.Yaw);
+        }
+
         /// <summary>Atış hattı boyunca 25/50/100/200/300 m'de sabit hedefler, 75 ve 150 m'de yatay hareket eden hedefler.</summary>
         private void SpawnTargets()
         {
@@ -408,6 +434,7 @@ namespace Project.Presentation.Bootstrap
         private void SetupPresentation(Camera[] sceneCameras)
         {
             _ui = GameplayUiController.Create(_runtimeRoot, _player, _settings, GameSession.ReturnToMainMenu);
+            BootstrapUtility.InstallGrass(_world, _settings != null ? _settings.Current.QualityLevel : 2);
 
             var replaced = BootstrapUtility.DisableSceneCamerasIfReplaced(sceneCameras);
             if (!replaced && Camera.allCamerasCount == 0)
@@ -418,6 +445,25 @@ namespace Project.Presentation.Bootstrap
                 _onSettingsChanged = OnSettingsChanged;
                 _settings.Changed += _onSettingsChanged;
             }
+        }
+
+        private void SetupChallenges()
+        {
+            if (_player == null || _damageables == null || _eventBus == null)
+                return;
+            ChallengeController.Create(_runtimeRoot, _eventBus, _damageables, _player, LocalPlayerId, GameSession.Store,
+                _rangeForward, (text, seconds) => { if (_ui != null) _ui.ShowMessage(text, seconds); });
+        }
+
+        /// <summary>Poligon Pro: numaralı şerit levhaları (100-600 m), istasyon pedleri ve skor tablosu.</summary>
+        private void SetupRangePro()
+        {
+            if (_player == null || _damageables == null || _eventBus == null)
+                return;
+
+            RangeLaneBoard.Build(_runtimeRoot, _spawnPoint, _rangeForward);
+            RangeCourseController.Create(_runtimeRoot, _eventBus, _damageables, _player, LocalPlayerId, GameSession.Store,
+                _spawnPoint, _rangeForward, (text, seconds) => { if (_ui != null) _ui.ShowMessage(text, seconds); });
         }
 
         private void SetupLoop()

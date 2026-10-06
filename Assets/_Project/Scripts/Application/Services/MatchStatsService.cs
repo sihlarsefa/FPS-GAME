@@ -6,6 +6,17 @@ using Project.Core.Interfaces;
 
 namespace Project.Application.Services
 {
+    public sealed class WeaponMatchStats
+    {
+        public int Shots;
+        public int Hits;
+        public int Kills;
+        public int Headshots;
+        public float Damage;
+        /// <summary>En uzun leş mesafesi (metre).</summary>
+        public float LongestKill;
+    }
+
     /// <summary>
     /// Savaşan başına istatistik: WeaponFiredEvent (atış), HitConfirmedEvent (isabet/hasar/kafa), PlayerDiedEvent (leş,
     /// hayatta kalma süresi = match.MatchElapsedSeconds, öldüren). BuildResult maç sonu ekranı için sonuç üretir.
@@ -32,6 +43,14 @@ namespace Project.Application.Services
         private readonly Dictionary<int, CombatantStats> _stats = new();
         private readonly Dictionary<int, DeathRecord> _deaths = new();
         private readonly Dictionary<int, int> _teamKills = new();
+        private readonly Dictionary<int, Dictionary<string, WeaponMatchStats>> _weapons = new();
+        private readonly Dictionary<int, LastShot> _lastShot = new();
+
+        private struct LastShot
+        {
+            public string WeaponId;
+            public float Distance;
+        }
         private readonly Action<WeaponFiredEvent> _onWeaponFired;
         private readonly Action<HitConfirmedEvent> _onHitConfirmed;
         private readonly Action<PlayerDiedEvent> _onPlayerDied;
@@ -76,6 +95,33 @@ namespace Project.Application.Services
         {
             stats = null;
             return id.IsValid && _stats.TryGetValue(id.Value, out stats);
+        }
+
+        /// <summary>Savaşanın silah başına maç istatistikleri (kayıt oluşturmaz; yoksa boş sözlük).</summary>
+        public IReadOnlyDictionary<string, WeaponMatchStats> GetWeaponStats(PlayerId id)
+        {
+            if (id.IsValid && _weapons.TryGetValue(id.Value, out var map))
+                return map;
+            return new Dictionary<string, WeaponMatchStats>(0);
+        }
+
+        private WeaponMatchStats WeaponOf(PlayerId id, string weaponId)
+        {
+            if (string.IsNullOrEmpty(weaponId))
+                weaponId = "bilinmeyen";
+            if (!_weapons.TryGetValue(id.Value, out var map))
+            {
+                map = new Dictionary<string, WeaponMatchStats>();
+                _weapons.Add(id.Value, map);
+            }
+
+            if (!map.TryGetValue(weaponId, out var w))
+            {
+                w = new WeaponMatchStats();
+                map.Add(weaponId, w);
+            }
+
+            return w;
         }
 
         /// <summary>Timin toplam leşi (dost öldürmeler hariç).</summary>
@@ -173,6 +219,27 @@ namespace Project.Application.Services
                 survival, accuracy, killerName, teamPlacement, teamCount, teamName, GetTeamKills(team));
         }
 
+        /// <summary>Verilen tüm savaşanların sonuçlarını tek özette toplar (sunucu → backend sonucu için).</summary>
+        public MatchSummary BuildSummary(IEnumerable<PlayerId> ids, bool timedOut)
+        {
+            var list = new List<CombatantResult>();
+            if (ids != null)
+            {
+                foreach (var id in ids)
+                {
+                    if (!id.IsValid)
+                        continue;
+
+                    var r = BuildResult(id);
+                    var team = SafeTeam(id);
+                    list.Add(new CombatantResult(id, SafeName(id), team, r.TeamName, r.TeamPlacement, r.Placement,
+                        r.Kills, r.Headshots, r.DamageDealt, r.SurvivalSeconds, r.IsWinner));
+                }
+            }
+
+            return new MatchSummary(list, _match?.WinnerTeam ?? -1, _match?.MatchElapsedSeconds ?? 0f, timedOut);
+        }
+
         public void Dispose()
         {
             if (_disposed)
@@ -193,6 +260,22 @@ namespace Project.Application.Services
                 return;
 
             Get(e.ShooterId).ShotsFired++;
+
+            var weapon = WeaponOf(e.ShooterId, e.WeaponId);
+            weapon.Shots++;
+
+            var distance = 0f;
+            if (e.HasOrigin && e.Hit.HasHit)
+            {
+                var dx = e.Hit.HitX - e.Origin.X;
+                var dy = e.Hit.HitY - e.Origin.Y;
+                var dz = e.Hit.HitZ - e.Origin.Z;
+                var d = (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                if (!float.IsNaN(d) && !float.IsInfinity(d))
+                    distance = d;
+            }
+
+            _lastShot[e.ShooterId.Value] = new LastShot { WeaponId = e.WeaponId, Distance = distance };
         }
 
         private void OnHitConfirmed(HitConfirmedEvent e)
@@ -205,11 +288,23 @@ namespace Project.Application.Services
             if (e.Damage > 0f && !float.IsNaN(e.Damage) && !float.IsInfinity(e.Damage))
                 stats.DamageDealt += e.Damage;
 
+            var hasShot = _lastShot.TryGetValue(attacker.Value, out var shot);
+            var weapon = WeaponOf(attacker, hasShot ? shot.WeaponId : null);
+            if (e.Damage > 0f && !float.IsNaN(e.Damage) && !float.IsInfinity(e.Damage))
+                weapon.Damage += e.Damage;
+
             if (stats.ShotsHit < stats.ShotsFired)
+            {
                 stats.ShotsHit++;
+                if (weapon.Hits < weapon.Shots)
+                    weapon.Hits++;
+            }
 
             if (e.IsHeadshot)
+            {
                 stats.Headshots++;
+                weapon.Headshots++;
+            }
         }
 
         private void OnPlayerDied(PlayerDiedEvent e)
@@ -242,6 +337,13 @@ namespace Project.Application.Services
                 return;
 
             Get(killer).Kills++;
+
+            var killWeaponId = !string.IsNullOrEmpty(e.WeaponId) ? e.WeaponId
+                : (_lastShot.TryGetValue(killer.Value, out var ks) ? ks.WeaponId : null);
+            var kw = WeaponOf(killer, killWeaponId);
+            kw.Kills++;
+            if (_lastShot.TryGetValue(killer.Value, out var lastShot) && lastShot.Distance > kw.LongestKill)
+                kw.LongestKill = lastShot.Distance;
 
             var killerTeam = SafeTeam(killer);
             if (killerTeam >= 0)

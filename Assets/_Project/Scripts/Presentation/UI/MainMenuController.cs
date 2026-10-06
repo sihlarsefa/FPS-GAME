@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure.Audio;
 using Project.Presentation.Bootstrap;
+using Project.Infrastructure.Localization;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -12,11 +14,12 @@ using UnityEngine.UI;
 namespace Project.Presentation.UI
 {
     /// <summary>
-    /// Ana menü arayüzü (MainMenuBootstrap ekler; sahneye elle de konabilir). Solda "HAREKÂT" başlığı ve
-    /// "Tim Battle Royale — Kuzgun Vadisi" alt başlığı, düğmeler: HAREKÂTA KATIL (kurulum penceresi), ATIŞ POLİGONU,
-    /// KARİYER, AYARLAR, ÇIKIŞ (onaylı). Sağ altta rütbe kartı (apolet, ad, TP çubuğu — tıklanınca kariyer) ve son
-    /// harekât özeti. Menü müziği çalar, imleç serbesttir. Esc / gamepad B en üstteki pencereyi kapatır; pencere yoksa
-    /// çıkış onayı açar. Açık pencereye göre <see cref="MenuBackdrop"/> kamerası kadraj değiştirir.
+    /// Ana menü (lobi) arayüzü: solda büyük "HAREKÂT" başlığı ve animasyonlu gezinme (OYNA, TİM, DONANIM, SEZON,
+    /// TEKRARLAR, AYARLAR, ÇIKIŞ + diğer <see cref="ExtraButtons"/>), sağda yumuşak geçişli sayfalar (OYNA: mod kartı
+    /// atlıkarıncası ve harita seçimi; TİM: rütbe, kariyer ve rol; DONANIM: dönen 3B silah önizlemesi), altta haber bandı,
+    /// sağ altta profil kartı ve sürüm. Arkada <see cref="MenuBackdrop"/> (T-70 helipadı, Kirpi, tim) kadraj değiştirir.
+    /// Menü müziği çalar, imleç serbesttir. Esc / gamepad B önce açık pencereyi, sonra alt adımı/sayfayı kapatır; en sonda
+    /// çıkış onayı açar. Kurulum, kariyer, ayarlar ve onay pencereleri eskisi gibi üstte açılır.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class MainMenuController : MonoBehaviour
@@ -25,30 +28,39 @@ namespace Project.Presentation.UI
         public const int SortOrder = 50;
 
         private const float MusicVolume = 0.7f;
-        private const float ButtonHeight = 66f;
+        private const float NavHeight = 54f;
+        private const float NavTop = 224f;
+        private const string ConvoyLabel = "KONVOY KORUMA";
+        private const string HostageLabel = "REHİNE KURTARMA";
+        private const string SeasonLabel = "SEZON";
+        private const string ReplayLabel = "TEKRARLAR";
 
-        private const string HintJoin = "Timini kur ve Kuzgun Vadisi'ne intikal et. Son ayakta kalan tim kazanır.";
-        private const string HintTraining = "Tüm silahlarla sınırsız cephane — hedeflere atış yaparak ısın.";
-        private const string HintCareer = "Rütben, tecrübe puanın ve harekât istatistiklerin.";
-        private const string HintSettings = "Fare hassasiyeti, görüş alanı, grafik kalitesi ve ses.";
-        private const string HintExit = "Karargâhtan ayrıl ve oyunu kapat.";
+        private const string PageHome = "home";
+        private const string PagePlay = "play";
+        private const string PageTeam = "team";
+        private const string PageLoadout = "loadout";
 
         private Canvas _canvas;
+        private Lobby.LobbyShell _lobby;
         private RectTransform _root;
         private RectTransform _main;
         private CanvasGroup _mainGroup;
         private bool _mainVisible = true;
         private bool _introDone;
 
-        private Button _joinButton;
-        private Button _trainingButton;
-        private Button _careerButton;
-        private Button _settingsButton;
-        private Button _exitButton;
+        private MenuPageHost _pages;
+        private MenuPlayPage _playPage;
+        private MenuNavItem _navPlay;
+        private MenuNavItem _navTeam;
+        private MenuNavItem _navLoadout;
+        private MenuNavItem _navSettings;
+        private MenuNavItem _navExit;
+        private readonly List<(MenuNavItem item, string key, string fallback)> _navLabels = new List<(MenuNavItem, string, string)>(8);
         private Button _lastFocus;
-        private Text _hint;
         private Text _status;
         private float _statusUntil;
+        private Image _vignette;
+        private RectTransform _sweep;
 
         private RectTransform _profileInsignia;
         private MilitaryRank _profileRank = (MilitaryRank)(-1);
@@ -56,6 +68,7 @@ namespace Project.Presentation.UI
         private Text _profileRankText;
         private Text _profileXp;
         private UiProgressBar _profileBar;
+        private Texture2D _playerFace;
 
         private OperationSetupPanel _setup;
         private CareerPanel _careerPanel;
@@ -102,7 +115,7 @@ namespace Project.Presentation.UI
         {
             UiFactory.SetCursorFree(true);
             StartMusic();
-            Select(_joinButton);
+            Select(_navPlay != null ? _navPlay.Button : null);
         }
 
         private void Update()
@@ -123,14 +136,32 @@ namespace Project.Presentation.UI
                 }
             }
 
+            AnimateBackground();
+
             if (_status != null && _statusUntil > 0f && Time.unscaledTime > _statusUntil)
             {
                 _statusUntil = 0f;
                 _status.text = string.Empty;
             }
 
-            if (!_leaving && BackPressed())
+            // Kozmetik paneli kendi Esc'ini işler; aynı basış ana menü çıkış sorusunu açmasın.
+            if (!_leaving && BackPressed() && !OverlayState.EscapeOwnedByTransient)
                 Back();
+        }
+
+        private void OnEnable() => Loc.LanguageChanged += OnLanguageChanged;
+        private void OnDisable() => Loc.LanguageChanged -= OnLanguageChanged;
+
+        private void OnLanguageChanged(string code)
+        {
+            for (var i = 0; i < _navLabels.Count; i++)
+            {
+                var entry = _navLabels[i];
+                if (entry.item != null && entry.item.Label != null)
+                    entry.item.Label.text = Loc.Get(entry.key, entry.fallback);
+            }
+
+            RefreshProfile();
         }
 
         private void OnDestroy()
@@ -139,6 +170,8 @@ namespace Project.Presentation.UI
                 _career.Changed -= OnCareerChanged;
             if (_settings != null)
                 _settings.Changed -= OnSettingsChanged;
+            if (_playerFace != null)
+                Destroy(_playerFace);
         }
 
         // ------------------------------------------------------------------ Genel eylemler
@@ -149,14 +182,40 @@ namespace Project.Presentation.UI
             if (_leaving || IsPanelOpen || _root == null)
                 return;
 
-            _lastFocus = _joinButton;
+            _lastFocus = _navPlay != null ? _navPlay.Button : null;
             _setup = TryCreate(() => OperationSetupPanel.Create(_root, _settings, OnSetupStart, OnSetupClosed), "Harekât kurulumu");
             if (_setup != null)
                 OnPanelOpened(MenuBackdrop.Shot.Setup);
         }
 
+        /// <summary>Çatışma (hızlı maç) modunu başlatır.</summary>
+        public void StartSkirmish()
+        {
+            if (_leaving || IsPanelOpen)
+                return;
+
+            if (Lobby.LobbyFlow.TryRun(StartSkirmish)) return; // lobi akışı (TİM TOPLANIYOR → BRİFİNG → geri sayım), bitince bu çağrı yeniden gelir
+
+            BeginLeaving();
+            try
+            {
+                GameSession.StartSkirmish();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            CheckLoadStarted();
+        }
+
         /// <summary>Atış poligonunu yükler.</summary>
-        public void StartTraining()
+        public void StartTraining() => StartTrainingInternal(false);
+
+        /// <summary>Atış poligonunu eğitim adımlarıyla yükler.</summary>
+        public void StartTutorialTraining() => StartTrainingInternal(true);
+
+        private void StartTrainingInternal(bool tutorial)
         {
             if (_leaving || IsPanelOpen)
                 return;
@@ -164,7 +223,7 @@ namespace Project.Presentation.UI
             BeginLeaving();
             try
             {
-                GameSession.StartTraining();
+                GameSession.StartTraining(tutorial);
             }
             catch (Exception e)
             {
@@ -180,7 +239,7 @@ namespace Project.Presentation.UI
             if (_leaving || IsPanelOpen || _root == null)
                 return;
 
-            _lastFocus = _careerButton;
+            _lastFocus = _navTeam != null ? _navTeam.Button : null;
             _careerPanel = TryCreate(() => CareerPanel.Create(_root, _career, OnCareerClosed), "Kariyer");
             if (_careerPanel != null)
                 OnPanelOpened(MenuBackdrop.Shot.Career);
@@ -192,7 +251,7 @@ namespace Project.Presentation.UI
             if (_leaving || IsPanelOpen || _root == null)
                 return;
 
-            _lastFocus = _settingsButton;
+            _lastFocus = _navSettings != null ? _navSettings.Button : null;
             _settingsPanel = TryCreate(() => SettingsPanel.Create(_root, _settings, OnSettingsClosed), "Ayarlar");
             if (_settingsPanel != null)
                 OnPanelOpened(MenuBackdrop.Shot.Settings);
@@ -204,7 +263,7 @@ namespace Project.Presentation.UI
             if (_leaving || IsPanelOpen || _root == null)
                 return;
 
-            _lastFocus = _exitButton;
+            _lastFocus = _navExit != null ? _navExit.Button : null;
             _dialog = TryCreate(() => MenuDialog.Show(_root, "Oyundan çık", "Karargâhtan ayrılıp oyunu kapatmak istediğine emin misin?", "ÇIKIŞ",
                 QuitApplication, "VAZGEÇ", OnDialogCancelled, true), "Çıkış onayı");
             if (_dialog != null)
@@ -216,6 +275,8 @@ namespace Project.Presentation.UI
         {
             if (_leaving)
                 return;
+
+            Project.Infrastructure.Audio.UiSounds.Play(Project.Infrastructure.Audio.UiSfx.Back);
 
             if (_dialog != null)
             {
@@ -242,6 +303,15 @@ namespace Project.Presentation.UI
                 return;
             }
 
+            if (_pages != null && _pages.Current == PagePlay && _playPage != null && _playPage.HandleBack())
+                return;
+
+            if (_pages != null && !string.IsNullOrEmpty(_pages.Current) && _pages.Current != PageHome)
+            {
+                ShowPage(PageHome);
+                return;
+            }
+
             RequestQuit();
         }
 
@@ -259,115 +329,374 @@ namespace Project.Presentation.UI
 
             BuildBackgroundShades(_root);
 
-            _main = UiFactory.CreateRect("Main", _root);
+            // AAA lobi kabuğu: üst bar + sekmeler + OYNA düğmesi; mevcut menü ANA ÜSSÜ sekmesine taşınır.
+            _lobby = Lobby.LobbyShell.Create(_root, () => ShowPage(PagePlay));
+            _lobby.Vignette.transform.SetParent(_root, false);
+            _lobby.Vignette.transform.SetAsFirstSibling();
+
+            _main = UiFactory.CreateRect("Main", _lobby.GetTabPanel(0));
+            UiFactory.Stretch(_main);
             _mainGroup = UiFactory.EnsureCanvasGroup(_main);
             _mainGroup.alpha = 0f;
 
-            BuildTitle(_main);
-            BuildButtons(_main);
-            BuildProfileCard(_main);
-            BuildLastOperation(_main);
+            BuildPages(_main);
+            BuildNav(_main);
             BuildFooter(_main);
+            BuildLobbyTabs();
+            _pages.Show(PageHome);
+            SetNavActive(null);
             RefreshProfile();
         }
 
-        private static void BuildBackgroundShades(RectTransform root)
+        private void BuildBackgroundShades(RectTransform root)
         {
             var vignette = UiFactory.Image(root, UiSprites.Vignette, new Color(0f, 0f, 0f, 0.5f));
             vignette.gameObject.name = "Vignette";
+            vignette.raycastTarget = false;
             UiFactory.Stretch(vignette);
+            _vignette = vignette;
 
-            var left = UiFactory.Image(root, UiSprites.HorizontalGradient, new Color(0.02f, 0.03f, 0.02f, 0.9f));
+            // Düz koyu şerit (rgba 16,18,20,0.86) + sağına yumuşak solma.
+            var left = UiFactory.Image(root, null, UiKitTokens.Bg);
             left.gameObject.name = "LeftShade";
-            UiFactory.SetRect(left, new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero, new Vector2(1150f, 0f));
+            left.raycastTarget = false;
+            UiFactory.SetRect(left, new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero, new Vector2(560f, 0f));
+            var leftFade = UiFactory.Image(root, UiSprites.HorizontalGradient, UiTheme.WithAlpha(UiKitTokens.Bg, 0.7f));
+            leftFade.gameObject.name = "LeftShadeFade";
+            leftFade.raycastTarget = false;
+            leftFade.rectTransform.localScale = new Vector3(-1f, 1f, 1f);
+            UiFactory.SetRect(leftFade, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(560f, 0f), new Vector2(1000f, 0f));
 
-            var bottom = UiFactory.Image(root, UiSprites.VerticalGradient, new Color(0f, 0f, 0f, 0.65f));
+            // Soldan sağa yavaşça süzülen soluk ışık şeridi.
+            var sweep = UiFactory.Image(root, UiSprites.HorizontalGradient, new Color(1f, 1f, 1f, 0.012f));
+            sweep.gameObject.name = "LightSweep";
+            sweep.raycastTarget = false;
+            UiFactory.Anchor(sweep, new Vector2(0f, 0f), new Vector2(0f, 0f), Vector2.zero, new Vector2(420f, 1080f));
+            sweep.rectTransform.anchorMax = new Vector2(0f, 1f);
+            sweep.rectTransform.sizeDelta = new Vector2(420f, 0f);
+            _sweep = sweep.rectTransform;
+
+            var bottom = UiFactory.Image(root, UiSprites.VerticalGradient, new Color(0.063f, 0.071f, 0.078f, 0.8f));
             bottom.gameObject.name = "BottomShade";
+            bottom.raycastTarget = false;
             UiFactory.SetRect(bottom, new Vector2(0f, 0f), new Vector2(1f, 0f), Vector2.zero, new Vector2(0f, 280f));
 
-            var stripe = UiFactory.Image(root, null, UiTheme.Accent);
+            var stripe = UiFactory.Image(root, null, UiKitTokens.Accent);
             stripe.gameObject.name = "TopStripe";
-            UiFactory.SetRect(stripe, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -5f), Vector2.zero);
+            stripe.raycastTarget = false;
+            UiFactory.SetRect(stripe, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -2f), Vector2.zero);
+        }
+
+        private void AnimateBackground()
+        {
+            var t = Time.unscaledTime;
+            if (_vignette != null)
+            {
+                var c = _vignette.color;
+                c.a = MainMenuMotion.VignettePulse(t, 0.5f, 0.07f);
+                _vignette.color = c;
+            }
+
+            if (_sweep != null)
+                _sweep.anchoredPosition = new Vector2(Mathf.Lerp(-300f, 1400f, MainMenuMotion.SweepPosition(t, 38f)), 0f);
         }
 
         private static void BuildTitle(RectTransform parent)
         {
-            var title = UiFactory.Label(parent, "HAREKÂT", 132, TextAnchor.LowerLeft, UiTheme.Text, FontStyle.Bold);
+            var title = UiFactory.Label(parent, "HAREKÂT", 68, TextAnchor.LowerLeft, UiKitTokens.Text, FontStyle.Bold);
             title.gameObject.name = "Title";
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             title.verticalOverflow = VerticalWrapMode.Overflow;
-            UiFactory.Anchor(title, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(104f, -60f), new Vector2(900f, 150f));
-            UiFactory.AddShadow(title, new Color(0f, 0f, 0f, 0.8f), new Vector2(4f, -4f));
+            UiFactory.Anchor(title, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(96f, -40f), new Vector2(440f, 84f));
+            UiFactory.AddShadow(title, new Color(0f, 0f, 0f, 0.6f), new Vector2(1f, -1f));
 
-            var underline = UiFactory.Image(parent, null, UiTheme.Accent);
+            Sprite emb = null;
+            try { emb = EmblemArt.GetEmblemSprite(256); } catch (System.Exception) { }
+            if (emb != null) { var ei = UiFactory.Image(parent, emb, Color.white); ei.preserveAspect = true; ei.raycastTarget = false; UiFactory.Anchor(ei, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(20f, -34f), new Vector2(64f, 64f)); }
+
+            var underline = UiFactory.Image(parent, null, UiKitTokens.Accent);
             underline.gameObject.name = "Underline";
-            UiFactory.Anchor(underline, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(112f, -222f), new Vector2(300f, 8f));
+            UiFactory.Anchor(underline, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(100f, -132f), new Vector2(120f, 3f));
 
             var flag = UiFactory.Image(parent, UiSprites.TurkishFlag, Color.white);
             flag.gameObject.name = "Flag";
             flag.preserveAspect = true;
-            UiFactory.Anchor(flag, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(112f, -244f), new Vector2(57f, 38f));
+            UiFactory.Anchor(flag, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(100f, -148f), new Vector2(36f, 24f));
 
-            var subtitle = UiFactory.Label(parent, "Tim Battle Royale — Kuzgun Vadisi", UiTheme.FontLarge, TextAnchor.MiddleLeft, UiTheme.Khaki, FontStyle.Bold);
+            var subtitle = UiFactory.Label(parent, Loc.Get("menu.subtitle", "Tim Battle Royale — Kuzgun Vadisi"), UiTheme.FontSmall + 2, TextAnchor.MiddleLeft, UiKitTokens.TextDim, FontStyle.Bold);
             subtitle.gameObject.name = "Subtitle";
             subtitle.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.Anchor(subtitle, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(184f, -240f), new Vector2(900f, 46f));
-            UiFactory.AddShadow(subtitle, UiTheme.TextShadow, new Vector2(2f, -2f));
+            UiFactory.Anchor(subtitle, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(146f, -146f), new Vector2(380f, 28f));
+            UiFactory.AddShadow(subtitle, new Color(0f, 0f, 0f, 0.6f), new Vector2(1f, -1f));
         }
 
-        private void BuildButtons(RectTransform parent)
+        /// <summary>Ana menü uzantı noktası: Online/Platform assembly'leri buraya (etiket, açıcı) ekler; Transform = menü kökü.</summary>
+        public static readonly List<(string label, Action<Transform> open)> ExtraButtons = new List<(string label, Action<Transform> open)>();
+
+        // ------------------------------------------------------------------ Sayfalar
+
+        private void BuildPages(RectTransform parent)
         {
-            var column = UiFactory.VerticalList(parent, 14f);
-            column.gameObject.name = "Buttons";
-            UiFactory.Anchor(column, new Vector2(0f, 0.5f), new Vector2(0f, 1f), new Vector2(110f, 150f), new Vector2(470f, 5f * ButtonHeight + 4f * 14f));
+            var area = UiFactory.CreateRect("PageArea", parent);
+            UiFactory.SetRect(area, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(660f, 270f), new Vector2(-60f, -120f));
+            _pages = area.gameObject.AddComponent<MenuPageHost>();
 
-            _joinButton = MenuButton(column, "HAREKÂTA KATIL", OpenOperationSetup, UiButtonStyle.Primary, HintJoin);
-            _trainingButton = MenuButton(column, "ATIŞ POLİGONU", StartTraining, UiButtonStyle.Default, HintTraining);
-            _careerButton = MenuButton(column, "KARİYER", OpenCareer, UiButtonStyle.Default, HintCareer);
-            _settingsButton = MenuButton(column, "AYARLAR", OpenSettings, UiButtonStyle.Default, HintSettings);
-            _exitButton = MenuButton(column, "ÇIKIŞ", RequestQuit, UiButtonStyle.Danger, HintExit);
-
-            _hint = UiFactory.Label(parent, HintJoin, UiTheme.FontSmall, TextAnchor.UpperLeft, UiTheme.TextDim);
-            _hint.gameObject.name = "Hint";
-            UiFactory.Anchor(_hint, new Vector2(0f, 0.5f), new Vector2(0f, 1f), new Vector2(112f, 150f - (5f * ButtonHeight + 4f * 14f) - 18f),
-                new Vector2(560f, 60f));
-
-            _status = UiFactory.Label(parent, string.Empty, UiTheme.FontSmall, TextAnchor.UpperLeft, UiTheme.Danger, FontStyle.Bold);
-            _status.gameObject.name = "Status";
-            UiFactory.Anchor(_status, new Vector2(0f, 0.5f), new Vector2(0f, 1f), new Vector2(112f, 150f - (5f * ButtonHeight + 4f * 14f) - 80f),
-                new Vector2(700f, 34f));
+            _pages.Register(PageHome, BuildHome);
+            _pages.Register(PagePlay, rect => _playPage = MenuPlayPage.Create(rect, this), () => _playPage?.OnShown());
+            _pages.Register(PageTeam, rect => MenuTeamPage.Create(rect, this));
+            _pages.Register(PageLoadout, rect => LoadoutPage.Create(rect));
         }
 
-        private Button MenuButton(Transform parent, string label, Action onClick, UiButtonStyle style, string hint)
+        private void BuildHome(RectTransform page)
         {
-            var button = UiFactory.Button(parent, label, onClick, style);
-            UiFactory.LayoutSize(button, -1f, ButtonHeight, 1f);
+            // Koyu bant: başlık + açıklama parlak gökyüzü üstünde kalmasın.
+            var band = UiFactory.Image(page, null, UiKitTokens.ScrimBand);
+            band.gameObject.name = "ScrimBand";
+            band.raycastTarget = false;
+            UiFactory.SetRect(band, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -150f), new Vector2(0f, 0f));
+            var bandLine = UiFactory.Image(page, null, UiKitTokens.Accent);
+            bandLine.raycastTarget = false;
+            UiFactory.SetRect(bandLine, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(-24f, -150f), new Vector2(-22f, 0f));
 
-            var text = UiFactory.GetButtonLabel(button);
-            if (text != null)
+            var big = UiFactory.Label(page, "HAREKÂTA HAZIR MISIN?", 40, TextAnchor.MiddleLeft, UiKitTokens.Text, FontStyle.Bold);
+            big.horizontalOverflow = HorizontalWrapMode.Overflow;
+            big.verticalOverflow = VerticalWrapMode.Overflow;
+            UiFactory.SetRect(big, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -76f), new Vector2(0f, -14f));
+            UiFactory.AddShadow(big, new Color(0f, 0f, 0f, 0.6f), new Vector2(1f, -1f));
+
+            var sub = UiFactory.Label(page, "Timini kur, Kuzgun Vadisi'ne intikal et. Son ayakta kalan tim kazanır.", UiTheme.FontMedium, TextAnchor.MiddleLeft, UiKitTokens.TextDim);
+            UiFactory.SetRect(sub, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -132f), new Vector2(0f, -80f));
+
+            var cta = UiFactory.Button(page, "OYNA  ›", () => ShowPage(PagePlay), UiButtonStyle.Primary);
+            UiFactory.Anchor(cta, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -176f), new Vector2(300f, 68f));
+            var ctaButton = cta.GetComponent<Button>();
+            if (ctaButton != null)
             {
-                text.alignment = TextAnchor.MiddleLeft;
-                text.fontSize = UiTheme.FontLarge - 4;
-                UiFactory.Stretch(text, 30f, 0f, 12f, 0f);
+                var colors = ctaButton.colors;
+                colors.normalColor = UiKitTokens.Accent;
+                colors.highlightedColor = UiKitTokens.AccentHover;
+                colors.selectedColor = UiKitTokens.AccentHover;
+                colors.pressedColor = UiKitTokens.AccentDown;
+                ctaButton.colors = colors;
             }
 
-            var chevron = UiFactory.Image(button.transform, UiSprites.Chevron, UiTheme.WithAlpha(UiTheme.Text, 0.55f));
-            chevron.gameObject.name = "Chevron";
-            chevron.rectTransform.localEulerAngles = new Vector3(0f, 0f, -90f);
-            UiFactory.Anchor(chevron, new Vector2(1f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-30f, 0f), new Vector2(20f, 20f));
+            var ctaLabel = UiFactory.GetButtonLabel(cta);
+            if (ctaLabel != null)
+                ctaLabel.fontSize = UiTheme.FontLarge;
 
-            MenuButtonHint.Attach(button, hint, SetHint);
-            return button;
+            MenuHomeVisuals.DecorateCta(page, (RectTransform)cta.transform);
+            MenuHomeVisuals.BuildMotif(page);
+            MenuHomeVisuals.BuildStatStrip(page, -276f);
+            MenuHomeVisuals.BuildDailyChallenge(page, -380f);
+            MenuHomeVisuals.BuildBottomBar(page);
+        }
+
+        /// <summary>Vitrin / Görevler / Ayarlar sekmelerini mevcut akışlara bağlayan düğmelerle doldurur.</summary>
+        private void BuildLobbyTabs()
+        {
+            AddTabButtons(1, ("DONANIM", () => ShowPage(PageLoadout)), ("TİM", () => ShowPage(PageTeam)));
+            AddTabButtons(2, ("KARİYER", OpenCareer), ("SEZON", () => InvokeExtra(SeasonLabel, null)), ("TEKRARLAR", () => InvokeExtra(ReplayLabel, null)));
+            AddTabButtons(3, ("AYARLAR", OpenSettings), ("ÇIKIŞ", RequestQuit));
+        }
+
+        private void AddTabButtons(int tab, params (string label, Action action)[] items)
+        {
+            var column = UiFactory.VerticalList(_lobby.GetTabPanel(tab), 12f);
+            UiFactory.Anchor(column, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(96f, -40f), new Vector2(420f, items.Length * 72f));
+            var layout = column.GetComponent<VerticalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.childControlHeight = true;
+                layout.childForceExpandHeight = false;
+            }
+
+            foreach (var item in items)
+            {
+                var a = item.action;
+                var b = UiFactory.Button(column, item.label, () => { if (!_leaving && !IsPanelOpen) a(); }, UiButtonStyle.Primary);
+                var le = b.gameObject.AddComponent<LayoutElement>();
+                le.preferredHeight = 60f;
+                Lobby.LobbyGlowButton.Attach(b);
+            }
+        }
+
+        private void ShowPage(string id)
+        {
+            if (_leaving || IsPanelOpen || _pages == null)
+                return;
+
+            if (_lobby != null)
+                _lobby.SelectTab(0);
+
+            _pages.Show(id);
+            UiPageTransitions.Play(_pages.transform as RectTransform, _pages.RectOf(id), id == PageHome);
+            SetNavActive(id);
+            var backdrop = MenuBackdrop.Current;
+            if (backdrop != null)
+                backdrop.SetShot(ShotForPage(id));
+        }
+
+        private void SetNavActive(string pageId)
+        {
+            if (_navPlay != null) _navPlay.Active = pageId == PagePlay;
+            if (_navTeam != null) _navTeam.Active = pageId == PageTeam;
+            if (_navLoadout != null) _navLoadout.Active = pageId == PageLoadout;
+        }
+
+        /// <summary>Kayıtlı ekstra düğmeyi etikete göre bulur (yoksa null).</summary>
+        private static Action<Transform> FindExtra(string label)
+        {
+            for (var i = 0; i < ExtraButtons.Count; i++)
+            {
+                if (ExtraButtons[i].label == label && ExtraButtons[i].open != null)
+                    return ExtraButtons[i].open;
+            }
+
+            return null;
+        }
+
+        private void InvokeExtra(string label, Button focus)
+        {
+            if (_leaving || IsPanelOpen || _root == null)
+                return;
+            var open = FindExtra(label);
+            if (open == null)
+            {
+                ShowStatus(label + " bu sürümde kullanılamıyor.");
+                return;
+            }
+
+            _lastFocus = focus;
+            try
+            {
+                open(_root);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                ShowStatus(label + " açılamadı.");
+            }
+        }
+
+        /// <summary>
+        /// Mod kartından oyun başlatır. br: haritayı seçip harekât kurulumunu açar; skirmish: hızlı maç; convoy/hostage:
+        /// kayıtlı ekstra mod; range: atış poligonu (tutorial = eğitimli).
+        /// </summary>
+        public void LaunchMode(string modeId, string mapId, bool tutorial)
+        {
+            if (_leaving || IsPanelOpen)
+                return;
+
+            if (!string.IsNullOrEmpty(mapId))
+                GameSession.SelectedMap = mapId;
+
+            switch (modeId)
+            {
+                case MenuModeCatalog.BattleRoyale:
+                    OpenOperationSetup();
+                    break;
+                case MenuModeCatalog.Skirmish:
+                    StartSkirmish();
+                    break;
+                case MenuModeCatalog.Convoy:
+                    InvokeExtra(ConvoyLabel, _navPlay != null ? _navPlay.Button : null);
+                    break;
+                case MenuModeCatalog.Hostage:
+                    InvokeExtra(HostageLabel, _navPlay != null ? _navPlay.Button : null);
+                    break;
+                case MenuModeCatalog.Range:
+                    StartTrainingInternal(tutorial);
+                    break;
+            }
+        }
+
+        // ------------------------------------------------------------------ Gezinme
+
+        private MenuNavItem AddNav(Transform parent, string key, string fallback, Action onClick, Color color)
+        {
+            var item = MenuNavItem.Create(parent, Loc.Get(key, fallback), 30, NavHeight, color, onClick);
+            _navLabels.Add((item, key, fallback));
+            return item;
+        }
+
+        private void BuildNav(RectTransform parent)
+        {
+            var extras = new List<(string label, Action<Transform> open)>();
+            for (var i = 0; i < ExtraButtons.Count; i++)
+            {
+                var e = ExtraButtons[i];
+                if (string.IsNullOrEmpty(e.label) || e.open == null)
+                    continue;
+                if (e.label == SeasonLabel || e.label == ReplayLabel || e.label == ConvoyLabel || e.label == HostageLabel)
+                    continue;
+                extras.Add(e);
+            }
+
+            const int mainRows = 7;
+            var column = UiFactory.VerticalList(parent, 4f);
+            column.gameObject.name = "Nav";
+            UiFactory.Anchor(column, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(96f, -NavTop),
+                new Vector2(420f, mainRows * NavHeight + (mainRows - 1) * 4f));
+            var layout = column.GetComponent<VerticalLayoutGroup>();
+            if (layout != null)
+            {
+                layout.childControlHeight = true;
+                layout.childForceExpandHeight = false;
+            }
+
+            _navPlay = AddNav(column, "menu.nav.play", "OYNA", () => ShowPage(PagePlay), UiKitTokens.Text);
+            _navTeam = AddNav(column, "menu.nav.team", "TİM", () => ShowPage(PageTeam), UiKitTokens.Text);
+            _navLoadout = AddNav(column, "menu.nav.loadout", "DONANIM", () => ShowPage(PageLoadout), UiKitTokens.Text);
+            MenuNavItem season = null, replay = null;
+            season = AddNav(column, "menu.nav.season", SeasonLabel, () => InvokeExtra(SeasonLabel, season.Button), UiKitTokens.Text);
+            replay = AddNav(column, "menu.nav.replays", ReplayLabel, () => InvokeExtra(ReplayLabel, replay.Button), UiKitTokens.Text);
+            _navSettings = AddNav(column, "menu.btn.settings", "AYARLAR", OpenSettings, UiKitTokens.Text);
+            _navExit = AddNav(column, "menu.btn.exit", "ÇIKIŞ", RequestQuit, UiTheme.Danger);
+
+            if (extras.Count > 0)
+            {
+                var small = UiFactory.VerticalList(parent, 0f);
+                small.gameObject.name = "NavExtra";
+                var top = -NavTop - (mainRows * NavHeight + (mainRows - 1) * 4f) - 26f;
+                UiFactory.Anchor(small, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(96f, top), new Vector2(420f, extras.Count * 32f));
+                var smallLayout = small.GetComponent<VerticalLayoutGroup>();
+                if (smallLayout != null)
+                {
+                    smallLayout.childControlHeight = true;
+                    smallLayout.childForceExpandHeight = false;
+                }
+
+                for (var i = 0; i < extras.Count; i++)
+                {
+                    var extra = extras[i];
+                    MenuNavItem item = null;
+                    item = MenuNavItem.Create(small, extra.label, 18, 32f, UiKitTokens.TextDim, () => InvokeExtra(extra.label, item.Button));
+                }
+            }
+
+            _status = UiFactory.Label(parent, string.Empty, UiTheme.FontSmall, TextAnchor.LowerLeft, UiTheme.Danger, FontStyle.Bold);
+            _status.gameObject.name = "Status";
+            UiFactory.Anchor(_status, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(104f, 76f), new Vector2(900f, 30f));
         }
 
         private void BuildProfileCard(RectTransform parent)
         {
-            var card = UiFactory.Panel(parent, UiTheme.PanelDark, UiSprites.ChamferRect);
+            var card = UiKitPanel.Card(parent, UiKitTokens.Bg, 8);
             card.gameObject.name = "ProfileCard";
-            UiFactory.Anchor(card, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 74f), new Vector2(560f, 156f));
+            UiFactory.Anchor(card, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 60f), new Vector2(600f, 156f));
+            UiKitTokens.ApplyHudScale(card);
 
-            var border = UiFactory.Image(card, UiSprites.GetRoundedRectOutline(UiTheme.CornerRadius), UiTheme.WithAlpha(MenuRankInsignia.Gold, 0.5f));
+            var border = UiFactory.Image(card, UiSprites.GetRoundedRectOutline(8), UiKitTokens.Border);
+            border.raycastTarget = false;
             UiFactory.Stretch(border);
+
+            _playerFace = LobbyCommanderStand.LoadTexture("Lobby/commander_face.jpg");
+            if (_playerFace != null)
+            {
+                var face = UiFactory.RawImage(card, _playerFace);
+                face.gameObject.name = "PlayerFace";
+                UiFactory.Anchor(face, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-66f, 0f), new Vector2(108f, 108f));
+            }
 
             // Kartın tamamı tıklanabilir: kariyeri açar.
             var cardImage = card.GetComponent<Image>();
@@ -378,10 +707,10 @@ namespace Project.Presentation.UI
                 button.targetGraphic = cardImage;
                 button.transition = Selectable.Transition.ColorTint;
                 var colors = ColorBlock.defaultColorBlock;
-                colors.normalColor = new Color(0.82f, 0.82f, 0.82f, 1f);
-                colors.highlightedColor = Color.white;
-                colors.selectedColor = new Color(0.95f, 0.95f, 0.92f, 1f);
-                colors.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(1.0f, 1.0f, 1.0f, 1f);
+                colors.selectedColor = Color.white;
+                colors.pressedColor = new Color(0.75f, 0.75f, 0.75f, 1f);
                 colors.colorMultiplier = 1f;
                 colors.fadeDuration = 0.08f;
                 button.colors = colors;
@@ -389,33 +718,46 @@ namespace Project.Presentation.UI
                 button.onClick.AddListener(() =>
                 {
                     UiWidgets.PlaySound(SoundId.UiClick);
-                    OpenCareer();
+                    ShowPage(PageTeam);
                 });
-                MenuButtonHint.Attach(button, HintCareer, SetHint);
             }
 
             var holder = UiFactory.CreateRect("Insignia", card);
             UiFactory.Anchor(holder, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(22f, 14f), new Vector2(150f, 60f));
             _profileInsignia = MenuRankInsignia.Create(holder, MilitaryRank.Er, 56f);
 
-            _profileName = UiFactory.Label(card, string.Empty, UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.Text, FontStyle.Bold);
-            _profileName.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(_profileName, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(190f, -54f), new Vector2(-20f, -16f));
+            // Sütun: x 190 .. (genişlik - 134). Dört ayrı satır, hiçbiri üst üste binmez; uzun metin küçülür.
+            const float left = 190f, right = -134f;
 
-            _profileRankText = UiFactory.Label(card, string.Empty, UiTheme.FontSmall, TextAnchor.MiddleLeft, UiTheme.Khaki);
-            _profileRankText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(_profileRankText, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(190f, -84f), new Vector2(-20f, -56f));
+            _profileName = UiFactory.Label(card, string.Empty, 24, TextAnchor.MiddleLeft, UiKitTokens.Text, FontStyle.Bold);
+            FitOneLine(_profileName, 15, 24);
+            UiFactory.SetRect(_profileName, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(left, -48f), new Vector2(right, -14f));
+
+            _profileRankText = UiFactory.Label(card, string.Empty, 17, TextAnchor.MiddleLeft, UiKitTokens.TextDim);
+            FitOneLine(_profileRankText, 12, 17);
+            UiFactory.SetRect(_profileRankText, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(left, -76f), new Vector2(right, -50f));
 
             _profileBar = UiFactory.ProgressBar(card, MenuRankInsignia.Gold, UiTheme.Track);
             _profileBar.TrailEnabled = false;
-            UiFactory.SetRect(_profileBar, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(190f, 40f), new Vector2(-20f, 52f));
+            UiFactory.SetRect(_profileBar, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(left, 58f), new Vector2(right, 66f));
 
-            _profileXp = UiFactory.Label(card, string.Empty, UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextDim);
-            _profileXp.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(_profileXp, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(190f, 12f), new Vector2(-20f, 36f));
+            _profileXp = UiFactory.Label(card, string.Empty, 15, TextAnchor.MiddleLeft, UiKitTokens.TextDim);
+            FitOneLine(_profileXp, 11, 15);
+            UiFactory.SetRect(_profileXp, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(left, 32f), new Vector2(right, 54f));
 
-            var caption = UiFactory.Label(card, "KARİYER ›", UiTheme.FontTiny, TextAnchor.MiddleRight, UiTheme.TextMuted, FontStyle.Bold);
-            UiFactory.SetRect(caption, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(190f, 12f), new Vector2(-20f, 36f));
+            var caption = UiFactory.Label(card, Loc.Get("menu.career_card", "KARİYER ›"), 14, TextAnchor.MiddleLeft, UiKitTokens.TextMuted, FontStyle.Bold);
+            FitOneLine(caption, 11, 14);
+            UiFactory.SetRect(caption, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(left, 8f), new Vector2(right, 30f));
+        }
+
+        /// <summary>Tek satır: taşarsa yazı küçülür (en küçük boyuta kadar), sonra kırpılır; asla komşu satıra binmez.</summary>
+        private static void FitOneLine(Text t, int min, int max)
+        {
+            t.horizontalOverflow = HorizontalWrapMode.Wrap;
+            t.verticalOverflow = VerticalWrapMode.Truncate;
+            t.resizeTextForBestFit = true;
+            t.resizeTextMinSize = min;
+            t.resizeTextMaxSize = max;
         }
 
         private void BuildLastOperation(RectTransform parent)
@@ -424,14 +766,14 @@ namespace Project.Presentation.UI
                 return;
 
             var result = GameSession.LastResult.Value;
-            var card = UiFactory.Panel(parent, UiTheme.WithAlpha(UiTheme.PanelDark, 0.85f), UiSprites.ChamferRect);
+            var card = UiFactory.Panel(parent, UiKitTokens.Bg, UiSprites.ChamferRect);
             card.gameObject.name = "LastOperation";
-            UiFactory.Anchor(card, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 242f), new Vector2(560f, 92f));
+            UiFactory.Anchor(card, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -276f), new Vector2(620f, 92f));
 
             var accent = UiFactory.Image(card, null, result.IsWinner ? MenuRankInsignia.Gold : UiTheme.Accent);
             UiFactory.SetRect(accent, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 8f), new Vector2(5f, -8f));
 
-            var caption = UiFactory.Label(card, "SON HAREKÂT", UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted, FontStyle.Bold);
+            var caption = UiFactory.Label(card, Loc.Get("menu.last_op", "SON HAREKÂT"), UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted, FontStyle.Bold);
             UiFactory.SetRect(caption, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(24f, -36f), new Vector2(-20f, -10f));
 
             var headline = result.IsWinner ? "ZAFER" : "TİM SIRALAMASI";
@@ -446,16 +788,24 @@ namespace Project.Presentation.UI
 
         private static void BuildFooter(RectTransform parent)
         {
-            var version = UnityEngine.Application.version;
-            var footer = UiFactory.Label(parent,
-                "Mavi / Kırmızı kuvvetler harekât tatbikatı" + (string.IsNullOrEmpty(version) ? string.Empty : "   ·   sürüm " + version),
-                UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted);
-            footer.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.Anchor(footer, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(112f, 30f), new Vector2(900f, 24f));
+            var ticker = MenuTicker.Create(parent, 40f);
+            UiFactory.SetRect(ticker, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(-440f, 40f));
 
-            var keys = UiFactory.Label(parent, "ESC  geri / çıkış", UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted);
+            var barScrim = UiFactory.Image(parent, null, UiKitTokens.ScrimBand);
+            barScrim.gameObject.name = "FooterScrim";
+            barScrim.raycastTarget = false;
+            UiFactory.SetRect(barScrim, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(-440f, 0f), new Vector2(0f, 40f));
+            barScrim.transform.SetAsFirstSibling();
+
+            var version = UnityEngine.Application.version;
+            var footer = UiFactory.Label(parent, "SÜRÜM " + (string.IsNullOrEmpty(version) ? "0.1" : version), UiTheme.FontSmall, TextAnchor.MiddleRight, UiKitTokens.TextDim, FontStyle.Bold);
+            footer.gameObject.name = "Version";
+            footer.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.Anchor(footer, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-60f, 8f), new Vector2(380f, 24f));
+
+            var keys = UiFactory.Label(parent, Loc.Get("menu.esc_hint", "ESC  geri / çıkış"), UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted);
             keys.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.Anchor(keys, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(112f, 56f), new Vector2(400f, 24f));
+            UiFactory.Anchor(keys, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(104f, 48f), new Vector2(400f, 22f));
         }
 
         // ------------------------------------------------------------------ Profil
@@ -479,13 +829,30 @@ namespace Project.Presentation.UI
             if (_profileRankText != null)
                 _profileRankText.text = RankCatalog.GetName(rank) + "  ·  " + RankCatalog.GetCategory(rank);
 
+            var lobbyXp = MenuText.FormatThousands(xp) + " TP";
+            if (_lobby != null)
+            {
+                _lobby.SetStatus(RankCatalog.FormatName(rank, name), lobbyXp);
+                _lobby.Card.Set(new Lobby.LobbyPlayerInfo
+                {
+                    RankName = RankCatalog.GetName(rank),
+                    PlayerName = name,
+                    Level = (int)rank + 1,
+                    XpProgress01 = RankCatalog.ProgressToNextRank(xp),
+                    Kills = stats.Kills,
+                    Deaths = 0,
+                    Wins = stats.Wins,
+                    Matches = stats.Matches,
+                });
+            }
+
             var hasNext = RankCatalog.TryGetNextRank(rank, out var next);
             if (_profileBar != null)
                 _profileBar.SetValue(RankCatalog.ProgressToNextRank(xp), true);
             if (_profileXp != null)
             {
                 _profileXp.text = hasNext
-                    ? MenuText.FormatThousands(xp) + " / " + MenuText.FormatThousands(RankCatalog.RequiredExperience(next)) + " TP  ·  " + RankCatalog.GetShortName(next)
+                    ? MenuText.FormatThousands(xp) + " / " + MenuText.FormatThousands(RankCatalog.RequiredExperience(next)) + " TP  →  " + RankCatalog.GetShortName(next)
                     : MenuText.FormatThousands(xp) + " TP  ·  en yüksek rütbe";
             }
         }
@@ -512,12 +879,13 @@ namespace Project.Presentation.UI
             SetMainInteractable(true);
             var backdrop = MenuBackdrop.Current;
             if (backdrop != null)
-                backdrop.SetShot(MenuBackdrop.Shot.Main);
-            Select(_lastFocus != null ? _lastFocus : _joinButton);
+                backdrop.SetShot(ShotForPage(_pages != null ? _pages.Current : null));
+            Select(_lastFocus != null ? _lastFocus : (_navPlay != null ? _navPlay.Button : null));
         }
 
         private void OnSetupStart(GameSettings settings)
         {
+            if (Lobby.LobbyFlow.TryRun(() => OnSetupStart(settings))) return;
             BeginLeaving();
             try
             {
@@ -630,7 +998,7 @@ namespace Project.Presentation.UI
             {
                 if (!GameAudio.IsInitialized)
                     GameAudio.Initialize();
-                GameAudio.SetAmbience(SoundId.MenuMusic, MusicVolume);
+                // Eski 16 sn'lik prosedürel menü döngüsü kaldırıldı: tek müzik MenuMusicDirector (MainMenuBootstrap).
             }
             catch (Exception e)
             {
@@ -648,10 +1016,12 @@ namespace Project.Presentation.UI
             }
         }
 
-        private void SetHint(string hint)
+        private static MenuBackdrop.Shot ShotForPage(string id)
         {
-            if (_hint != null && !string.Equals(_hint.text, hint, StringComparison.Ordinal))
-                _hint.text = hint ?? string.Empty;
+            if (id == PagePlay) return MenuBackdrop.Shot.Play;
+            if (id == PageTeam) return MenuBackdrop.Shot.Team;
+            if (id == PageLoadout) return MenuBackdrop.Shot.Loadout;
+            return MenuBackdrop.Shot.Main;
         }
 
         private void ShowStatus(string message)

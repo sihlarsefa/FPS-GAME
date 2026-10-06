@@ -36,6 +36,16 @@ namespace Project.Infrastructure.Content
         [Header("Binalar (isteğe bağlı)")]
         public BuildingOverrideEntry[] buildings = Array.Empty<BuildingOverrideEntry>();
 
+        [Header("Gerçekçilik v2 — arazi / bitki / gökyüzü")]
+        public TerrainLayerOverrideEntry[] terrainLayers = Array.Empty<TerrainLayerOverrideEntry>();
+        public VegetationOverrideEntry[] vegetation = Array.Empty<VegetationOverrideEntry>();
+        public RockOverrideEntry[] rocks = Array.Empty<RockOverrideEntry>();
+        public PropOverrideEntry[] props = Array.Empty<PropOverrideEntry>();
+        public ViewmodelArmsOverrideEntry viewmodelArms = new ViewmodelArmsOverrideEntry();
+        public WeaponAnimationOverrideEntry[] weaponAnimations = Array.Empty<WeaponAnimationOverrideEntry>();
+        public SkyOverrideEntry[] skies = Array.Empty<SkyOverrideEntry>();
+        public DecalSetOverrideEntry[] decalSets = Array.Empty<DecalSetOverrideEntry>();
+
         private static ContentOverrides _cached;
         private static bool _loadAttempted;
 
@@ -194,6 +204,157 @@ namespace Project.Infrastructure.Content
                     return true;
             }
 
+            return false;
+        }
+
+        public static bool TryGetTerrainLayer(MaterialId id, out TerrainLayer layer)
+        {
+            layer = null;
+            var data = Load();
+            if (data?.terrainLayers == null)
+                return false;
+            for (var i = 0; i < data.terrainLayers.Length; i++)
+            {
+                var e = data.terrainLayers[i];
+                if (e == null || e.layer == null || e.materialId != id)
+                    continue;
+                layer = e.layer;
+                return true;
+            }
+            return false;
+        }
+
+        public static bool TryGetVegetation(string speciesId, out GameObject prefab)
+        {
+            prefab = null;
+            if (string.IsNullOrEmpty(speciesId))
+                return false;
+            var data = Load();
+            if (data?.vegetation == null)
+                return false;
+            for (var i = 0; i < data.vegetation.Length; i++)
+            {
+                var e = data.vegetation[i];
+                if (e == null || e.prefabs == null || e.prefabs.Length == 0)
+                    continue;
+                if (!string.Equals(e.speciesId, speciesId, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                prefab = PickPrefab(e.prefabs);
+                return prefab != null;
+            }
+            return false;
+        }
+
+        public static bool TryGetRock(string sizeClass, out GameObject prefab)
+        {
+            prefab = null;
+            var data = Load();
+            if (data?.rocks == null)
+                return false;
+            var key = string.IsNullOrEmpty(sizeClass) ? "medium" : sizeClass;
+            for (var i = 0; i < data.rocks.Length; i++)
+            {
+                var e = data.rocks[i];
+                if (e == null || e.prefabs == null || e.prefabs.Length == 0)
+                    continue;
+                if (!string.Equals(e.sizeClass, key, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                prefab = PickPrefab(e.prefabs);
+                return prefab != null;
+            }
+            return false;
+        }
+
+        public static bool TryGetProp(string propId, out GameObject prefab)
+        {
+            prefab = null;
+            if (string.IsNullOrEmpty(propId))
+                return false;
+            var data = Load();
+            if (data?.props == null)
+                return false;
+            for (var i = 0; i < data.props.Length; i++)
+            {
+                var e = data.props[i];
+                if (e?.prefab == null)
+                    continue;
+                if (!string.Equals(e.propId, propId, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                prefab = e.prefab;
+                return true;
+            }
+            return false;
+        }
+
+        public static bool TryGetViewmodelArms(out GameObject armsPrefab, out Material gloveMaterial)
+        {
+            armsPrefab = null;
+            gloveMaterial = null;
+            var data = Load();
+            if (data?.viewmodelArms == null || data.viewmodelArms.armsPrefab == null)
+                return false;
+            armsPrefab = data.viewmodelArms.armsPrefab;
+            gloveMaterial = data.viewmodelArms.gloveMaterial;
+            return true;
+        }
+
+        public static bool TryGetWeaponAnimation(string weaponId, out AnimatorOverrideController controller)
+        {
+            controller = null;
+            if (string.IsNullOrEmpty(weaponId))
+                return false;
+            var data = Load();
+            if (data?.weaponAnimations == null)
+                return false;
+            for (var i = 0; i < data.weaponAnimations.Length; i++)
+            {
+                var e = data.weaponAnimations[i];
+                if (e?.overrideController == null)
+                    continue;
+                if (!string.Equals(e.weaponId, weaponId, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                controller = e.overrideController;
+                return true;
+            }
+            return false;
+        }
+
+        public static bool TryGetSky(string skyId, out Cubemap hdri, out float exposure)
+        {
+            hdri = null;
+            exposure = 1f;
+            var data = Load();
+            if (data?.skies == null)
+                return false;
+            var key = string.IsNullOrEmpty(skyId) ? "day_clear" : skyId;
+            for (var i = 0; i < data.skies.Length; i++)
+            {
+                var e = data.skies[i];
+                if (e?.hdri == null)
+                    continue;
+                if (!string.Equals(e.skyId, key, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                hdri = e.hdri;
+                exposure = e.exposure;
+                return true;
+            }
+            return false;
+        }
+
+        public static bool TryGetDecal(Project.Infrastructure.Vfx.SurfaceKind surface, out Material material)
+        {
+            material = null;
+            var data = Load();
+            if (data?.decalSets == null)
+                return false;
+            for (var i = 0; i < data.decalSets.Length; i++)
+            {
+                var e = data.decalSets[i];
+                if (e?.decalMaterial == null || e.surface != surface)
+                    continue;
+                material = e.decalMaterial;
+                return true;
+            }
             return false;
         }
 

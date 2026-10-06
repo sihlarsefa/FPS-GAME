@@ -23,7 +23,7 @@ namespace Project.Infrastructure.World
     /// <item>Aynı spec (Seed dahil) her zaman aynı binayı üretir. Ruined → kırık duvarlar, çatı yok, moloz.</item>
     /// </list>
     /// </summary>
-    public static class BuildingGenerator
+    public static partial class BuildingGenerator
     {
         /// <summary>Zemin kat döşeme üst yüzünün Position.y üzerindeki yüksekliği (m).</summary>
         public const float GroundFloorOffset = 0.2f;
@@ -38,7 +38,7 @@ namespace Project.Infrastructure.World
         private const float BalT = 0.12f;
         private const float AccessDepth = 1.0f;
         private const float HeadRoom = 2.05f;
-        private const float InnerDoorW = 1.2f;
+        private const float InnerDoorW = 1.3f;
         private const float InnerDoorH = 2.2f;
         private const float RailH = 1.0f;
         private const float PartitionT = 0.15f;
@@ -116,6 +116,20 @@ namespace Project.Infrastructure.World
             t.SetPositionAndRotation(spec.Position, Quaternion.Euler(0f, spec.Yaw, 0f));
             c.B.BuildInto(t);
             StructureKit.MarkStatic(root);
+            for (var i = 0; i < c.Panes.Count; i++)
+            {
+                var pane = StructureKit.CreateBox(t, "Cam" + i, c.Panes[i].Key, c.Panes[i].Value, Quaternion.identity, M.Glass);
+                Project.Infrastructure.Combat.Destructible.Mark(pane, Project.Application.Services.DestructibleKind.Glass, M.Glass);
+            }
+
+            if (c.PowerDrop.HasValue)
+            {
+                var drop = new GameObject(BuildingWeathering.PowerDropName);
+                drop.transform.SetParent(t, false);
+                drop.transform.localPosition = c.PowerDrop.Value;
+            }
+
+            AddReverbZone(t, spec.Style, c.B.HasGeometry ? c.B.LocalBounds : new Bounds(Vector3.up, Vector3.one * 2f));
 
             var result = new BuildingResult { Root = root };
             var local = c.B.HasGeometry ? c.B.LocalBounds : new Bounds(Vector3.up, Vector3.one * 2f);
@@ -123,6 +137,44 @@ namespace Project.Infrastructure.World
             for (var i = 0; i < c.Loot.Count; i++)
                 result.LootPoints.Add(t.TransformPoint(c.Loot[i]));
             return result;
+        }
+
+        /// <summary>Bina içinde duyulan yankı (iç mekan reverb'ü): bina boyutuna ve türüne göre AudioReverbZone.</summary>
+        private static void AddReverbZone(Transform root, BuildingStyle style, Bounds local)
+        {
+            try
+            {
+                var preset = AudioReverbPreset.Room;
+                switch (style)
+                {
+                    case BuildingStyle.Hangar:
+                    case BuildingStyle.FactoryHall:
+                    case BuildingStyle.Warehouse: preset = AudioReverbPreset.Hangar; break;
+                    case BuildingStyle.Mosque: preset = AudioReverbPreset.Auditorium; break;
+                    case BuildingStyle.Bunker:
+                    case BuildingStyle.DamControl: preset = AudioReverbPreset.Stoneroom; break;
+                    case BuildingStyle.Barracks:
+                    case BuildingStyle.Karakol: preset = AudioReverbPreset.Hallway; break;
+                    case BuildingStyle.Barn: preset = AudioReverbPreset.Generic; break;
+                    case BuildingStyle.VillageHouse:
+                    case BuildingStyle.TwoStoryHouse:
+                    case BuildingStyle.ShepherdHut: preset = AudioReverbPreset.Livingroom; break;
+                }
+
+                var go = new GameObject("IcMekanYanki");
+                go.transform.SetParent(root, false);
+                go.transform.localPosition = local.center;
+                var zone = go.AddComponent<AudioReverbZone>();
+                zone.reverbPreset = preset;
+                var minExtent = Mathf.Min(local.size.x, local.size.z);
+                var maxExtent = Mathf.Max(local.size.x, local.size.z);
+                zone.minDistance = Mathf.Max(1.5f, minExtent * 0.5f - 0.5f);
+                zone.maxDistance = Mathf.Max(zone.minDistance + 1f, maxExtent * 0.5f + 1.5f);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[BuildingGenerator] Yankı bölgesi eklenemedi: " + e.Message);
+            }
         }
 
         // =====================================================================================================
@@ -163,7 +215,14 @@ namespace Project.Infrastructure.World
             public readonly bool Ruined;
             public readonly List<Vector3> Loot = new List<Vector3>(24);
             public readonly List<Area> Obstacles = new List<Area>(64);
+            /// <summary>Kırılabilir cam paneller (yerel merkez, boyut). Finish'te ayrı nesne olarak üretilir.</summary>
+            public readonly List<KeyValuePair<Vector3, Vector3>> Panes = new List<KeyValuePair<Vector3, Vector3>>(16);
             public string DefaultName = "Bina";
+            /// <summary>Elektrik giriş noktası (yerel). BuildingWeathering.BuildPowerLines 'ElektrikGirisi' çocuğunu okur.</summary>
+            public Vector3? PowerDrop;
+            /// <summary>Baca konumu (yerel xz) - anten çakışmasını önler.</summary>
+            public Vector3? ChimneyPos;
+            public int WeatherPass;
 
             public Ctx(BuildingSpec spec, StructureBuilder builder)
             {
@@ -1312,6 +1371,16 @@ namespace Project.Infrastructure.World
                             if (d.WindowFrames)
                                 Frame(c, p, f, o, d.FrameMat);
                             FBox(c, f, o.Center, y0 + 0.025f, 0f, o.Width + 0.16f, 0.05f, p.T + 0.12f, d.TrimMat);
+                            // Kırılabilir cam: pencerelerin yarısı camlı (rastgele sayı tüketmez; yerleşim değişmez).
+                            if ((i + s + m.Level) % 2 == 0 && o.Width > 0.4f && o.Height > 0.4f)
+                            {
+                                var gw = o.Width - 0.14f;
+                                var gh = o.Height - 0.07f;
+                                var gc = f.Point(o.Center, y0 + o.Height * 0.5f);
+                                c.Panes.Add(new KeyValuePair<Vector3, Vector3>(gc,
+                                    f.AlongX ? new Vector3(gw, gh, 0.03f) : new Vector3(0.03f, gh, gw)));
+                            }
+
                             if (d.Lintels)
                                 FBox(c, f, o.Center, y1 + 0.075f, 0f, o.Width + 0.4f, 0.15f, p.T + 0.03f, M.WoodDark);
                             if (d.Shutters && c.Chance(d.ShutterChance))
@@ -1417,6 +1486,7 @@ namespace Project.Infrastructure.World
         {
             RuinDebris(c, p);
             Furnish(c, p);
+            ApplyWeathering(c, p);
             if (c.Loot.Count == 0)
                 c.Loot.Add(new Vector3((p.Xi0 + p.Xi1) * 0.5f, Y0 + 0.05f, (p.Zi0 + p.Zi1) * 0.5f));
         }
@@ -2101,6 +2171,7 @@ namespace Project.Infrastructure.World
                         continue;
                     b.Box(new Vector3(x, p.TopY + 0.5f, z), new Vector3(0.5f, 1.1f, 0.5f), mat);
                     b.Box(new Vector3(x, p.TopY + 1.1f, z), new Vector3(0.66f, 0.08f, 0.66f), mat, StructureCollider.None);
+                    c.ChimneyPos = new Vector3(x, p.TopY + 1.14f, z);
                     c.Block(p.Floors, r);
                     return;
                 }
@@ -2113,6 +2184,7 @@ namespace Project.Infrastructure.World
             var top = p.TopY + p.RoofRise + 0.6f;
             b.Box(new Vector3(cx, (p.TopY + top) * 0.5f, cz), new Vector3(0.5f, top - p.TopY, 0.5f), mat, StructureCollider.None);
             b.Box(new Vector3(cx, top + 0.04f, cz), new Vector3(0.66f, 0.08f, 0.66f), mat, StructureCollider.None);
+            c.ChimneyPos = new Vector3(cx, top + 0.08f, cz);
         }
 
         /// <summary>Üst kat ön cephesine balkon kapısı ekler (pencerelerden önce çağrılır). Başarılıysa kapı u konumu döner.</summary>
@@ -2121,7 +2193,7 @@ namespace Project.Infrastructure.World
             if (level >= p.Floors || level < 1)
                 return float.NaN;
             var pref = p.W * 0.5f + c.Range(-0.15f, 0.15f) * p.W;
-            return TryAddDoor(c, p, 0, level, 1.2f, 2.2f, pref, out var u) ? u : float.NaN;
+            return TryAddDoor(c, p, 0, level, 1.3f, 2.2f, pref, out var u) ? u : float.NaN;
         }
 
         private static void BuildBalcony(Ctx c, BoxPlan p, int level, float u, float width)

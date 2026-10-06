@@ -102,9 +102,12 @@ namespace Project.Infrastructure.Transport
         private Transform _mainRotor;
         private Transform _tailRotor;
         private Renderer _rotorDisc;
+        private GameObject _overrideRoot;
+        private Renderer[] _bladeRenderers;
+        private bool _blurShown;
         private NavMeshObstacle _obstacle;
 
-        public override string DisplayName => "T-70 Helikopteri";
+        public override string DisplayName => Project.Application.Catalogs.NameProfile.Get(Project.Application.Catalogs.NameProfile.VehicleHeli, "T-70 Helikopteri");
 
         /// <summary>Seyir irtifası (arazi üstü, m).</summary>
         public float CruiseAltitude => _altitude;
@@ -360,24 +363,48 @@ namespace Project.Infrastructure.Transport
 
         private void BuildVisuals()
         {
-            CreateVisual("Govde", _model, HelicopterModel.Body, HelicopterModel.BodyMaterials(), true);
+            GameObject overrideVisual = null;
+            if (Project.Infrastructure.Content.ContentOverrides.TryGetHelicopter(out var prefab))
+                overrideVisual = InstantiateVisualOverride(prefab, _model, "GovdeHazir");
 
-            _mainRotor = new GameObject("AnaRotor").transform;
-            _mainRotor.gameObject.layer = GameLayers.Vehicle;
-            _mainRotor.SetParent(_model, false);
-            _mainRotor.localPosition = HelicopterModel.MainRotorHub;
-            CreateVisual("Pervane", _mainRotor, HelicopterModel.MainRotor, HelicopterModel.RotorMaterials(), true);
+            if (overrideVisual != null)
+            {
+                _overrideRoot = overrideVisual;
+                _mainRotor = VehicleSockets.Find(overrideVisual, Project.Application.Services.VehicleSocketRules.MainRotorNames());
+                _tailRotor = VehicleSockets.Find(overrideVisual, Project.Application.Services.VehicleSocketRules.TailRotorNames());
+                VehicleSockets.SnapSeats(overrideVisual, Seats);
+                VehicleSockets.SetLights(overrideVisual, true);
+                SetupOverrideBlur(overrideVisual);
+                if (_mainRotor != null && _tailRotor != null)
+                    return;
+            }
+            else
+            {
+                CreateVisual("Govde", _model, HelicopterModel.Body, HelicopterModel.BodyMaterials(), true);
+            }
 
-            var disc = CreateVisual("RotorDiski", _model, HelicopterModel.RotorDisc, HelicopterModel.DiscMaterials(), false);
-            disc.transform.localPosition = HelicopterModel.MainRotorHub + Vector3.up * 0.03f;
-            disc.receiveShadows = false;
-            _rotorDisc = disc;
+            if (_mainRotor == null)
+            {
+                _mainRotor = new GameObject("AnaRotor").transform;
+                _mainRotor.gameObject.layer = GameLayers.Vehicle;
+                _mainRotor.SetParent(_model, false);
+                _mainRotor.localPosition = HelicopterModel.MainRotorHub;
+                CreateVisual("Pervane", _mainRotor, HelicopterModel.MainRotor, HelicopterModel.RotorMaterials(), true);
 
-            _tailRotor = new GameObject("KuyrukRotor").transform;
-            _tailRotor.gameObject.layer = GameLayers.Vehicle;
-            _tailRotor.SetParent(_model, false);
-            _tailRotor.localPosition = HelicopterModel.TailRotorHub;
-            CreateVisual("KuyrukPervane", _tailRotor, HelicopterModel.TailRotor, HelicopterModel.RotorMaterials(), false);
+                var disc = CreateVisual("RotorDiski", _model, HelicopterModel.RotorDisc, HelicopterModel.DiscMaterials(), false);
+                disc.transform.localPosition = HelicopterModel.MainRotorHub + Vector3.up * 0.03f;
+                disc.receiveShadows = false;
+                _rotorDisc = disc;
+            }
+
+            if (_tailRotor == null)
+            {
+                _tailRotor = new GameObject("KuyrukRotor").transform;
+                _tailRotor.gameObject.layer = GameLayers.Vehicle;
+                _tailRotor.SetParent(_model, false);
+                _tailRotor.localPosition = HelicopterModel.TailRotorHub;
+                CreateVisual("KuyrukPervane", _tailRotor, HelicopterModel.TailRotor, HelicopterModel.RotorMaterials(), false);
+            }
         }
 
         // ------------------------------------------------------------------ TransportVehicle
@@ -451,6 +478,7 @@ namespace Project.Infrastructure.Transport
             UpdateRotors(dt);
             UpdateAudio(dt);
             UpdateDust(dt);
+            UpdateRotorWash(dt);
 
             var position = transform.position;
             if (_hasLastPosition)
@@ -687,6 +715,24 @@ namespace Project.Infrastructure.Transport
 
         // ------------------------------------------------------------------ presentation
 
+        /// <summary>Override Rotor_Blur diski varsa bulanık disk geçişi için bağlar (kanatlar yüksek devirde gizlenir).</summary>
+        private void SetupOverrideBlur(GameObject root)
+        {
+            var blurTransform = VehicleSockets.Find(root, Project.Application.Services.VehicleSocketRules.BlurNames());
+            var blur = blurTransform != null ? blurTransform.GetComponent<Renderer>() : null;
+            if (blur == null || _mainRotor == null)
+                return;
+            _rotorDisc = blur;
+            blur.enabled = false;
+            _bladeRenderers = VehicleSockets.BladeRenderers(_mainRotor, blur);
+        }
+
+        /// <summary>Override araç materyal durumu (temiz/kirli/yanmış); prosedürel modelde etkisizdir.</summary>
+        public void SetCondition(Project.Application.Services.VehicleCondition condition)
+        {
+            VehicleSockets.ApplyCondition(_overrideRoot, condition);
+        }
+
         private void UpdateRotors(float dt)
         {
             if (_mainRotor == null)
@@ -700,9 +746,18 @@ namespace Project.Infrastructure.Transport
 
             if (_rotorDisc != null)
             {
-                var show = _rotorSpin > 0.6f;
+                var show = _bladeRenderers != null
+                    ? Project.Application.Services.VehicleSocketRules.BlurVisible(_rotorSpin, _blurShown)
+                    : _rotorSpin > 0.6f;
                 if (_rotorDisc.enabled != show)
                     _rotorDisc.enabled = show;
+                if (_bladeRenderers != null && _blurShown != show)
+                {
+                    _blurShown = show;
+                    for (var i = 0; i < _bladeRenderers.Length; i++)
+                        if (_bladeRenderers[i] != null)
+                            _bladeRenderers[i].enabled = !show;
+                }
             }
         }
 
@@ -712,6 +767,31 @@ namespace Project.Infrastructure.Transport
             var speed = Mathf.Clamp01(_speed / CruiseSpeed) * 0.05f;
             var pitch = _state == FlightState.Grounded ? 0.94f : 1f + load + speed;
             UpdateLoopAudio(pitch, dt);
+        }
+
+        private float _washTimer;
+
+        /// <summary>Zemine 15 m'den yakınken rotor akışı halkası (kısılmış, GPU VFX önce).</summary>
+        private void UpdateRotorWash(float dt)
+        {
+            if (_dustFailed || _rotorSpin < 0.5f)
+                return;
+            _washTimer -= dt;
+            if (_washTimer > 0f)
+                return;
+            _washTimer = 0.4f;
+            try
+            {
+                var ground = TransportGround.TerrainHeight(_horizontal);
+                if (_y - ground >= 15f || _y - ground < -2f)
+                    return;
+                GameVfx.RotorWash(new Vector3(_horizontal.x, ground + 0.1f, _horizontal.z), 7f);
+            }
+            catch (Exception e)
+            {
+                _dustFailed = true;
+                Debug.LogException(e, this);
+            }
         }
 
         private void UpdateDust(float dt)

@@ -42,17 +42,24 @@ namespace Project.Application.Services
         private float _cooldown;
         private float _bloom;
         private float _bloomHold;
+        private int _sprayShots;
+        private float _sinceShot;
+        private readonly int _recoilSeed;
         private bool _reloading;
         private float _reloadElapsed;
         private float _reloadDuration;
         private int _burstRemaining;
         private float _bufferedTrigger;
         private bool _equipping;
+        private readonly string[] _attachments = new string[Project.Application.Catalogs.AttachmentCatalog.SlotCount];
+        private AttachmentModifiers _mods = AttachmentModifiers.None;
+        private float _recoilV = 1f, _recoilH = 1f, _flashMul = 1f, _soundMul = 1f;
 
         public WeaponRuntimeService(WeaponDefinitionData definition, IEventBus eventBus, int loadedAmmo = -1)
         {
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             _eventBus = eventBus;
+            _recoilSeed = RecoilPattern.SeedFor(definition.WeaponId);
 
             _fireModes = definition.FireModes != null && definition.FireModes.Length > 0
                 ? (FireMode[])definition.FireModes.Clone()
@@ -73,7 +80,130 @@ namespace Project.Application.Services
         public string WeaponId => Definition.WeaponId;
         public WeaponCategory Category => Definition.Category;
         public int CurrentAmmo => _ammo;
-        public int MagazineSize => Definition.MagazineSize > 0 ? Definition.MagazineSize : 0;
+        public int MagazineSize => AttachmentStats.ApplyMagazine(Definition.MagazineSize, _mods);
+
+        /// <summary>Takılı eklentilerin birleşik değiştiricileri.</summary>
+        public AttachmentModifiers Modifiers => _mods;
+
+        /// <summary>Susturucu takılı (sessiz atış, iz yok).</summary>
+        public bool IsSuppressed => _mods.Suppressed;
+
+        /// <summary>Eklentiler dahil nişan alma büyütmesi.</summary>
+        public float AdsZoom => AttachmentStats.ApplyZoom(Definition.AdsZoom, _mods);
+
+        /// <summary>Eklentiler dahil toplam ağırlık (kg).</summary>
+        public float EffectiveWeight => Definition.Weight + _mods.WeightKg;
+
+        /// <summary>Eklentiler dahil nişan alma süresi (sn): silahın değeri × ağırlık artışı × eklenti çarpanı.</summary>
+        public float AdsTime
+        {
+            get
+            {
+                var baseTime = Definition.AdsTime > 0f ? Definition.AdsTime : AdsBlend.MinAdsTime;
+                return (baseTime + _mods.WeightKg * WeaponHandling.AdsPerKg) * _mods.AdsTimeMultiplier;
+            }
+        }
+
+        /// <summary>Koşudan ateşe geçiş süresi (sn); eklenti ağırlığı dahil.</summary>
+        public float SprintToFireSeconds => WeaponHandling.SprintToFireSeconds(EffectiveWeight);
+
+        /// <summary>Eklentiler dahil namlu hızı (m/s).</summary>
+        public float MuzzleVelocity => Definition.MuzzleVelocity * _mods.VelocityMultiplier;
+
+        /// <summary>
+        /// Koşu bittiğinde çağrılır: ateş, <see cref="SprintToFireSeconds"/> dolana dek engellenir (silah ağırlığına bağlı).
+        /// Sürgü/soğuma zaten daha uzunsa değişmez.
+        /// </summary>
+        public void BeginSprintRecovery()
+        {
+            var t = SprintToFireSeconds;
+            if (_cooldown < t)
+                _cooldown = t;
+            _burstRemaining = 0;
+        }
+
+        /// <summary>Eklentilerin namlu alevi çarpanı (alev gizleyici 0.2).</summary>
+        public float MuzzleFlashMultiplier => _flashMul;
+
+        /// <summary>Eklentilerin atış sesi şiddeti çarpanı (kompansatör 1.1).</summary>
+        public float SoundMultiplier => _soundMul;
+
+        /// <summary>Dürbün (silahın kendi dürbünü ya da ≥3x eklenti).</summary>
+        public bool HasScope => Definition.HasScope || AttachmentStats.HasScope(_mods);
+
+        /// <summary>Yuvadaki eklenti kimliği (boşsa null).</summary>
+        public string GetAttachment(Project.Application.Catalogs.AttachmentSlot slot)
+        {
+            var i = (int)slot;
+            return i >= 0 && i < _attachments.Length ? _attachments[i] : null;
+        }
+
+        /// <summary>Eklenti bu silaha uyumlu mu ve yuvası boş mu?</summary>
+        public bool CanAttach(string itemId)
+        {
+            var d = Project.Application.Catalogs.AttachmentCatalog.Get(itemId);
+            return d != null && d.IsCompatibleWith(Category) && _attachments[(int)d.Slot] == null;
+        }
+
+        /// <summary>Eklentiyi takar; yuva doluysa değiştirir ve eskisini replaced'a verir. Uyumsuzsa false.</summary>
+        public bool TryAttach(string itemId, out string replaced)
+        {
+            replaced = null;
+            var d = Project.Application.Catalogs.AttachmentCatalog.Get(itemId);
+            if (d == null || !d.IsCompatibleWith(Category))
+                return false;
+
+            replaced = _attachments[(int)d.Slot];
+            _attachments[(int)d.Slot] = itemId;
+            RefreshModifiers();
+            return true;
+        }
+
+        /// <summary>Yuvadaki eklentiyi çıkarır (şarjör sığmayan mermiyi kırpar). Boşsa null.</summary>
+        public string Detach(Project.Application.Catalogs.AttachmentSlot slot)
+        {
+            var i = (int)slot;
+            if (i < 0 || i >= _attachments.Length || _attachments[i] == null)
+                return null;
+
+            var id = _attachments[i];
+            _attachments[i] = null;
+            RefreshModifiers();
+            return id;
+        }
+
+        /// <summary>Takılı eklenti kimlikleri (boş yuvalar atlanır).</summary>
+        public void GetAttachments(System.Collections.Generic.List<string> output)
+        {
+            if (output == null)
+                return;
+
+            for (var i = 0; i < _attachments.Length; i++)
+            {
+                if (_attachments[i] != null)
+                    output.Add(_attachments[i]);
+            }
+        }
+
+        private void RefreshModifiers()
+        {
+            _mods = AttachmentStats.Compute(_attachments);
+            _recoilV = _recoilH = _flashMul = _soundMul = 1f;
+            for (var i = 0; i < _attachments.Length; i++)
+            {
+                var d = Project.Application.Catalogs.AttachmentCatalog.Get(_attachments[i]);
+                if (d == null)
+                    continue;
+                _recoilV *= d.VerticalRecoilMultiplier;
+                _recoilH *= d.HorizontalRecoilMultiplier;
+                _flashMul *= d.MuzzleFlashMultiplier;
+                _soundMul *= d.SoundMultiplier;
+            }
+
+            var magazine = MagazineSize;
+            if (_ammo > magazine)
+                _ammo = magazine;
+        }
         public bool IsReloading => _reloading;
         public float ReloadProgress => _reloading && _reloadDuration > 0f ? Clamp(_reloadElapsed / _reloadDuration, 0f, 1f) : 0f;
         public bool CanFire => !_reloading && _ammo > 0 && IsCooldownReady;
@@ -98,6 +228,30 @@ namespace Project.Application.Services
 
         /// <summary>Anlık birikmiş sekme (derece), atış başına artar, zamanla söner.</summary>
         public float CurrentBloom => _bloom;
+
+        /// <summary>Mevcut seride (tetik kesilmeden) sıkılan atış sayısı; sekme deseni indeksi.</summary>
+        public int SprayShots => _sprayShots;
+
+        private float RecoveryRate => Definition.RecoilRecovery > 0.05f ? Definition.RecoilRecovery : 1f;
+
+        /// <summary>Seri sıfırlanma süresi: atış aralığına bağlı, toparlanma hızıyla kısalır.</summary>
+        public float SprayResetSeconds => Clamp(_fireInterval * 1.6f, 0.25f, 0.9f) / RecoveryRate;
+
+        /// <summary>
+        /// ADS geçişini (0..1) harmanlayarak yayılım; ilk atış bonusu ve sallanma çarpanı dahil.
+        /// Eski GetSpreadAngle değişmeden kalır.
+        /// </summary>
+        public float GetBlendedSpread(float adsBlend, float moveSpeedNormalized, bool grounded, Stance stance, float swayMultiplier = 1f)
+        {
+            var hip = GetSpreadAngle(false, moveSpeedNormalized, grounded, stance);
+            var ads = GetSpreadAngle(true, moveSpeedNormalized, grounded, stance);
+            var spread = AdsBlend.Lerp(hip, ads, adsBlend);
+            if (_sprayShots == 0 && _cooldown <= ReadyEpsilon)
+                spread *= Definition.FirstShotSpreadFactor > 0f ? Definition.FirstShotSpreadFactor : 1f;
+            if (swayMultiplier > 0f && swayMultiplier != 1f)
+                spread *= swayMultiplier;
+            return spread;
+        }
 
         public PlayerId OwnerId { get; set; } = PlayerId.Invalid;
 
@@ -187,7 +341,9 @@ namespace Project.Application.Services
             _reloadElapsed = 0f;
             _burstRemaining = 0;
             _bufferedTrigger = 0f;
-            _reloadDuration = Definition.ReloadDurationSeconds > 0f ? Definition.ReloadDurationSeconds : 0f;
+            _reloadDuration = Definition.ReloadDurationSeconds > 0f
+                ? Definition.ReloadDurationSeconds * (_mods.ReloadMultiplier > 0f ? _mods.ReloadMultiplier : 1f)
+                : 0f;
 
             _eventBus?.Publish(new WeaponReloadStartedEvent(OwnerId, WeaponId, _reloadDuration));
 
@@ -315,7 +471,7 @@ namespace Project.Application.Services
 
         public float GetSpreadAngle(bool aiming, float moveSpeedNormalized, bool grounded, Stance stance)
         {
-            var baseSpread = aiming ? Definition.AdsSpread : Definition.HipSpread;
+            var baseSpread = aiming ? Definition.AdsSpread * _mods.AdsSpreadMultiplier : Definition.HipSpread * _mods.HipSpreadMultiplier;
             if (float.IsNaN(baseSpread) || baseSpread < 0f)
                 baseSpread = 0f;
 
@@ -354,8 +510,19 @@ namespace Project.Application.Services
                 factor *= 0.6f;
 
             var r = float.IsNaN(random01) ? 0.5f : Clamp(random01, 0f, 1f);
-            pitchDegrees = Definition.RecoilVertical * factor;
-            yawDegrees = (r * 2f - 1f) * Definition.RecoilHorizontal * factor;
+            factor *= _mods.RecoilMultiplier;
+            var shotIndex = _sprayShots - 1;
+            if (RecoilPattern.IsPatterned(shotIndex))
+            {
+                RecoilPattern.GetStep(_recoilSeed, shotIndex, out var v, out var h);
+                RecoilPattern.GetRandomComponent(r, out var vScale, out var hAdd);
+                pitchDegrees = Definition.RecoilVertical * factor * v * vScale * _recoilV;
+                yawDegrees = (h + hAdd) * Definition.RecoilHorizontal * factor * _recoilH;
+                return;
+            }
+
+            pitchDegrees = Definition.RecoilVertical * factor * _recoilV;
+            yawDegrees = (r * 2f - 1f) * Definition.RecoilHorizontal * factor * _recoilH;
         }
 
         public void SetLoadedAmmo(int ammo)
@@ -390,6 +557,7 @@ namespace Project.Application.Services
             _burstRemaining = 0;
             _bufferedTrigger = 0f;
             _equipping = false;
+            _sprayShots = 0;
         }
 
         /// <summary>Soğuma, sekme ve şarjör değiştirmeyi sıfırlar (yeniden doğma / antrenman).</summary>
@@ -399,6 +567,8 @@ namespace Project.Application.Services
             _cooldown = 0f;
             _bloom = 0f;
             _bloomHold = 0f;
+            _sprayShots = 0;
+            _sinceShot = 0f;
             if (refillMagazine)
                 _ammo = MagazineSize;
         }
@@ -407,6 +577,13 @@ namespace Project.Application.Services
         {
             if (float.IsNaN(deltaTime) || deltaTime <= 0f)
                 return;
+
+            if (_sprayShots > 0)
+            {
+                _sinceShot += deltaTime;
+                if (_sinceShot >= SprayResetSeconds)
+                    _sprayShots = 0;
+            }
 
             if (_cooldown > 0f)
             {
@@ -457,7 +634,7 @@ namespace Project.Application.Services
             if (_bloom <= 0f)
                 return;
 
-            _bloom -= BloomDecayPerSecond * seconds;
+            _bloom -= BloomDecayPerSecond * RecoveryRate * seconds;
             if (_bloom < 0f)
                 _bloom = 0f;
         }
@@ -493,6 +670,8 @@ namespace Project.Application.Services
             if (_bloom > maxBloom)
                 _bloom = maxBloom;
             _bloomHold = _bloomRecoveryDelay;
+            _sprayShots++;
+            _sinceShot = 0f;
 
             Fired?.Invoke(this);
         }

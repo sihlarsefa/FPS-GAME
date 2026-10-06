@@ -27,3 +27,24 @@
 - 2026-10-05 20:28 — Dosya açıldı; F3 ajanları satır ekleyecek.
 - 2026-10-05 20:35 — F3-7: Steam rich presence + başarım kancaları eklendi.
 - 2026-10-05 20:31 — F3-2: Netcode paket / prefab / bot / maç sonucu kancaları eklendi.
+
+## Uygulanan kancalar (Claude, 2026-10-05)
+- UYGULANDI `WeaponModelFactory.BuildModel` -> `ContentOverrides.TryGetWeapon` (Muzzle çocuğu aranır, katman/collider temizlenir).
+- UYGULANDI `GameAudio.GetClip` -> `ContentOverrides.TryGetSound`; `MaterialLibrary.Get` -> `TryGetMaterial`.
+- UYGULANDI `SoldierModel` (Construct sonu TryApplyHumanoidOverride: humanoid görsel + Animator + sağ el silah), `Helicopter`/`ArmoredCarrier` BuildVisuals ve `KirpiModelBuilder.Build` -> `TryGetHelicopter`/`TryGetKirpi` (adlandırılmış alt nesne yoksa prosedürel yedek). Gereksinimler: Assets/ThirdParty/README.md.
+- 2026-10-06 — Gerçekçilik dalgası: Cursor görev listesi `Docs/CURSOR_GERCEKCILIK.md`. SoldierModel kancası **hazır**; Mixamo/Asset Store bağlama F5-6.
+- UYGULANDI `DevConsole.Ensure()` MatchBootstrap + TrainingBootstrap içinde.
+- UYGULANDI Online/Platform için abonelik noktaları (Cursor bunlara abone olsun):
+  - `Project.Presentation.Bootstrap.GameSession.MatchStarting` (Action<MatchConfig>) — maç başı (ServerBootstrap.NotifyMatchStarted buraya).
+  - `GameSession.MatchFinished` (Action<MatchResult>) — maç sonu (SubmitMatchResultAndIdleAsync / Steam UnlockAchievements buraya).
+  - `Project.Infrastructure.AI.BotRuntimeGate.ShouldRunBots` (Func<bool>) — ServerBotGate bunu atasın; null = botlar çalışır.
+  - `Project.Presentation.UI.MainMenuController.ExtraButtons` (List<(string label, Action<Transform> open)>) — "ONLİNE" butonu buraya eklenir (menü açılmadan önce).
+
+## Online/Platform kablolama (2026-10-05)
+- UYGULANDI `OnlineServices.AutoRegister` (BeforeSceneLoad) -> `MainMenuController.ExtraButtons` "ONLİNE" -> `OnlineLoginPanel.Show` (girişliyse hub).
+- UYGULANDI `ServerBootstrap`: `GameSession.MatchStarting` -> `NotifyMatchStarted`, `MatchFinished` -> `SubmitMatchResultAndIdleAsync`; `BotRuntimeGate.ShouldRunBots = () => ServerBotGate.ShouldRunBots` (dedicated + `NetcodeNetworkSession.StartHost/StartClient`; `Disconnect` null'a döner, offline botlar etkilenmez).
+- UYGULANDI `SteamPlatformService`: `MatchStarting` -> rich presence, `MatchFinished` -> MatchEnded + first_victory/first_blood başarımı. Eski olmayan `SteamPresenceDriver/SteamOnlineBridge` referansları kaldırıldı.
+- Reflection ile `GameSession.NetworkSessionFactory` arama kaldırıldı (`GameCompositionRoot.NetworkSessionFactory` yeterli).
+- asmdef: Project.Platform ve Project.Online.Netcode artık Project.Presentation'a referans verir.
+- Doğrulama: `zsh Tools/UnityVerify/verify.sh <out> --player --tests` sonra `zsh Tools/UnityVerify/verify_online.sh <out>` (Netcode/Tests hariç; 0 hata). Netcode ve Steam derlenmez (paket/Steamworks yok).
+- Not: MatchStarting dedicated'da backend matchId'si taşımaz; `_activeMatchId` boşsa sonuç gönderilmez (yalnızca idle'a döner).

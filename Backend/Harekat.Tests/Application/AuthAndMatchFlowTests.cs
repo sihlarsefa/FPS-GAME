@@ -146,6 +146,14 @@ public class AuthAndMatchFlowTests
     }
 
     [Fact]
+    public void CosmeticCatalog_MatchesDesignSeed()
+    {
+        CosmeticCatalog.All.Should().HaveCount(46);
+        CosmeticCatalog.All.Should().Contain(c => c.Id == "camo_standard" && c.UnlockXp == 0);
+        CosmeticCatalog.All.Should().Contain(c => c.Slot == "weapon_skin");
+    }
+
+    [Fact]
     public async Task SteamLogin_CreatesAndReusesAccount()
     {
         var (auth, _, _, _, _, store) = CreateServices();

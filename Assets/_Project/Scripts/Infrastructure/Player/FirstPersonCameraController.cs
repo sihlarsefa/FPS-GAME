@@ -104,11 +104,41 @@ namespace Project.Infrastructure.Player
 
         // Sarsıntı
         private float _shakeAmplitude;
+        private Vector3 _punch;
+        private Vector3 _punchVelocity;
+        private float _suppressionSway;
         private float _shakeDecay;
         private float _shakeTime;
         private float _shakeSeed;
 
+        // Dış efekt katmanı (PlayerCameraFx): konum/dönüş/FOV ofsetleri.
+        private Vector3 _fxPosition;
+        private Vector3 _fxEuler;
+        private float _fxFov;
+        private float _fxBobBoost = 1f;
+        private float _fovVelocity;
+        private float _shakeScale = 1f;
+
         // ------------------------------------------------------------------ Properties
+
+        /// <summary>Kamera sarsıntı çarpanı 0..1,5 (ayarlardan; 0 = sarsıntı/yumruk/sallantı efektleri kapalı).</summary>
+        public float ShakeScale
+        {
+            get => _shakeScale;
+            set => _shakeScale = float.IsNaN(value) ? 1f : Mathf.Clamp(value, 0f, 1.5f);
+        }
+
+        /// <summary>Efekt katmanı: yerel konum ofseti (m), dönüş ofseti (derece), FOV ofseti (derece), sallantı çarpanı.</summary>
+        public void SetFxLayer(Vector3 localPosition, Vector3 eulerDegrees, float fovOffset, float bobBoost)
+        {
+            _fxPosition = localPosition;
+            _fxEuler = eulerDegrees;
+            _fxFov = Sanitize(fovOffset);
+            _fxBobBoost = Mathf.Clamp(Sanitize(bobBoost), 0f, 3f);
+        }
+
+        /// <summary>Motor (otomatik bağlanan) ya da null.</summary>
+        public CharacterControllerMotor Motor => _motor;
 
         /// <summary>Kalıcı bakış açısı (Unity X: + aşağı). Geçici sekme hariç.</summary>
         public float Pitch => _pitch;
@@ -481,7 +511,9 @@ namespace Project.Infrastructure.Player
             if (float.IsNaN(intensity) || intensity <= 0f)
                 return;
 
-            var amplitude = Mathf.Clamp01(intensity);
+            var amplitude = Mathf.Clamp01(intensity * _shakeScale);
+            if (amplitude <= 0f)
+                return;
             var duration = Mathf.Max(0.05f, float.IsNaN(durationSeconds) ? 0.3f : durationSeconds);
             if (amplitude >= _shakeAmplitude)
             {
@@ -493,6 +525,24 @@ namespace Project.Infrastructure.Player
                 _shakeAmplitude = Mathf.Min(1f, _shakeAmplitude + amplitude * 0.25f);
                 _shakeDecay = Mathf.Min(_shakeDecay, _shakeAmplitude / duration);
             }
+        }
+
+        /// <summary>Hasar sarsıntısı: kısa, yönlü kamera yumruğu (derece; pitch yukarı +, yaw sağa +, roll). Yay gibi geri döner.</summary>
+        public void AddPunch(float pitchDegrees, float yawDegrees, float rollDegrees)
+        {
+            var limit = 8f;
+            pitchDegrees *= _shakeScale;
+            yawDegrees *= _shakeScale;
+            rollDegrees *= _shakeScale;
+            _punch.x = Mathf.Clamp(_punch.x + Sanitize(pitchDegrees), -limit, limit);
+            _punch.y = Mathf.Clamp(_punch.y + Sanitize(yawDegrees), -limit, limit);
+            _punch.z = Mathf.Clamp(_punch.z + Sanitize(rollDegrees), -limit, limit);
+        }
+
+        /// <summary>Bastırma sallantısı (0..1): hafif, sürekli nişan titremesi. 0 = kapalı.</summary>
+        public void SetSuppressionSway(float amount01)
+        {
+            _suppressionSway = Mathf.Clamp01(Sanitize(amount01));
         }
 
         // ------------------------------------------------------------------ Contract extras
@@ -571,7 +621,7 @@ namespace Project.Infrastructure.Player
             if (config == null || float.IsNaN(impactSpeed) || impactSpeed <= 0f)
                 return;
 
-            var amount = Mathf.Min(impactSpeed * Mathf.Max(0f, config.landingDipPerSpeed), Mathf.Max(0f, config.landingDipMax));
+            var amount = CameraFeelMath.LandingDip(impactSpeed, config.landingDipPerSpeed, config.landingDipMax) * Mathf.Max(0.25f, _shakeScale);
             _dipTarget = Mathf.Min(_dipTarget, -amount);
         }
 
@@ -613,6 +663,7 @@ namespace Project.Infrastructure.Player
                 UpdateLean(dt);
                 UpdateBob(dt);
                 UpdateShake(dt);
+                UpdatePunch(dt);
                 UpdateFieldOfView(dt);
             }
 
@@ -732,22 +783,42 @@ namespace Project.Infrastructure.Player
                 _shakeTime = 0f;
         }
 
+        private void UpdatePunch(float dt)
+        {
+            if (_punch.sqrMagnitude < 1e-6f && _punchVelocity.sqrMagnitude < 1e-6f)
+            {
+                _punch = Vector3.zero;
+                _punchVelocity = Vector3.zero;
+                return;
+            }
+
+            // Sönümlü yay (kritik altı): hızlı vurur, birkaç kare içinde oturur.
+            const float stiffness = 380f;
+            const float damping = 26f;
+            _punchVelocity += (-stiffness * _punch - damping * _punchVelocity) * dt;
+            _punch += _punchVelocity * dt;
+        }
+
         private float TargetFieldOfView()
         {
             if (_zoom <= 1.0001f && _zoom >= 0.9999f)
-                return _baseFov;
+                return Mathf.Clamp(_baseFov + _fxFov, 1f, 170f);
 
             var halfTan = Mathf.Tan(_baseFov * 0.5f * Mathf.Deg2Rad) / _zoom;
-            return Mathf.Clamp(2f * Mathf.Atan(halfTan) * Mathf.Rad2Deg, 1f, 170f);
+            return Mathf.Clamp(2f * Mathf.Atan(halfTan) * Mathf.Rad2Deg + _fxFov / (_zoom * _zoom), 1f, 170f);
         }
 
         private void UpdateFieldOfView(float dt)
         {
             var target = TargetFieldOfView();
             var k = Mathf.Max(0.1f, config.fovSmoothSpeed);
-            _currentFov = Mathf.Lerp(_currentFov, target, 1f - Mathf.Exp(-k * dt));
+            // ADS/koşu geçişi: SmoothDamp ile yumuşak başla-bitir (ease in/out).
+            _currentFov = Mathf.SmoothDamp(_currentFov, target, ref _fovVelocity, Mathf.Clamp(1.3f / k, 0.04f, 0.4f), float.MaxValue, dt);
             if (Mathf.Abs(_currentFov - target) < 0.01f)
+            {
                 _currentFov = target;
+                _fovVelocity = 0f;
+            }
 
             ApplyFieldOfView(false);
         }
@@ -792,7 +863,7 @@ namespace Project.Infrastructure.Player
             if (_bobWeight > 0.0001f)
             {
                 var zoomDamp = 1f / Mathf.Max(1f, _zoom * _zoom);
-                var amplitude = _bobWeight * zoomDamp * Mathf.Lerp(0.7f, 1.25f, _bobSpeed);
+                var amplitude = _bobWeight * zoomDamp * Mathf.Lerp(0.7f, 1.25f, _bobSpeed) * _fxBobBoost * Mathf.Max(0.2f, _shakeScale);
                 bobPosition = new Vector3(
                     Mathf.Sin(_bobPhase) * config.bobHorizontalAmplitude * amplitude,
                     Mathf.Sin(_bobPhase * 2f) * config.bobVerticalAmplitude * amplitude,
@@ -819,7 +890,18 @@ namespace Project.Infrastructure.Player
             }
 
             var basePosition = _drivePivotPosition ? PivotLocalPosition() : pivot.localPosition;
-            var effectRotation = Quaternion.Euler(shakeEuler.x, shakeEuler.y, shakeEuler.z + bobRoll);
+            if (_suppressionSway > 0.001f)
+            {
+                var st = Time.time * 1.7f;
+                var swayAngle = 0.7f * _suppressionSway;
+                shakeEuler += new Vector3(
+                    (Mathf.PerlinNoise(_shakeSeed + 5.3f, st) * 2f - 1f) * swayAngle,
+                    (Mathf.PerlinNoise(_shakeSeed + 29.9f, st) * 2f - 1f) * swayAngle,
+                    (Mathf.PerlinNoise(_shakeSeed + 57.1f, st) * 2f - 1f) * swayAngle * 0.6f);
+            }
+
+            shakePosition += _fxPosition;
+            var effectRotation = Quaternion.Euler(shakeEuler.x - _punch.x + _fxEuler.x, shakeEuler.y + _punch.y + _fxEuler.y, shakeEuler.z + bobRoll + _punch.z + _fxEuler.z);
 
             if (_viewTransform != null)
             {

@@ -68,4 +68,66 @@ namespace Project.Infrastructure.Content
         public BuildingStyle style;
         public GameObject[] prefabs = Array.Empty<GameObject>();
     }
+
+    /// <summary>Arazi katmanı (Grass/Dirt/… → TerrainLayer).</summary>
+    [Serializable]
+    public sealed class TerrainLayerOverrideEntry
+    {
+        public MaterialId materialId;
+        public TerrainLayer layer;
+    }
+
+    /// <summary>Ağaç/çalı türü → LOD’lu prefab listesi.</summary>
+    [Serializable]
+    public sealed class VegetationOverrideEntry
+    {
+        [Tooltip("pine / oak / bush / dead vb. ContentIds.Veg*")]
+        public string speciesId;
+        public GameObject[] prefabs = Array.Empty<GameObject>();
+    }
+
+    [Serializable]
+    public sealed class RockOverrideEntry
+    {
+        [Tooltip("small / medium / large")]
+        public string sizeClass = "medium";
+        public GameObject[] prefabs = Array.Empty<GameObject>();
+    }
+
+    [Serializable]
+    public sealed class PropOverrideEntry
+    {
+        public string propId;
+        public GameObject prefab;
+    }
+
+    [Serializable]
+    public sealed class ViewmodelArmsOverrideEntry
+    {
+        public GameObject armsPrefab;
+        public Material gloveMaterial;
+    }
+
+    [Serializable]
+    public sealed class WeaponAnimationOverrideEntry
+    {
+        public string weaponId;
+        public AnimatorOverrideController overrideController;
+    }
+
+    [Serializable]
+    public sealed class SkyOverrideEntry
+    {
+        [Tooltip("day_clear / cloudy / sunset")]
+        public string skyId = "day_clear";
+        public Cubemap hdri;
+        [Range(0.1f, 8f)] public float exposure = 1f;
+    }
+
+    [Serializable]
+    public sealed class DecalSetOverrideEntry
+    {
+        public Project.Infrastructure.Vfx.SurfaceKind surface;
+        public Material decalMaterial;
+    }
 }

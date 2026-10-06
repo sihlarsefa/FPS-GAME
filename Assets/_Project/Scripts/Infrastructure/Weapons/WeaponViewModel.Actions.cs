@@ -1,4 +1,5 @@
 using Project.Application.Catalogs;
+using Project.Application.Services;
 using Project.Core.Domain;
 using UnityEngine;
 
@@ -13,7 +14,8 @@ namespace Project.Infrastructure.Weapons
             Reload,
             Melee,
             Throw,
-            Use
+            Use,
+            Inspect
         }
 
         private enum CycleKind
@@ -64,8 +66,12 @@ namespace Project.Infrastructure.Weapons
             _useExiting = false;
             SetProp(_right, ViewmodelProp.None);
             SetProp(_left, ViewmodelProp.None);
+            HideSpareMagazine();
             if (_model != null)
+            {
                 _model.ResetParts();
+                _model.SetMagazineVisible(true);
+            }
         }
 
         /// <summary>Tüm eylemleri ve atış döngülerini iptal eder; hareketli parçalar evine döner.</summary>
@@ -133,6 +139,16 @@ namespace Project.Infrastructure.Weapons
                     AnimateThrow(_actionTime / _actionDuration);
                     break;
 
+                case ViewAction.Inspect:
+                    if (_model == null || _actionTime >= _actionDuration || _sprintBlend > 0.3f)
+                    {
+                        EndAction();
+                        return;
+                    }
+
+                    AnimateInspect(_actionTime / _actionDuration);
+                    break;
+
                 case ViewAction.Use:
                     if (!_useExiting && _actionTime >= _actionDuration + 0.25f)
                     {
@@ -155,6 +171,55 @@ namespace Project.Infrastructure.Weapons
             }
         }
 
+        // ------------------------------------------------------------------ Inspect
+
+        /// <summary>Silahı incele (varsayılan K): döndürür, yana yatırır, sol el kabzayı gösterir. Ateş/nişan/koşu iptal eder.</summary>
+        public void PlayInspect()
+        {
+            EnsureBuilt();
+            if (_model == null || _hasPending || IsEquipping || _action != ViewAction.None || _wantsAim || _sprintBlend > 0.1f)
+                return;
+
+            StartAction(ViewAction.Inspect, ViewmodelPoseTimeline.InspectDuration);
+        }
+
+        private void CancelInspect()
+        {
+            if (_action == ViewAction.Inspect)
+                EndAction();
+        }
+
+        private void PollInspectKey()
+        {
+            try
+            {
+                if (Project.Infrastructure.Input.InputBindings.Pressed(Project.Application.Services.BindAction.Inspect))
+                    PlayInspect();
+            }
+            catch { }
+        }
+
+        private void AnimateInspect(float t)
+        {
+            var tl = ViewmodelPoseTimeline.Inspect();
+            var raise = tl.Raise.Evaluate(t);
+            _actionRot = Quaternion.Euler(tl.Pitch.Evaluate(t) * raise, tl.Yaw.Evaluate(t), tl.Roll.Evaluate(t));
+            _actionPos = new Vector3(-0.06f * raise, 0.04f * raise, 0.05f * raise);
+
+            var m = _model;
+            var hand = Mathf.Clamp01(tl.Hand.Evaluate(t));
+            if (hand > 0.001f && m.MagazineHandGrip != null)
+                _left.SetAnchorGoal(m.MagazineHandGrip, hand);
+
+            // Kamara kontrolü: kızak/sürgü kısa çekilir.
+            var check = Mathf.Clamp01(tl.Check.Evaluate(t));
+            if (check > 0.001f)
+            {
+                if (WeaponStyles.IsPistol(_shownStyle)) m.SetSlide(check);
+                else if (m.Bolt != null) m.SetBolt(0f, check * 0.8f);
+            }
+        }
+
         // ------------------------------------------------------------------ Reload
 
         private void AnimateReload(float t)
@@ -163,6 +228,8 @@ namespace Project.Infrastructure.Weapons
                 AnimateShellReload(t);
             else if (WeaponStyles.IsBeltFed(_shownStyle))
                 AnimateBeltReload(t);
+            else if (_timeline != null)
+                AnimateTimelineMagazineReload(t);
             else
                 AnimateMagazineReload(t);
         }
@@ -234,44 +301,38 @@ namespace Project.Infrastructure.Weapons
             }
         }
 
-        /// <summary>PMT-76: kapak açılır, fişek kutusu değişir, kapak kapanır.</summary>
+        /// <summary>Kemerli (PMT-76): üst kapak açılır, boş kutu düşer, yeni kutu girer, kemer tablaya serilir, kapak kapanır.</summary>
         private void AnimateBeltReload(float t)
         {
-            var m = _model;
-            var e = Window(t, 0f, 0.1f, 0.88f, 1f);
-            _actionRot = Quaternion.Euler(-5f * e, 9f * e, 16f * e);
-            _actionPos = new Vector3(-0.025f, 0.03f, -0.01f) * e;
+            var tl = _timeline;
+            if (tl == null || tl.Kind != ReloadKind.Machinegun)
+                tl = _timeline = ViewmodelPoseTimeline.Build(ReloadKind.Machinegun, false);
 
-            var cover = SmoothRamp(t, 0.14f, 0.24f) * (1f - SmoothRamp(t, 0.76f, 0.84f));
-            m.SetCoverOpen(cover);
+            var m = _model;
+            var tilt = tl.Tilt.Evaluate(t);
+            _actionRot = Quaternion.Euler(-5f * tilt, 9f * tilt, 16f * tilt);
+            _actionPos = new Vector3(-0.025f, 0.03f, -0.01f) * tilt;
+
+            m.SetCoverOpen(Mathf.Clamp01(tl.Cover.Evaluate(t)));
 
             const float travel = 0.3f;
-            float d;
-            if (t < 0.33f)
-                d = 0f;
-            else if (t < 0.47f)
-            {
-                var x = Ramp(t, 0.33f, 0.47f);
-                d = x * x * travel;
-            }
-            else if (t < 0.53f)
-                d = travel;
-            else if (t < 0.68f)
-            {
-                var x = 1f - Ramp(t, 0.53f, 0.68f);
-                d = x * x * travel;
-            }
-            else
-                d = 0f;
+            var mag = tl.MagTravel.Evaluate(t);
+            var d = Mathf.Max(0f, mag) * travel;
+            m.SetMagazineOffset(m.MagazineEjectDirection * d, Quaternion.Euler(0f, 0f, -Mathf.Clamp01(mag) * 20f));
+            UpdateSpareMagazine(tl, t, mag);
 
-            m.SetMagazineOffset(m.MagazineEjectDirection * d, Quaternion.Euler(0f, 0f, -Mathf.Clamp01(d / travel) * 20f));
-
-            var reach = Window(t, 0.05f, 0.14f, 0.86f, 0.94f);
-            var toBox = SmoothRamp(t, 0.25f, 0.33f) * (1f - SmoothRamp(t, 0.69f, 0.76f));
+            var reach = Mathf.Clamp01(tl.HandReach.Evaluate(t));
+            var lay = Mathf.Clamp01(tl.BeltLay.Evaluate(t));
             if (m.CoverHandGrip != null)
-                _left.SetAnchorGoal(m.CoverHandGrip, m.MagazineHandGrip, toBox, reach);
+                _left.SetAnchorGoal(m.MagazineHandGrip != null ? m.MagazineHandGrip : m.CoverHandGrip, m.CoverHandGrip, lay, reach);
             else if (m.MagazineHandGrip != null)
                 _left.SetAnchorGoal(m.MagazineHandGrip, reach);
+
+            var jolt = tl.Jolt.Evaluate(t);
+            var mech = tl.Mechanism.Evaluate(t);
+            _actionPos += new Vector3(0f, 0.004f, -0.012f) * jolt + new Vector3(0f, 0f, -0.006f) * mech;
+            if (mech > 0.001f)
+                m.SetBolt(0f, Mathf.Clamp01(mech));
         }
 
         /// <summary>Escort: silah yan yatar, sol el fişekleri tek tek alt yükleme ağzına iter, sonunda pompa çekilir.</summary>
@@ -290,21 +351,16 @@ namespace Project.Infrastructure.Weapons
             var pickRot = Quaternion.LookRotation(new Vector3(0.2f, 0.2f, 1f), new Vector3(0.3f, -1f, 0f));
             var pushPos = portPos + new Vector3(0f, 0.012f, 0.03f);
 
-            var loadStart = 0.1f;
-            var loadEnd = 0.84f;
             var shell = false;
             Vector3 handPos;
             Quaternion handRot;
-            if (t <= loadStart || t >= loadEnd)
+            if (!ViewmodelPoseTimeline.ShellStage(t, _shellCount, out _, out var s))
             {
                 handPos = portPos;
                 handRot = portRot;
             }
             else
             {
-                var u = (t - loadStart) / (loadEnd - loadStart) * _shellCount;
-                var index = Mathf.Min(_shellCount - 1, Mathf.FloorToInt(u));
-                var s = u - index;
                 if (s < 0.3f)
                 {
                     var x = Smooth01(s / 0.3f);
@@ -337,8 +393,13 @@ namespace Project.Infrastructure.Weapons
             _left.SetPoseGoal(GoalKind.ModelSpace, handPos, handRot, reach);
             SetProp(_left, shell && reach > 0.5f ? ViewmodelProp.ShotgunShell : ViewmodelProp.None);
 
-            var pump = SmoothRamp(t, 0.9f, 0.94f) * (1f - SmoothRamp(t, 0.95f, 0.99f));
+            var tlp = _timeline != null && _timeline.Kind == ReloadKind.Shotgun ? _timeline : null;
+            var pump = tlp != null
+                ? Mathf.Clamp01(tlp.Mechanism.Evaluate(t))
+                : SmoothRamp(t, 0.9f, 0.94f) * (1f - SmoothRamp(t, 0.95f, 0.99f));
             m.SetPump(pump);
+            if (tlp != null)
+                _actionPos += new Vector3(0f, 0.004f, -0.012f) * tlp.Jolt.Evaluate(t);
         }
 
         // ------------------------------------------------------------------ Melee / throw / use
@@ -657,6 +718,7 @@ namespace Project.Infrastructure.Weapons
 
                     case WeaponStyle.Sar9:
                     case WeaponStyle.Tp9:
+                    case WeaponStyle.MeteSft:
                         p = new PoseProfile
                         {
                             HipPosition = new Vector3(0.1f, -0.1f, 0.27f),
@@ -679,15 +741,18 @@ namespace Project.Infrastructure.Weapons
                         break;
 
                     case WeaponStyle.Mpt55:
+                    case WeaponStyle.Sar223:
                         p = Rifle(new Vector3(0.12f, -0.1f, 0.19f), 0.025f, 3.5f, 1f, 0.85f);
                         break;
 
                     case WeaponStyle.Mpt76:
                     case WeaponStyle.G3a7:
+                    case WeaponStyle.Mpt76K:
                         p = Rifle(new Vector3(0.12f, -0.1f, 0.19f), 0.03f, 4.5f, 1.05f, 1f);
                         break;
 
                     case WeaponStyle.Knt76:
+                    case WeaponStyle.Sar762Mt:
                         p = Rifle(new Vector3(0.12f, -0.102f, 0.18f), 0.04f, 6f, 1.15f, 1f);
                         break;
 
@@ -696,10 +761,12 @@ namespace Project.Infrastructure.Weapons
                         break;
 
                     case WeaponStyle.Pmt76:
+                    case WeaponStyle.Mg3:
                         p = Rifle(new Vector3(0.125f, -0.115f, 0.17f), 0.022f, 2.6f, 1.35f, 1.1f);
                         break;
 
                     case WeaponStyle.Escort:
+                    case WeaponStyle.EscortMagnum:
                         p = Rifle(new Vector3(0.12f, -0.105f, 0.18f), 0.06f, 10f, 1.1f, 1.3f);
                         p.KickRoll = 3f;
                         break;

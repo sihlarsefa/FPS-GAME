@@ -139,6 +139,17 @@ public sealed class SeasonService
 
 public sealed class AchievementService
 {
+    private readonly IPlayerRepository? _players;
+    private readonly IUnitOfWork? _uow;
+
+    public AchievementService() { }
+
+    public AchievementService(IPlayerRepository players, IUnitOfWork uow)
+    {
+        _players = players;
+        _uow = uow;
+    }
+
     public IReadOnlyList<AchievementDto> ListForPlayer(Player player)
     {
         return AchievementCatalog.All.Select(d =>
@@ -165,6 +176,64 @@ public sealed class AchievementService
         }
         return newly;
     }
+
+    /// <summary>
+    /// İstemci ilerleme senkronu: metrikleri max ile birleştirir; maç sonucundan türetilebilen
+    /// (matches/wins/kills/headshots) sunucu CareerStats değerinin altına düşürülemez.
+    /// </summary>
+    public async Task<AchievementSyncResult> SyncAsync(Guid playerId, AchievementSyncRequest request, CancellationToken ct = default)
+    {
+        if (_players is null || _uow is null)
+            throw new InvalidOperationException("AchievementService DI ile oluşturulmalı.");
+
+        var player = await _players.GetByIdAsync(playerId, ct)
+                     ?? throw new AppException("Oyuncu bulunamadı.", 404, ErrorCodes.NotFound);
+
+        // Sunucu otoriteli metrikler — istemci bunları düşüremez.
+        player.AchievementProgress["matches"] = Math.Max(
+            player.AchievementProgress.GetValueOrDefault("matches"), player.Stats.Matches);
+        player.AchievementProgress["wins"] = Math.Max(
+            player.AchievementProgress.GetValueOrDefault("wins"), player.Stats.Wins);
+        player.AchievementProgress["kills"] = Math.Max(
+            player.AchievementProgress.GetValueOrDefault("kills"), player.Stats.Kills);
+        player.AchievementProgress["headshots"] = Math.Max(
+            player.AchievementProgress.GetValueOrDefault("headshots"), player.Stats.Headshots);
+        player.AchievementProgress["rank"] = (int)player.Stats.Rank;
+        player.AchievementProgress["elo"] = player.EloRating;
+
+        if (request.Progress is not null)
+        {
+            foreach (var (metric, value) in request.Progress)
+            {
+                if (string.IsNullOrWhiteSpace(metric) || value < 0)
+                    continue;
+                // matches/wins/kills/headshots: yalnızca yükselt
+                var serverFloor = player.AchievementProgress.GetValueOrDefault(metric);
+                player.AchievementProgress[metric] = Math.Max(serverFloor, value);
+            }
+        }
+
+        if (request.UnlockedIds is not null)
+        {
+            foreach (var id in request.UnlockedIds)
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                    continue;
+                // Yalnızca katalogda olan ve hedefi karşılanan (veya UnlockXp=0 tip) id'ler.
+                var def = AchievementCatalog.All.FirstOrDefault(a => a.Id == id);
+                if (def is null)
+                    continue;
+                var progress = player.AchievementProgress.GetValueOrDefault(def.Metric);
+                if (progress >= def.Target)
+                    player.UnlockedAchievements.Add(id);
+            }
+        }
+
+        var newly = EvaluateAndUnlock(player);
+        await _players.UpdateAsync(player, ct);
+        await _uow.SaveChangesAsync(ct);
+        return new AchievementSyncResult(newly, ListForPlayer(player));
+    }
 }
 
 public sealed class CosmeticService
@@ -188,7 +257,7 @@ public sealed class CosmeticService
             c.Name,
             c.Slot,
             player.OwnedCosmetics.Contains(c.Id),
-            c.Slot == "camo" ? player.EquippedCamo == c.Id : player.EquippedBeret == c.Id
+            IsEquipped(player, c)
         )).ToList();
     }
 
@@ -203,15 +272,30 @@ public sealed class CosmeticService
         var item = CosmeticCatalog.All.FirstOrDefault(c => c.Id == cosmeticId)
                    ?? throw new AppException("Kozmetik bulunamadı.", 404, ErrorCodes.NotFound);
 
-        if (item.Slot == "camo")
-            player.EquippedCamo = item.Id;
-        else
-            player.EquippedBeret = item.Id;
+        switch (item.Slot)
+        {
+            case "camo":
+                player.EquippedCamo = item.Id;
+                break;
+            case "beret":
+                player.EquippedBeret = item.Id;
+                break;
+            default:
+                // armband / weapon_skin / victory_pose / emblem_frame — sahiplik yeterli; kuşanım istemci.
+                break;
+        }
 
         await _players.UpdateAsync(player, ct);
         await _uow.SaveChangesAsync(ct);
         return Mapper.ToDto(player);
     }
+
+    private static bool IsEquipped(Player player, CosmeticCatalog.Item c) => c.Slot switch
+    {
+        "camo" => player.EquippedCamo == c.Id,
+        "beret" => player.EquippedBeret == c.Id,
+        _ => false
+    };
 }
 
 public sealed class ModerationService

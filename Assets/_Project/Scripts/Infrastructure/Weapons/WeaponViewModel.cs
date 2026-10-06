@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure.Config;
+using Project.Infrastructure.Content;
+using Project.Infrastructure.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
@@ -24,13 +27,18 @@ namespace Project.Infrastructure.Weapons
         private const float ScopeExtraSeconds = 0.08f;
         private const float FistsEquipSeconds = 0.3f;
         private const float MaxDeltaTime = 0.1f;
-        private const float SpringStep = 1f / 120f;
+        private const float SwayStiffness = 110f;
+        private const float SwayDamping = 0.7f;
+        private const float WallClearDistance = 0.85f;
+        private const float WallFullDistance = 0.32f;
+        private const float WallLowerStrength = 0.85f;
         private const float FlashSeconds = 0.05f;
         private const int ShellPoolSize = 8;
         private const float ShellLifetime = 0.75f;
         private const float OverrideReleaseRate = 8f;
 
         /// <summary>Salınım dönüş merkezi (eller civarı) — kamera uzayı.</summary>
+        private static readonly Vector3 HipViewOffset = new Vector3(0.022f, -0.022f, -0.03f);
         private static readonly Vector3 SwayPivot = new Vector3(0.07f, -0.12f, 0.26f);
 
         private static readonly Vector3 RightShoulder = new Vector3(0.2f, -0.46f, -0.3f);
@@ -68,6 +76,7 @@ namespace Project.Infrastructure.Weapons
             public Vector3 Shoulder;
             public Vector3 Pole;
             public bool FistMesh;
+            public bool FireMesh;
 
             public Transform PropSocket;
             public MeshFilter PropFilter;
@@ -157,6 +166,8 @@ namespace Project.Infrastructure.Weapons
         private bool _buildFailed;
         private Transform _sway;
         private Transform _holder;
+        private const float TriggerFingerSeconds = 0.08f;
+        private float _triggerFingerTimer;
         private Arm _right;
         private Arm _left;
 
@@ -167,10 +178,14 @@ namespace Project.Infrastructure.Weapons
         private PoseProfile _profile;
         private Vector3 _sightLocal;
         private float _eyeRelief = 0.14f;
+        private Vector3? _frontLocal;
 
         // Kuşanma.
         private EquipPhase _equipPhase;
         private float _equipLower;
+        private float _equipShaped;   // eğrili (indirme öngörüsü / kaldırma aşımı) gösterim değeri
+        private float _drawBump;      // hedefi aşan kısım (silah hafif yukarı sıçrar)
+        private bool _sprintRising;
         private float _lowerRate;
         private float _raiseDuration;
         private float _raiseTime;
@@ -198,10 +213,23 @@ namespace Project.Infrastructure.Weapons
         private float _idleTime;
         private Vector3 _swayEuler;
         private Vector3 _swayPos;
+        private Vector3 _swayEulerVel;
+        private Vector3 _swayPosVel;
         private Vector3 _bobPos;
         private Vector3 _bobEuler;
         private float _landOffset;
         private float _landVelocity;
+        private ViewmodelStance _stance = ViewmodelStance.Stand;
+        private float _strafe;
+        private float _holdBreath;
+        private bool _holdBreathWanted;
+        private float _slideBlend;
+        private float _strafeRoll;
+        private float _strafeRollVel;
+        private float _breathTime;
+        private float _airSpeedPeak;
+        private System.Reflection.PropertyInfo _suppressionSway;
+        private bool _suppressionSearched;
 
         // Geri tepme yayı.
         private Vector3 _kickPos;
@@ -209,7 +237,6 @@ namespace Project.Infrastructure.Weapons
         private Vector3 _kickRot;
         private Vector3 _kickRotVel;
         private float _springStiffness = 220f;
-        private float _springAccumulator;
 
         // Namlu alevi ve kovanlar.
         private Transform _flash;
@@ -304,14 +331,22 @@ namespace Project.Infrastructure.Weapons
         public void SetAim(bool aiming)
         {
             _wantsAim = aiming;
+            if (aiming)
+                CancelInspect();
         }
 
         /// <summary>Atış: geri tepme, namlu alevi, kovan; tabancada kızak, JNG-90'da sürgü, Escort'ta pompa döngüsü.</summary>
         public void OnFire()
         {
             EnsureBuilt();
+            CancelInspect();
             if (_model == null)
                 return;
+
+            // Pompalıda mermi yüklerken ateş: odada en az bir mermi varsa doldurma kesilir.
+            if (_action == ViewAction.Reload && _timeline != null && _timeline.Kind == ReloadKind.Shotgun
+                && ViewmodelPoseTimeline.CanInterruptShotgun(_actionTime / _actionDuration, _shellCount))
+                EndAction();
 
             var definition = _shownDefinition ?? Current;
             var strength = 1f;
@@ -326,7 +361,13 @@ namespace Project.Infrastructure.Weapons
             AddKick(new Vector3(side * p.KickSide, p.KickBack * 0.12f, -p.KickBack) * posScale,
                 new Vector3(-p.KickPitch * Random.Range(0.85f, 1.1f), side * p.KickPitch * 0.22f, side * p.KickRoll) * rotScale);
 
+            if (_rig != null)
+                _rig.AddCameraKick(p.KickPitch * 0.35f * strength, side * p.KickPitch * 0.1f);
+            if (_animDriver != null)
+                _animDriver.TriggerFire();
+            _triggerFingerTimer = TriggerFingerSeconds;
             ShowFlash();
+            WeaponMaterialDriver.NotifyShot(definition);   // namlu karbonu
             HandleFireCycle(definition);
         }
 
@@ -348,6 +389,7 @@ namespace Project.Infrastructure.Weapons
                 return;
 
             CancelActions();
+            BeginTimelineForReload();
             StartAction(ViewAction.Reload, Mathf.Clamp(durationSeconds, 0.3f, 12f));
             _shellCount = Mathf.Clamp(Mathf.RoundToInt((_actionDuration - 0.5f) / 0.45f), 1, 7);
         }
@@ -427,6 +469,24 @@ namespace Project.Infrastructure.Weapons
             _motionFrame = Time.frameCount;
         }
 
+        /// <summary>Duruş (bob eğrisi, slide'da kalçada yatık silah). Her kare veya değişince çağrılabilir.</summary>
+        public void SetStance(ViewmodelStance stance)
+        {
+            _stance = stance;
+        }
+
+        /// <summary>Yanal hareket -1 (sol) .. +1 (sağ); strafe roll için.</summary>
+        public void SetStrafe(float strafe01)
+        {
+            _strafe = Mathf.Clamp(SafeFloat(strafe01), -1f, 1f);
+        }
+
+        /// <summary>Nefes tutuluyor mu (ADS sallantısını sıkılaştırır).</summary>
+        public void SetHoldingBreath(bool holding)
+        {
+            _holdBreathWanted = holding;
+        }
+
         /// <summary>Tüm görüntüleyicileri gizler/gösterir (mantık çalışmaya devam eder).</summary>
         public void SetHidden(bool hidden)
         {
@@ -477,6 +537,7 @@ namespace Project.Infrastructure.Weapons
                 if (_left != null)
                     _left.ClearGoal();
 
+                PollInspectKey();
                 UpdateEquip(dt);
                 UpdateAim(dt);
                 UpdateMotion(dt);
@@ -670,6 +731,19 @@ namespace Project.Infrastructure.Weapons
 
         private void UpdateEquip(float dt)
         {
+            UpdateEquipPhase(dt);
+            if (_equipPhase == EquipPhase.Lowering)
+            {
+                var raw = ViewmodelPoseTimeline.HolsterProgress(_equipLower);
+                _drawBump = Mathf.Max(0f, -raw) * 0.5f;
+                _equipShaped = Mathf.Clamp01(raw);
+            }
+        }
+
+        private void UpdateEquipPhase(float dt)
+        {
+            _equipShaped = _equipLower;
+            _drawBump = 0f;
             switch (_equipPhase)
             {
                 case EquipPhase.Lowering:
@@ -686,8 +760,11 @@ namespace Project.Infrastructure.Weapons
                 case EquipPhase.Raising:
                     _raiseTime += dt;
                     var x = Mathf.Clamp01(_raiseTime / _raiseDuration);
-                    var eased = 1f - (1f - x) * (1f - x) * (1f - x);
-                    _equipLower = _raiseFrom * (1f - eased);
+                    var drawn = ViewmodelPoseTimeline.DrawProgress(x);
+                    var rawLower = _raiseFrom * (1f - drawn);
+                    _equipLower = Mathf.Max(0f, rawLower);
+                    _equipShaped = _equipLower;
+                    _drawBump = Mathf.Max(0f, -rawLower);
                     if (x >= 1f)
                     {
                         _equipLower = 0f;
@@ -755,9 +832,13 @@ namespace Project.Infrastructure.Weapons
                     _model = model;
                     _sightLocal = model.SightPoint != null ? mt.InverseTransformPoint(model.SightPoint.position) : new Vector3(0f, 0.08f, 0f);
                     _eyeRelief = Mathf.Max(0.06f, model.EyeRelief);
+                    _frontLocal = model.FrontSightLocal;
+                    _animDriver = definition != null ? ViewmodelAnimatorDriver.TryAttach(model, definition.WeaponId) : null;
                 }
             }
 
+            if (_model == null)
+                _animDriver = null;
             _shownStyle = _model != null ? style : WeaponStyle.None;
             _shownDefinition = definition;
             _profile = PoseProfile.For(_shownStyle);
@@ -793,6 +874,27 @@ namespace Project.Infrastructure.Weapons
             if (arm.HandRenderer != null)
                 arm.HandRenderer.sharedMaterials = part.Materials;
             arm.FistMesh = fist;
+            arm.FireMesh = false;
+        }
+
+        /// <summary>Sağ elde işaret parmağı: normalde korkuluk üstünde düz, yalnız ateş anında tetikte.</summary>
+        private void UpdateTriggerFinger(float dt)
+        {
+            _triggerFingerTimer = Mathf.Max(0f, _triggerFingerTimer - dt);
+            var arm = _right;
+            if (arm == null || arm.HandFilter == null || arm.FistMesh)
+                return;
+
+            var fire = _triggerFingerTimer > 0f;
+            if (arm.FireMesh == fire)
+                return;
+
+            var part = fire ? ViewmodelMeshes.HandFireRight : ViewmodelMeshes.HandGripRight;
+            if (part == null)
+                return;
+
+            arm.HandFilter.sharedMesh = part.Mesh;
+            arm.FireMesh = fire;
         }
 
         // ------------------------------------------------------------------ Aim / motion / recoil
@@ -800,7 +902,7 @@ namespace Project.Infrastructure.Weapons
         private void UpdateAim(float dt)
         {
             var scoped = _shownDefinition != null && _shownDefinition.HasScope;
-            var duration = AdsSeconds + (scoped ? ScopeExtraSeconds : 0f);
+            var duration = ViewmodelDynamics.AdsSeconds(_shownDefinition != null ? _shownDefinition.AdsTime : 0f, scoped);
             var target = _wantsAim && _model != null ? 1f : 0f;
             AimBlend = Mathf.MoveTowards(AimBlend, target, dt / duration);
 
@@ -812,7 +914,7 @@ namespace Project.Infrastructure.Weapons
             _aimBlock = Mathf.MoveTowards(_aimBlock, block, dt * 6f);
         }
 
-        private float AimPose => Smooth01(AimBlend) * (1f - _aimBlock);
+        private float AimPose => Smoother01(AimBlend) * (1f - _aimBlock);
 
         private void UpdateMotion(float dt)
         {
@@ -823,42 +925,100 @@ namespace Project.Infrastructure.Weapons
             }
 
             var weight = _profile.SwayScale;
+            var suppression = SuppressionSway();
             var targetEuler = new Vector3(
-                Mathf.Clamp(_pitchRate * 0.01f, -5f, 5f),
-                Mathf.Clamp(-_yawRate * 0.012f, -6f, 6f),
-                Mathf.Clamp(-_yawRate * 0.016f, -7f, 7f)) * weight;
+                ViewmodelMotionMath.TurnLagTarget(_pitchRate) * 0.85f,
+                -ViewmodelMotionMath.TurnLagTarget(_yawRate),
+                -ViewmodelMotionMath.TurnLagTarget(_yawRate) * 0.5f) * (weight * suppression);
             var targetPos = new Vector3(
                 Mathf.Clamp(-_yawRate * 0.00005f, -0.02f, 0.02f),
                 Mathf.Clamp(-_pitchRate * 0.00004f, -0.015f, 0.015f),
-                0f) * weight;
-            var follow = 1f - Mathf.Exp(-9f / Mathf.Max(0.5f, weight) * dt);
-            _swayEuler = Vector3.Lerp(_swayEuler, targetEuler, follow);
-            _swayPos = Vector3.Lerp(_swayPos, targetPos, follow);
+                0f) * (weight * suppression);
+            // Yay-sönümleyici (kare bağımsız): ağır silah daha yumuşak/geç takip eder, hafif aşım verir.
+            var swayK = SwayStiffness / Mathf.Max(0.5f, weight);
+            ViewmodelDynamics.StepSpring(ref _swayEuler.x, ref _swayEulerVel.x, targetEuler.x, swayK, SwayDamping, dt);
+            ViewmodelDynamics.StepSpring(ref _swayEuler.y, ref _swayEulerVel.y, targetEuler.y, swayK, SwayDamping, dt);
+            ViewmodelDynamics.StepSpring(ref _swayEuler.z, ref _swayEulerVel.z, targetEuler.z, swayK, SwayDamping, dt);
+            ViewmodelDynamics.StepSpring(ref _swayPos.x, ref _swayPosVel.x, targetPos.x, swayK, SwayDamping, dt);
+            ViewmodelDynamics.StepSpring(ref _swayPos.y, ref _swayPosVel.y, targetPos.y, swayK, SwayDamping, dt);
+
+            ViewmodelDynamics.StepSpring(ref _strafeRoll, ref _strafeRollVel,
+                ViewmodelMotionMath.StrafeRollTarget(_grounded ? _strafe * _speed01 : 0f), 90f, 0.8f, dt);
+            _slideBlend = Mathf.MoveTowards(_slideBlend, _stance == ViewmodelStance.Slide && _grounded ? 1f : 0f, dt * 6f);
+            _breathTime += dt;
+            if (_breathTime > 1000f) _breathTime -= 1000f;
+            _holdBreath = Mathf.MoveTowards(_holdBreath, _holdBreathWanted ? 1f : 0f, dt * 3f);
 
             var busy = _action == ViewAction.Reload || _action == ViewAction.Use || _action == ViewAction.Throw;
             var sprintTarget = _sprinting && _grounded && _speed01 > 0.2f && !busy ? 1f : 0f;
             _sprintBlend = Mathf.MoveTowards(_sprintBlend, sprintTarget, dt * 5f);
+            if (sprintTarget > 0.5f) _sprintRising = true;
+            else if (_sprintBlend < 0.001f || sprintTarget < 0.5f) _sprintRising = false;
 
             var moving = _grounded ? _speed01 : 0f;
-            _bobAmp = Mathf.MoveTowards(_bobAmp, moving * (_sprinting ? 1.5f : 1f), dt * 4f);
-            _bobPhase += dt * Mathf.Lerp(6f, _sprinting ? 13.5f : 10f, moving);
+            var profile = ViewmodelMotionMath.BobProfile(_stance, _sprinting && _stance == ViewmodelStance.Stand);
+            _bobAmp = Mathf.MoveTowards(_bobAmp, moving * (_sprinting && _stance == ViewmodelStance.Stand ? 1.5f : 1f), dt * 4f);
+            _bobPhase += dt * ViewmodelMotionMath.BobFrequency(profile, Mathf.Max(moving, 0.35f) * (moving > 0.01f ? 1f : 0.4f));
             if (_bobPhase > Mathf.PI * 200f)
                 _bobPhase -= Mathf.PI * 200f;
             _idleTime += dt;
             if (_idleTime > 1000f)
                 _idleTime -= 1000f;
 
-            var sin = Mathf.Sin(_bobPhase);
-            var cos = Mathf.Cos(_bobPhase);
-            _bobPos = new Vector3(sin * 0.008f, -Mathf.Abs(cos) * 0.011f + 0.0055f, 0f) * _bobAmp
-                      + new Vector3(0f, Mathf.Sin(_idleTime * 1.3f) * 0.0018f, 0f);
-            _bobEuler = new Vector3(Mathf.Sin(_bobPhase * 2f) * 0.6f, sin * 0.5f, sin * 1.4f) * _bobAmp
-                        + new Vector3(Mathf.Sin(_idleTime * 1.1f) * 0.3f, Mathf.Sin(_idleTime * 0.7f) * 0.2f, 0f);
+            ViewmodelMotionMath.SampleBob(profile, _bobPhase, _bobAmp, out var bx, out var by, out var bp, out var byaw, out var br);
+            var follow = ViewmodelDynamics.ExpFollow(24f, dt);
+            var bobPosTarget = new Vector3(bx, by + Mathf.Sin(_idleTime * 1.3f) * 0.0018f, 0f);
+            var bobEulerTarget = new Vector3(bp + Mathf.Sin(_idleTime * 1.1f) * 0.3f, byaw + Mathf.Sin(_idleTime * 0.7f) * 0.2f, br);
+            _bobPos = Vector3.Lerp(_bobPos, bobPosTarget, follow);
+            _bobEuler = Vector3.Lerp(_bobEuler, bobEulerTarget, follow);
+
+            // ADS nefes sallantısı (yavaş 0.3 Hz; nefes tutulunca sıkı; bastırma çarpanı).
+            ViewmodelMotionMath.AdsBreath(_breathTime, _holdBreath, SuppressionSway(), out var brP, out var brY);
+            var ads = AimPose;
+            _bobEuler += new Vector3(brP, brY, 0f) * (ads * 2.2f);
 
             _airBlend = Mathf.MoveTowards(_airBlend, _grounded ? 0f : 1f, dt * 4f);
+            if (!_grounded && _wasGrounded)
+                _landVelocity += 0.18f; // zıplama: silah hafif kalkar
             if (_grounded && !_wasGrounded)
-                _landVelocity -= 0.35f;
+            {
+                // İniş: dip + yayın doğal aşımıyla toparlanma (ζ<1).
+                _landVelocity += ViewmodelMotionMath.LandImpulse(_airSpeedPeak);
+                _airSpeedPeak = 0f;
+            }
+            if (!_grounded)
+                _airSpeedPeak = Mathf.Min(12f, _airSpeedPeak + dt * 9.81f);
             _wasGrounded = _grounded;
+        }
+
+        /// <summary>Suppression.SwayMultiplier (Presentation'a bağımlılık yok: yansıma, önbellekli; yoksa 1).</summary>
+        private float SuppressionSway()
+        {
+            if (!_suppressionSearched)
+            {
+                _suppressionSearched = true;
+                try
+                {
+                    var t = Type.GetType("Project.Presentation.Player.Suppression, Project.Presentation");
+                    _suppressionSway = t != null ? t.GetProperty("SwayMultiplier", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static) : null;
+                }
+                catch (Exception)
+                {
+                    _suppressionSway = null;
+                }
+            }
+
+            if (_suppressionSway == null)
+                return 1f;
+            try
+            {
+                var v = _suppressionSway.GetValue(null);
+                return v is float f && !float.IsNaN(f) ? Mathf.Clamp(f, 0f, 4f) : 1f;
+            }
+            catch (Exception)
+            {
+                return 1f;
+            }
         }
 
         private void AddKick(Vector3 position, Vector3 euler)
@@ -875,26 +1035,88 @@ namespace Project.Infrastructure.Weapons
 
         private void UpdateRecoil(float dt)
         {
-            _springAccumulator += dt;
+            // Model tepmesi: kare bağımsız yaylar (kamera tepmesi CameraRecoilSpring ile ayrıdır).
             var k = _springStiffness;
-            var c = 2f * Mathf.Sqrt(k) * 0.72f;
-            var steps = 0;
-            while (_springAccumulator >= SpringStep && steps < 16)
-            {
-                _springAccumulator -= SpringStep;
-                steps++;
-                _kickPosVel += (-k * _kickPos - c * _kickPosVel) * SpringStep;
-                _kickPos += _kickPosVel * SpringStep;
-                _kickRotVel += (-k * _kickRot - c * _kickRotVel) * SpringStep;
-                _kickRot += _kickRotVel * SpringStep;
+            const float ratio = 0.72f;
+            ViewmodelDynamics.StepSpring(ref _kickPos.x, ref _kickPosVel.x, 0f, k, ratio, dt);
+            ViewmodelDynamics.StepSpring(ref _kickPos.y, ref _kickPosVel.y, 0f, k, ratio, dt);
+            ViewmodelDynamics.StepSpring(ref _kickPos.z, ref _kickPosVel.z, 0f, k, ratio, dt);
+            ViewmodelDynamics.StepSpring(ref _kickRot.x, ref _kickRotVel.x, 0f, k, ratio, dt);
+            ViewmodelDynamics.StepSpring(ref _kickRot.y, ref _kickRotVel.y, 0f, k, ratio, dt);
+            ViewmodelDynamics.StepSpring(ref _kickRot.z, ref _kickRotVel.z, 0f, k, ratio, dt);
 
-                _landVelocity += (-140f * _landOffset - 15f * _landVelocity) * SpringStep;
-                _landOffset += _landVelocity * SpringStep;
+            // İniş yayı: k=140, c=15 (ζ ≈ 0.63).
+            ViewmodelDynamics.StepSpring(ref _landOffset, ref _landVelocity, 0f, 140f, 15f / (2f * Mathf.Sqrt(140f)), dt);
+
+            UpdateWallLower(dt);
+
+            if (_animDriver != null)
+            {
+                _animDriver.Drive(AimBlend, _speed01, _sprinting, _action == ViewAction.Reload);
+                _animDriver.SetLeftHandWeight(LeftHandIkWeight);
             }
 
-            if (steps >= 16)
-                _springAccumulator = 0f;
+            UpdateViewmodelFov();
         }
+
+        /// <summary>Kalçadan viewmodel FOV (40..90); 60 varsayılan. Nişanda hafif daralır.</summary>
+        public float ViewmodelHipFov { get; set; } = ViewmodelDynamics.DefaultViewmodelFov;
+
+        private void UpdateViewmodelFov()
+        {
+            if (!_rigSearched)
+            {
+                _rigSearched = true;
+                _rig = GetComponentInParent<CameraRig>();
+            }
+
+            if (_rig != null)
+                _rig.SetViewmodelFieldOfView(ViewmodelDynamics.AdsViewmodelFov(ViewmodelHipFov, AimPose));
+        }
+
+        // ------------------------------------------------------------------ Wall proximity
+
+        private ViewmodelAnimatorDriver _animDriver;
+        private CameraRig _rig;
+        private bool _rigSearched;
+        private float _wallLower;
+        private float _wallTarget;
+        private int _wallFrame;
+
+        /// <summary>Duvara yakınlık 0..1 (silah indirme ağırlığı; sadece okuma).</summary>
+        public float WallLowerAmount => _wallLower;
+
+        /// <summary>Duvar yakınında silah indirme kapalıysa false (testler/özel durumlar).</summary>
+        public bool WallLoweringEnabled { get; set; } = true;
+
+        private void UpdateWallLower(float dt)
+        {
+            if (!WallLoweringEnabled || _model == null || IsHidden)
+                _wallTarget = 0f;
+            else if (++_wallFrame >= 2)
+            {
+                _wallFrame = 0;
+                var mask = GameLayers.WorldMask | (1 << GameLayers.Vehicle);
+                var origin = transform.position;
+                if (Physics.Raycast(origin, transform.forward, out var hit, WallClearDistance, mask, QueryTriggerInteraction.Ignore))
+                    _wallTarget = ViewmodelDynamics.WallLowerWeight(hit.distance, WallClearDistance, WallFullDistance);
+                else
+                    _wallTarget = 0f;
+            }
+
+            // Kareden bağımsız takip: indirme hızlı, kaldırma biraz yavaş.
+            var rate = _wallTarget > _wallLower ? 14f : 7f;
+            _wallLower += (_wallTarget - _wallLower) * ViewmodelDynamics.ExpFollow(rate, dt);
+        }
+
+        // ------------------------------------------------------------------ Left-hand IK hook (override prefab Grip_L)
+
+        /// <summary>Override prefab'ın Grip_L hedefi (yoksa prosedürel sol el tutamağı; silah yoksa null).</summary>
+        public Transform LeftHandIkTarget => _model != null ? _model.LeftHandGrip : null;
+
+        /// <summary>Sol el IK ağırlığı 0..1 (nişan/koşu/indirme sırasında sabit 1; eylemde düşer).</summary>
+        public float LeftHandIkWeight => _model == null ? 0f : 1f - Mathf.Clamp01(_aimBlock * 0.5f + _wallLower * 0.25f);
+
 
         // ------------------------------------------------------------------ Pose
 
@@ -903,8 +1125,8 @@ namespace Project.Infrastructure.Weapons
             var aim = AimPose;
             var damp = Mathf.Lerp(1f, 0.18f, aim);
 
-            var swayPos = (_swayPos + _bobPos) * damp + new Vector3(0f, _landOffset * 0.06f - 0.012f * _airBlend, 0f) * damp;
-            var swayEuler = (_swayEuler + _bobEuler) * damp + new Vector3(2.5f * _airBlend, 0f, 0f) * damp;
+            var swayPos = (_swayPos + _bobPos) * damp + new Vector3(0f, _landOffset * 0.06f + ViewmodelMotionMath.JumpLift(_airBlend), 0f) * damp;
+            var swayEuler = (_swayEuler + _bobEuler) * damp + new Vector3(-2f * _airBlend, 0f, _strafeRoll) * damp;
             _sway.localPosition = SwayPivot + swayPos;
             _sway.localRotation = Quaternion.Euler(swayEuler);
 
@@ -912,18 +1134,36 @@ namespace Project.Infrastructure.Weapons
                 return;
 
             var p = _profile;
-            var adsPos = new Vector3(-_sightLocal.x, -_sightLocal.y, _eyeRelief - _sightLocal.z);
+            // Ön nişan yalnız hat yaklaşık yataysa (demir nişan); optik/kırmızı nokta yüksek kasada eğim vermesin.
+            var useFront = _frontLocal.HasValue && SightAlignment.IsIronLine(_sightLocal, _frontLocal.Value);
+            var adsPos = useFront
+                ? SightAlignment.EyeOffset(_sightLocal, _frontLocal.Value, _eyeRelief)
+                : SightAlignment.EyeOffset(_sightLocal, _eyeRelief);
+            var adsRot = useFront ? SightAlignment.SightLineRotation(_sightLocal, _frontLocal.Value) : Quaternion.identity;
             var pos = Vector3.Lerp(p.HipPosition, adsPos, aim);
-            var rot = Quaternion.Slerp(p.HipRotation, Quaternion.identity, aim);
+            // Kalça duruşu: silah ekranı çok kaplıyordu — hafif sağa/aşağı/geri (ADS'ye dokunmaz).
+            pos += HipViewOffset * (1f - aim);
+            var rot = Quaternion.Slerp(p.HipRotation, adsRot, aim);
 
-            var sprint = Smooth01(_sprintBlend) * (1f - aim);
-            pos = Vector3.Lerp(pos, p.SprintPosition, sprint);
-            rot = Quaternion.Slerp(rot, p.SprintRotation, sprint);
+            var sprint = ViewmodelPoseTimeline.SprintWeight(_sprintBlend, _sprintRising) * (1f - aim);
+            pos = Vector3.LerpUnclamped(pos, p.SprintPosition, sprint);
+            rot = Quaternion.SlerpUnclamped(rot, p.SprintRotation, sprint);
+            // Koşu: silah göğüs önünde yatık (ek roll/yaw); slide: kalçaya inip yana yatık.
+            rot = rot * Quaternion.Euler(0f, 6f * sprint, -7f * sprint);
+            pos += new Vector3(0.01f, -0.01f, 0.01f) * sprint;
+            var slide = _slideBlend * (1f - aim);
+            pos += new Vector3(0.05f, -0.07f, 0.02f) * slide;
+            rot = rot * Quaternion.Euler(6f * slide, -10f * slide, -22f * slide);
+            var sprintBump = ViewmodelPoseTimeline.SprintTransitionBump(_sprintBlend) * (1f - aim);
+            pos += new Vector3(0f, -0.008f, -0.01f) * sprintBump;
+            rot = rot * Quaternion.Euler(4f * sprintBump, 0f, -3f * sprintBump);
 
-            var lower = Mathf.Max(Smooth01(_equipLower), _actionLower);
+            var lower = Mathf.Max(Mathf.Max(Smooth01(_equipShaped), _actionLower), _wallLower * WallLowerStrength);
             pos = Vector3.Lerp(pos, p.LowerPosition, lower);
             rot = Quaternion.Slerp(rot, p.LowerRotation, lower);
 
+            pos += new Vector3(0f, 0.12f, 0.07f) * _drawBump;
+            rot = rot * Quaternion.Euler(-30f * _drawBump, 0f, 0f);
             pos += _actionPos + _cyclePos;
             rot = rot * _actionRot * _cycleRot;
 
@@ -998,8 +1238,14 @@ namespace Project.Infrastructure.Weapons
             }
         }
 
+        private static bool IsPistolStyle(WeaponStyle style)
+        {
+            return WeaponStyles.IsPistol(style);
+        }
+
         private void UpdateArms(float dt)
         {
+            UpdateTriggerFinger(dt);
             UpdateArm(_right, dt);
             UpdateArm(_left, dt);
         }
@@ -1023,6 +1269,10 @@ namespace Project.Infrastructure.Weapons
                 basePos = PoseToRoot(fp);
                 baseRot = PoseToRoot(fr);
             }
+
+            // Nişan alırken sol el kundak altına kayar (geri + aşağı), tabancada kayma yok.
+            if (arm.IsLeft && grip != null && AimBlend > 0.001f && !IsPistolStyle(_shownStyle))
+                basePos += new Vector3(0f, -0.010f, -0.028f) * Smooth01(AimBlend);
 
             var goal = arm.Goal == GoalKind.None ? 0f : arm.GoalWeight;
             arm.Weight = goal >= arm.Weight ? goal : Mathf.MoveTowards(arm.Weight, goal, dt * OverrideReleaseRate);
@@ -1295,6 +1545,12 @@ namespace Project.Infrastructure.Weapons
         }
 
         // ------------------------------------------------------------------ Helpers
+
+        private static float Smoother01(float x)
+        {
+            x = Mathf.Clamp01(x);
+            return x * x * x * (x * (x * 6f - 15f) + 10f);
+        }
 
         private static float Smooth01(float x)
         {

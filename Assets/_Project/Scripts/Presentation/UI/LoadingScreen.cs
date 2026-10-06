@@ -1,4 +1,5 @@
 using System;
+using Project.Core.Domain;
 using UnityEngine;
 
 namespace Project.Presentation.UI
@@ -36,6 +37,12 @@ namespace Project.Presentation.UI
 
             try
             {
+                if (!IsVisible)
+                {
+                    Progress.Reset();
+                    _sceneOp = null;
+                }
+
                 var view = EnsureView();
                 if (view != null)
                     view.Show(string.IsNullOrEmpty(message) ? "Yükleniyor" : message);
@@ -45,6 +52,53 @@ namespace Project.Presentation.UI
                 Debug.LogException(e);
             }
         }
+
+        private static readonly LoadingProgressModel Progress = new LoadingProgressModel();
+        private static string _mapId = MapCatalog.Kuzgun;
+        private static GameMode _mode = GameMode.BattleRoyale;
+        private static int _teamCount;
+        private static int _teamSize;
+        private static UnityEngine.AsyncOperation _sceneOp;
+
+        /// <summary>Brifing bağlamı: harita (kimlik ya da ad), mod, tim sayısı/boyu (0 = bilinmiyor). Her an çağrılabilir, güvenlidir.</summary>
+        public static void SetContext(string mapIdOrName, GameMode mode, int teamCount, int teamSize)
+        {
+            _mapId = MapCatalog.Normalize(mapIdOrName);
+            _mode = mode;
+            _teamCount = teamCount;
+            _teamSize = teamSize;
+            if (_view != null)
+                _view.SetBriefing(_mapId, _mode, _teamCount, _teamSize);
+        }
+
+        /// <summary>Sahne yüklemesini izler (AsyncOperation.progress → "sahne" aşaması). Örtü kapalıysa yok sayılır.</summary>
+        public static void TrackSceneLoad(UnityEngine.AsyncOperation op)
+        {
+            _sceneOp = op;
+        }
+
+        /// <summary>
+        /// Gerçek yükleme aşamasını bildirir (aşama içi ilerleme 0..1). Toplam ilerleme yalnız artar; örtü kapalı/yoksa
+        /// yok sayılır — bootstrap'ten koşulsuz çağrılabilir.
+        /// </summary>
+        public static void Report(LoadPhase phase, float fraction01)
+        {
+            _sceneOp = null;
+            var total = Progress.Report(phase, fraction01);
+            if (_view != null && _view.IsShowing)
+                _view.Report(total, LoadingProgressModel.Label(Progress.Phase));
+        }
+
+        internal static float PollSceneProgress()
+        {
+            if (_sceneOp == null)
+                return -1f;
+            // Unity sahne yüklemesi 0.9'da bekler; 0..0.9 → 0..1.
+            var f = Mathf.Clamp01(_sceneOp.progress / 0.9f);
+            return Progress.Report(LoadPhase.SceneLoad, f);
+        }
+
+        internal static string CurrentPhaseLabel => LoadingProgressModel.Label(Progress.Phase);
 
         /// <summary>İletiyi değiştirir (örtü kapalıysa bir şey yapmaz).</summary>
         public static void SetMessage(string message)
@@ -82,6 +136,8 @@ namespace Project.Presentation.UI
                 return _view;
 
             _view = LoadingScreenView.Create(SortOrder);
+            if (_view != null)
+                _view.SetBriefing(_mapId, _mode, _teamCount, _teamSize);
             return _view;
         }
 
@@ -95,6 +151,12 @@ namespace Project.Presentation.UI
         private static void ResetStatics()
         {
             _view = null;
+            _sceneOp = null;
+            Progress.Reset();
+            _mapId = MapCatalog.Kuzgun;
+            _mode = GameMode.BattleRoyale;
+            _teamCount = 0;
+            _teamSize = 0;
             AutoHide = true;
             MinimumVisibleSeconds = 0.45f;
         }

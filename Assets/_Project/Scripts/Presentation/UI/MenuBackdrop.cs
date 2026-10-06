@@ -2,18 +2,19 @@ using System;
 using System.Collections.Generic;
 using Project.Infrastructure.Audio;
 using Project.Infrastructure.Rendering;
+using Project.Infrastructure.World.Lobby;
+using Project.Presentation.Lobby;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Project.Presentation.UI
 {
     /// <summary>
-    /// Ana menünün 3B dioraması (tamamen kodla kurulur): alacakaranlıkta sisli dağ sırtları ve vadi, kavisli kum torbası
-    /// siperi, Kirpi benzeri zırhlı araç, kamp ateşi başında bekleyen dört asker (<see cref="Project.Infrastructure.Characters.SoldierModel"/>),
-    /// direkte dalgalanan Türk bayrağı, çadır/sandık/HESCO dekoru, vadide pus; yavaşça süzülen kamera (fare ile hafif
-    /// paralaks), arada bir uzak sırtlarda patlama parlaması + gecikmeli gümbürtü ve sürekli uzak çatışma sesi.
-    /// <para>Kök, gün batımı güneşi kadrajın sağ üstünde kalacak şekilde döndürülür. Başsız (batch) modda görsel
-    /// kurulmaz. Ürettiği mesh'leri ve ses döngülerini yok edilirken temizler.</para>
+    /// Ana menünün 3B dioraması (tamamen kodla kurulur), PUBG lobisi gibi KÜÇÜK ve KESKİN bir iç mekân: kameraya yakın tek asker
+    /// (<see cref="Project.Infrastructure.Characters.SoldierModel"/>, alçak hazır), arkasında kum torbası siperi + sandık/varil,
+    /// tepede kamuflaj ağı şeritleri, geride park halinde Kirpi, 12 m'lik gerçek zemin, yan ateş (şekilli alev kartları).
+    /// DARK MODE (mavi saat): koyu lacivert ortam, soldan soğuk ay ışığı, arkadan soğuk kontur, soğuk spotlar; ana vurgu kamp ateşi. Menü kamerası için yerel post-process (koyu kenar vinyeti, DoF yok)
+    /// ve çok seyrek sis. Kamera sabit; yalnız ±1 cm nefes süzülmesi.
+    /// <para>Başsız (batch) modda görsel kurulmaz. Ürettiği mesh'leri ve ses döngülerini yok edilirken temizler.</para>
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class MenuBackdrop : MonoBehaviour
@@ -28,7 +29,13 @@ namespace Project.Presentation.UI
             /// <summary>Kariyer: tim komutanına yakın plan.</summary>
             Career,
             /// <summary>Ayarlar: bayrak ve vadi.</summary>
-            Settings
+            Settings,
+            /// <summary>OYNA: helipaddeki T-70, Kirpi ve tim (sağa bakış).</summary>
+            Play,
+            /// <summary>DONANIM: sandıklar, cephane ve ateş başı yakın plan.</summary>
+            Loadout,
+            /// <summary>TİM: askerler ve komutan, hafif yakın.</summary>
+            Team
         }
 
         private struct ShotPose
@@ -52,18 +59,21 @@ namespace Project.Presentation.UI
             public float Pitch;
         }
 
-        private const float SunLocalYaw = 40f;
-        private const float IntroSeconds = 4.5f;
         private const float ShotBlendSeconds = 1.8f;
         private const float SoldierRefreshInterval = 1.5f;
         private const int MaxPendingBooms = 8;
 
+        // Kamera (0, 1.6, 0) civarında sabit; asker z = 3.2 m'de, sağa yakın. Tüm kadrajlar küçük dioramanın içinde kalır.
         private static readonly ShotPose[] Shots =
         {
-            new ShotPose(new Vector3(-2.2f, 2.0f, -8.6f), new Vector3(1.9f, 1.3f, 3.2f), 45f),
-            new ShotPose(new Vector3(0.6f, 1.85f, -5.6f), new Vector3(6.6f, 1.45f, 2.4f), 42f),
-            new ShotPose(new Vector3(1.0f, 1.7f, -2.3f), new Vector3(3.9f, 1.5f, 2.5f), 36f),
-            new ShotPose(new Vector3(-1.0f, 1.7f, -4.5f), new Vector3(3.3f, 4.6f, 8.3f), 44f)
+            // Ana kadraj (referans): komutan göğüs-üstü baskın, sağda tim + ateş, solda Kirpi. Hedef = SoldierPosition göğüs hizası.
+            new ShotPose(new Vector3(0.1f, 1.55f, 0f), new Vector3(0.2f, 1.35f, 2.6f), 37f),
+            new ShotPose(new Vector3(-0.8f, 1.5f, 0.3f), new Vector3(-2.5f, 1.3f, 10.5f), 40f),
+            new ShotPose(new Vector3(0.2f, 1.65f, 1.0f), new Vector3(0.7f, 1.55f, 3.2f), 32f),
+            new ShotPose(new Vector3(-0.5f, 1.6f, 0f), new Vector3(1.5f, 1.4f, 8f), 46f),
+            new ShotPose(new Vector3(0.3f, 1.7f, -0.2f), new Vector3(1.0f, 1.3f, 5f), 50f),
+            new ShotPose(new Vector3(-0.6f, 1.3f, 1.0f), new Vector3(-1.8f, 0.5f, 5f), 42f),
+            new ShotPose(new Vector3(0f, 1.6f, 0.3f), new Vector3(0.6f, 1.3f, 3.2f), 38f)
         };
 
         private static MenuBackdrop _current;
@@ -75,6 +85,9 @@ namespace Project.Presentation.UI
         private ParticleSystem _flashes;
         private ParticleSystem _tracers;
         private Light _flashLight;
+        private MenuBackdropLook _look;
+        private LobbyAmbience _ambience;
+        private LobbyParallax _parallax;
         private float _flashLightIntensity;
         private AudioSource _battleLoop;
 
@@ -85,7 +98,6 @@ namespace Project.Presentation.UI
         private ShotPose _from;
         private ShotPose _to;
         private float _blend = 1f;
-        private Vector2 _parallax;
         private float _startTime;
         private float _soldierTimer;
         private float _nextFlash;
@@ -95,6 +107,10 @@ namespace Project.Presentation.UI
         private int _boomCount;
         private System.Random _rng;
         private bool _built;
+        private List<Light> _floodlights;
+        private List<float> _floodBase;
+        private float _floodFlickerLeft;
+        private int _floodFlickerIndex;
 
         /// <summary>Sahnedeki etkin dekor (yoksa null).</summary>
         public static MenuBackdrop Current => _current;
@@ -109,10 +125,10 @@ namespace Project.Presentation.UI
         public Shot CurrentShot => _shot;
 
         /// <summary>Uzak çatışma efektleri (parlama, iz mermisi, ses) açık mı.</summary>
-        public bool DistantBattleEnabled { get; set; } = true;
+        public bool DistantBattleEnabled { get; set; }
 
         /// <summary>Fare paralaksı açık mı.</summary>
-        public bool ParallaxEnabled { get; set; } = true;
+        public bool ParallaxEnabled { get; set; }
 
         /// <summary>
         /// Dioramayı kurar. <paramref name="parent"/> null ise sahne kökünde oluşturulur. Başsız modda yalnızca boş bir
@@ -146,23 +162,14 @@ namespace Project.Presentation.UI
             _blend = 0f;
         }
 
-        private static float ComputeRootYaw()
-        {
-            var sun = RenderSettings.sun;
-            if (sun == null)
-                return 0f;
-
-            var toSun = -sun.transform.forward;
-            toSun.y = 0f;
-            if (toSun.sqrMagnitude < 1e-4f)
-                return 0f;
-
-            return Mathf.Atan2(toSun.x, toSun.z) * Mathf.Rad2Deg - SunLocalYaw;
-        }
+        /// <summary>Diorama sabit yönlüdür (ışık dekora göre kurulur; güneşe göre döndürme yok).</summary>
+        private static float ComputeRootYaw() => 0f;
 
         private void Awake()
         {
             _current = this;
+            // Menü/lobi derecelendirmesi: mavi saat + kırmızı vurgu (PostProcessing tek yazar; 2,5 sn yumuşak geçiş).
+            Project.Infrastructure.Rendering.PostProcessing.SetLobbyGrade(true);
             _rng = new System.Random(Environment.TickCount);
             _startTime = Time.unscaledTime;
             _to = Shots[0];
@@ -194,24 +201,21 @@ namespace Project.Presentation.UI
 
             _context = new MenuBackdropBuilder.Context { Root = transform };
 
-            Step(() => MenuBackdropBuilder.BuildGround(_context), "Zemin");
-            Step(() => MenuBackdropBuilder.BuildMountains(_context), "Dağlar");
-            Step(() => MenuBackdropBuilder.BuildVegetation(_context), "Bitki örtüsü");
-            Step(() => MenuBackdropBuilder.BuildSandbagWall(_context), "Kum torbaları");
-            Step(() => MenuBackdropBuilder.BuildVehicle(_context), "Kirpi");
-            Step(() => MenuBackdropBuilder.BuildProps(_context), "Malzemeler");
-            Step(() => _flag = MenuBackdropBuilder.BuildFlagPole(_context), "Bayrak");
-            Step(() => _campfire = MenuCampfire.Create(transform, MenuBackdropBuilder.CampfirePosition, 77), "Kamp ateşi");
-            Step(() => _soldiers = MenuBackdropBuilder.BuildSoldiers(_context), "Askerler");
-            Step(() => MenuBackdropBuilder.BuildValleyMist(_context), "Pus");
-            Step(() => _flashes = MenuBackdropBuilder.BuildFlashSystem(_context), "Parlamalar");
-            Step(() => _tracers = MenuBackdropBuilder.BuildTracerSystem(_context), "İz mermileri");
-            Step(BuildFlashLight, "Parlama ışığı");
+            Step(() => MenuDioramaBuilder.BuildGround(_context), "Zemin");
+            Step(() => MenuDioramaBuilder.BuildEnclosure(_context), "Duvarlar");
+            Step(() => MenuDioramaBuilder.BuildCamoStrips(_context), "Kamuflaj şeritleri");
+            Step(() => MenuDioramaBuilder.BuildSandbagWall(_context), "Kum torbaları");
+            Step(() => MenuDioramaBuilder.BuildProps(_context), "Malzemeler");
+            Step(() => MenuDioramaBuilder.BuildVehicle(_context), "Kirpi");
+            Step(() => _campfire = MenuCampfire.Create(transform, MenuDioramaBuilder.CampfirePosition, 77), "Kamp ateşi");
+            Step(() => _soldiers = MenuDioramaBuilder.BuildSoldier(_context), "Asker");
+            Step(() => _look = MenuBackdropLook.Apply(transform), "Işık ve görünüm");
+            Step(() => _ambience = LobbyAmbience.Create(transform, MenuDioramaBuilder.CampfirePosition,
+                MenuDioramaBuilder.SoldierPosition, QualitySettings.GetQualityLevel()), "Lobi atmosferi");
+            Step(() => _parallax = gameObject.AddComponent<LobbyParallax>(), "Lobi paralaksı");
             Step(BuildCamera, "Kamera");
             Step(StartAudio, "Ses");
 
-            _nextFlash = Time.unscaledTime + 2.5f;
-            _nextTracer = Time.unscaledTime + 1.2f;
             ApplyCamera(0f);
         }
 
@@ -244,6 +248,12 @@ namespace Project.Presentation.UI
                 _rig = null;
             }
 
+            if (_camera != null)
+            {
+                _camera.clearFlags = CameraClearFlags.SolidColor;
+                _camera.backgroundColor = MenuBackdropLook.BackgroundColor;
+            }
+
             if (_camera == null)
             {
                 var go = new GameObject("Kamera");
@@ -251,6 +261,8 @@ namespace Project.Presentation.UI
                 go.tag = "MainCamera";
                 _camera = go.AddComponent<Camera>();
                 _camera.fieldOfView = Shots[0].FieldOfView;
+                _camera.clearFlags = CameraClearFlags.SolidColor;
+                _camera.backgroundColor = MenuBackdropLook.BackgroundColor;
                 _camera.nearClipPlane = 0.05f;
                 _camera.farClipPlane = 1500f;
                 go.AddComponent<AudioListener>();
@@ -294,6 +306,52 @@ namespace Project.Presentation.UI
                 _flashLight.enabled = false;
 
             UpdateBooms();
+            UpdateFloodlightFlicker(dt);
+        }
+
+        // ------------------------------------------------------------------ Uzak projektör titremesi
+
+        private void UpdateFloodlightFlicker(float dt)
+        {
+            if (_floodlights == null)
+            {
+                _floodlights = new List<Light>(2);
+                _floodBase = new List<float>(2);
+                foreach (var l in GetComponentsInChildren<Light>(true))
+                {
+                    if (l != null && l.name.StartsWith("Projektör", StringComparison.Ordinal))
+                    {
+                        _floodlights.Add(l);
+                        _floodBase.Add(l.intensity);
+                    }
+                }
+            }
+
+            if (_floodlights.Count == 0)
+                return;
+
+            if (_floodFlickerLeft <= 0f)
+            {
+                // Saniyede %0,5 olasılık.
+                if (_rng.NextDouble() < 0.005 * dt)
+                {
+                    _floodFlickerLeft = Range(0.18f, 0.4f);
+                    _floodFlickerIndex = _rng.Next(0, _floodlights.Count);
+                }
+
+                return;
+            }
+
+            _floodFlickerLeft -= dt;
+            var i = _floodFlickerIndex;
+            if (i < 0 || i >= _floodlights.Count || _floodlights[i] == null)
+            {
+                _floodFlickerLeft = 0f;
+                return;
+            }
+
+            var k = _floodFlickerLeft <= 0f ? 1f : Mathf.Lerp(0.55f, 1f, Mathf.PerlinNoise(Time.unscaledTime * 38f, i * 7.1f));
+            _floodlights[i].intensity = _floodBase[i] * k;
         }
 
         private ShotPose CurrentPose()
@@ -315,58 +373,33 @@ namespace Project.Presentation.UI
                 _blend = Mathf.Min(1f, _blend + dt / ShotBlendSeconds);
 
             var pose = CurrentPose();
-            var t = Time.unscaledTime;
-            var since = t - _startTime;
 
-            // Açılış: kamera geriden ve yukarıdan süzülerek yerine oturur.
-            var intro = 1f - Mathf.Clamp01(since / IntroSeconds);
-            intro = intro * intro * (3f - 2f * intro);
-
-            var forward = pose.Target - pose.Position;
-            if (forward.sqrMagnitude < 1e-4f)
-                forward = Vector3.forward;
-            forward.Normalize();
-            var right = Vector3.Cross(Vector3.up, forward).normalized;
-
-            var drift = right * (Mathf.Sin(t * 0.071f) * 0.7f) +
-                        Vector3.up * (Mathf.Sin(t * 0.093f + 1f) * 0.12f) +
-                        forward * (Mathf.Sin(t * 0.047f + 2f) * 0.5f);
-
-            if (ParallaxEnabled)
-                UpdateParallax(dt);
-            var parallax = right * (_parallax.x * 0.35f) + Vector3.up * (_parallax.y * 0.14f);
-
-            var position = pose.Position + drift + parallax + (forward * -3.5f + Vector3.up * 1.1f + right * -1.2f) * intro;
-            var target = pose.Target + new Vector3(Mathf.Sin(t * 0.06f) * 0.3f, Mathf.Sin(t * 0.08f) * 0.07f, 0f) + parallax * 0.4f;
-
-            var rotation = Quaternion.LookRotation(target - position, Vector3.up);
-            var handheld = Quaternion.Euler(
-                (Mathf.PerlinNoise(t * 0.35f, 1.7f) - 0.5f) * 0.5f,
-                (Mathf.PerlinNoise(t * 0.31f, 8.2f) - 0.5f) * 0.5f,
-                (Mathf.PerlinNoise(t * 0.22f, 4.4f) - 0.5f) * 0.4f);
+            // Kamera hayatı: yörünge yok; ~2 mm yavaş süzülme + %1 yakınlaşma nefesi (8 sn periyot).
+            var life = Time.unscaledTime - _startTime;
+            if (float.IsNaN(life) || float.IsInfinity(life))
+                life = 0f;
+            var position = pose.Position + new Vector3(
+                Mathf.Sin(life * 0.31f) * 0.002f,
+                Mathf.Sin(life * 0.23f + 1.3f) * 0.002f,
+                Mathf.Sin(life * 0.17f + 2.1f) * 0.002f);
+            // Yavaş dolly (60 sn periyot, ±4 cm ileri-geri) + imleç paralaksı (yalnız ParallaxEnabled).
+            position += pose.Target - pose.Position != Vector3.zero
+                ? (pose.Target - pose.Position).normalized * (Mathf.Sin(life * 0.105f) * 0.04f)
+                : Vector3.zero;
+            if (ParallaxEnabled && _parallax != null)
+                position += _parallax.Offset;
+            var look = pose.Target - position;
+            if (look.sqrMagnitude < 1e-4f)
+                look = Vector3.forward;
 
             _cameraTransform.localPosition = position;
-            _cameraTransform.localRotation = rotation * handheld;
+            _cameraTransform.localRotation = Quaternion.LookRotation(look, Vector3.up);
 
-            var fov = pose.FieldOfView + intro * 4f;
+            var fov = pose.FieldOfView * (1f + 0.01f * Mathf.Sin(life * (Mathf.PI * 2f / 8f)));
             if (_rig != null)
                 _rig.SetFieldOfView(fov);
             else if (_camera != null && !Mathf.Approximately(_camera.fieldOfView, fov))
                 _camera.fieldOfView = fov;
-        }
-
-        private void UpdateParallax(float dt)
-        {
-            var target = Vector2.zero;
-            var mouse = Mouse.current;
-            if (mouse != null && Screen.width > 0 && Screen.height > 0)
-            {
-                var p = mouse.position.ReadValue();
-                target = new Vector2(Mathf.Clamp(p.x / Screen.width * 2f - 1f, -1f, 1f), Mathf.Clamp(p.y / Screen.height * 2f - 1f, -1f, 1f));
-            }
-
-            var k = 1f - Mathf.Exp(-dt * 1.6f);
-            _parallax = Vector2.Lerp(_parallax, target, k);
         }
 
         private void UpdateSoldiers(float dt)
@@ -568,7 +601,10 @@ namespace Project.Presentation.UI
         private void OnDestroy()
         {
             if (_current == this)
+            {
                 _current = null;
+                Project.Infrastructure.Rendering.PostProcessing.SetLobbyGrade(false);
+            }
 
             if (_battleLoop != null)
             {
@@ -584,6 +620,9 @@ namespace Project.Presentation.UI
                 _battleLoop = null;
             }
 
+            if (_look != null)
+                _look.Dispose();
+            _look = null;
             MenuBackdropBuilder.DestroyOwned(_context);
             _context = null;
             _soldiers = null;

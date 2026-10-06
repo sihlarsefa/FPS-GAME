@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
-  <rect width="64" height="64" rx="8" fill="#121820" stroke="#243040"/>
-  <polyline points="16,28 32,20 48,28" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,24 32,16 48,24" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,20 32,12 48,20" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,16 32,8 48,16" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,12 32,4 48,12" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,8 32,0 48,8" fill="none" stroke="#E30A17" stroke-width="3"/><rect x="18" y="40" width="28" height="3" fill="#E8EEF5"/>
-  <text x="32" y="58" text-anchor="middle" fill="#8FA3B8" font-size="8" font-family="monospace">13</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Teğmen — stilize nişan</title>
+  <path d="M32 6L50 18v18c0 14-12 22-18 26-6-4-18-12-18-26V18L32 6z" fill="#343D28" stroke="#F2A900" stroke-width="2"/>
+  <polygon points="32,22 34.8,28.8 40,30 34.8,31.2 32,38 29.2,31.2 24,30 29.2,28.8" fill="#F2A900"/>
 </svg>

@@ -1,0 +1,256 @@
+{
+  "schema": "harekat.web.presskit.v1",
+  "source": "Marketing/press/fact_sheet.md · Marketing/brand/BRAND.md · Marketing/screenshots",
+  "contact": {
+    "email": "press@harekat.example",
+    "placeholder": true
+  },
+  "oneLiner_tr": "On kişilik timlerle Kuzgun Vadisi’nde Mavi/Kırmızı tatbikat — komuta zincirini koru, son tim ayakta kal.",
+  "oneLiner_en": "Ten-soldier FPP squad BR in Kuzgun Vadisi — hold the chain of command, Blue vs Red, last squad standing.",
+  "factSheet": [
+    {
+      "key": "baslik",
+      "label_tr": "Başlık",
+      "value_tr": "HAREKÂT",
+      "label_en": "Title",
+      "value_en": "HAREKÂT"
+    },
+    {
+      "key": "tur",
+      "label_tr": "Tür",
+      "value_tr": "FPP Squad Battle Royale",
+      "label_en": "Genre",
+      "value_en": "FPP Squad Battle Royale"
+    },
+    {
+      "key": "tim-boyutu",
+      "label_tr": "Tim boyutu",
+      "value_tr": "10",
+      "label_en": "Squad size",
+      "value_en": "10"
+    },
+    {
+      "key": "bakis",
+      "label_tr": "Bakış",
+      "value_tr": "Birinci şahıs",
+      "label_en": "Perspective",
+      "value_en": "First person"
+    },
+    {
+      "key": "harita-v1",
+      "label_tr": "Harita (v1)",
+      "value_tr": "Kuzgun Vadisi",
+      "label_en": "Map (v1)",
+      "value_en": "Kuzgun Vadisi"
+    },
+    {
+      "key": "kurgu",
+      "label_tr": "Kurgu",
+      "value_tr": "Harekât tatbikatı — Mavi / Kırmızı kuvvet",
+      "label_en": "Fiction",
+      "value_en": "Field exercise — Blue / Red force"
+    },
+    {
+      "key": "intikal",
+      "label_tr": "İntikal",
+      "value_tr": "T-70 helikopter · Kirpi zırhlı",
+      "label_en": "Insertion",
+      "value_en": "T-70 helicopter · Kirpi armored vehicle"
+    },
+    {
+      "key": "one-cikan-sistem",
+      "label_tr": "Öne çıkan sistem",
+      "value_tr": "Komuta zinciri / emir devri",
+      "label_en": "Signature system",
+      "value_en": "Chain of command / order succession"
+    },
+    {
+      "key": "silahlar",
+      "label_tr": "Silahlar",
+      "value_tr": "Türk üretimi katalog (MPT, SAR, JNG-90, PMT-76…)",
+      "label_en": "Weapons",
+      "value_en": "Turkish-made catalog (MPT, SAR, JNG-90, PMT-76…)"
+    },
+    {
+      "key": "destek",
+      "label_tr": "Destek",
+      "value_tr": "Topçu · daralan harekât sınırı",
+      "label_en": "Support",
+      "value_en": "Artillery · shrinking operation boundary"
+    },
+    {
+      "key": "ui-dili",
+      "label_tr": "UI dili",
+      "value_tr": "Türkçe",
+      "label_en": "UI language",
+      "value_en": "Turkish"
+    },
+    {
+      "key": "monetizasyon",
+      "label_tr": "Monetizasyon",
+      "value_tr": "Kozmetik only · pay-to-win yok",
+      "label_en": "Monetization",
+      "value_en": "Cosmetics only · no pay-to-win"
+    },
+    {
+      "key": "platform",
+      "label_tr": "Platform",
+      "value_tr": "Windows / Steam (hedef)",
+      "label_en": "Platform",
+      "value_en": "Windows / Steam (target)"
+    },
+    {
+      "key": "vurgu-rengi",
+      "label_tr": "Vurgu rengi",
+      "value_tr": "#E30A17",
+      "label_en": "Accent color",
+      "value_en": "#E30A17"
+    },
+    {
+      "key": "amblem",
+      "label_tr": "Amblem",
+      "value_tr": "Stilize özgün; resmi arma değil",
+      "label_en": "Emblem",
+      "value_en": "Original stylized design; not an official insignia"
+    }
+  ],
+  "colors": [
+    {
+      "key": "vurgu-kirmizi",
+      "name_tr": "Vurgu Kırmızı",
+      "hex": "#E30A17",
+      "usage_tr": "CTA, çizgi, hilal, vurgular",
+      "name_en": "Accent Red",
+      "usage_en": "CTA, lines, crescent, highlights"
+    },
+    {
+      "key": "gece-siyah",
+      "name_tr": "Gece Siyah",
+      "hex": "#0b0b0b",
+      "usage_tr": "Arka plan",
+      "name_en": "Night Black",
+      "usage_en": "Background"
+    },
+    {
+      "key": "kalkan-gri",
+      "name_tr": "Kalkan Gri",
+      "hex": "#141414",
+      "usage_tr": "Amblem iç dolgu",
+      "name_en": "Shield Gray",
+      "usage_en": "Emblem inner fill"
+    },
+    {
+      "key": "kemik-beyaz",
+      "name_tr": "Kemik Beyaz",
+      "hex": "#F5F5F5",
+      "usage_tr": "Yazı, yıldız",
+      "name_en": "Bone White",
+      "usage_en": "Text, star"
+    },
+    {
+      "key": "sessiz-gri",
+      "name_tr": "Sessiz Gri",
+      "hex": "#888888",
+      "usage_tr": "Alt satır",
+      "name_en": "Quiet Gray",
+      "usage_en": "Subtitle line"
+    }
+  ],
+  "rules_tr": [
+    "Hilal–yıldız esinli, stilize ve özgün geometridir.",
+    "Resmi Türk bayrağı, TSK arması veya herhangi bir devlet sembolünün kopyası değildir.",
+    "Ticari / basın kullanımında “özgün oyun amblemi” ifadesi yeterlidir; resmi kurum onayı ima etme.",
+    "Oyun adı: HAREKÂT (Â zorunlu; ASCII fallback: HAREKAT yalnızca teknik dosya adlarında).",
+    "Kuvvetler: Mavi kuvvet / Kırmızı kuvvet (Blue force / Red force).",
+    "Gerçek örgüt, birlik veya grup adı kullanma."
+  ],
+  "rules_en": [
+    "Crescent–star inspired, stylized and original geometry.",
+    "It is not a copy of the Turkish flag, any armed forces insignia or any state symbol.",
+    "For commercial / press use, \"original game emblem\" is sufficient; do not imply official endorsement.",
+    "Game name: HAREKÂT (the Â is required; ASCII fallback HAREKAT only in technical file names).",
+    "Forces: Blue force / Red force.",
+    "Do not use real-world organization, unit or group names."
+  ],
+  "logos": [
+    {
+      "file": "assets/press/brand/emblem.svg",
+      "usage_tr": "Amblem (kalkan + stilize hilal/yıldız)",
+      "usage_en": "Emblem (shield + stylized crescent/star)"
+    },
+    {
+      "file": "assets/press/brand/icon_512.svg",
+      "usage_tr": "Uygulama / Discord / Steam client ikon taslağı",
+      "usage_en": "App / Discord / Steam client icon draft"
+    },
+    {
+      "file": "assets/press/brand/logo_horizontal.svg",
+      "usage_tr": "Steam / web yatay logo",
+      "usage_en": "Horizontal logo for Steam / web"
+    },
+    {
+      "file": "assets/press/brand/logo_stacked.svg",
+      "usage_tr": "Dikey / kare kullanım",
+      "usage_en": "Stacked / square usage"
+    },
+    {
+      "file": "assets/press/brand/wordmark.svg",
+      "usage_tr": "Yalnızca yazı (şeffaf zemin)",
+      "usage_en": "Wordmark only (transparent background)"
+    }
+  ],
+  "capsules": [
+    {
+      "file": "assets/press/capsules/capsule_community_184x184.svg",
+      "name": "community",
+      "width": 184,
+      "height": 184
+    },
+    {
+      "file": "assets/press/capsules/capsule_header_460x215.svg",
+      "name": "header",
+      "width": 460,
+      "height": 215
+    },
+    {
+      "file": "assets/press/capsules/capsule_hero_1920x620.svg",
+      "name": "hero",
+      "width": 1920,
+      "height": 620
+    },
+    {
+      "file": "assets/press/capsules/capsule_library_600x900.svg",
+      "name": "library",
+      "width": 600,
+      "height": 900
+    },
+    {
+      "file": "assets/press/capsules/capsule_main_616x353.svg",
+      "name": "main",
+      "width": 616,
+      "height": 353
+    },
+    {
+      "file": "assets/press/capsules/capsule_pagebg_1438x810.svg",
+      "name": "pagebg",
+      "width": 1438,
+      "height": 810
+    },
+    {
+      "file": "assets/press/capsules/capsule_small_231x87.svg",
+      "name": "small",
+      "width": 231,
+      "height": 87
+    }
+  ],
+  "releases": [
+    {
+      "lang": "tr",
+      "page": "content/press/bulten.tr.json"
+    },
+    {
+      "lang": "en",
+      "page": "content/press/bulten.en.json"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ using System.Text;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
+using Project.Infrastructure.Localization;
 using Project.Presentation.Bootstrap;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -45,6 +46,7 @@ namespace Project.Presentation.UI
         private Text _difficultyInfo;
         private Text _insertionInfo;
         private Text _briefing;
+        private Text _mapLabel;
         private Text _status;
         private Button _startButton;
         private Button _backButton;
@@ -117,7 +119,7 @@ namespace Project.Presentation.UI
 
             _working = sanitized;
             SetInteractable(false);
-            ShowStatus("Harekât emri verildi — tim intikale hazırlanıyor...", UiTheme.Amber);
+            ShowStatus(Loc.Get("setup.status.ready", "Harekât emri verildi — tim intikale hazırlanıyor..."), UiTheme.Amber);
             UiWidgets.PlaySound(Infrastructure.Audio.SoundId.UiConfirm);
 
             var callback = _onStart;
@@ -134,7 +136,7 @@ namespace Project.Presentation.UI
                 // Yükleme başlatılamadıysa pencere yeniden kullanılabilir olsun.
                 _starting = false;
                 SetInteractable(true);
-                ShowStatus("Harekât başlatılamadı. Tekrar dene.", UiTheme.Danger);
+                ShowStatus(Loc.Get("setup.status.fail", "Harekât başlatılamadı. Tekrar dene."), UiTheme.Danger);
             }
         }
 
@@ -196,14 +198,16 @@ namespace Project.Presentation.UI
             stripe.gameObject.name = "Stripe";
             UiFactory.SetRect(stripe, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -6f), Vector2.zero);
 
-            var title = UiFactory.Label(window, "HAREKÂT KURULUMU", UiTheme.FontTitle, TextAnchor.MiddleLeft, UiTheme.Text, FontStyle.Bold);
+            var title = UiFactory.Label(window, Loc.Get("setup.title", "HAREKÂT KURULUMU"), UiTheme.FontTitle, TextAnchor.MiddleLeft, UiTheme.Text, FontStyle.Bold);
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(title, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(40f, -96f), new Vector2(-40f, -22f));
             UiFactory.AddShadow(title, UiTheme.TextShadow, new Vector2(2f, -2f));
 
-            var map = UiFactory.Label(window, "KUZGUN VADİSİ  ·  1024 × 1024 m", UiTheme.FontNormal, TextAnchor.MiddleRight, UiTheme.Khaki, FontStyle.Bold);
+            var map = UiFactory.Label(window, string.Empty, UiTheme.FontNormal, TextAnchor.MiddleRight, UiTheme.Khaki, FontStyle.Bold);
             map.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(map, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(40f, -96f), new Vector2(-40f, -22f));
+            _mapLabel = map;
+            RefreshMapLabel();
 
             BuildForm(window);
             BuildBriefing(window);
@@ -218,9 +222,9 @@ namespace Project.Presentation.UI
             row.GetComponent<HorizontalLayoutGroup>().childForceExpandWidth = false;
 
             UiFactory.FlexibleSpacer(row);
-            _backButton = UiFactory.Button(row, "GERİ", Close, UiButtonStyle.Default);
+            _backButton = UiFactory.Button(row, Loc.Get("setup.btn.back", "GERİ"), Close, UiButtonStyle.Default);
             UiFactory.LayoutSize(_backButton, 200f, UiTheme.ButtonHeight);
-            _startButton = UiFactory.Button(row, "HAREKÂTA BAŞLA", StartOperation, UiButtonStyle.Primary);
+            _startButton = UiFactory.Button(row, Loc.Get("setup.btn.start", "HAREKÂTA BAŞLA"), StartOperation, UiButtonStyle.Primary);
             UiFactory.LayoutSize(_startButton, 330f, UiTheme.ButtonHeight);
         }
 
@@ -231,11 +235,11 @@ namespace Project.Presentation.UI
             UiFactory.SetRect(form, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(40f, 112f), new Vector2(40f + 640f, -116f));
 
             // Oyuncu adı.
-            SectionLabel(form, "OYUNCU ADI");
+            SectionLabel(form, Loc.Get("setup.section.player", "OYUNCU ADI"));
             _nameField = CreateNameField(form, _working.PlayerName);
 
             // Tim sayısı.
-            SectionLabel(form, "TİM SAYISI");
+            SectionLabel(form, Loc.Get("setup.section.teams", "TİM SAYISI"));
             var teamRow = UiFactory.CreateRect("TeamRow", form);
             UiFactory.LayoutSize(teamRow, -1f, 44f, 1f);
             _teamSlider = UiFactory.Slider(teamRow, SettingsService.MinTeamCount, SettingsService.MaxTeamCount, _working.TeamCount, OnTeamCountChanged, true);
@@ -257,20 +261,32 @@ namespace Project.Presentation.UI
                 var chip = UiFactory.Image(chips, UiSprites.GetRoundedRect(4), UiTheme.TeamPaletteColor(i));
                 chip.gameObject.name = "Chip" + i;
                 UiFactory.LayoutSize(chip, i == 0 ? 92f : 64f, 28f);
-                var label = UiFactory.Label(chip.rectTransform, i == 0 ? "SEN" : (i + 1).ToString(), UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.Text, FontStyle.Bold);
+                var label = UiFactory.Label(chip.rectTransform, i == 0 ? Loc.Get("setup.you", "SEN") : (i + 1).ToString(), UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.Text, FontStyle.Bold);
                 UiFactory.AddShadow(label, UiTheme.TextShadow, new Vector2(1f, -1f));
                 _chips[i] = chip;
                 _chipLabels[i] = label;
             }
 
+            // Harita.
+            SectionLabel(form, Loc.Get("setup.section.map", "HARİTA"));
+            UiWidgets.OptionSelector(form, Loc.Get("setup.map", "Harekât bölgesi"), MapCatalog.DisplayNames(),
+                Mathf.Max(0, MapCatalog.IndexOf(GameSession.SelectedMap)), OnMapChanged);
+
+            // Atmosfer.
+            SectionLabel(form, Loc.Get("setup.section.atmosphere", "ATMOSFER"));
+            UiWidgets.OptionSelector(form, Loc.Get("setup.tod", "Günün saati"), AtmosphereRules.TimeNames, (int)GameSession.SelectedTimeOfDay,
+                i => GameSession.SelectedTimeOfDay = AtmosphereRules.TimeFromIndex(i));
+            UiWidgets.OptionSelector(form, Loc.Get("setup.weather", "Hava durumu"), new[] { Loc.Get("setup.weather.auto", "Otomatik"), Loc.Get("setup.weather.clear", "Açık"), Loc.Get("setup.weather.rain", "Hafif yağmur"), Loc.Get("setup.weather.snow", "Kar") },
+                Mathf.Clamp(GameSession.SelectedWeatherIndex, 0, 3), i => GameSession.SelectedWeatherIndex = i);
+
             // Zorluk.
-            SectionLabel(form, "ZORLUK");
-            _difficulty = UiWidgets.OptionSelector(form, "Düşman timleri", MenuText.DifficultyNames, Mathf.Clamp((int)_working.Difficulty, 0, 2), OnDifficultyChanged);
+            SectionLabel(form, Loc.Get("setup.section.difficulty", "ZORLUK"));
+            _difficulty = UiWidgets.OptionSelector(form, Loc.Get("setup.enemy", "Düşman timleri"), MenuText.DifficultyNames, Mathf.Clamp((int)_working.Difficulty, 0, 2), OnDifficultyChanged);
             _difficultyInfo = InfoLabel(form);
 
             // İntikal.
-            SectionLabel(form, "İNTİKAL");
-            _insertion = UiWidgets.OptionSelector(form, "İntikal aracı", MenuText.InsertionNames, Mathf.Clamp((int)_working.Insertion, 0, 1), OnInsertionChanged);
+            SectionLabel(form, Loc.Get("setup.section.insertion", "İNTİKAL"));
+            _insertion = UiWidgets.OptionSelector(form, Loc.Get("setup.vehicle", "İntikal aracı"), MenuText.InsertionNames, Mathf.Clamp((int)_working.Insertion, 0, 1), OnInsertionChanged);
             _insertionInfo = InfoLabel(form);
         }
 
@@ -287,7 +303,7 @@ namespace Project.Presentation.UI
             flag.preserveAspect = true;
             UiFactory.Anchor(flag, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -22f), new Vector2(60f, 40f));
 
-            var header = UiFactory.Label(card, "HAREKÂT EMRİ", UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.TextHeader, FontStyle.Bold);
+            var header = UiFactory.Label(card, Loc.Get("setup.briefing", "HAREKÂT EMRİ"), UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.TextHeader, FontStyle.Bold);
             header.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(header, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(28f, -66f), new Vector2(-100f, -20f));
 
@@ -299,11 +315,11 @@ namespace Project.Presentation.UI
             _briefing.supportRichText = true;
             UiFactory.SetRect(_briefing, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(28f, 92f), new Vector2(-24f, -92f));
 
-            var keys = UiFactory.Label(card, "F1 Takip  ·  F2 Mevzi tut  ·  F3 Taarruz  ·  F4 Toplan  ·  V Topçu", UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.Khaki);
+            var keys = UiFactory.Label(card, Loc.Get("setup.keys", "F1 Takip  ·  F2 Mevzi tut  ·  F3 Taarruz  ·  F4 Toplan  ·  V Topçu"), UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.Khaki);
             keys.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.SetRect(keys, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(28f, 52f), new Vector2(-24f, 80f));
 
-            var hint = UiFactory.Label(card, "Tim emirleri tuşlarla verilir; harita (M) üzerinde işaretlenen nokta hedef olur.", UiTheme.FontTiny,
+            var hint = UiFactory.Label(card, Loc.Get("setup.hint", "Tim emirleri tuşlarla verilir; harita (M) üzerinde işaretlenen nokta hedef olur."), UiTheme.FontTiny,
                 TextAnchor.MiddleLeft, UiTheme.TextMuted);
             UiFactory.SetRect(hint, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(28f, 20f), new Vector2(-24f, 50f));
         }
@@ -397,6 +413,21 @@ namespace Project.Presentation.UI
             RefreshBriefing();
         }
 
+        private void OnMapChanged(int index)
+        {
+            GameSession.SelectedMap = MapCatalog.IdAt(index);
+            RefreshMapLabel();
+        }
+
+        private void RefreshMapLabel()
+        {
+            if (_mapLabel == null)
+                return;
+            var id = MapCatalog.Normalize(GameSession.SelectedMap);
+            var size = Mathf.RoundToInt(MapCatalog.HalfSize(id) * 2f);
+            _mapLabel.text = MapCatalog.DisplayName(id).ToUpper(new System.Globalization.CultureInfo("tr-TR")) + "  ·  " + size + " × " + size + " m";
+        }
+
         private void OnDifficultyChanged(int index)
         {
             _working.Difficulty = (BotDifficulty)Mathf.Clamp(index, 0, 2);
@@ -442,9 +473,9 @@ namespace Project.Presentation.UI
         private void RefreshInfo()
         {
             if (_difficultyInfo != null)
-                _difficultyInfo.text = MenuText.DifficultyDescription(_working.Difficulty);
+               _difficultyInfo.text = MenuText.DifficultyDescription(_working.Difficulty);
             if (_insertionInfo != null)
-                _insertionInfo.text = MenuText.InsertionDescription(_working.Insertion);
+               _insertionInfo.text = MenuText.InsertionDescription(_working.Insertion);
         }
 
         private void RefreshBriefing()
@@ -475,8 +506,8 @@ namespace Project.Presentation.UI
             Builder.Append("•  Karşı kuvvet: ").Append(enemies).Append(" düşman timi (").Append(enemies * SettingsService.TeamSize)
                 .Append(" asker), zorluk: ").Append(MenuText.DifficultyName(_working.Difficulty)).Append(".\n");
             Builder.Append("•  İntikal: ").Append(_working.Insertion == InsertionMethod.ArmoredVehicle
-                ? "Kirpi zırhlı araçla kara intikali."
-                : "T-70 helikopteriyle hava intikali.").Append('\n');
+                ? Loc.Get("setup.insert.ground", "Kirpi zırhlı araçla kara intikali.")
+                : Loc.Get("setup.insert.air", "T-70 helikopteriyle hava intikali.")).Append('\n');
             Builder.Append("•  Harekât alanı (mavi bölge) aşama aşama daralır; dışında kalan asker hasar alır.\n");
             Builder.Append("•  Son ayakta kalan tim harekâtı kazanır.\n");
             Builder.Append("•  Komutan şehit düşerse komuta en kıdemli askere geçer ve tim savaşmaya devam eder.");

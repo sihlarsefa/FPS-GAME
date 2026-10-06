@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
-  <rect width="64" height="64" rx="8" fill="#121820" stroke="#243040"/>
-  
-  <text x="32" y="58" text-anchor="middle" fill="#8FA3B8" font-size="8" font-family="monospace">0</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Er — stilize nişan</title>
+  <rect x="28" y="16" width="8" height="32" rx="1" fill="#C3B07A"/>
+  <circle cx="32" cy="48" r="4" fill="#7C816E"/>
 </svg>

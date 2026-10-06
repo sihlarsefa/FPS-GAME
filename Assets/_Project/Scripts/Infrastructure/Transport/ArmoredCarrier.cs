@@ -78,7 +78,7 @@ namespace Project.Infrastructure.Transport
         private Transform _turret;
         private NavMeshObstacle _obstacle;
 
-        public override string DisplayName => "Kirpi Zırhlı Aracı";
+        public override string DisplayName => Project.Application.Catalogs.NameProfile.Get(Project.Application.Catalogs.NameProfile.VehicleKirpi, "Kirpi Zırhlı Aracı");
 
         /// <summary>Anlık hız (m/s).</summary>
         public float Speed => _speed;
@@ -431,33 +431,75 @@ namespace Project.Infrastructure.Transport
             _obstacle = CreateParkingObstacle(new Vector3(0f, 1.4f, 0.05f), new Vector3(2.7f, 2.8f, 7.0f));
         }
 
+        private GameObject _overrideRoot;
+
+        /// <summary>Override araç materyal durumu (temiz/kirli/yanmış); prosedürel modelde etkisizdir.</summary>
+        public void SetCondition(Project.Application.Services.VehicleCondition condition)
+        {
+            VehicleSockets.ApplyCondition(_overrideRoot, condition);
+        }
+
         private void BuildVisuals()
         {
             var materials = KirpiModel.Materials(_tan);
-            CreateVisual("Govde", _model, KirpiModel.Body, materials, true);
+            GameObject overrideVisual = null;
+            if (Project.Infrastructure.Content.ContentOverrides.TryGetKirpi(out var prefab))
+                overrideVisual = InstantiateVisualOverride(prefab, _model, "GovdeHazir");
 
+            if (overrideVisual == null)
+                CreateVisual("Govde", _model, KirpiModel.Body, materials, true);
+
+            // Adlandırılmış alt nesneler varsa kullanılır (Wheel_0..N, Door, Turret); yoksa prosedürel parça kurulur.
             _wheels = new Transform[KirpiModel.WheelPositions.Length];
-            for (var i = 0; i < _wheels.Length; i++)
+            var namedWheels = overrideVisual != null;
+            for (var i = 0; namedWheels && i < _wheels.Length; i++)
             {
-                var wheel = new GameObject("Teker_" + i).transform;
-                wheel.gameObject.layer = GameLayers.Vehicle;
-                wheel.SetParent(_model, false);
-                wheel.localPosition = KirpiModel.WheelPositions[i];
-                CreateVisual("Lastik", wheel, KirpiModel.Wheel, materials, true);
-                _wheels[i] = wheel;
+                _wheels[i] = VehicleSockets.Find(overrideVisual, Project.Application.Services.VehicleSocketRules.WheelAliases(i));
+                namedWheels = _wheels[i] != null;
             }
 
-            _door = new GameObject("ArkaKapi").transform;
-            _door.gameObject.layer = GameLayers.Vehicle;
-            _door.SetParent(_model, false);
-            _door.localPosition = KirpiModel.DoorHinge;
-            CreateVisual("Kapi", _door, KirpiModel.Door, materials, true);
+            if (!namedWheels)
+            {
+                for (var i = 0; i < _wheels.Length; i++)
+                {
+                    var wheel = new GameObject("Teker_" + i).transform;
+                    wheel.gameObject.layer = GameLayers.Vehicle;
+                    wheel.SetParent(_model, false);
+                    wheel.localPosition = KirpiModel.WheelPositions[i];
+                    if (overrideVisual == null)
+                        CreateVisual("Lastik", wheel, KirpiModel.Wheel, materials, true);
+                    _wheels[i] = wheel;
+                }
+            }
 
-            _turret = new GameObject("Kule").transform;
-            _turret.gameObject.layer = GameLayers.Vehicle;
-            _turret.SetParent(_model, false);
-            _turret.localPosition = KirpiModel.TurretPivot;
-            CreateVisual("Silah", _turret, KirpiModel.Turret, materials, true);
+            _overrideRoot = overrideVisual;
+            if (overrideVisual != null)
+            {
+                VehicleSockets.SnapSeats(overrideVisual, Seats);
+                VehicleSockets.SetLights(overrideVisual, true);
+            }
+
+            _door = VehicleSockets.Find(overrideVisual, Project.Application.Services.VehicleSocketRules.DoorAliases());
+            if (_door == null)
+            {
+                _door = new GameObject("ArkaKapi").transform;
+                _door.gameObject.layer = GameLayers.Vehicle;
+                _door.SetParent(_model, false);
+                _door.localPosition = KirpiModel.DoorHinge;
+                if (overrideVisual == null)
+                    CreateVisual("Kapi", _door, KirpiModel.Door, materials, true);
+            }
+
+            _turret = FindNamed(overrideVisual, "Turret");
+            if (_turret == null)
+            {
+                _turret = new GameObject("Kule").transform;
+                _turret.gameObject.layer = GameLayers.Vehicle;
+                _turret.SetParent(_model, false);
+                _turret.localPosition = KirpiModel.TurretPivot;
+                if (overrideVisual == null)
+                    CreateVisual("Silah", _turret, KirpiModel.Turret, materials, true);
+            }
         }
 
         // ------------------------------------------------------------------ TransportVehicle

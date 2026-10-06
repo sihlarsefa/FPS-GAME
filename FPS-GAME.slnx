@@ -1,0 +1,13 @@
+﻿<Solution>
+  <Project Path="Project.Infrastructure.csproj" />
+  <Project Path="Project.Core.csproj" />
+  <Project Path="Project.Tests.EditMode.csproj" />
+  <Project Path="Project.Presentation.csproj" />
+  <Project Path="Project.Application.csproj" />
+  <Project Path="Project.Online.csproj" />
+  <Project Path="Project.Online.Tests.csproj" />
+  <Project Path="Project.Editor.csproj" />
+  <Project Path="Project.Tests.PlayMode.csproj" />
+  <Project Path="Project.Infrastructure.VfxGraph.csproj" />
+  <Project Path="Project.Editor.Tests.csproj" />
+</Solution>

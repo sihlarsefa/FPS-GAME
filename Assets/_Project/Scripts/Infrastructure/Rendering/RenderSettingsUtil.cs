@@ -1,3 +1,4 @@
+using Project.Core.Domain;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -62,13 +63,13 @@ namespace Project.Infrastructure.Rendering
 
         /// <summary>Oyun atmosferi: 1 km'lik haritada yakın net, uzak sırtlar puslu (ExponentialSquared).</summary>
         public static AtmosphereProfile Gameplay => new AtmosphereProfile(
-            fogColor: new Color(0.64f, 0.7f, 0.76f),
-            fogDensity: 0.0016f,
-            ambientSky: new Color(0.56f, 0.64f, 0.76f),
-            ambientEquator: new Color(0.47f, 0.48f, 0.45f),
-            ambientGround: new Color(0.24f, 0.22f, 0.18f),
-            sunColor: new Color(1f, 0.955f, 0.87f),
-            sunIntensity: 1.3f,
+            fogColor: new Color(0.60f, 0.70f, 0.84f),
+            fogDensity: 0.0021f,
+            ambientSky: new Color(0.28f, 0.34f, 0.44f),
+            ambientEquator: new Color(0.20f, 0.22f, 0.22f),
+            ambientGround: new Color(0.09f, 0.08f, 0.06f),
+            sunColor: new Color(1f, 0.975f, 0.92f),
+            sunIntensity: 1.7f,
             sunEuler: new Vector3(48f, -38f, 0f),
             skyTint: new Color(0.48f, 0.53f, 0.6f),
             groundColor: new Color(0.38f, 0.37f, 0.34f),
@@ -121,7 +122,7 @@ namespace Project.Infrastructure.Rendering
             RenderSettings.ambientGroundColor = profile.AmbientGround;
             RenderSettings.ambientIntensity = 1f;
             RenderSettings.defaultReflectionMode = DefaultReflectionMode.Skybox;
-            RenderSettings.reflectionIntensity = menu ? 0.8f : 0.65f;
+            RenderSettings.reflectionIntensity = menu ? 0.8f : 1.0f;
 
             // Güneş (gökyüzü güneş diski RenderSettings.sun yönünü kullanır).
             var sun = EnsureSun(menu);
@@ -167,9 +168,9 @@ namespace Project.Infrastructure.Rendering
             light.color = profile.SunColor;
             light.intensity = profile.SunIntensity;
             light.shadows = LightShadows.Soft;
-            light.shadowStrength = menu ? 0.8f : 0.88f;
+            light.shadowStrength = menu ? 0.8f : LightingMath.ShadowStrength(WeatherKind.Acik, 48f);
             light.shadowBias = 0.05f;
-            light.shadowNormalBias = 0.4f;
+            light.shadowNormalBias = 0.3f;
             light.renderMode = LightRenderMode.ForcePixel;
             light.transform.rotation = Quaternion.Euler(profile.SunEuler);
         }

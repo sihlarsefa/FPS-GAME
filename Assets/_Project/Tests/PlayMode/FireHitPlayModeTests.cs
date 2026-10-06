@@ -58,6 +58,18 @@ namespace Project.Tests.PlayMode
             var ammoBefore = weapon.CurrentAmmo;
             Assert.Greater(ammoBefore, 0, "Şarjörde mermi yok.");
 
+            // GiveWeapon BeginEquip soğuması bitene kadar bekle (aksi halde TryTrigger false döner).
+            yield return PlayModeHelpers.WaitUntil(
+                () =>
+                {
+                    if (weapon == null)
+                        return false;
+                    weapon.Tick(0.05f);
+                    return weapon.CanFire;
+                },
+                5f,
+                "Silah ateşe hazır olmadı (equip/soğuma).");
+
             var healthBefore = dummy.Combatant.State.Current;
             var hitsBefore = dummy.HitCount;
 

@@ -50,10 +50,47 @@ namespace Project.Presentation.UI
         public static readonly Color Khaki = Hex(0xC3, 0xB0, 0x7A);
 
         /// <summary>Dost (kendi tim) mavisi.</summary>
-        public static readonly Color AllyBlue = Hex(0x3D, 0x9B, 0xFF);
+        public static Color AllyBlue
+        {
+            get
+            {
+                switch (ColorBlindPalette)
+                {
+                    case 1: return Hex(0x00, 0x72, 0xB2);
+                    case 2: return Hex(0x56, 0xB4, 0xE9);
+                    case 3: return Hex(0x00, 0x9E, 0x73);
+                    default: return Hex(0x3D, 0x9B, 0xFF);
+                }
+            }
+        }
+
+        /// <summary>Renk körlüğü paleti: 0 kapalı, 1 deuteranopi, 2 protanopi, 3 tritanopi (kırmızı-yeşil/mavi-sarı ayrımına bağımlı değil).</summary>
+        public static int ColorBlindPalette { get; set; }
+
+        /// <summary>Herhangi bir renk körlüğü paleti açık mı (eski bool arayüz).</summary>
+        public static bool ColorBlindMode
+        {
+            get => ColorBlindPalette != 0;
+            set => ColorBlindPalette = value ? 1 : 0;
+        }
 
         /// <summary>Düşman kırmızısı (vurgu kırmızısından ayırt edilebilir, turuncumsu).</summary>
-        public static readonly Color EnemyRed = Hex(0xFF, 0x4A, 0x3D);
+        public static Color EnemyRed
+        {
+            get
+            {
+                switch (ColorBlindPalette)
+                {
+                    case 1: return Hex(0xFF, 0xB0, 0x00);
+                    case 2: return Hex(0xF0, 0xE4, 0x42);
+                    case 3: return Hex(0xE6, 0x4B, 0x8C);
+                    default: return Hex(0xFF, 0x4A, 0x3D);
+                }
+            }
+        }
+
+        /// <summary>Öldürme isabet işareti rengi (renk körü modunda başlık vuruşu kehribarından ayrışır).</summary>
+        public static Color KillMarker => ColorBlindPalette == 0 ? EnemyRed : Color.white;
 
         /// <summary>Başarı / iyileşme yeşili.</summary>
         public static readonly Color Success = Hex(0x5F, 0xC8, 0x4E);
@@ -62,7 +99,7 @@ namespace Project.Presentation.UI
         public static readonly Color Warning = Amber;
 
         /// <summary>Tehlike rengi (= düşman kırmızısı).</summary>
-        public static readonly Color Danger = EnemyRed;
+        public static Color Danger => EnemyRed;
 
         /// <summary>Harekât alanı (mavi bölge) rengi.</summary>
         public static readonly Color ZoneBlue = Hex(0x2E, 0x7B, 0xFF, 0xB4);
@@ -85,7 +122,7 @@ namespace Project.Presentation.UI
         public static readonly Color TextDim = Hex(0xB4, 0xB6, 0xA4);
 
         /// <summary>Soluk metin (pasif öğeler, ipuçları).</summary>
-        public static readonly Color TextMuted = Hex(0x7C, 0x81, 0x6E);
+        public static readonly Color TextMuted = Hex(0xA2, 0xA7, 0x90);
 
         /// <summary>Koyu zemin üzerinde başlık rengi (kehribar).</summary>
         public static readonly Color TextHeader = Amber;
@@ -133,7 +170,7 @@ namespace Project.Presentation.UI
         // ------------------------------------------------------------------ Yazı boyutları
 
         /// <summary>Çok küçük yazı (dipnot, harita etiketleri).</summary>
-        public const int FontTiny = 14;
+        public const int FontTiny = 16;
 
         /// <summary>Küçük yazı (ipuçları, öldürme akışı).</summary>
         public const int FontSmall = 18;
@@ -300,6 +337,25 @@ namespace Project.Presentation.UI
 
         /// <summary>Rengi zengin metin etiketi için "#RRGGBBAA" biçimine çevirir.</summary>
         public static string ToHex(Color color) => "#" + ColorUtility.ToHtmlStringRGBA(color);
+
+        /// <summary>WCAG göreli parlaklık (sRGB, 0..1).</summary>
+        public static float RelativeLuminance(Color c)
+        {
+            static float Ch(float v) => v <= 0.03928f ? v / 12.92f : Mathf.Pow((v + 0.055f) / 1.055f, 2.4f);
+            return 0.2126f * Ch(c.r) + 0.7152f * Ch(c.g) + 0.0722f * Ch(c.b);
+        }
+
+        /// <summary>WCAG karşıtlık oranı (1..21); alfa yok sayılır, <paramref name="over"/> zeminin üstüne bindirilmiş kabul edilir.</summary>
+        public static float ContrastRatio(Color fg, Color over)
+        {
+            var a = RelativeLuminance(fg);
+            var b = RelativeLuminance(over);
+            if (a < b) { var t = a; a = b; b = t; }
+            return (a + 0.05f) / (b + 0.05f);
+        }
+
+        /// <summary>Metin okunabilir mi: karşıtlık ≥ 4,5 (WCAG AA).</summary>
+        public static bool MeetsTextContrast(Color fg, Color bg) => ContrastRatio(fg, bg) >= 4.5f;
 
         /// <summary>Metni zengin metin renk etiketiyle sarar: &lt;color=#..&gt;text&lt;/color&gt;.</summary>
         public static string Colorize(string text, Color color) => "<color=" + ToHex(color) + ">" + text + "</color>";

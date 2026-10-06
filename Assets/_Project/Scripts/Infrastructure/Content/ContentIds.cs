@@ -8,6 +8,7 @@ namespace Project.Infrastructure.Content
     {
         public const string Soldier = "asker";
         public const string Kirpi = "kirpi";
+        public const string Cobra = "cobra";
         public const string Helicopter = "t70";
 
         public const string WeaponMuzzle = "Muzzle";
@@ -16,5 +17,24 @@ namespace Project.Infrastructure.Content
         public const string WeaponMagazine = "Magazine";
         public const string WeaponBolt = "Bolt";
         public const string WeaponSight = "Sight";
+
+        // Vegetation species (VegetationOverrideEntry.speciesId)
+        public const string VegPine = "pine";
+        public const string VegOak = "oak";
+        public const string VegBush = "bush";
+        public const string VegDead = "dead";
+        public const string VegPineSlim = "pine_slim";
+        public const string VegPoplar = "poplar";
+        public const string VegDwarfOak = "dwarf_oak";
+        public const string VegShrubRound = "shrub_round";
+        public const string VegShrubSparse = "shrub_sparse";
+
+        public const string RockSmall = "small";
+        public const string RockMedium = "medium";
+        public const string RockLarge = "large";
+
+        public const string SkyDayClear = "day_clear";
+        public const string SkyCloudy = "cloudy";
+        public const string SkySunset = "sunset";
     }
 }

@@ -1,3 +1,4 @@
+using Project.Infrastructure.Rendering;
 using UnityEngine;
 
 namespace Project.Infrastructure.World
@@ -22,7 +23,36 @@ namespace Project.Infrastructure.World
     public static class TerrainTextureFactory
     {
         public const int LayerCount = 8;
-        public const int DefaultTextureSize = 256;
+        public const int DefaultTextureSize = 1024;
+
+        /// <summary>Editör/yüksek kalite çözünürlüğü (AssetGeneration ya da ayarlar bunu seçebilir).</summary>
+        public const int HighTextureSize = 1024;
+
+        /// <summary>Ultra kalite çözünürlüğü (bellek: 8 katman x 3 doku; yalnız Ultra'da).</summary>
+        public const int UltraTextureSize = 2048;
+
+        /// <summary>Kalite kademesine (0..3) göre katman doku çözünürlüğü: Ultra 2048, diğerleri 1024.</summary>
+        public static int TextureSizeForTier(int tier) => tier >= 3 ? UltraTextureSize : DefaultTextureSize;
+
+        /// <summary>Normal harita gücü (bayağı kabartma) — katman türüne göre.</summary>
+        public static float NormalStrength(TerrainLayerKind kind)
+        {
+            switch (kind)
+            {
+                case TerrainLayerKind.Rock: return 8f;
+                case TerrainLayerKind.Gravel: return 7f;
+                case TerrainLayerKind.Dirt: return 5f;
+                case TerrainLayerKind.Mud: return 4f;
+                case TerrainLayerKind.Grass: return 4f;
+                case TerrainLayerKind.DryGrass: return 3.5f;
+                case TerrainLayerKind.Snow: return 2f;
+                default: return 3f;
+            }
+        }
+
+        /// <summary>Katman maskesi için ortalama ao gücü.</summary>
+        private static float AoStrength(TerrainLayerKind kind) =>
+            kind == TerrainLayerKind.Rock || kind == TerrainLayerKind.Gravel ? 0.55f : 0.35f;
 
         /// <summary>Katman adları (varlık adları için, ASCII).</summary>
         public static string LayerName(TerrainLayerKind kind)
@@ -45,14 +75,14 @@ namespace Project.Infrastructure.World
         {
             switch (kind)
             {
-                case TerrainLayerKind.Grass: return 9f;
-                case TerrainLayerKind.DryGrass: return 10f;
-                case TerrainLayerKind.Dirt: return 8f;
-                case TerrainLayerKind.Rock: return 13f;
-                case TerrainLayerKind.Gravel: return 5f;
-                case TerrainLayerKind.Mud: return 7f;
-                case TerrainLayerKind.Snow: return 15f;
-                default: return 6f;
+                case TerrainLayerKind.Grass: return 3f;
+                case TerrainLayerKind.DryGrass: return 3.5f;
+                case TerrainLayerKind.Dirt: return 3f;
+                case TerrainLayerKind.Rock: return 4f;
+                case TerrainLayerKind.Gravel: return 2f;
+                case TerrainLayerKind.Mud: return 3f;
+                case TerrainLayerKind.Snow: return 4f;
+                default: return 4f; // Asfalt: zemin katmanları 2-4 m döşeme (yakından pikselleşme sınırı)
             }
         }
 
@@ -62,9 +92,9 @@ namespace Project.Infrastructure.World
             switch (kind)
             {
                 case TerrainLayerKind.Mud: return 0.42f;
-                case TerrainLayerKind.Snow: return 0.35f;
+                case TerrainLayerKind.Snow: return 0.25f;
                 case TerrainLayerKind.Asphalt: return 0.18f;
-                case TerrainLayerKind.Rock: return 0.16f;
+                case TerrainLayerKind.Rock: return 0.12f;
                 default: return 0.06f;
             }
         }
@@ -80,7 +110,7 @@ namespace Project.Infrastructure.World
                 case TerrainLayerKind.Rock: return new Color(0.5f, 0.48f, 0.45f);
                 case TerrainLayerKind.Gravel: return new Color(0.52f, 0.5f, 0.46f);
                 case TerrainLayerKind.Mud: return new Color(0.28f, 0.22f, 0.15f);
-                case TerrainLayerKind.Snow: return new Color(0.9f, 0.92f, 0.96f);
+                case TerrainLayerKind.Snow: return new Color(0.86f, 0.89f, 0.94f);
                 default: return new Color(0.2f, 0.2f, 0.21f);
             }
         }
@@ -90,18 +120,93 @@ namespace Project.Infrastructure.World
         {
             var layers = new TerrainLayer[LayerCount];
             for (var i = 0; i < LayerCount; i++)
-                layers[i] = CreateLayer((TerrainLayerKind)i, seed, textureSize);
+            {
+                // C7 ContentOverrides: TerrainLayerOverride varsa o katman kullanılır (eksik normal/mask tamamlanır,
+                // döşeme 2-4 m'ye kıstırılır), yoksa prosedürel katman aynen üretilir.
+                if (TryGetOverrideLayer((TerrainLayerKind)i, out var overrideLayer))
+                    layers[i] = EnsureOverrideLayer(overrideLayer, (TerrainLayerKind)i, seed, textureSize);
+                else
+                    layers[i] = CreateLayer((TerrainLayerKind)i, seed, textureSize);
+            }
             return layers;
+        }
+
+        /// <summary>Katman türünün ContentOverrides'taki malzeme kimliği (8 katmanın hepsi override edilebilir).</summary>
+        public static Project.Infrastructure.Rendering.MaterialId MaterialFor(TerrainLayerKind kind)
+        {
+            switch (kind)
+            {
+                case TerrainLayerKind.Grass: return Project.Infrastructure.Rendering.MaterialId.Grass;
+                case TerrainLayerKind.DryGrass: return Project.Infrastructure.Rendering.MaterialId.DryGrass;
+                case TerrainLayerKind.Dirt: return Project.Infrastructure.Rendering.MaterialId.Dirt;
+                case TerrainLayerKind.Rock: return Project.Infrastructure.Rendering.MaterialId.Rock;
+                case TerrainLayerKind.Gravel: return Project.Infrastructure.Rendering.MaterialId.Gravel;
+                case TerrainLayerKind.Mud: return Project.Infrastructure.Rendering.MaterialId.Mud;
+                case TerrainLayerKind.Snow: return Project.Infrastructure.Rendering.MaterialId.Snow;
+                default: return Project.Infrastructure.Rendering.MaterialId.Asphalt;
+            }
+        }
+
+        /// <summary>Override katmanı (null güvenli; ContentOverrides yüklenemezse false).</summary>
+        public static bool TryGetOverrideLayer(TerrainLayerKind kind, out TerrainLayer layer)
+        {
+            layer = null;
+            try
+            {
+                return Project.Infrastructure.Content.ContentOverrides.TryGetTerrainLayer(MaterialFor(kind), out layer) && layer != null;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[TerrainTextureFactory] Arazi katmanı override okunamadı: " + e.Message);
+                layer = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Override katmanını zemin sözleşmesine getirir: eksik normal/mask prosedürel üretimle tamamlanır (HER katmanda
+        /// normal+mask şarttır), döşeme boyu 2-4 m aralığına kıstırılır (2K dokuda ≈512 px/m; büyük döşeme yakından pikselleşir).
+        /// </summary>
+        public static TerrainLayer EnsureOverrideLayer(TerrainLayer layer, TerrainLayerKind kind, int seed, int textureSize = DefaultTextureSize)
+        {
+            if (layer == null)
+                return CreateLayer(kind, seed, textureSize);
+
+            if (layer.normalMapTexture == null || layer.maskMapTexture == null)
+            {
+                textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, 2048));
+                var height = ProceduralPbr.HeightFromLuminance(ComputePixels(kind, seed, textureSize), textureSize);
+                if (layer.normalMapTexture == null)
+                    layer.normalMapTexture = ProceduralPbr.MakeTexture("HK_Terrain_" + LayerName(kind) + "_N", textureSize,
+                        ProceduralPbr.NormalFromHeight(height, textureSize, NormalStrength(kind)), true);
+                if (layer.maskMapTexture == null)
+                    layer.maskMapTexture = ProceduralPbr.MakeTexture("HK_Terrain_" + LayerName(kind) + "_M", textureSize,
+                        ProceduralPbr.MaskFromHeight(height, textureSize, 0f, AoStrength(kind), Mathf.Clamp01(Smoothness(kind) * 2.2f), 0.5f), true);
+            }
+
+            var tile = layer.tileSize;
+            var clamped = new Vector2(Mathf.Clamp(tile.x, 2f, 4f), Mathf.Clamp(tile.y, 2f, 4f));
+            if (clamped != tile)
+                layer.tileSize = clamped;
+            return layer;
         }
 
         /// <summary>Tek bir TerrainLayer (dokusuyla birlikte) üretir.</summary>
         public static TerrainLayer CreateLayer(TerrainLayerKind kind, int seed, int textureSize = DefaultTextureSize)
         {
             var tile = TileSize(kind);
+            textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(textureSize, 32, 2048));
+            var pixels = ComputePixels(kind, seed, textureSize);
+            var height = ProceduralPbr.HeightFromLuminance(pixels, textureSize);
             var layer = new TerrainLayer
             {
                 name = "HK_TL_" + LayerName(kind),
-                diffuseTexture = CreateTexture(kind, seed, textureSize),
+                diffuseTexture = MakeTexture(kind, textureSize, pixels),
+                normalMapTexture = ProceduralPbr.MakeTexture("HK_Terrain_" + LayerName(kind) + "_N", textureSize,
+                    ProceduralPbr.NormalFromHeight(height, textureSize, NormalStrength(kind)), true),
+                maskMapTexture = ProceduralPbr.MakeTexture("HK_Terrain_" + LayerName(kind) + "_M", textureSize,
+                    ProceduralPbr.MaskFromHeight(height, textureSize, 0f, AoStrength(kind), Mathf.Clamp01(Smoothness(kind) * 2.2f), 0.5f), true),
+                normalScale = 1f,
                 tileSize = new Vector2(tile, tile),
                 tileOffset = Vector2.zero,
                 smoothness = Smoothness(kind),
@@ -116,13 +221,17 @@ namespace Project.Infrastructure.World
         public static Texture2D CreateTexture(TerrainLayerKind kind, int seed, int size = DefaultTextureSize)
         {
             size = Mathf.ClosestPowerOfTwo(Mathf.Clamp(size, 32, 2048));
-            var pixels = ComputePixels(kind, seed, size);
+            return MakeTexture(kind, size, ComputePixels(kind, seed, size));
+        }
+
+        private static Texture2D MakeTexture(TerrainLayerKind kind, int size, Color32[] pixels)
+        {
             var texture = new Texture2D(size, size, TextureFormat.RGBA32, true, false)
             {
                 name = "HK_Terrain_" + LayerName(kind),
                 wrapMode = TextureWrapMode.Repeat,
                 filterMode = FilterMode.Trilinear,
-                anisoLevel = 4
+                anisoLevel = 8 // eğik bakışta (zemine paralel) netlik
             };
             texture.SetPixels32(pixels);
             texture.Apply(true, false);
@@ -170,7 +279,7 @@ namespace Project.Infrastructure.World
             var low = n.FbmPeriodic(u * 4f, v * 4f, 4, 4) * 0.5f + 0.5f;
             var mid = n.FbmPeriodic(u * 16f + 3f, v * 16f + 7f, 16, 3) * 0.5f + 0.5f;
             var blades = Hash01(px, py, 11);
-            var c = Color.Lerp(new Color(0.27f, 0.36f, 0.15f), new Color(0.38f, 0.46f, 0.2f), Mathf.Clamp01(low * 1.2f - 0.1f));
+            var c = Color.Lerp(new Color(0.24f, 0.31f, 0.13f), new Color(0.33f, 0.40f, 0.17f), Mathf.Clamp01(low * 1.2f - 0.1f));
             c = Color.Lerp(c, new Color(0.22f, 0.3f, 0.12f), Mathf.Clamp01(mid - 0.55f) * 1.3f);
             // İnce çim lifleri ve sarımsı benekler.
             c *= 0.86f + 0.28f * blades;
@@ -263,7 +372,7 @@ namespace Project.Infrastructure.World
         private static Color32 Snow(TerrainNoise n, float u, float v, int px, int py)
         {
             var low = n.FbmPeriodic(u * 4f + 7f, v * 4f + 5f, 4, 4) * 0.5f + 0.5f;
-            var c = Color.Lerp(new Color(0.8f, 0.84f, 0.9f), new Color(0.95f, 0.96f, 0.98f), low);
+            var c = Color.Lerp(new Color(0.8f, 0.84f, 0.9f), new Color(0.89f, 0.91f, 0.95f), low);
             c *= 0.97f + 0.05f * Hash01(px, py, 67);
             return ToColor32(c);
         }
@@ -384,6 +493,49 @@ namespace Project.Infrastructure.World
                 (byte)Mathf.Clamp(Mathf.RoundToInt(c.g * 255f), 0, 255),
                 (byte)Mathf.Clamp(Mathf.RoundToInt(c.b * 255f), 0, 255),
                 255);
+        }
+    }
+
+    /// <summary>
+    /// Arazi makro renk çeşitlemesi (saf, deterministik). 40-180 m ölçeğinde kuru saman yamaları, nemli koyu çukurlar (±%10 parlaklık)
+    /// ve ağaç gölgesi toprağı benekleri. Çıktılar çarpandır (nötr = 1).
+    /// </summary>
+    public static class TerrainMacroVariation
+    {
+        public const float MaxBrightness = 0.10f;
+        public const float MinMult = 0.70f;
+        public const float MaxMult = 1.15f;
+
+        /// <summary>Kaya/uçurum/moloz varsa çeşitleme azalır (1 = serbest, 0 = dokunma).</summary>
+        public static float Protection(float cliff, float scree)
+        {
+            return Mathf.Clamp01(1f - 1.6f * Mathf.Clamp01(cliff) - 1.2f * Mathf.Clamp01(scree));
+        }
+
+        public static void Evaluate(float straw, float moist, float canopy, float freckle, float protect,
+            out float bright, out float r, out float g, out float b)
+        {
+            protect = Mathf.Clamp01(protect);
+            var s = Smooth(0.12f, 0.55f, Mathf.Clamp(straw, -1f, 1f));
+            var m = Smooth(0.15f, 0.6f, -Mathf.Clamp(moist, -1f, 1f));
+            // Gölge toprağı: gölgelik kümesi içinde sık benek.
+            var c = Smooth(0.45f, 0.8f, Mathf.Clamp01(canopy)) * Smooth(0.5f, 0.75f, Mathf.Clamp01(freckle));
+
+            bright = 1f + MaxBrightness * 0.6f * s - MaxBrightness * m - 0.08f * c;
+            r = 1f + 0.10f * s - 0.03f * m + 0.05f * c;
+            g = 1f + 0.03f * s + 0.02f * m - 0.07f * c;
+            b = 1f - 0.12f * s - 0.02f * m - 0.12f * c;
+
+            bright = 1f + (bright - 1f) * protect;
+            r = 1f + (r - 1f) * protect;
+            g = 1f + (g - 1f) * protect;
+            b = 1f + (b - 1f) * protect;
+        }
+
+        private static float Smooth(float a, float b, float x)
+        {
+            var t = Mathf.Clamp01((x - a) / (b - a));
+            return t * t * (3f - 2f * t);
         }
     }
 }

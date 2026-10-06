@@ -101,6 +101,56 @@ namespace Project.Online.Netcode
         }
     }
 
+    /// <summary>Ağ üzerinden taşınan <see cref="ThrowRequest"/> paketı.</summary>
+    public struct NetworkThrowRequest : INetworkSerializable
+    {
+        public byte Kind;
+        public Vector3 Origin;
+        public Vector3 Velocity;
+        public uint Tick;
+
+        public static NetworkThrowRequest From(ThrowRequest r) => new()
+        {
+            Kind = (byte)r.Kind,
+            Origin = new Vector3(r.Origin.X, r.Origin.Y, r.Origin.Z),
+            Velocity = new Vector3(r.Velocity.X, r.Velocity.Y, r.Velocity.Z),
+            Tick = r.Tick
+        };
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref Kind);
+            serializer.SerializeValue(ref Origin);
+            serializer.SerializeValue(ref Velocity);
+            serializer.SerializeValue(ref Tick);
+        }
+    }
+
+    /// <summary>Ağ üzerinden taşınan <see cref="MeleeRequest"/> paketı.</summary>
+    public struct NetworkMeleeRequest : INetworkSerializable
+    {
+        public Vector3 Origin;
+        public Vector3 Direction;
+        public float Range;
+        public uint Tick;
+
+        public static NetworkMeleeRequest From(MeleeRequest r) => new()
+        {
+            Origin = new Vector3(r.Origin.X, r.Origin.Y, r.Origin.Z),
+            Direction = new Vector3(r.Direction.X, r.Direction.Y, r.Direction.Z),
+            Range = r.Range,
+            Tick = r.Tick
+        };
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref Origin);
+            serializer.SerializeValue(ref Direction);
+            serializer.SerializeValue(ref Range);
+            serializer.SerializeValue(ref Tick);
+        }
+    }
+
     /// <summary>Sunucunun istemciye gönderdiği uzlaştırma anlık görüntüsü.</summary>
     public struct NetworkReconciliationSnapshot : INetworkSerializable
     {

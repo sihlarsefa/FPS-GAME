@@ -28,6 +28,44 @@ namespace Project.Infrastructure.World
             var placed = 0;
             var attempts = count * 40;
             var noise = model.Noise;
+            GameObject overrideRoot = null;
+
+            void PlaceRock(float x, float z, float h, float sizeBoost)
+            {
+                var size = Range(rng, 0.6f, 1.6f);
+                if ((float)rng.NextDouble() < 0.18f)
+                    size *= Range(rng, 1.6f, 2.6f); // iri kaya bloğu
+                if (sizeBoost > 0f)
+                    size = sizeBoost * Range(rng, 0.7f, 1.3f);
+                var scale = new Vector3(size * Range(rng, 0.9f, 1.4f), size * Range(rng, 0.7f, 1.15f), size * Range(rng, 0.9f, 1.3f));
+                var normal = model.SampleNormal(x, z);
+                var rotation = Quaternion.FromToRotation(Vector3.up, Vector3.Slerp(Vector3.up, normal, 0.6f))
+                               * Quaternion.Euler(Range(rng, -8f, 8f), Range(rng, 0f, 360f), Range(rng, -8f, 8f));
+                // Taban mesh'te ~-0.35 → biraz gömülü otursun.
+                var position = new Vector3(x, h + 0.05f * scale.y, z);
+
+                if (TryPlaceOverride(rng, size, position, rotation, scale, ref overrideRoot, parent))
+                {
+                    placed++;
+                    return;
+                }
+
+                var cx = Mathf.Clamp(Mathf.FloorToInt((x + half) / ChunkSize), 0, chunksPerSide - 1);
+                var cz = Mathf.Clamp(Mathf.FloorToInt((z + half) / ChunkSize), 0, chunksPerSide - 1);
+                var key = cz * chunksPerSide + cx;
+                if (!builders.TryGetValue(key, out var builder))
+                {
+                    builder = new MeshBuilder(3);
+                    builders[key] = builder;
+                }
+
+                var variant = rng.Next(RockFactory.VariantCount);
+                var dark = (float)rng.NextDouble() < 0.35f;
+                var origin = ChunkOrigin(cx, cz, half);
+                var matrix = Matrix4x4.TRS(position - origin, rotation, scale);
+                builder.AppendMapped(RockFactory.GetSplitVariant(variant), matrix, new[] { dark ? 1 : 0, 2 });
+                placed++;
+            }
 
             for (var a = 0; a < attempts && placed < count; a++)
             {
@@ -54,45 +92,54 @@ namespace Project.Infrastructure.World
                 if (OverlapsStructure(structures, x, z, 4f))
                     continue;
 
-                var size = Range(rng, 0.6f, 1.6f);
-                if ((float)rng.NextDouble() < 0.18f)
-                    size *= Range(rng, 1.6f, 2.6f); // iri kaya bloğu
-                var scale = new Vector3(size * Range(rng, 0.9f, 1.4f), size * Range(rng, 0.7f, 1.15f), size * Range(rng, 0.9f, 1.3f));
-                var normal = model.SampleNormal(x, z);
-                var rotation = Quaternion.FromToRotation(Vector3.up, Vector3.Slerp(Vector3.up, normal, 0.6f))
-                               * Quaternion.Euler(Range(rng, -8f, 8f), Range(rng, 0f, 360f), Range(rng, -8f, 8f));
-                // Taban mesh'te ~-0.35 → biraz gömülü otursun.
-                var position = new Vector3(x, h + 0.05f * scale.y, z);
-
-                var cx = Mathf.Clamp(Mathf.FloorToInt((x + half) / ChunkSize), 0, chunksPerSide - 1);
-                var cz = Mathf.Clamp(Mathf.FloorToInt((z + half) / ChunkSize), 0, chunksPerSide - 1);
-                var key = cz * chunksPerSide + cx;
-                if (!builders.TryGetValue(key, out var builder))
-                {
-                    builder = new MeshBuilder(2);
-                    builders[key] = builder;
-                }
-
-                var variant = rng.Next(RockFactory.VariantCount);
-                var dark = (float)rng.NextDouble() < 0.35f;
-                var origin = ChunkOrigin(cx, cz, half);
-                var matrix = Matrix4x4.TRS(position - origin, rotation, scale);
-                builder.Append(RockFactory.GetVariant(variant), matrix, dark ? 1 : 0);
-                placed++;
+                PlaceRock(x, z, h, 0f);
             }
 
-            if (builders.Count == 0)
+            // Uçurum kaya kümeleri: dik yüzlerde iri kaya öbekleri (sırt çizgisi karakteri).
+            var clusterSeeds = ClusterSeedCount(count);
+            var clusterRng = new System.Random(seed * 7919 + 131);
+            for (var c = 0; c < clusterSeeds * 60 && clusterSeeds > 0; c++)
+            {
+                var cx0 = Range(clusterRng, -half + 12f, half - 12f);
+                var cz0 = Range(clusterRng, -half + 12f, half - 12f);
+                var cs = model.SampleSlope(cx0, cz0);
+                var ch = model.SampleHeight(cx0, cz0);
+                if (!OutcropAllowed(cs, ch, model.SampleFlatten(cx0, cz0)))
+                    continue;
+                if (!model.IsClearOfFeatures(cx0, cz0, 6f, 6f, 1.05f) || OverlapsStructure(structures, cx0, cz0, 6f))
+                    continue;
+                clusterSeeds--;
+                var members = 5 + clusterRng.Next(5);
+                for (var m = 0; m < members; m++)
+                {
+                    var ang = Range(clusterRng, 0f, 6.2832f);
+                    var rad = Range(clusterRng, 0.5f, 9f);
+                    var mx = cx0 + Mathf.Cos(ang) * rad;
+                    var mz = cz0 + Mathf.Sin(ang) * rad;
+                    if (Mathf.Abs(mx) > half - 8f || Mathf.Abs(mz) > half - 8f)
+                        continue;
+                    var mh = model.SampleHeight(mx, mz);
+                    if (mh < model.Layout.WaterLevel + 0.5f || model.SampleFlatten(mx, mz) > 0.35f
+                        || !model.IsClearOfFeatures(mx, mz, 4f, 4f, 1.05f) || OverlapsStructure(structures, mx, mz, 4f))
+                        continue;
+                    PlaceRock(mx, mz, mh, OutcropRockSize(m, Range(clusterRng, 0f, 1f)));
+                }
+            }
+
+            if (builders.Count == 0 && overrideRoot == null)
                 return null;
 
-            var root = new GameObject(RootName);
+            var root = overrideRoot != null ? overrideRoot : new GameObject(RootName);
             root.layer = GameLayers.Default;
             if (parent != null)
                 root.transform.SetParent(parent, false);
             root.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
 
-            var materials = new[] { MaterialLibrary.Get(MaterialId.Rock), MaterialLibrary.Get(MaterialId.RockDark) };
+            var materials = new[] { MaterialLibrary.Get(MaterialId.Rock), MaterialLibrary.Get(MaterialId.RockDark), VegetationMaterials.CreateMoss() };
             foreach (var pair in builders)
             {
+                if (pair.Value == null)
+                    continue;
                 var cx = pair.Key % chunksPerSide;
                 var cz = pair.Key / chunksPerSide;
                 var mesh = pair.Value.ToMesh("HK_Rocks_" + cx + "_" + cz);
@@ -106,6 +153,70 @@ namespace Project.Infrastructure.World
             }
 
             return root;
+        }
+
+        /// <summary>
+        /// RockOverride varsa kayayı prefab örneği olarak yerleştirir (aynı prefab/materyal → GPU Resident Drawer uyumlu).
+        /// Collider yoksa renderer sınırlarından BoxCollider eklenir (siper + NavMesh engeli).
+        /// </summary>
+        private static bool TryPlaceOverride(System.Random rng, float size, Vector3 position, Quaternion rotation, Vector3 scale,
+            ref GameObject root, Transform parent)
+        {
+            GameObject prefab;
+            try
+            {
+                if (!Project.Infrastructure.Content.ContentOverrides.TryGetRock(VegetationTuning.RockSizeClass(size), out prefab) || prefab == null)
+                    return false;
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
+
+            if (root == null)
+            {
+                root = new GameObject(RootName);
+                root.layer = GameLayers.Default;
+                if (parent != null)
+                    root.transform.SetParent(parent, false);
+            }
+
+            var go = Object.Instantiate(prefab, root.transform);
+            go.name = "Kaya_" + prefab.name;
+            go.transform.SetPositionAndRotation(position, rotation);
+            go.transform.localScale = Vector3.Scale(prefab.transform.localScale, new Vector3(scale.x, scale.y, scale.z) / Mathf.Max(0.01f, size));
+            if (go.GetComponentInChildren<Collider>(true) == null)
+            {
+                var renderer = go.GetComponentInChildren<Renderer>(true);
+                if (renderer != null)
+                {
+                    var box = go.AddComponent<BoxCollider>();
+                    var b = renderer.bounds;
+                    box.center = go.transform.InverseTransformPoint(b.center);
+                    var ls = go.transform.lossyScale;
+                    box.size = new Vector3(b.size.x / Mathf.Max(0.001f, ls.x), b.size.y / Mathf.Max(0.001f, ls.y), b.size.z / Mathf.Max(0.001f, ls.z));
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>Kaya kümesi tohum sayısı (toplam kaya sayısının ~%10'u, en az 1).</summary>
+        public static int ClusterSeedCount(int count)
+        {
+            return count <= 0 ? 0 : Mathf.Max(1, count / 10);
+        }
+
+        /// <summary>Küme tohumu uygunluğu: dik yüz (30-62°), yeterince yüksek, düzleştirilmiş alan dışı.</summary>
+        public static bool OutcropAllowed(float slopeDegrees, float height, float flatten)
+        {
+            return slopeDegrees >= 30f && slopeDegrees <= 62f && height > 25f && flatten <= 0.2f;
+        }
+
+        /// <summary>Küme üyesi kaya boyutu (m): ilk üye anıt blok, diğerleri 2.2-4.6.</summary>
+        public static float OutcropRockSize(int memberIndex, float t01)
+        {
+            return memberIndex == 0 ? 4.5f + 2f * t01 : 2.2f + 2.4f * t01;
         }
 
         private static Vector3 ChunkOrigin(int cx, int cz, float half)

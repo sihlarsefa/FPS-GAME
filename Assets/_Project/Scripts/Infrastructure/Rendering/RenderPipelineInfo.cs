@@ -34,6 +34,9 @@ namespace Project.Infrastructure.Rendering
         /// <summary>Etkin URP varlığı (yoksa null).</summary>
         public static UniversalRenderPipelineAsset UrpAsset => GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
 
+        /// <summary>Mevcut URP ayarlarının özeti (yansıma; eksik ayar "?" görünür).</summary>
+        public static string Report() => PipelineTiers.Report(UrpAsset);
+
         /// <summary>Ada göre gölgelendirici (önbellekli). Bulunamazsa null.</summary>
         public static Shader Find(string name)
         {

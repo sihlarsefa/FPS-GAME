@@ -192,8 +192,10 @@ namespace Project.Tests.EditMode
 
             var helmet = Armor(0.5f);
             var r = DamageCalculator.ComputeBulletDamage(w, BodyPart.Head, 10f, helmet);
-            Assert.AreEqual(36f, r.Damage, Eps);
-            Assert.AreEqual(36f, r.ArmorAbsorbed, Eps);
+            // P2: Sv.2 kask 7.62'ye karşı tam etkin değil (zırh sınıfı vs kalibre); eski beklenti (tam %50) geçersiz.
+            var absorbed = 72f * 0.5f * PenetrationRules.ArmorEffectiveness(AmmoType.Mm762, 2);
+            Assert.AreEqual(72f - absorbed, r.Damage, Eps);
+            Assert.AreEqual(absorbed, r.ArmorAbsorbed, Eps);
             Assert.AreEqual(0f, DamageCalculator.ComputeBulletDamage(null, BodyPart.Head, 10f, null).Damage, Eps);
         }
 
@@ -359,11 +361,13 @@ namespace Project.Tests.EditMode
             var outcome = combat.ApplyBulletHit(new PlayerId(1), weapon, new PlayerId(2), BodyPart.Torso, 10f, Muzzle);
 
             Assert.IsTrue(outcome.Applied);
-            Assert.AreEqual(18f, outcome.Damage, Eps);
+            // P2: Sv.2 yelek 7.62'ye karşı etkinlik < 1 (zırh sınıfı vs kalibre); eski beklenti 18 geçersiz.
+            var expectedDamage = 36f * (1f - 0.5f * PenetrationRules.ArmorEffectiveness(AmmoType.Mm762, 2));
+            Assert.AreEqual(expectedDamage, outcome.Damage, Eps);
             Assert.IsTrue(outcome.ArmorAbsorbed);
             Assert.IsFalse(outcome.Killed);
-            Assert.AreEqual(82f, victim.Health.Current, Eps);
-            Assert.AreEqual(82f, victim.Vest.Durability, Eps);
+            Assert.AreEqual(100f - expectedDamage, victim.Health.Current, Eps);
+            Assert.AreEqual(100f - (36f - expectedDamage), victim.Vest.Durability, Eps);
 
             Assert.AreEqual(BodyPart.Torso, victim.LastDamage.BodyPart);
             Assert.AreEqual(Muzzle, victim.LastDamage.SourcePosition);
@@ -374,7 +378,7 @@ namespace Project.Tests.EditMode
             var hit = _bus.Last<HitConfirmedEvent>();
             Assert.AreEqual(new PlayerId(1), hit.AttackerId);
             Assert.AreEqual(new PlayerId(2), hit.VictimId);
-            Assert.AreEqual(18f, hit.Damage, Eps);
+            Assert.AreEqual(expectedDamage, hit.Damage, Eps); // P2: zırh sınıfı vs kalibre
             Assert.IsTrue(hit.ArmorAbsorbed);
             Assert.IsFalse(hit.IsKill);
         }

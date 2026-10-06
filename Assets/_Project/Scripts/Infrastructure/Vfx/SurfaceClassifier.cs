@@ -123,6 +123,8 @@ namespace Project.Infrastructure.Vfx
             K("duvar", SurfaceKind.Concrete),
             K("kaya", SurfaceKind.Concrete),
 
+            K("snow", SurfaceKind.Snow),
+            K("kar_", SurfaceKind.Snow),
             K("dirt", SurfaceKind.Dirt),
             K("mud", SurfaceKind.Dirt),
             K("soil", SurfaceKind.Dirt),
@@ -141,9 +143,18 @@ namespace Project.Infrastructure.Vfx
             K("corpse", SurfaceKind.Flesh)
         };
 
+        /// <summary>Delme modeli için malzeme ipucu (SurfaceKind'de yok): tuğla ve kum torbası/hesco.</summary>
+        internal enum PenetrationHint : byte
+        {
+            None = 0,
+            Brick = 1,
+            Sandbag = 2
+        }
+
         private struct ColliderInfo
         {
             public SurfaceKind Kind;
+            public PenetrationHint Hint;
             public bool IsTerrain;
             public Terrain Terrain;
 
@@ -154,11 +165,18 @@ namespace Project.Infrastructure.Vfx
             public float LowTrunkY;
         }
 
-        public static SurfaceKind Classify(Collider collider, Vector3 point)
+        /// <summary>
+        /// Delme modeli ipucu (tuğla / kum torbası-hesco): malzeme adı ya da nesne/üst nesne adı. Sonuç collider başına
+        /// önbelleklenir (Classify ile aynı kayıt). SurfaceKind tuğlayı Concrete, kum torbasını Dirt gösterir; delme modeli
+        /// bunları ayrı malzeme (Brick/Sandbag) olarak ele alır.
+        /// </summary>
+        internal static PenetrationHint HintOf(Collider collider)
         {
-            if (collider == null)
-                return BelowWater(point) ? SurfaceKind.Water : SurfaceKind.Default;
+            return collider == null ? PenetrationHint.None : GetInfo(collider).Hint;
+        }
 
+        private static ColliderInfo GetInfo(Collider collider)
+        {
             if (!ColliderCache.TryGetValue(collider, out var info))
             {
                 info = Analyze(collider);
@@ -167,6 +185,15 @@ namespace Project.Infrastructure.Vfx
                 ColliderCache[collider] = info;
             }
 
+            return info;
+        }
+
+        public static SurfaceKind Classify(Collider collider, Vector3 point)
+        {
+            if (collider == null)
+                return BelowWater(point) ? SurfaceKind.Water : SurfaceKind.Default;
+
+            var info = GetInfo(collider);
             var kind = info.Kind;
             if (info.TrunkAndCanopy)
             {
@@ -235,6 +262,7 @@ namespace Project.Infrastructure.Vfx
 
             // 1) Görüntüleyici malzemeleri.
             var renderer = FindRenderer(collider);
+            info.Hint = HintFor(collider, renderer);
             if (renderer != null)
             {
                 SharedMaterials.Clear();
@@ -294,6 +322,55 @@ namespace Project.Infrastructure.Vfx
                 info.Kind = FromKeywords(physicsMaterial.name);
 
             return info;
+        }
+
+        /// <summary>Tuğla / kum torbası ipucu: önce görüntüleyici malzeme adları, sonra nesne ve üst nesne adları (collider başına bir kez).</summary>
+        private static PenetrationHint HintFor(Collider collider, Renderer renderer)
+        {
+            if (renderer != null)
+            {
+                SharedMaterials.Clear();
+                renderer.GetSharedMaterials(SharedMaterials);
+                var found = PenetrationHint.None;
+                for (var i = 0; i < SharedMaterials.Count && found == PenetrationHint.None; i++)
+                {
+                    if (SharedMaterials[i] != null)
+                        found = HintFromName(SharedMaterials[i].name);
+                }
+
+                SharedMaterials.Clear();
+                if (found != PenetrationHint.None)
+                    return found;
+            }
+
+            var t = collider.transform;
+            for (var depth = 0; depth < 4 && t != null; depth++)
+            {
+                var hint = HintFromName(t.name);
+                if (hint != PenetrationHint.None)
+                    return hint;
+
+                t = t.parent;
+            }
+
+            return PenetrationHint.None;
+        }
+
+        private static PenetrationHint HintFromName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return PenetrationHint.None;
+
+            if (name.IndexOf("sandbag", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("hesco", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("kumtorba", StringComparison.OrdinalIgnoreCase) >= 0)
+                return PenetrationHint.Sandbag;
+
+            if (name.IndexOf("brick", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                name.IndexOf("tuğla", StringComparison.OrdinalIgnoreCase) >= 0)
+                return PenetrationHint.Brick;
+
+            return PenetrationHint.None;
         }
 
         private static Renderer FindRenderer(Collider collider)

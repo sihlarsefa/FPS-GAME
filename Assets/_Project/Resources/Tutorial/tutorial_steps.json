@@ -1,0 +1,790 @@
+{
+  "schemaVersion": 1,
+  "id": "harekat_training_range_v1",
+  "title": {
+    "tr": "Atış Poligonu — Temel Eğitim",
+    "en": "Firing Range — Basic Training"
+  },
+  "scene": "TrainingRange",
+  "bootstrap": "TrainingBootstrap",
+  "eventNamespace": "Project.Core.Events",
+  "notes": "success.coreEvent must match a type name in Project.Core.Events (without namespace). presentationSignal is for local UI/input gates not yet modeled as IGameEvent. filters use PascalCase property names from the event structs.",
+  "telemetryEvents": [
+    "tutorial_step_started",
+    "tutorial_step_completed",
+    "tutorial_chain_completed",
+    "tutorial_abandoned",
+    "first_order_issued",
+    "first_artillery_call",
+    "first_zone_damage",
+    "session_d1_return"
+  ],
+  "defaultRewardXp": 25,
+  "dailyXpCap": 400,
+  "steps": [
+    {
+      "id": "poly_01_move",
+      "order": 1,
+      "category": "movement",
+      "goal": {
+        "tr": "WASD ile işaretli alana yürü; fare ile bakışını çevir.",
+        "en": "Walk to the marked area with WASD; look around with the mouse."
+      },
+      "screenText": {
+        "tr": "Hareket: W A S D · Bakış: Fare",
+        "en": "Move: W A S D · Look: Mouse"
+      },
+      "hint": {
+        "tr": "Koşmak için Shift tut. Zıplamak için Space.",
+        "en": "Hold Shift to sprint. Space to jump."
+      },
+      "timeLimitSeconds": 90,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "PlayerReachedWaypoint",
+            "filters": { "WaypointId": "poly_start_pad" },
+            "count": 1
+          },
+          {
+            "presentationSignal": "LookDeltaSatisfied",
+            "filters": { "YawDegrees": 45, "PitchDegrees": 20 },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 25
+    },
+    {
+      "id": "poly_02_crouch",
+      "order": 2,
+      "category": "movement",
+      "goal": {
+        "tr": "Ctrl veya C ile çömel; sonra ayağa kalk.",
+        "en": "Crouch with Ctrl or C; then stand up."
+      },
+      "screenText": {
+        "tr": "Çömel: Ctrl / C",
+        "en": "Crouch: Ctrl / C"
+      },
+      "hint": {
+        "tr": "Çömelince silüetin küçülür; nişan daha sabit olur.",
+        "en": "Crouching shrinks your silhouette and steadies aim."
+      },
+      "timeLimitSeconds": 45,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "StanceChanged",
+            "filters": { "Stance": "Crouch" },
+            "count": 1
+          },
+          {
+            "presentationSignal": "StanceChanged",
+            "filters": { "Stance": "Stand" },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 25
+    },
+    {
+      "id": "poly_03_prone",
+      "order": 3,
+      "category": "movement",
+      "goal": {
+        "tr": "Z ile yüzüstü yat; sonra ayağa kalk.",
+        "en": "Go prone with Z; then stand up."
+      },
+      "screenText": {
+        "tr": "Yüzüstü: Z",
+        "en": "Prone: Z"
+      },
+      "hint": {
+        "tr": "Yüzüstü iken hareket yavaştır; uzun menzilde avantaj sağlar.",
+        "en": "Prone movement is slow but strong at long range."
+      },
+      "timeLimitSeconds": 45,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "StanceChanged",
+            "filters": { "Stance": "Prone" },
+            "count": 1
+          },
+          {
+            "presentationSignal": "StanceChanged",
+            "filters": { "Stance": "Stand" },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 25
+    },
+    {
+      "id": "poly_04_lean",
+      "order": 4,
+      "category": "movement",
+      "goal": {
+        "tr": "Q ve E ile her iki yana birer kez eğil.",
+        "en": "Lean left and right once with Q and E."
+      },
+      "screenText": {
+        "tr": "Yana eğil: Q / E",
+        "en": "Lean: Q / E"
+      },
+      "hint": {
+        "tr": "Köşe arkası için eğil; sürekli eğik kalma, hedef olma.",
+        "en": "Peek corners with lean; don’t stay exposed."
+      },
+      "timeLimitSeconds": 45,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "LeanPerformed",
+            "filters": { "Side": "Left" },
+            "count": 1
+          },
+          {
+            "presentationSignal": "LeanPerformed",
+            "filters": { "Side": "Right" },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 25
+    },
+    {
+      "id": "poly_05_fire",
+      "order": 5,
+      "category": "weapons",
+      "goal": {
+        "tr": "Sol tık ile ateş et; 25 m hedefine 5 isabet kaydet.",
+        "en": "Fire with LMB; land 5 hits on the 25 m target."
+      },
+      "screenText": {
+        "tr": "Ateş: Sol Tık · Hedef: 25 m",
+        "en": "Fire: LMB · Target: 25 m"
+      },
+      "hint": {
+        "tr": "Poligonda mermi sınırsız. Kısa seriler daha isabetlidir.",
+        "en": "Ammo is unlimited here. Short bursts hit more often."
+      },
+      "timeLimitSeconds": 90,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "coreEvent": "WeaponFiredEvent",
+            "count": 1
+          },
+          {
+            "coreEvent": "HitConfirmedEvent",
+            "filters": { "IsKill": false },
+            "count": 5
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_06_ads",
+      "order": 6,
+      "category": "weapons",
+      "goal": {
+        "tr": "Sağ tık ile nişan al (ADS); nişanlıyken 3 isabet yap.",
+        "en": "Aim down sights (RMB); land 3 hits while aiming."
+      },
+      "screenText": {
+        "tr": "Nişan: Sağ Tık (basılı tut)",
+        "en": "ADS: Hold RMB"
+      },
+      "hint": {
+        "tr": "Nişan alırken hassasiyet düşer (ADS çarpanı); yayılma daralır.",
+        "en": "ADS lowers sensitivity and tightens spread."
+      },
+      "timeLimitSeconds": 90,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "AdsActive",
+            "filters": { "MinSeconds": 1.0 },
+            "count": 1
+          },
+          {
+            "coreEvent": "HitConfirmedEvent",
+            "filters": { "WhileAiming": true },
+            "count": 3,
+            "notes": "WhileAiming is a presentation gate layered on HitConfirmedEvent (not a struct field)."
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_07_scope",
+      "order": 7,
+      "category": "weapons",
+      "goal": {
+        "tr": "Dürbünlü silahla (KNT-76 veya JNG-90) 100 m hedefine nişan alıp 2 isabet yap.",
+        "en": "With a scoped weapon (KNT-76 or JNG-90), hit the 100 m target twice."
+      },
+      "screenText": {
+        "tr": "Dürbün: Sağ Tık · Mesafe: 100 m",
+        "en": "Scope: RMB · Range: 100 m"
+      },
+      "hint": {
+        "tr": "KNT-76 ≈ 3×, JNG-90 ≈ 6×. Dürbünde nefesini tutar gibi kısa durakla.",
+        "en": "KNT-76 ≈ 3×, JNG-90 ≈ 6×. Pause briefly when scoped."
+      },
+      "timeLimitSeconds": 120,
+      "loadoutHint": ["knt_76", "jng_90"],
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "ScopeActive",
+            "filters": { "MinZoom": 2.5 },
+            "count": 1
+          },
+          {
+            "coreEvent": "HitConfirmedEvent",
+            "filters": { "WhileScoped": true, "MinRangeMeters": 80 },
+            "count": 2
+          }
+        ]
+      },
+      "rewardXp": 75
+    },
+    {
+      "id": "poly_08_reload",
+      "order": 8,
+      "category": "weapons",
+      "goal": {
+        "tr": "R ile şarjör değiştir; şarjör bitene kadar bekle.",
+        "en": "Reload with R; wait until the reload finishes."
+      },
+      "screenText": {
+        "tr": "Şarjör: R",
+        "en": "Reload: R"
+      },
+      "hint": {
+        "tr": "Şarjör sırasında ateş edemezsin. Kapak arkasında değiştir.",
+        "en": "You cannot fire while reloading. Reload behind cover."
+      },
+      "timeLimitSeconds": 60,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "coreEvent": "WeaponReloadStartedEvent",
+            "count": 1
+          },
+          {
+            "coreEvent": "WeaponReloadedEvent",
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 25
+    },
+    {
+      "id": "poly_09_firemode",
+      "order": 9,
+      "category": "weapons",
+      "goal": {
+        "tr": "B ile atış modunu değiştir (Tekli ↔ Otomatik); her modda en az 1 ateş et.",
+        "en": "Cycle fire mode with B (Single ↔ Auto); fire at least once in each mode."
+      },
+      "screenText": {
+        "tr": "Atış modu: B",
+        "en": "Fire mode: B"
+      },
+      "hint": {
+        "tr": "Uzun menzilde Tekli, yakın temasta Otomatik tercih et.",
+        "en": "Prefer Single at range, Auto in close contact."
+      },
+      "timeLimitSeconds": 75,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "FireModeChanged",
+            "filters": { "FireMode": "Single" },
+            "count": 1
+          },
+          {
+            "presentationSignal": "FireModeChanged",
+            "filters": { "FireMode": "Auto" },
+            "count": 1
+          },
+          {
+            "coreEvent": "WeaponFiredEvent",
+            "count": 2
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_10_frag",
+      "order": 10,
+      "category": "throwables",
+      "goal": {
+        "tr": "G ile el bombası at; işaretli kukla grubuna patlama isabeti kaydet.",
+        "en": "Throw a frag with G; score an explosion hit on the marked dummy group."
+      },
+      "screenText": {
+        "tr": "El bombası: G",
+        "en": "Frag grenade: G"
+      },
+      "hint": {
+        "tr": "Bombayı duvar arkasına sektirme; zamanlamayı öğren.",
+        "en": "Bank frags around cover; learn the fuse timing."
+      },
+      "timeLimitSeconds": 90,
+      "itemId": "grenade_frag",
+      "success": {
+        "mode": "anyOf",
+        "conditions": [
+          {
+            "coreEvent": "ExplosionEvent",
+            "filters": { "MinRadius": 1.0 },
+            "count": 1
+          },
+          {
+            "coreEvent": "ItemUsedEvent",
+            "filters": { "ItemId": "grenade_frag", "Completed": true },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_11_smoke",
+      "order": 11,
+      "category": "throwables",
+      "goal": {
+        "tr": "T ile sis bombası at; sis bulutu oluşsun.",
+        "en": "Throw smoke with T; form a smoke cloud."
+      },
+      "screenText": {
+        "tr": "Sis: T",
+        "en": "Smoke: T"
+      },
+      "hint": {
+        "tr": "Sis görüş keser; yaralı çekme ve geçiş için kullan.",
+        "en": "Smoke blocks sight — use it to extract or cross open ground."
+      },
+      "timeLimitSeconds": 75,
+      "itemId": "grenade_smoke",
+      "success": {
+        "mode": "anyOf",
+        "conditions": [
+          {
+            "coreEvent": "ItemUsedEvent",
+            "filters": { "ItemId": "grenade_smoke", "Completed": true },
+            "count": 1
+          },
+          {
+            "presentationSignal": "SmokeVolumeSpawned",
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_12_heal",
+      "order": 12,
+      "category": "survival",
+      "goal": {
+        "tr": "H ile sargı kullan; kullanımı tamamla (Completed).",
+        "en": "Use a bandage with H; finish the use (Completed)."
+      },
+      "screenText": {
+        "tr": "İyileş: H · Takviye: J",
+        "en": "Heal: H · Boost: J"
+      },
+      "hint": {
+        "tr": "Sargı/ilk yardım 75 HP tavanı; tam can için sıhhiye çantası (medkit).",
+        "en": "Bandage/first aid cap at 75 HP; medkit reaches 100."
+      },
+      "timeLimitSeconds": 90,
+      "setup": {
+        "applyDamage": 40,
+        "grantItem": "bandage",
+        "grantCount": 2
+      },
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "coreEvent": "ItemUsedEvent",
+            "filters": { "ItemId": "bandage", "Started": true },
+            "count": 1
+          },
+          {
+            "coreEvent": "ItemUsedEvent",
+            "filters": { "ItemId": "bandage", "Completed": true },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_13_inventory",
+      "order": 13,
+      "category": "ui",
+      "goal": {
+        "tr": "TAB ile envanteri aç; raftan bir eşya al veya yerleştir.",
+        "en": "Open inventory with TAB; pick or place an item from the rack."
+      },
+      "screenText": {
+        "tr": "Envanter: TAB",
+        "en": "Inventory: TAB"
+      },
+      "hint": {
+        "tr": "Ağırlık kapasitesini aşma. Silahlar 1–4 slotlarıyla seçilir.",
+        "en": "Watch weight capacity. Weapons use slots 1–4."
+      },
+      "timeLimitSeconds": 90,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "InventoryOpened",
+            "count": 1
+          },
+          {
+            "coreEvent": "LootPickedUpEvent",
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_14_map",
+      "order": 14,
+      "category": "ui",
+      "goal": {
+        "tr": "M ile haritayı aç; poligon işaretine tıkla (harita işareti koy).",
+        "en": "Open the map with M; place a marker on the range marker."
+      },
+      "screenText": {
+        "tr": "Harita: M · İşaret: sol tık",
+        "en": "Map: M · Marker: LMB"
+      },
+      "hint": {
+        "tr": "Beyaz çember bir sonraki güvenli alan. Maçta zone uyarısını kaçırma.",
+        "en": "The white circle is the next safe zone. Don’t ignore zone warnings."
+      },
+      "timeLimitSeconds": 75,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "MapOpened",
+            "count": 1
+          },
+          {
+            "presentationSignal": "MapMarkerPlaced",
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 50
+    },
+    {
+      "id": "poly_15_orders_follow_hold",
+      "order": 15,
+      "category": "command",
+      "goal": {
+        "tr": "F1 ile Takip, ardından F2 ile Mevzi emri ver.",
+        "en": "Issue Follow (F1), then Hold Position (F2)."
+      },
+      "screenText": {
+        "tr": "Emirler: F1 Takip · F2 Mevzi",
+        "en": "Orders: F1 Follow · F2 Hold"
+      },
+      "hint": {
+        "tr": "Yalnızca komutanken emir verirsin. Komutan düşünce komuta kıdemliye geçer.",
+        "en": "Only the commander issues orders. Command transfers by seniority if they fall."
+      },
+      "timeLimitSeconds": 90,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "coreEvent": "SquadOrderIssuedEvent",
+            "filters": { "Order": "Follow" },
+            "count": 1
+          },
+          {
+            "coreEvent": "SquadOrderIssuedEvent",
+            "filters": { "Order": "HoldPosition" },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 75,
+      "telemetry": ["first_order_issued"]
+    },
+    {
+      "id": "poly_16_orders_attack_regroup",
+      "order": 16,
+      "category": "command",
+      "goal": {
+        "tr": "F3 ile Taarruz (nişangâh veya harita işareti), ardından F4 ile Toplan.",
+        "en": "Issue Attack (F3) toward aim/map marker, then Regroup (F4)."
+      },
+      "screenText": {
+        "tr": "Emirler: F3 Taarruz · F4 Toplan",
+        "en": "Orders: F3 Attack · F4 Regroup"
+      },
+      "hint": {
+        "tr": "Taarruz için önce hedef işaretle (nişan veya M haritası).",
+        "en": "For Attack, mark a target first (aim point or map marker)."
+      },
+      "timeLimitSeconds": 90,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "coreEvent": "SquadOrderIssuedEvent",
+            "filters": { "Order": "Attack" },
+            "count": 1
+          },
+          {
+            "coreEvent": "SquadOrderIssuedEvent",
+            "filters": { "Order": "Regroup" },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 75
+    },
+    {
+      "id": "poly_17_artillery",
+      "order": 17,
+      "category": "command",
+      "goal": {
+        "tr": "V ile topçu desteği çağır; atış başlasın (IsImpact=false çağrı kabul).",
+        "en": "Call artillery with V; accept the strike request (IsImpact=false)."
+      },
+      "screenText": {
+        "tr": "Topçu: V · Hedef: nişangâh / harita",
+        "en": "Artillery: V · Target: aim / map"
+      },
+      "hint": {
+        "tr": "Poligonda bekleme kısadır (~25 sn). Maçta ~150 sn. Telsizci hayattaysa çağrı mümkün.",
+        "en": "Range cooldown is short (~25 s). In match ~150 s. Needs radioman alive."
+      },
+      "timeLimitSeconds": 120,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "coreEvent": "ArtilleryStrikeEvent",
+            "filters": { "IsImpact": false },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 100,
+      "telemetry": ["first_artillery_call"]
+    },
+    {
+      "id": "poly_18_kirpi",
+      "order": 18,
+      "category": "vehicle",
+      "goal": {
+        "tr": "F ile Kirpi’ye bin; kısa mesafe sür; F ile in.",
+        "en": "Enter the Kirpi with F; drive a short distance; exit with F."
+      },
+      "screenText": {
+        "tr": "Araç: F bin/in · WASD sür",
+        "en": "Vehicle: F enter/exit · WASD drive"
+      },
+      "hint": {
+        "tr": "Kirpi zırhlıdır ama patlayabilir. Tim üyeleri yolcu koltuğuna binebilir.",
+        "en": "Kirpi is armored but can explode. Squadmates can ride as passengers."
+      },
+      "timeLimitSeconds": 120,
+      "success": {
+        "mode": "allOf",
+        "conditions": [
+          {
+            "presentationSignal": "VehicleEntered",
+            "filters": { "VehicleType": "Kirpi" },
+            "count": 1
+          },
+          {
+            "presentationSignal": "VehicleDriven",
+            "filters": { "MinDistanceMeters": 25 },
+            "count": 1
+          },
+          {
+            "presentationSignal": "VehicleExited",
+            "filters": { "VehicleType": "Kirpi" },
+            "count": 1
+          }
+        ]
+      },
+      "rewardXp": 100
+    }
+  ],
+  "completion": {
+    "screenText": {
+      "tr": "Eğitim tamam. Hızlı Maça hazır mısın?",
+      "en": "Training complete. Ready for Quick Match?"
+    },
+    "cta": {
+      "tr": "Hızlı Maç",
+      "en": "Quick Match"
+    },
+    "bonusXp": 150,
+    "badgeId": "training_range_basic"
+  },
+  "coreEventCatalog": [
+    {
+      "type": "WeaponFiredEvent",
+      "fields": ["ShooterId", "WeaponId", "RemainingAmmo", "Hit", "Origin", "HasOrigin"]
+    },
+    {
+      "type": "HitConfirmedEvent",
+      "fields": ["AttackerId", "VictimId", "Damage", "IsHeadshot", "IsKill", "ArmorAbsorbed"]
+    },
+    {
+      "type": "WeaponReloadStartedEvent",
+      "fields": ["ShooterId", "WeaponId", "DurationSeconds"]
+    },
+    {
+      "type": "WeaponReloadedEvent",
+      "fields": ["ShooterId", "WeaponId", "AmmoAfterReload"]
+    },
+    {
+      "type": "ItemUsedEvent",
+      "fields": ["UserId", "ItemId", "Started", "Completed"]
+    },
+    {
+      "type": "ExplosionEvent",
+      "fields": ["Position", "Radius", "AttackerId"]
+    },
+    {
+      "type": "LootPickedUpEvent",
+      "fields": ["PlayerId", "Item"]
+    },
+    {
+      "type": "SquadOrderIssuedEvent",
+      "fields": ["Team", "Order", "Target"],
+      "orderEnum": ["Follow", "HoldPosition", "Attack", "Regroup"]
+    },
+    {
+      "type": "ArtilleryStrikeEvent",
+      "fields": ["Team", "CallerId", "Target", "IsImpact"]
+    },
+    {
+      "type": "PlayerDamagedEvent",
+      "fields": ["VictimId", "AttackerId", "DamageAmount", "RemainingHealth"]
+    },
+    {
+      "type": "ZoneStageChangedEvent",
+      "fields": ["PhaseIndex", "PhaseCount", "Stage", "DurationSeconds"]
+    },
+    {
+      "type": "MatchPhaseChangedEvent",
+      "fields": ["PreviousPhase", "CurrentPhase"]
+    },
+    {
+      "type": "CommandTransferredEvent",
+      "fields": ["Team", "PreviousCommanderId", "NewCommanderId"]
+    },
+    {
+      "type": "PlayerDiedEvent",
+      "fields": ["VictimId", "KillerId", "WeaponId", "IsHeadshot"]
+    },
+    {
+      "type": "MatchEndedEvent",
+      "fields": ["WinnerId", "WinnerTeam"]
+    }
+  ],
+  "presentationSignals": [
+    "PlayerReachedWaypoint",
+    "LookDeltaSatisfied",
+    "StanceChanged",
+    "LeanPerformed",
+    "AdsActive",
+    "ScopeActive",
+    "FireModeChanged",
+    "SmokeVolumeSpawned",
+    "InventoryOpened",
+    "MapOpened",
+    "MapMarkerPlaced",
+    "VehicleEntered",
+    "VehicleDriven",
+    "VehicleExited"
+  ],
+  "itemIds": {
+    "bandage": "bandage",
+    "firstaid": "firstaid",
+    "medkit": "medkit",
+    "frag": "grenade_frag",
+    "smoke": "grenade_smoke"
+  },
+  "squadOrderKeys": {
+    "Follow": "F1",
+    "HoldPosition": "F2",
+    "Attack": "F3",
+    "Regroup": "F4"
+  },
+  "artilleryKey": "V",
+  "difficultyProfiles": {
+    "Er": {
+      "id": "Er",
+      "timeScale": 1.5,
+      "hintMode": "always",
+      "hitCountOverrides": {
+        "poly_05_fire": 3,
+        "poly_06_ads": 2,
+        "poly_07_scope": 1
+      },
+      "vehicleMinDistanceMeters": 15,
+      "xpMultiplier": 0.75,
+      "badgeId": "training_er"
+    },
+    "Uzman": {
+      "id": "Uzman",
+      "timeScale": 1.0,
+      "hintMode": "brief",
+      "movingTargets": true,
+      "vehicleMinDistanceMeters": 25,
+      "xpMultiplier": 1.0,
+      "badgeId": "training_uzman",
+      "requires": "Er"
+    },
+    "Komando": {
+      "id": "Komando",
+      "timeScale": 0.7,
+      "hintMode": "off",
+      "movingTargets": true,
+      "requireHeadshots": { "poly_07_scope": 3 },
+      "orderComboSeconds": 20,
+      "artilleryRequireImpactHit": true,
+      "vehicleMinDistanceMeters": 40,
+      "vehicleExitMaxSpeedKmh": 15,
+      "trainingPelletDamage": 5,
+      "xpMultiplier": 1.5,
+      "badgeId": "training_komando",
+      "requires": "Uzman"
+    }
+  }
+}

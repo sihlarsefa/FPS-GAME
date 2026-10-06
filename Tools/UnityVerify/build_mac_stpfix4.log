@@ -1,0 +1,2526 @@
+Unity Editor version:    6000.6.4f1 (12bfff696524)
+Branch:                  6000.6/staging
+Build type:              Release
+Batch mode:              YES
+macOS version:           Version 26.6.2 (Build 25G83)
+Darwin version:          25.6.0
+Architecture:            arm64
+Running under Rosetta:   NO
+Available memory:        16384 MB
+Date:                    2026-10-06T01:11:51Z
+VBCSCompilerPreWarmer: watching VBCSCompiler (PID 1055)
+VBCSCompilerPreWarmer: pre-warm launched (dotnet PID 1057)
+VBCSCompiler prewarm took 6.07 ms
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityLicensingClient.app/Contents/MacOS/Unity.Licensing.Client
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Channel LicenseClient-f2gomac doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 1058)
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/PackageManager/Server/UnityPackageManager
+
+COMMAND LINE ARGUMENTS:
+/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/MacOS/Unity
+-batchmode
+-nographics
+-quit
+-projectPath
+/Users/f2gomac/Desktop/FPS-GAME
+-executeMethod
+Project.EditorTools.BatchEntry.BuildMac
+-logFile
+/Users/f2gomac/Desktop/FPS-GAME/Tools/UnityVerify/build_mac_stpfix4.log
+Successfully changed project path to: /Users/f2gomac/Desktop/FPS-GAME
+/Users/f2gomac/Desktop/FPS-GAME
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-remapper-allocator-initial-capacity=32768"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-main-allocator-mimalloc-enabled=1"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+Logging is directed to a specific file, skipping project log.
+Player connection [8309662080]  Target information:
+
+Player connection [8309662080]  * "[IP] 192.168.1.4 [Port] 55504 [Flags] 2 [Guid] 238725315 [EditorId] 238725315 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080]  * "[IP] 10.211.55.2 [Port] 55504 [Flags] 2 [Guid] 238725315 [EditorId] 238725315 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080]  * "[IP] 10.37.129.2 [Port] 55504 [Flags] 2 [Guid] 238725315 [EditorId] 238725315 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [8309662080] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-1054" after 0.1 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-f2gomac" at "2026-10-06T01:11:51.886363Z"
+Initialising UDS system complete:
+  - System type: Client
+  - Resource namespace: c3abdf221fc5d9fd33df3a582a8a25a4
+  - Shared memory size: 1073741824
+  - Command buffer id: 1052672
+  - Command buffer size: 8192
+  - Hashmap size: 4194304
+  - Service connected: false
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.3+d7ffd15
+  Session Id:              88501404872640138100e7acaace038b
+  Correlation Id:          5047d0bb4198b23fe551c2d4180c0a9d
+  External correlation Id: 2286035095101994454
+  Machine Id:              N5wA6icxbnhbHWazitLENc7cwgY=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-f2gomac" (connect: 0.38s, validation: 0.05s, handshake: 0.24s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-f2gomac-notifications" at "2026-10-06T01:11:52.167082Z"
+[Licensing::Module] Connected to LicensingClient (PId: 1058, launch time: 0.00, total connection time: 0.66s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 18968492814813-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 0.68s
+[Licensing::Module] Licensing is initialized (took 0.33s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+Launching Unity Data Store - /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/Unity.DataStore 
+Unity Data Store artifact dir = Library/DataStore, working dir = /Users/f2gomac/Desktop/FPS-GAMEUnity Data Store running and initialised
+[Physics::Module] Selected backend (deferred post-plugins).
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Initialize engine version: 6000.6.4f1 (12bfff696524)
+[EntityIdStore] init: VM path (explicit commit), pageSize=16384, blockCount=262144, entitiesPerBlock=1024, slots reserved=4294967296 bytes
+[Subsystems] Discovering subsystems at path /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path /Users/f2gomac/Desktop/FPS-GAME/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Initialize mono
+Mono path[0] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/Managed'
+Mono path[1] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/BCLExtensions/runtime/netstandard2.1'
+Mono path[2] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/MonoBleedingEdge/lib/mono/unityjit-macos'
+Mono config path = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56054
+CodeReloadManager initialized
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: /Applications/Unity/Hub/Editor/6000.6.4f1/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: /Applications/Unity/Hub/Editor/6000.6.4f1/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll
+Registered in 0.001225 seconds.
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Scripting: successfully reloaded assembly
+- Finished resetting the current domain, in  1.024 seconds
+Domain Reload Profiling: 1380ms
+	BeginReloadAssembly (95ms)
+		CreateAndSetChildDomain (4ms)
+	RebuildCommonClasses (3ms)
+	RebuildNativeTypeToScriptingClass (14ms)
+	initialDomainReloadingComplete (32ms)
+	LoadAllAssembliesAndSetupDomain (211ms)
+		LoadAssemblies (91ms)
+		TypeCache.Refresh (139ms)
+			TypeCache.ScanAssembly (128ms)
+		AnalyzeDomain (0ms)
+	FinalizeReload (1025ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (153ms)
+			ProcessInitializeOnLoadAttributes (127ms)
+			ProcessInitializeOnLoadMethodAttributes (513ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 43 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.20.0-pre.1 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.assistant@ceb45b7b3ebd)
+    com.unity.ai.inference@2.6.1 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.inference@9a123aee5df7)
+    com.unity.ai.navigation@2.0.14 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.navigation@134dd6a3b97b)
+    com.unity.ide.rider@3.0.38 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ide.rider@1f60b3138684)
+    com.unity.ide.visualstudio@2.0.26 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.inputsystem@1.20.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.inputsystem@7a4e1a2a8194)
+    com.unity.dt.app-ui@2.1.13 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.dt.app-ui@9d0f103f520a)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.nuget.mono-cecil@1.11.6 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.searcher@4.9.5 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.searcher@a463122f2c00)
+    com.unity.profiling.core@1.0.3 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.profiling.core@8a49f7027d06)
+  Built-in packages:
+    com.unity.render-pipelines.universal@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21)
+    com.unity.test-framework@1.8.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.test-framework@80f691d4262b)
+    com.unity.ugui@2.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ugui@0727b404f3a0)
+    com.unity.modules.ai@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.ai)
+    com.unity.modules.animation@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.animation)
+    com.unity.modules.audio@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.audio)
+    com.unity.modules.imageconversion@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.imageconversion)
+    com.unity.modules.jsonserialize@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.terrainphysics)
+    com.unity.modules.ui@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.ui)
+    com.unity.modules.unitywebrequest@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.unitywebrequest)
+    com.unity.modules.video@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.video)
+    com.unity.modules.physicscore2d@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physicscore2d)
+    com.unity.modules.imgui@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.imgui)
+    com.unity.ext.nunit@2.1.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ext.nunit@0198eae3b53e)
+    com.unity.render-pipelines.core@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f)
+    com.unity.shadergraph@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.shadergraph@58bcb150677d)
+    com.unity.render-pipelines.universal-config@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.universal-config@561422b74439)
+    com.unity.modules.uielements@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.uielements)
+    com.unity.burst@2.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.burst@626e66ab421b)
+    com.unity.collections@6.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.collections@10fff0607388)
+    com.unity.2d.sprite@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.2d.sprite@752945c75a6f)
+    com.unity.mathematics@1.4.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.mathematics@8306a64d0cd6)
+    com.unity.graph-authoring@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.graph-authoring@cfd2588851ee)
+    com.unity.modules.hierarchycore@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.hierarchycore)
+    com.unity.test-framework.performance@6.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.test-framework.performance@b6023decb532)
+    com.unity.modules.androidjni@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.androidjni)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+[ScriptCompilation] Requested script compilation because: Assembly Definition File(s) changed
+[ScriptCompilation] Requested script compilation because: AssetDatabase observed changes in script compilation related files
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/bee_backend --ipc --defer-dag-verification --dagfile="Library/Bee/200b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+DisplayProgressbar: Compiling Scripts
+ExitCode: 4 Duration: 0s146ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/200b0aE-inputdata.json
+*** Tundra requires additional run (0.13 seconds), 0 items updated, 260 evaluated
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/DotNetSdk/dotnet "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/ScriptCompilationBuildProgram.exe" "Library/Bee/200b0aE.dag.json" "Library/Bee/200b0aE-inputdata.json" "Library/Bee/buildprogram0.traceevents"
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+ExitCode: 0 Duration: 1s321ms
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/bee_backend --ipc --defer-dag-verification --dagfile="Library/Bee/200b0aE.dag" --continue-on-failure --dagfilejson="Library/Bee/200b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/Extensions/2.0.0/System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.Composition.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/compat/2.1.0/shims/netfx/System.ComponentModel.Composition.dll"
+ExitCode: 0 Duration: 4s389ms
+Finished compiling graph: 1382 nodes, 30572 flattened edges (25244 ToBuild, 252 ToUse), maximum node priority 1710
+[ 474/1379  0s] WriteText Library/Bee/artifacts/200b0aE.dag/Project.Infrastructure.rsp
+[ 508/1379  0s] WriteText Library/Bee/artifacts/200b0aE.dag/Project.Presentation.rsp
+[1000/1379  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1343/1379  2s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Infrastructure.dll (+2 others)
+Assets/_Project/Scripts/Infrastructure/Audio/Foley/WeaponFoley.cs(207,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,70): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,26): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+[1344/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Infrastructure.VfxGraph.dll (+2 others)
+[1345/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Infrastructure.VfxGraph.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Infrastructure.VfxGraph.dll, with 144 defines and 281 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1346/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Infrastructure.VfxGraph.dll
+[1347/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Infrastructure.VfxGraph.pdb
+[1348/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Infrastructure.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Infrastructure.dll, with 144 defines and 283 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1349/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Infrastructure.dll
+[1350/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Infrastructure.pdb
+[1351/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Presentation.dll (+2 others)
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(372,34): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(375,28): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,74): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(96,27): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(113,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(119,29): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(122,31): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/DevTools/DevConsoleGate.cs(22,21): warning UAC0009: DEVELOPMENT_BUILD preprocessor directive has been deprecated. Please use one of the managed code variant directives (such as DEBUG, UNITY_ENABLE_CHECKS or UNITY_INCLUDE_INSTRUMENTATION) if different code paths are desired for different managed code variants. Checking for development build is possible at runtime using Debug.isDebugBuild. See the Conditional Compilation manual page for more details.
+Assets/_Project/Scripts/Presentation/Benchmark/AaaBenchmarkFeatureInstaller.cs(102,30): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+[1352/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Presentation.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Presentation.dll, with 144 defines and 284 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1353/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Presentation.pdb
+[1354/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Presentation.dll
+[1355/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Tests.PlayMode.dll (+2 others)
+Assets/_Project/Tests/PlayMode/PlayModeHelpers.cs(224,46): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Tests/PlayMode/PlayModeHelpers.cs(223,30): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+[1356/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Editor.dll (+2 others)
+Assets/_Project/Scripts/Editor/AaaBenchmarkSceneBuilder.cs(48,25): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/BuildTool.cs(55,27): warning CS0618: 'BuildOptions.EnableHeadlessMode' is obsolete: 'Use StandaloneBuildSubtarget.Server instead'
+Assets/_Project/Scripts/Editor/AssetGeneration.cs(361,17): warning CS0618: 'PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup, Texture2D[])' is obsolete: 'Use SetIcons(NamedBuildTarget, Texture2D[], IconKind) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(99,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(101,13): warning CS0618: 'PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup, ApiCompatibilityLevel)' is obsolete: 'Use SetApiCompatibilityLevel(NamedBuildTarget buildTarget, ApiCompatibilityLevel value) instead'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(395,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(411,23): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(433,24): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(508,95): warning CS0618: 'StaticEditorFlags.NavigationStatic' is obsolete: 'Enum member StaticEditorFlags.NavigationStatic has been deprecated. The precise selection of the objects is now done using NavMeshBuilder.CollectSources() and NavMeshBuildMarkup.'
+Assets/_Project/Scripts/Editor/BatchEntry.cs(24,33): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+[1358/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Editor.Tests.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Editor.Tests.dll, with 142 defines and 302 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1361/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Tests.PlayMode.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Tests.PlayMode.dll, with 144 defines and 278 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1362/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Editor.dll, with 142 defines and 313 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1363/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Editor.dll
+[1364/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Editor.pdb
+[1365/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Tests.PlayMode.pdb
+[1366/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Tests.PlayMode.dll
+[1367/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Tests.EditMode.dll (+2 others)
+[1368/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Online.dll (+2 others)
+[1369/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Online.Tests.dll (+2 others)
+[1370/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Online.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Online.dll, with 144 defines and 283 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1371/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Online.pdb
+[1372/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Online.dll
+[1373/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Tests.EditMode.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Tests.EditMode.dll, with 142 defines and 306 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1374/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Tests.EditMode.pdb
+[1375/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Tests.EditMode.dll
+[1376/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Online.Tests.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Online.Tests.dll, with 142 defines and 306 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1377/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Online.Tests.dll
+[1378/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Online.Tests.pdb
+*** Tundra build success (4.37 seconds), 36 items updated, 1379 evaluated
+Assets/_Project/Scripts/Infrastructure/Audio/Foley/WeaponFoley.cs(207,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,70): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,26): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(372,34): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(375,28): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,74): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(96,27): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(113,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(119,29): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(122,31): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/DevTools/DevConsoleGate.cs(22,21): warning UAC0009: DEVELOPMENT_BUILD preprocessor directive has been deprecated. Please use one of the managed code variant directives (such as DEBUG, UNITY_ENABLE_CHECKS or UNITY_INCLUDE_INSTRUMENTATION) if different code paths are desired for different managed code variants. Checking for development build is possible at runtime using Debug.isDebugBuild. See the Conditional Compilation manual page for more details.
+Assets/_Project/Scripts/Presentation/Benchmark/AaaBenchmarkFeatureInstaller.cs(102,30): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+Assets/_Project/Tests/PlayMode/PlayModeHelpers.cs(224,46): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Tests/PlayMode/PlayModeHelpers.cs(223,30): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Editor/AaaBenchmarkSceneBuilder.cs(48,25): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/BuildTool.cs(55,27): warning CS0618: 'BuildOptions.EnableHeadlessMode' is obsolete: 'Use StandaloneBuildSubtarget.Server instead'
+Assets/_Project/Scripts/Editor/AssetGeneration.cs(361,17): warning CS0618: 'PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup, Texture2D[])' is obsolete: 'Use SetIcons(NamedBuildTarget, Texture2D[], IconKind) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(99,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(101,13): warning CS0618: 'PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup, ApiCompatibilityLevel)' is obsolete: 'Use SetApiCompatibilityLevel(NamedBuildTarget buildTarget, ApiCompatibilityLevel value) instead'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(395,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(411,23): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(433,24): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(508,95): warning CS0618: 'StaticEditorFlags.NavigationStatic' is obsolete: 'Enum member StaticEditorFlags.NavigationStatic has been deprecated. The precise selection of the objects is now done using NavMeshBuilder.CollectSources() and NavMeshBuildMarkup.'
+Assets/_Project/Scripts/Editor/BatchEntry.cs(24,33): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+AssetDatabase: script compilation time: 6.394241s
+Begin MonoManager ReloadAssembly
+Total cache size 253507556
+Total cache size after purge 253507556, took 00:00:00.2168733
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Importing 'GUID: a7304e93d9ee04f7987ff6afbadffb99 - Path: Assets/_Project/Scripts/Presentation/Project.Presentation.asmdef' with importer (AssemblyDefinitionImporter)
+Imported 'GUID: a7304e93d9ee04f7987ff6afbadffb99' -> (Import Result ID: '14417347e48483d1a016f17f54cbde9d') in 0.012 seconds [static dependencies only]. Details - ImportResultOutputID=ac5b78c3ea178f7fbac784e53ad461dd DependenciesID=2aa38cb67b63188624054ff9342ebd05 StaticDependenciesID=4be53db52e36e29f36d6ba7acca92684 
+Refreshing native plugins compatible for Editor in 2.19 ms, found 1 plugins.
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Scripting: successfully reloaded assembly
+- Finished resetting the current domain, in  1.393 seconds
+Domain Reload Profiling: 2017ms
+	BeginReloadAssembly (143ms)
+		DisableScriptedObjects (11ms)
+		CreateAndSetChildDomain (39ms)
+	RebuildCommonClasses (5ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (36ms)
+	LoadAllAssembliesAndSetupDomain (431ms)
+		LoadAssemblies (217ms)
+		TypeCache.Refresh (168ms)
+			TypeCache.ScanAssembly (154ms)
+		AnalyzeDomain (32ms)
+			BuildScriptInfoCaches (28ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (1393ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (76ms)
+			ProcessInitializeOnLoadAttributes (986ms)
+			ProcessInitializeOnLoadMethodAttributes (100ms)
+		AwakeInstancesAfterBackupRestoration (10ms)
+Starting new worker id: 0 with log in /Users/f2gomac/Desktop/FPS-GAME/Logs/AssetImportWorkerHW0.log
+Importing 'GUID: 226294fb129e24fc487a27889aebb207 - Path: Assets/StreamingAssets/Lobby/commander_body.png' with importer (DefaultImporter)
+Imported 'GUID: 226294fb129e24fc487a27889aebb207' -> (Import Result ID: '4a9d40bf44dcae34e64e3b4d99d3f592') in 0.071 seconds [static dependencies only]. Details - ImportResultOutputID=e3566b61e06bf7b2e075c89efe089047 DependenciesID=d0f0da4c94334cf397d60aeeaa4f79af StaticDependenciesID=109a9aa333599562094a5f3c573dc1d4 
+Importing 'GUID: 224baa11d2fcf4d2b8229a5c185dd77b - Path: Assets/_Project/Settings/Rendering/URP_Low.asset' with importer (NativeFormatImporter)
+Imported 'GUID: 224baa11d2fcf4d2b8229a5c185dd77b' -> (Import Result ID: '9bd6b884240367e61d3c8c4488acbced') in 0.002 seconds [static dependencies only]. Details - ImportResultOutputID=c33ab6d913e8b3195ef4c7bf901b1ef5 DependenciesID=1b349f9bf66a3f7abe5d2750eb7ec2d5 StaticDependenciesID=898515c796a409765afabd96ebdbb4ee 
+Importing 'GUID: 07addc054312347e9b9f6d672a535719 - Path: Assets/_Project/Settings/Rendering/URP_High.asset' with importer (NativeFormatImporter)
+Imported 'GUID: 07addc054312347e9b9f6d672a535719' -> (Import Result ID: 'a379678800cce13be12260c07926432b') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=c25d19e26b220ea5f04d788d522218fd DependenciesID=a83f937ce2a0abb0e4467bc47122d4dd StaticDependenciesID=516d8041e3e262f0ab451ec0a2bec6ce 
+Importing 'GUID: a93b2c68f04a746f4ade73d907b76816 - Path: Assets/_Project/Settings/Rendering/URP_Ultra.asset' with importer (NativeFormatImporter)
+Imported 'GUID: a93b2c68f04a746f4ade73d907b76816' -> (Import Result ID: 'f083af8d3508d52e541e20b239bbcd46') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=d511c360e52e8b03a68f9ea3093ef52d DependenciesID=11c697ebf6e3797e6e1c82c1cdc2387f StaticDependenciesID=1794f6142bce312d4018ba9158e61032 
+Importing 'GUID: ad75a5f2fda6c4bf285a8b7c68a477ad - Path: Assets/_Project/Settings/Rendering/URP_Medium.asset' with importer (NativeFormatImporter)
+Imported 'GUID: ad75a5f2fda6c4bf285a8b7c68a477ad' -> (Import Result ID: 'b86f83aa6b1c87f121df02060024939f') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=12abc45ce8e7cd14ac169dc602260b6d DependenciesID=c6ef96260be132d2e68c73f124ff2715 StaticDependenciesID=5233a30ff4598c391e6b02c4e3bc8e69 
+Preloading 1 native plugins for Editor in 2.05 ms.
+
+Asset Pipeline Refresh (id=50f31f1ef758f4523bdb3e357e96eb32): Total: 10.545 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=6 (actual=6, local cache=0, cache server=0)
+		Asset DB Process Time: managed=1 ms, native=2974 ms
+		Asset DB Callback time: managed=457 ms, native=20 ms
+		Scripting: domain reloads=1, domain reload time=650 ms, compile time=6395 ms, other=43 ms
+		Project Asset Count: scripts=1956, non-scripts=16986
+		Asset File Changes: new=2, changed=11, moved=0, deleted=1
+		Scan Filter Count: 1
+	InvokePackagesCallback: 13.188ms
+	ApplyChangesToAssetFolders: 0.217ms
+	Scan: 994.185ms
+	Collect global state as custom dependencies: 10.412ms
+	OnSourceAssetsModified: 0.810ms
+	CategorizeScriptCompilationAssets: 68.505ms
+	ProcessAssetsWithTransientArtifactChanges: 41.276ms
+	CategorizeAssets: 178.708ms
+	CompileScripts: 6395.462ms
+	ImportOutOfDateAssets: 1506.535ms (1400.213ms without children)
+		ImportManagerImport: 92.677ms (2.499ms without children)
+			UpdateCategorizedAssets: 0.052ms
+		ReloadNativeAssets: 4.233ms
+		UnloadImportedAssets: 5.211ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.738ms
+		ImportSchedulerStart: 2.454ms
+	PostProcessAllAssets: 461.125ms
+		AssemblyValidation.PostprocessAllAssets 2.619ms
+		VCAutoAddAssetPostprocess 0.857ms
+		ShaderAssetModifiedCallback 0.214ms
+		XRBuildSystem.XRAssetImported 0.095ms
+		PostProcessCallbackCreateDeferredMaterials 0.055ms
+		MonoPostProcessAllAssets: 456.639ms
+			AssetPostprocessor.OnPostprocessAllAssets 196.702ms
+			SyncVS.PostprocessSyncProject 115.165ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 18.997ms
+			AssetReferenceReimportMonitor.OnPostprocessAllAssets 12.976ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 5.549ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 4.133ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 1.259ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 1.204ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 1.120ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 1.044ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 0.881ms
+			AssetChangedListener.OnPostprocessAllAssets 0.855ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 0.753ms
+			AssetChangeDetector.OnPostprocessAllAssets 0.478ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 0.477ms
+			MaterialPostprocessor.OnPostprocessAllAssets 0.382ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 0.376ms
+			SpriteEditorTexturePostprocessor.OnPostprocessAllAssets 0.352ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.336ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.315ms
+			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.299ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 0.263ms
+			SkillsProjectAssetPostprocessor.OnPostprocessAllAssets 0.243ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.229ms
+			PostProcessor.OnPostprocessAllAssets 0.220ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.187ms
+			InputActionAssetPostprocessor.OnPostprocessAllAssets 0.176ms
+			AssetEvents.OnPostprocessAllAssets 0.175ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.172ms
+			InputActionJsonNameModifierAssetProcessor.OnPostprocessAllAssets 0.132ms
+			ProjectSettingsPostprocessor.OnPostprocessAllAssets 0.123ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.104ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.094ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.078ms
+			ThemePostprocessor.OnPostprocessAllAssets 0.068ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.060ms
+			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 0.051ms
+	PostAssetChangesProfiler: 4.798ms
+	UnloadStreamsBegin: 2.405ms
+	PersistCurrentRevisions: 0.508ms
+	GenerateScriptTypeHashes: 1.525ms
+	GenerateScriptTypeSerializationHashes: 2.585ms
+	Untracked: 865.638ms
+
+Application.AssetDatabase Initial Refresh End
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Scanning for USB devices : 0.241ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-HAREKÂT
+Unloading 86 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 8189 unused Assets / (4.3 MB). Loaded Objects now: 9283.
+Memory consumption went from 323.0 MB to 318.8 MB.
+Total: 15.557291 ms (FindLiveObjects: 0.497084 ms CreateObjectMapping: 0.352041 ms MarkObjects: 13.272792 ms  DeleteObjects: 1.327000 ms)
+
+[HAREKÂT] Build Settings: 7 sahne.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Project.EditorTools.SceneBuilder:EnsureBuildSettings () (at Assets/_Project/Scripts/Editor/SceneBuilder.cs:62)
+Project.EditorTools.BuildTool:EnsureScenesOrDie () (at Assets/_Project/Scripts/Editor/BuildTool.cs:93)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:64)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+(Filename: Assets/_Project/Scripts/Editor/SceneBuilder.cs Line: 62)
+
+Importing 'GUID: 224baa11d2fcf4d2b8229a5c185dd77b - Path: Assets/_Project/Settings/Rendering/URP_Low.asset' with importer (NativeFormatImporter)
+Imported 'GUID: 224baa11d2fcf4d2b8229a5c185dd77b' -> (Import Result ID: 'a8c21fdc83380d2ce186654b67661a91') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=c33ab6d913e8b3195ef4c7bf901b1ef5 DependenciesID=acad35fc0788aca5b0e5ed7eb9d07c89 StaticDependenciesID=2ff0b4b8b7b92a143953d325ae7d1de1 
+Asset Pipeline Refresh (id=a3367383047584074b3ac1a141d957a5): Total: 0.118 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: ad75a5f2fda6c4bf285a8b7c68a477ad - Path: Assets/_Project/Settings/Rendering/URP_Medium.asset' with importer (NativeFormatImporter)
+Imported 'GUID: ad75a5f2fda6c4bf285a8b7c68a477ad' -> (Import Result ID: 'c169632f15747b521a691270522e8f8b') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=12abc45ce8e7cd14ac169dc602260b6d DependenciesID=03d097197f5bfd92bfa9c69df9f2ef98 StaticDependenciesID=07cb51711e9108676d6fc87b7a475be9 
+Asset Pipeline Refresh (id=a73ccd056536a4f6580db665c028c3d8): Total: 0.041 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 07addc054312347e9b9f6d672a535719 - Path: Assets/_Project/Settings/Rendering/URP_High.asset' with importer (NativeFormatImporter)
+Imported 'GUID: 07addc054312347e9b9f6d672a535719' -> (Import Result ID: 'f607e6512b2874b5c670d9caf1497afc') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=c25d19e26b220ea5f04d788d522218fd DependenciesID=2e6a2eca0c19b7a0cb1c723836720e34 StaticDependenciesID=77d266aa723639f66123fc54d470c3cf 
+Asset Pipeline Refresh (id=c889ad82e941a4af59c2033d8b0bed44): Total: 0.040 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: a93b2c68f04a746f4ade73d907b76816 - Path: Assets/_Project/Settings/Rendering/URP_Ultra.asset' with importer (NativeFormatImporter)
+Imported 'GUID: a93b2c68f04a746f4ade73d907b76816' -> (Import Result ID: '36124f351007022a711bab0a2ddda532') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=d511c360e52e8b03a68f9ea3093ef52d DependenciesID=a878ec8d5c4ef17455940ec2eb02fb22 StaticDependenciesID=17febfc9076706c79f8938f18b322261 
+Asset Pipeline Refresh (id=c1b0e69dc7b484095b1fe645acee4d3b): Total: 0.040 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+4 URP assets included in build
+- URP_Low - Assets/_Project/Settings/Rendering/URP_Low.asset
+	 - URP_Renderer_Low - Assets/_Project/Settings/Rendering/URP_Renderer_Low.asset - UnityEngine.Rendering.Universal.UniversalRendererData
+- URP_Medium - Assets/_Project/Settings/Rendering/URP_Medium.asset
+	 - URP_Renderer_Medium - Assets/_Project/Settings/Rendering/URP_Renderer_Medium.asset - UnityEngine.Rendering.Universal.UniversalRendererData
+- URP_High - Assets/_Project/Settings/Rendering/URP_High.asset
+	 - URP_Renderer_High - Assets/_Project/Settings/Rendering/URP_Renderer_High.asset - UnityEngine.Rendering.Universal.UniversalRendererData
+- URP_Ultra - Assets/_Project/Settings/Rendering/URP_Ultra.asset
+	 - URP_Renderer_Ultra - Assets/_Project/Settings/Rendering/URP_Renderer_Ultra.asset - UnityEngine.Rendering.Universal.UniversalRendererData
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityEditor.Rendering.Universal.URPPreprocessBuild:LogIncludedAssets (System.Collections.Generic.List`1<UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset>) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Editor/BuildProcessors/URPPreprocessBuild.cs:72)
+UnityEditor.Rendering.Universal.URPPreprocessBuild:OnPreprocessBuild (UnityEditor.Build.Reporting.BuildReport) (at ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Editor/BuildProcessors/URPPreprocessBuild.cs:31)
+UnityEditor.Build.BuildPipelineInterfaces/<>c__DisplayClass17_0:<OnBuildPreProcess>b__1 (UnityEditor.Build.IPreprocessBuildWithReport) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipelineInterfaces.cs:1132)
+UnityEditor.Build.BuildPipelineInterfaces:InvokeCallbackInterfacesPair<UnityEditor.Build.IPreprocessBuild, UnityEditor.Build.IPreprocessBuildWithReport> (System.Collections.Generic.List`1<UnityEditor.Build.IPreprocessBuild>,System.Action`1<UnityEditor.Build.IPreprocessBuild>,System.Collections.Generic.List`1<UnityEditor.Build.IPreprocessBuildWithReport>,System.Action`1<UnityEditor.Build.IPreprocessBuildWithReport>,bool) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipelineInterfaces.cs:1091)
+UnityEditor.Build.BuildPipelineInterfaces:OnBuildPreProcess (UnityEditor.Build.Reporting.BuildReport) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipelineInterfaces.cs:1123)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+(Filename: ./Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21/Editor/BuildProcessors/URPPreprocessBuild.cs Line: 72)
+
+Importing 'GUID: 224baa11d2fcf4d2b8229a5c185dd77b - Path: Assets/_Project/Settings/Rendering/URP_Low.asset' with importer (NativeFormatImporter)
+Imported 'GUID: 224baa11d2fcf4d2b8229a5c185dd77b' -> (Import Result ID: 'a8c21fdc83380d2ce186654b67661a91') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=c33ab6d913e8b3195ef4c7bf901b1ef5 DependenciesID=acad35fc0788aca5b0e5ed7eb9d07c89 StaticDependenciesID=2ff0b4b8b7b92a143953d325ae7d1de1 
+Asset Pipeline Refresh (id=248e3fa20521b4dc6b3ba63bd219759b): Total: 0.018 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: ad75a5f2fda6c4bf285a8b7c68a477ad - Path: Assets/_Project/Settings/Rendering/URP_Medium.asset' with importer (NativeFormatImporter)
+Imported 'GUID: ad75a5f2fda6c4bf285a8b7c68a477ad' -> (Import Result ID: 'c169632f15747b521a691270522e8f8b') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=12abc45ce8e7cd14ac169dc602260b6d DependenciesID=03d097197f5bfd92bfa9c69df9f2ef98 StaticDependenciesID=07cb51711e9108676d6fc87b7a475be9 
+Asset Pipeline Refresh (id=09ea6ef0b1f0647f6a08179301353403): Total: 0.018 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 07addc054312347e9b9f6d672a535719 - Path: Assets/_Project/Settings/Rendering/URP_High.asset' with importer (NativeFormatImporter)
+Imported 'GUID: 07addc054312347e9b9f6d672a535719' -> (Import Result ID: 'f607e6512b2874b5c670d9caf1497afc') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=c25d19e26b220ea5f04d788d522218fd DependenciesID=2e6a2eca0c19b7a0cb1c723836720e34 StaticDependenciesID=77d266aa723639f66123fc54d470c3cf 
+Asset Pipeline Refresh (id=6850a6a07512a4f4aa4c1ecc6138d0bd): Total: 0.020 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: a93b2c68f04a746f4ade73d907b76816 - Path: Assets/_Project/Settings/Rendering/URP_Ultra.asset' with importer (NativeFormatImporter)
+Imported 'GUID: a93b2c68f04a746f4ade73d907b76816' -> (Import Result ID: '36124f351007022a711bab0a2ddda532') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=d511c360e52e8b03a68f9ea3093ef52d DependenciesID=a878ec8d5c4ef17455940ec2eb02fb22 StaticDependenciesID=17febfc9076706c79f8938f18b322261 
+Asset Pipeline Refresh (id=92113911e4c55430c91360a41f53e0da): Total: 0.018 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 00000000000000004000000000000000 - Path: ProjectSettings/ProjectSettings.asset' with importer (LibraryAssetImporter)
+Imported 'GUID: 00000000000000004000000000000000' -> (Import Result ID: 'bdac0761cb8bcfa51397bf5cafd29532') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=054c890a8f4b6dddbea933bc5e4b7df4 DependenciesID=96a161b02fd60ba4f06a94a1d340f4ce StaticDependenciesID=2bd718a4afac83110a19c4cc4f401516 
+Importing 'GUID: 0000000000000000b000000000000000 - Path: ProjectSettings/EditorBuildSettings.asset' with importer (LibraryAssetImporter)
+Imported 'GUID: 0000000000000000b000000000000000' -> (Import Result ID: '1523e802e7b4c470df2d0910989610fc') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=0a89a5c5f492143e0fa186859e17ba6f DependenciesID=8517ee37590e059b27ee5273f76095ae StaticDependenciesID=255b4d1a8d09276057104aaff85ed67c 
+Importing 'GUID: 00000000000000006100000000000000 - Path: ProjectSettings/GraphicsSettings.asset' with importer (LibraryAssetImporter)
+Imported 'GUID: 00000000000000006100000000000000' -> (Import Result ID: 'dc20ef38d513f888090761b7f878a675') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=a2dcdb8bc9503711bc0f2e2d72cfd36c DependenciesID=e4e6a9069c0604b5eb4444b88e97461a StaticDependenciesID=a3cdbd9186b9f7f61f9e16229e3286e3 
+Importing 'GUID: 8e3fdb1c3a4e64ddf945866bcd04ef7e - Path: Assets/UniversalRenderPipelineGlobalSettings.asset' with importer (NativeFormatImporter)
+Imported 'GUID: 8e3fdb1c3a4e64ddf945866bcd04ef7e' -> (Import Result ID: '25df200be9963ac6dfad6b099c2e0095') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=3323bdb23131c7279fdc46d024f67a9c DependenciesID=f71a4a3dabe7d9422a5223dd1e5d0354 StaticDependenciesID=9b9bba49a0250454c510db46a52f7a71 
+Worker ready: AssetImportWorkerHW0 0
+Asset Pipeline Refresh (id=5803fc8f02aef4d0b9caf8749df50f92): Total: 0.025 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Found installed macOS SDK 26.4.
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.03 seconds
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/bee_backend --ipc --defer-dag-verification --dagfile="Library/Bee/200b0aESkipCompile.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssembliesAndTypeDB
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+ExitCode: 0 Duration: 4s66ms
+[2/3        4s] BuildPlayerDataGenerator Library/BuildPlayerData/Editor/TypeDb-All.json
+*** Tundra build success (4.04 seconds), 1 items updated, 3 evaluated
+Asset Pipeline Refresh (id=586705d8216bf4c4baad07769f2928fa): Total: 0.152 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+[ScriptCompilation] Requested script compilation because: Recompiling scripts for player build.
+BuildPlayer: start building target 2
+Total cache size 253507556
+Total cache size after purge 253507556, took 00:00:00.3294558
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/bee_backend --ipc --defer-dag-verification --dagfile="Library/Bee/200b0aP.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssembliesAndTypeDB
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/DotNetSdk/dotnet "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/ScriptCompilationBuildProgram.exe" "Library/Bee/200b0aP.dag.json" "Library/Bee/200b0aP-inputdata.json" "Library/Bee/buildprogram0.traceevents"
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+ExitCode: 4 Duration: 0s378ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/200b0aP-inputdata.json
+*** Tundra requires additional run (0.11 seconds), 0 items updated, 148 evaluated
+ExitCode: 0 Duration: 1s20ms
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/bee_backend --ipc --defer-dag-verification --dagfile="Library/Bee/200b0aP.dag" --continue-on-failure --dagfilejson="Library/Bee/200b0aP.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssembliesAndTypeDB
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/Extensions/2.0.0/System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.Composition.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/compat/2.1.0/shims/netfx/System.ComponentModel.Composition.dll"
+ExitCode: 0 Duration: 5s122ms
+Finished compiling graph: 668 nodes, 7430 flattened edges (5972 ToBuild, 96 ToUse), maximum node priority 402
+[380/667    0s] WriteText Library/Bee/artifacts/200b0aP.dag/Project.Infrastructure.rsp
+[385/667    0s] WriteText Library/Bee/artifacts/200b0aP.dag/Project.Presentation.rsp
+[540/667    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[570/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.dll
+[573/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.dll
+[574/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll
+[575/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.ProtectedJobNested.dll
+[579/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.dll
+[580/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.dll
+[581/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InferenceEngine.dll
+[582/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.dll
+[583/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.PrivateJobNested.dll
+[584/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.InternalJobNestedPrivate.dll
+[585/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.GPUDriven.Runtime.dll
+[586/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.UnifiedRayTracing.Runtime.dll
+[587/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Profiling.Core.dll
+[588/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.dll
+[589/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.dll
+[590/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Core.dll
+[592/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.004.dll
+[593/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll
+[594/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.dll
+[595/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.dll
+[596/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.PublicJobPrivateGeneric.dll
+[597/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Burst.dll
+[598/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Application.dll
+[599/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.AI.MCP.Runtime.dll
+[600/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.PathTracing.Runtime.dll
+[601/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.SurfaceCache.Runtime.dll
+[602/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InferenceEngine.Tokenization.dll
+[603/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.dll
+[604/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.dll
+[605/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.AI.Tracing.dll
+[606/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.AI.Navigation.dll
+[607/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.PrivateJobNested.pdb
+[608/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll
+[609/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.ForUI.dll
+[610/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.pdb
+[611/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Burst.pdb
+[612/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.dll
+[613/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.pdb
+[614/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Core.pdb
+[615/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.pdb
+[616/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.ProtectedJobNested.pdb
+[617/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Profiling.Core.pdb
+[618/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InferenceEngine.MacBLAS.dll
+[619/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.PublicJobPrivateGeneric.pdb
+[620/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.pdb
+[621/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.004.pdb
+[622/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.Tests.CoreCLR.InternalJobNestedPrivate.pdb
+[623/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Application.pdb
+[624/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.pdb
+[625/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.AI.Tracing.pdb
+[626/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.pdb
+[627/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.pdb
+[628/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.pdb
+[629/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InferenceEngine.MacBLAS.pdb
+[630/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.pdb
+[631/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.pdb
+[632/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.PathTracing.Runtime.pdb
+[633/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.pdb
+[634/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.UnifiedRayTracing.Runtime.pdb
+[635/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InputSystem.ForUI.pdb
+[636/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.AI.Navigation.pdb
+[637/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.SurfaceCache.Runtime.pdb
+[638/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InferenceEngine.Tokenization.pdb
+[639/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.AI.MCP.Runtime.pdb
+[640/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.pdb
+[641/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InferenceEngine.pdb
+[643/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.GPUDriven.Runtime.pdb
+[644/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.pdb
+[645/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.pdb
+[646/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.pdb
+[647/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.dll
+[648/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.pdb
+[649/667    2s] Csc Library/Bee/artifacts/200b0aP.dag/Project.Infrastructure.dll (+2 others)
+Assets/_Project/Scripts/Infrastructure/Audio/Foley/WeaponFoley.cs(207,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,70): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,26): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+[650/667    0s] Csc Library/Bee/artifacts/200b0aP.dag/Project.Infrastructure.VfxGraph.dll (+2 others)
+[651/667    0s] ILPostProcess Library/Bee/artifacts/200b0aP.dag/post-processed/Project.Infrastructure.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aP.dag/Project.Infrastructure.dll, with 131 defines and 207 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[652/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Infrastructure.pdb
+[653/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Infrastructure.dll
+[654/667    0s] ILPostProcess Library/Bee/artifacts/200b0aP.dag/post-processed/Project.Infrastructure.VfxGraph.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aP.dag/Project.Infrastructure.VfxGraph.dll, with 131 defines and 205 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[655/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Infrastructure.VfxGraph.dll
+[656/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Infrastructure.VfxGraph.pdb
+[657/667    0s] Csc Library/Bee/artifacts/200b0aP.dag/Project.Presentation.dll (+2 others)
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,74): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(119,29): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(122,31): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(372,34): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(375,28): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(96,27): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(113,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Benchmark/AaaBenchmarkFeatureInstaller.cs(102,30): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+Assets/_Project/Scripts/Presentation/DevTools/DevConsoleGate.cs(22,21): warning UAC0009: DEVELOPMENT_BUILD preprocessor directive has been deprecated. Please use one of the managed code variant directives (such as DEBUG, UNITY_ENABLE_CHECKS or UNITY_INCLUDE_INSTRUMENTATION) if different code paths are desired for different managed code variants. Checking for development build is possible at runtime using Debug.isDebugBuild. See the Conditional Compilation manual page for more details.
+[658/667    0s] ILPostProcess Library/Bee/artifacts/200b0aP.dag/post-processed/Project.Presentation.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aP.dag/Project.Presentation.dll, with 131 defines and 208 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[659/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Presentation.pdb
+[660/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Presentation.dll
+[661/667    0s] Csc Library/Bee/artifacts/200b0aP.dag/Project.Online.dll (+2 others)
+[662/667    0s] ILPostProcess Library/Bee/artifacts/200b0aP.dag/post-processed/Project.Online.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aP.dag/Project.Online.dll, with 131 defines and 207 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[663/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Online.pdb
+[664/667    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Project.Online.dll
+[666/667    0s] BuildPlayerDataGenerator Library/BuildPlayerData/Player/RuntimeInitializeOnLoads.json (+1 other)
+*** Tundra build success (4.82 seconds), 92 items updated, 667 evaluated
+Assets/_Project/Scripts/Infrastructure/Audio/Foley/WeaponFoley.cs(207,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,70): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,26): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+ect/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,70): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Infrastructure/Rendering/CloudShadows.cs(93,26): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,74): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets/_Project/Scripts/Presentation/Player/PlayerCameraFx.cs(196,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(119,29): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(122,31): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(372,34): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(375,28): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(96,27): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(113,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Benchmark/AaaBenchmarkFeatureInstaller.cs(102,30): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+Assets/_Project/Scripts/Presentation/DevTools/DevConsoleGate.cs(22,21): warning UAC0009: DEVELOPMENT_BUILD preprocessor directive has been deprecated. Please use one of the managed code variant directives (such as DEBUG, UNITY_ENABLE_CHECKS or UNITY_INCLUDE_INSTRUMENTATION) if different code paths are desired for different managed code variants. Checking for development build is possible at runtime using Debug.isDebugBuild. See the Conditional Compilation manual page for more details.
+layerCameraFx.cs(196,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(119,29): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/AdvancedDisplay.cs(122,31): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(372,34): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Tutorial/TutorialPresenter.cs(375,28): warning CS0618: 'Object.FindFirstObjectByType<T>(FindObjectsInactive)' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(96,27): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/UI/HitFeedbackDirector.cs(113,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Presentation/Benchmark/AaaBenchmarkFeatureInstaller.cs(102,30): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+Assets/_Project/Scripts/Presentation/DevTools/DevConsoleGate.cs(22,21): warning UAC0009: DEVELOPMENT_BUILD preprocessor directive has been deprecated. Please use one of the managed code variant directives (such as DEBUG, UNITY_ENABLE_CHECKS or UNITY_INCLUDE_INSTRUMENTATION) if different code paths are desired for different managed code variants. Checking for development build is possible at runtime using Debug.isDebugBuild. See the Conditional Compilation manual page for more details.
+Total cache size 253507556
+Total cache size after purge 253507556, took 00:00:00.0625202
+
+
+Mono dependencies included in the build
+Dependency assembly - Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.dll
+Dependency assembly - ICSharpCode.SharpZipLib.dll
+Dependency assembly - System.Security.AccessControl.dll
+Dependency assembly - System.Text.RegularExpressions.dll
+Dependency assembly - System.Net.WebHeaderCollection.dll
+Dependency assembly - Mono.CompilerServices.SymbolWriter.dll
+Dependency assembly - System.IO.dll
+Dependency assembly - System.Web.Services.dll
+Dependency assembly - System.Security.Cryptography.X509Certificates.dll
+Dependency assembly - Microsoft.VisualC.dll
+Dependency assembly - System.Linq.Expressions.dll
+Dependency assembly - mscorlib.dll
+Dependency assembly - System.Linq.Parallel.dll
+Dependency assembly - System.Diagnostics.Process.dll
+Dependency assembly - System.Security.Cryptography.Algorithms.dll
+Dependency assembly - Unity.RenderPipelines.Core.ShaderLibrary.dll
+Dependency assembly - System.Security.Cryptography.Primitives.dll
+Dependency assembly - Unity.InternalAPIEngineBridge.004.dll
+Dependency assembly - Unity.RenderPipeline.Universal.ShaderLibrary.dll
+Dependency assembly - System.Xaml.dll
+Dependency assembly - System.ServiceProcess.ServiceController.dll
+Dependency assembly - System.Threading.Tasks.Extensions.dll
+Dependency assembly - System.Reactive.Providers.dll
+Dependency assembly - System.Net.Mail.dll
+Dependency assembly - System.ServiceModel.Security.dll
+Dependency assembly - System.Web.Mobile.dll
+Dependency assembly - System.Core.dll
+Dependency assembly - System.Reflection.dll
+Dependency assembly - System.Runtime.CompilerServices.VisualC.dll
+Dependency assembly - System.Xml.XPath.XmlDocument.dll
+Dependency assembly - System.Threading.Overlapped.dll
+Dependency assembly - Unity.RenderPipelines.GPUDriven.Runtime.dll
+Dependency assembly - Unity.Collections.Tests.CoreCLR.ProtectedJobNested.dll
+Dependency assembly - Unity.Collections.Tests.CoreCLR.InternalJobNestedPrivate.dll
+Dependency assembly - monodoc.dll
+Dependency assembly - System.Resources.Reader.dll
+Dependency assembly - System.Drawing.Primitives.dll
+Dependency assembly - Project.Core.dll
+Dependency assembly - System.Web.Abstractions.dll
+Dependency assembly - Microsoft.Build.dll
+Dependency assembly - System.Security.Claims.dll
+Dependency assembly - Accessibility.dll
+Dependency assembly - System.IdentityModel.dll
+Dependency assembly - System.Security.Cryptography.Encryption.ECDiffieHellman.dll
+Dependency assembly - System.Data.Linq.dll
+Dependency assembly - System.IdentityModel.Selectors.dll
+Dependency assembly - SystemWebTestShim.dll
+Dependency assembly - System.Xml.XDocument.dll
+Dependency assembly - IBM.Data.DB2.dll
+Dependency assembly - System.Web.WebPages.Razor.dll
+Dependency assembly - System.Threading.Thread.dll
+Dependency assembly - System.Memory.dll
+Dependency assembly - System.Web.Extensions.dll
+Dependency assembly - System.Runtime.Remoting.dll
+Dependency assembly - System.Globalization.dll
+Dependency assembly - System.Diagnostics.TraceSource.dll
+Dependency assembly - System.DirectoryServices.dll
+Dependency assembly - Unity.Collections.Tests.CoreCLR.PublicJobPrivateGeneric.dll
+Dependency assembly - System.Net.Cache.dll
+Dependency assembly - System.Security.Cryptography.Pkcs.dll
+Dependency assembly - Commons.Xml.Relaxng.dll
+Dependency assembly - I18N.Other.dll
+Dependency assembly - System.ComponentModel.Annotations.dll
+Dependency assembly - System.Workflow.Activities.dll
+Dependency assembly - System.Xml.ReaderWriter.dll
+Dependency assembly - System.ServiceModel.Http.dll
+Dependency assembly - Mono.Messaging.RabbitMQ.dll
+Dependency assembly - System.Security.dll
+Dependency assembly - System.Net.NameResolution.dll
+Dependency assembly - System.Messaging.dll
+Dependency assembly - System.Data.OracleClient.dll
+Dependency assembly - System.Net.Http.Formatting.dll
+Dependency assembly - Mono.Parallel.dll
+Dependency assembly - Mono.Options.dll
+Dependency assembly - Project.Application.dll
+Dependency assembly - System.Diagnostics.DiagnosticSource.dll
+Dependency assembly - System.IO.Compression.dll
+Dependency assembly - System.Drawing.Design.dll
+Dependency assembly - Mono.Data.Sqlite.dll
+Dependency assembly - Project.Infrastructure.dll
+Dependency assembly - System.ServiceModel.dll
+Dependency assembly - System.Json.dll
+Dependency assembly - System.Diagnostics.Tracing.dll
+Dependency assembly - System.Net.Requests.dll
+Dependency assembly - System.Xml.XmlDocument.dll
+Dependency assembly - Unity.Collections.Tests.CoreCLR.PrivateJobNested.dll
+Dependency assembly - Unity.InferenceEngine.Tokenization.dll
+Dependency assembly - Mono.WebBrowser.dll
+Dependency assembly - System.Runtime.Handles.dll
+Dependency assembly - System.Security.Cryptography.Hashing.Algorithms.dll
+Dependency assembly - PEAPI.dll
+Dependency assembly - System.Console.dll
+Dependency assembly - System.Dynamic.Runtime.dll
+Dependency assembly - Microsoft.Bcl.AsyncInterfaces.dll
+Dependency assembly - Microsoft.Build.Tasks.v4.0.dll
+Dependency assembly - System.Collections.Concurrent.dll
+Dependency assembly - System.Web.Http.SelfHost.dll
+Dependency assembly - Mono.C5.dll
+Dependency assembly - System.Security.Cryptography.Encoding.dll
+Dependency assembly - System.Threading.Tasks.dll
+Dependency assembly - System.Globalization.Calendars.dll
+Dependency assembly - System.Data.Entity.dll
+Dependency assembly - System.ServiceModel.Web.dll
+Dependency assembly - Mono.Security.dll
+Dependency assembly - System.Web.DynamicData.dll
+Dependency assembly - Mono.Security.Win32.dll
+Dependency assembly - System.Text.Encodings.Web.dll
+Dependency assembly - System.Security.Cryptography.Cng.dll
+Dependency assembly - System.ComponentModel.Composition.dll
+Dependency assembly - System.Web.dll
+Dependency assembly - System.Runtime.Loader.dll
+Dependency assembly - System.Threading.AccessControl.dll
+Dependency assembly - System.Data.Services.dll
+Dependency assembly - Unity.UnifiedRayTracing.Runtime.dll
+Dependency assembly - System.Web.Http.dll
+Dependency assembly - netstandard.dll
+Dependency assembly - System.Collections.NonGeneric.dll
+Dependency assembly - System.Runtime.CompilerServices.Unsafe.dll
+Dependency assembly - System.Design.dll
+Dependency assembly - System.IO.IsolatedStorage.dll
+Dependency assembly - System.Windows.Forms.dll
+Dependency assembly - Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.dll
+Dependency assembly - System.Diagnostics.FileVersionInfo.dll
+Dependency assembly - System.Workflow.Runtime.dll
+Dependency assembly - System.Runtime.dll
+Dependency assembly - System.IO.Compression.FileSystem.dll
+Dependency assembly - System.ServiceModel.Discovery.dll
+Dependency assembly - Unity.RenderPipelines.Universal.Shaders.dll
+Dependency assembly - System.Reactive.Runtime.Remoting.dll
+Dependency assembly - System.Web.ApplicationServices.dll
+Dependency assembly - Unity.RenderPipelines.Core.Runtime.Shared.dll
+Dependency assembly - Unity.RenderPipelines.Universal.Runtime.dll
+Dependency assembly - WebMatrix.Data.dll
+Dependency assembly - System.Runtime.Caching.dll
+Dependency assembly - Unity.InferenceEngine.dll
+Dependency assembly - Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll
+Dependency assembly - I18N.MidEast.dll
+Dependency assembly - System.Deployment.dll
+Dependency assembly - System.Web.Razor.dll
+Dependency assembly - System.Reactive.Linq.dll
+Dependency assembly - System.Buffers.dll
+Dependency assembly - System.ComponentModel.TypeConverter.dll
+Dependency assembly - System.IO.FileSystem.AccessControl.dll
+Dependency assembly - System.Security.Cryptography.DeriveBytes.dll
+Dependency assembly - System.DirectoryServices.Protocols.dll
+Dependency assembly - Project.Online.dll
+Dependency assembly - System.Net.Sockets.dll
+Dependency assembly - System.Diagnostics.Debug.dll
+Dependency assembly - System.Net.WebSockets.dll
+Dependency assembly - System.Net.WebSockets.Client.dll
+Dependency assembly - System.Xml.XmlSerializer.dll
+Dependency assembly - cscompmgd.dll
+Dependency assembly - Unity.Profiling.Core.dll
+Dependency assembly - System.ComponentModel.EventBasedAsync.dll
+Dependency assembly - System.Reflection.Emit.dll
+Dependency assembly - System.Runtime.InteropServices.dll
+Dependency assembly - System.dll
+Dependency assembly - Microsoft.Web.Infrastructure.dll
+Dependency assembly - Microsoft.Win32.Registry.AccessControl.dll
+Dependency assembly - System.IO.Compression.ZipFile.dll
+Dependency assembly - System.ValueTuple.dll
+Dependency assembly - System.Runtime.Extensions.dll
+Dependency assembly - System.Reflection.Emit.ILGeneration.dll
+Dependency assembly - I18N.West.dll
+Dependency assembly - System.Net.NetworkInformation.dll
+Dependency assembly - Microsoft.Extensions.Logging.Abstractions.dll
+Dependency assembly - System.Web.Mvc.dll
+Dependency assembly - System.Threading.Timer.dll
+Dependency assembly - System.ServiceModel.Activation.dll
+Dependency assembly - System.Security.Principal.dll
+Dependency assembly - System.Resources.Writer.dll
+Dependency assembly - Mono.Btls.Interface.dll
+Dependency assembly - System.Numerics.Vectors.dll
+Dependency assembly - System.IO.Pipes.dll
+Dependency assembly - System.Xml.XPath.dll
+Dependency assembly - System.Web.WebPages.Deployment.dll
+Dependency assembly - Unity.PathTracing.Runtime.dll
+Dependency assembly - System.Xml.Xsl.Primitives.dll
+Dependency assembly - System.ServiceModel.NetTcp.dll
+Dependency assembly - System.Reactive.Debugger.dll
+Dependency assembly - System.Text.Json.dll
+Dependency assembly - System.Dynamic.dll
+Dependency assembly - System.Runtime.Serialization.Formatters.dll
+Dependency assembly - System.Security.Cryptography.ProtectedData.dll
+Dependency assembly - System.Text.Encoding.CodePages.dll
+Dependency assembly - System.Net.Http.WebRequest.dll
+Dependency assembly - WindowsBase.dll
+Dependency assembly - System.Data.Services.Client.dll
+Dependency assembly - System.Security.Cryptography.RSA.dll
+Dependency assembly - Microsoft.Build.Framework.dll
+Dependency assembly - Unity.SurfaceCache.Runtime.dll
+Dependency assembly - System.ServiceModel.Routing.dll
+Dependency assembly - System.Reflection.Metadata.dll
+Dependency assembly - System.Security.Cryptography.Encryption.dll
+Dependency assembly - System.Reflection.Context.dll
+Dependency assembly - System.Windows.dll
+Dependency assembly - System.Web.Routing.dll
+Dependency assembly - System.IO.MemoryMappedFiles.dll
+Dependency assembly - System.Reflection.Emit.Lightweight.dll
+Dependency assembly - System.Collections.dll
+Dependency assembly - System.Security.Cryptography.Encryption.ECDsa.dll
+Dependency assembly - SMDiagnostics.dll
+Dependency assembly - System.Net.Ping.dll
+Dependency assembly - Mono.Management.dll
+Dependency assembly - I18N.dll
+Dependency assembly - System.Diagnostics.Contracts.dll
+Dependency assembly - System.AppContext.dll
+Dependency assembly - System.Management.dll
+Dependency assembly - System.Reactive.Observable.Aliases.dll
+Dependency assembly - Mono.Profiler.Log.dll
+Dependency assembly - UnityEngine.UI.dll
+Dependency assembly - System.Net.Http.dll
+Dependency assembly - System.Net.Http.Rtc.dll
+Dependency assembly - System.Diagnostics.TextWriterTraceListener.dll
+Dependency assembly - System.Web.Extensions.Design.dll
+Dependency assembly - System.Net.HttpListener.dll
+Dependency assembly - Unity.Collections.dll
+Dependency assembly - System.Numerics.dll
+Dependency assembly - System.IO.Hashing.dll
+Dependency assembly - System.Net.Security.dll
+Dependency assembly - System.Security.Cryptography.Encryption.Aes.dll
+Dependency assembly - Microsoft.CSharp.dll
+Dependency assembly - Mono.Posix.dll
+Dependency assembly - Mono.Simd.dll
+Dependency assembly - System.ServiceModel.Duplex.dll
+Dependency assembly - System.Web.Http.WebHost.dll
+Dependency assembly - System.IO.FileSystem.Primitives.dll
+Dependency assembly - Mono.Http.dll
+Dependency assembly - System.Reactive.Windows.Threading.dll
+Dependency assembly - System.ServiceModel.Primitives.dll
+Dependency assembly - System.Xml.Linq.dll
+Dependency assembly - System.Json.Microsoft.dll
+Dependency assembly - Microsoft.Win32.Primitives.dll
+Dependency assembly - System.Runtime.Serialization.Xml.dll
+Dependency assembly - System.Drawing.dll
+Dependency assembly - System.Reflection.Primitives.dll
+Dependency assembly - RabbitMQ.Client.dll
+Dependency assembly - System.Text.Encoding.Extensions.dll
+Dependency assembly - System.Threading.dll
+Dependency assembly - Microsoft.Extensions.DependencyInjection.Abstractions.dll
+Dependency assembly - Unity.AI.MCP.Runtime.dll
+Dependency assembly - Unity.TextMeshPro.dll
+Dependency assembly - System.Configuration.dll
+Dependency assembly - System.Reactive.Windows.Forms.dll
+Dependency assembly - System.Security.Cryptography.OpenSsl.dll
+Dependency assembly - System.Collections.Specialized.dll
+Dependency assembly - System.Net.Primitives.dll
+Dependency assembly - Unity.AI.Tracing.dll
+Dependency assembly - System.ObjectModel.dll
+Dependency assembly - System.Threading.ThreadPool.dll
+Dependency assembly - System.ComponentModel.DataAnnotations.dll
+Dependency assembly - Unity.InputSystem.ForUI.dll
+Dependency assembly - System.Net.dll
+Dependency assembly - System.Reactive.Core.dll
+Dependency assembly - System.Threading.Tasks.Parallel.dll
+Dependency assembly - Microsoft.Build.Utilities.v4.0.dll
+Dependency assembly - Mono.Messaging.dll
+Dependency assembly - System.Reactive.Interfaces.dll
+Dependency assembly - Unity.AI.Navigation.dll
+Dependency assembly - System.Xml.dll
+Dependency assembly - System.IO.UnmanagedMemoryStream.dll
+Dependency assembly - System.Configuration.Install.dll
+Dependency assembly - Unity.RenderPipelines.Universal.Config.Runtime.dll
+Dependency assembly - System.Linq.Queryable.dll
+Dependency assembly - System.Data.dll
+Dependency assembly - System.Data.Common.dll
+Dependency assembly - System.Reflection.TypeExtensions.dll
+Dependency assembly - Unity.Burst.dll
+Dependency assembly - System.Security.Principal.Windows.dll
+Dependency assembly - System.Xml.XPath.XDocument.dll
+Dependency assembly - System.Runtime.Serialization.Json.dll
+Dependency assembly - System.IO.FileSystem.Watcher.dll
+Dependency assembly - Unity.RenderPipelines.Universal.2D.Runtime.dll
+Dependency assembly - Novell.Directory.Ldap.dll
+Dependency assembly - System.Runtime.DurableInstancing.dll
+Dependency assembly - System.Reflection.Extensions.dll
+Dependency assembly - System.Diagnostics.StackTrace.dll
+Dependency assembly - System.Net.AuthenticationManager.dll
+Dependency assembly - System.Resources.ResourceManager.dll
+Dependency assembly - System.Runtime.Serialization.dll
+Dependency assembly - System.Text.Encoding.dll
+Dependency assembly - System.Data.DataSetExtensions.dll
+Dependency assembly - CustomMarshalers.dll
+Dependency assembly - Project.Presentation.dll
+Dependency assembly - System.Web.RegularExpressions.dll
+Dependency assembly - Mono.CSharp.dll
+Dependency assembly - Project.Infrastructure.VfxGraph.dll
+Dependency assembly - Unity.Collections.LowLevel.ILSupport.dll
+Dependency assembly - System.Net.ServicePoint.dll
+Dependency assembly - System.Reflection.DispatchProxy.dll
+Dependency assembly - System.ComponentModel.Primitives.dll
+Dependency assembly - System.Reactive.Experimental.dll
+Dependency assembly - System.Workflow.ComponentModel.dll
+Dependency assembly - System.ServiceModel.Internals.dll
+Dependency assembly - Mono.Data.Tds.dll
+Dependency assembly - I18N.Rare.dll
+Dependency assembly - System.Collections.Immutable.dll
+Dependency assembly - Microsoft.Win32.Registry.dll
+Dependency assembly - System.Xml.Serialization.dll
+Dependency assembly - System.Reactive.PlatformServices.dll
+Dependency assembly - Unity.RenderPipelines.Core.Runtime.dll
+Dependency assembly - System.Data.SqlClient.dll
+Dependency assembly - Unity.Mathematics.dll
+Dependency assembly - System.Diagnostics.Tools.dll
+Dependency assembly - System.Globalization.Extensions.dll
+Dependency assembly - System.Resources.ReaderWriter.dll
+Dependency assembly - System.Diagnostics.TraceEvent.dll
+Dependency assembly - System.IO.FileSystem.DriveInfo.dll
+Dependency assembly - System.Security.Cryptography.Csp.dll
+Dependency assembly - System.Runtime.InteropServices.RuntimeInformation.dll
+Dependency assembly - System.Security.Cryptography.Hashing.dll
+Dependency assembly - System.Net.Utilities.dll
+Dependency assembly - Newtonsoft.Json.dll
+Dependency assembly - Mono.XBuild.Tasks.dll
+Dependency assembly - System.Runtime.InteropServices.WindowsRuntime.dll
+Dependency assembly - System.Runtime.Numerics.dll
+Dependency assembly - I18N.CJK.dll
+Dependency assembly - System.EnterpriseServices.dll
+Dependency assembly - System.Web.WebPages.dll
+Dependency assembly - System.Security.SecureString.dll
+Dependency assembly - System.IO.FileSystem.dll
+Dependency assembly - System.Linq.dll
+Dependency assembly - System.ComponentModel.dll
+Dependency assembly - Mono.Tasklets.dll
+Dependency assembly - System.ServiceProcess.dll
+Dependency assembly - Unity.InferenceEngine.MacBLAS.dll
+Dependency assembly - System.Runtime.Serialization.Primitives.dll
+Dependency assembly - Microsoft.Build.Engine.dll
+Dependency assembly - Unity.InputSystem.dll
+Dependency assembly - Mono.Cairo.dll
+Dependency assembly - System.Runtime.Serialization.Formatters.Soap.dll
+Dependency assembly - System.Threading.Tasks.Dataflow.dll
+Dependency assembly - System.Transactions.dll
+Dependency assembly - System.Security.Cryptography.RandomNumberGenerator.dll
+Dependency assembly - System.Windows.Forms.DataVisualization.dll
+
+Opening scene 'Assets/_Project/Scenes/MainMenu.unity'
+Unloading 2 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/MainMenu.unity'
+	Deserialize:            1.317 ms
+	Integration:            7.423 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       1.209 ms
+	Total Operation Time:   9.951 ms
+Unloading 64 unused Assets / (0.7 MB). Loaded Objects now: 9307.
+Memory consumption went from 319.1 MB to 318.4 MB.
+Total: 15.829792 ms (FindLiveObjects: 0.332916 ms CreateObjectMapping: 0.066875 ms MarkObjects: 15.010542 ms  DeleteObjects: 0.239417 ms)
+
+[Warning] Evict-before-extend: reclaimed cold content for 1417424-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417424-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417424-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417424-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417432-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417432-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417428-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417432-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417432-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417432-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 1417432-byte alloc
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 16 variants require compilation to get this data.
+    Processed in 1.11 seconds
+  Pass ForwardLit (vp, metal) finished in 0.01 seconds. Local cache hits 16 (0.10s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass ShadowCaster (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthOnly (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 8 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthNormals (vp, metal) finished in 0.00 seconds. Local cache hits 8 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 1 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass Meta (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass MotionVectors (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 1 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass  (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+[Warning] Evict-before-extend: reclaimed cold content for 5611724-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 5611724-byte alloc
+[Warning] Evict-before-extend: reclaimed cold content for 2815512-byte alloc
+Opening scene 'Assets/_Project/Scenes/KuzgunVadisi.unity'
+Unloading 9234 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/KuzgunVadisi.unity'
+	Deserialize:            79.131 ms
+	Integration:            386.559 ms
+	Integration of assets:  0.065 ms
+	Thread Wait Time:       -0.006 ms
+	Total Operation Time:   465.749 ms
+Unloading 9652 unused Assets / (179.9 MB). Loaded Objects now: 23179.
+Memory consumption went from 1.06 GB to 0.88 GB.
+Total: 34.735750 ms (FindLiveObjects: 0.962542 ms CreateObjectMapping: 0.660792 ms MarkObjects: 26.211666 ms  DeleteObjects: 6.688292 ms)
+
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 32 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass ForwardLit (vp, metal) finished in 0.00 seconds. Local cache hits 32 (0.01s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass ShadowCaster (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthOnly (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 8 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthNormals (vp, metal) finished in 0.00 seconds. Local cache hits 8 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 1 variants. 1 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass Meta (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass MotionVectors (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 1 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass  (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 8 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass ForwardLit (vp, metal) finished in 0.00 seconds. Local cache hits 8 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass ShadowCaster (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthOnly (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthNormals (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/KuzgunVadisi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'YansimaProblari' in scene 'Assets/_Project/Scenes/KuzgunVadisi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/KuzgunVadisi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/KuzgunVadisi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/KuzgunVadisi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Opening scene 'Assets/_Project/Scenes/AyazGecidi.unity'
+Unloading 709 Unused Serialized files (Serialized files now loaded: 0)
+[Warning] Evict-before-extend: reclaimed cold content for 25057356-byte alloc
+Loaded scene 'Assets/_Project/Scenes/AyazGecidi.unity'
+	Deserialize:            69.268 ms
+	Integration:            705.420 ms
+	Integration of assets:  0.059 ms
+	Thread Wait Time:       -0.017 ms
+	Total Operation Time:   774.729 ms
+Unloading 852 unused Assets / (16.0 MB). Loaded Objects now: 21810.
+Memory consumption went from 0.79 GB to 0.77 GB.
+Total: 14.563375 ms (FindLiveObjects: 0.670500 ms CreateObjectMapping: 0.101209 ms MarkObjects: 12.446583 ms  DeleteObjects: 1.178834 ms)
+
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 1 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/AyazGecidi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/AyazGecidi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/AyazGecidi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Opening scene 'Assets/_Project/Scenes/MaviLiman.unity'
+Unloading 647 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/MaviLiman.unity'
+	Deserialize:            74.067 ms
+	Integration:            210.455 ms
+	Integration of assets:  0.047 ms
+	Thread Wait Time:       -0.004 ms
+	Total Operation Time:   284.565 ms
+Unloading 773 unused Assets / (12.6 MB). Loaded Objects now: 22457.
+Memory consumption went from 0.78 GB to 0.77 GB.
+Total: 14.003625 ms (FindLiveObjects: 0.648666 ms CreateObjectMapping: 0.092625 ms MarkObjects: 12.236334 ms  DeleteObjects: 0.860708 ms)
+
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 1 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/MaviLiman.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Opening scene 'Assets/_Project/Scenes/KartalYaylasi.unity'
+Unloading 636 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/KartalYaylasi.unity'
+	Deserialize:            68.713 ms
+	Integration:            207.729 ms
+	Integration of assets:  0.043 ms
+	Thread Wait Time:       -0.005 ms
+	Total Operation Time:   276.480 ms
+Unloading 816 unused Assets / (8.8 MB). Loaded Objects now: 22271.
+Memory consumption went from 0.78 GB to 0.78 GB.
+Total: 14.144667 ms (FindLiveObjects: 0.634750 ms CreateObjectMapping: 0.089792 ms MarkObjects: 12.397750 ms  DeleteObjects: 0.856083 ms)
+
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 1 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 4 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/KartalYaylasi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Rotor' in scene 'Assets/_Project/Scenes/KartalYaylasi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Rotor' in scene 'Assets/_Project/Scenes/KartalYaylasi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/KartalYaylasi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Rotor' in scene 'Assets/_Project/Scenes/KartalYaylasi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Script attached to 'Rotor' in scene 'Assets/_Project/Scenes/KartalYaylasi.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Opening scene 'Assets/_Project/Scenes/TrainingRange.unity'
+Unloading 641 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/TrainingRange.unity'
+	Deserialize:            20.746 ms
+	Integration:            17.204 ms
+	Integration of assets:  0.004 ms
+	Thread Wait Time:       0.003 ms
+	Total Operation Time:   37.956 ms
+Unloading 978 unused Assets / (19.7 MB). Loaded Objects now: 12304.
+Memory consumption went from 0.72 GB to 0.70 GB.
+Total: 16.154167 ms (FindLiveObjects: 0.468292 ms CreateObjectMapping: 0.094916 ms MarkObjects: 12.887084 ms  DeleteObjects: 2.561750 ms)
+
+  Pass "ForwardLit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 48 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "ShadowCaster":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthNormals":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 16 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 2 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Universal2D":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 8 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 1 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "Unlit":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 4 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass Unlit (vp, metal) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "GBuffer":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "DepthOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 2 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthOnly (vp, metal) finished in 0.00 seconds. Local cache hits 2 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "DepthNormalsOnly":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 2 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass DepthNormalsOnly (vp, metal) finished in 0.00 seconds. Local cache hits 2 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "Meta":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 1 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass Meta (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "MotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 2 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass MotionVectors (vp, metal) finished in 0.00 seconds. Local cache hits 2 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass "XRMotionVectors":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 0 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+  Pass "":
+    Target graphics API: metal
+    Cached mesh channel usage data found for 1 variants. 0 variants require compilation to get this data.
+    Processed in 0.00 seconds
+Script attached to 'Bayrak' in scene 'Assets/_Project/Scenes/TrainingRange.unity' is missing or no valid script is attached.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEditor.BuildPipeline:BuildPlayerInternal (string[],string,string,UnityEditor.BuildTargetGroup,UnityEditor.BuildTarget,int,UnityEditor.BuildOptions,string[],string[],bool)
+UnityEditor.BuildPipeline:BuildPlayer (UnityEditor.BuildPlayerOptions) (at /Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs:270)
+Project.EditorTools.BuildTool:BuildMac () (at Assets/_Project/Scripts/Editor/BuildTool.cs:80)
+Project.EditorTools.BatchEntry:BuildMac () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:47)
+
+[/Users/bokken/build/output/unity/unity/Editor/Mono/BuildPipeline/BuildPipeline.bindings.cs line 270]
+
+Opening scene 'Assets/_Project/Scenes/AAA_Benchmark.unity'
+Unloading 30 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/_Project/Scenes/AAA_Benchmark.unity'
+	Deserialize:            1.461 ms
+	Integration:            5.628 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.041 ms
+	Total Operation Time:   7.131 ms
+Unloading 123 unused Assets / (0.8 MB). Loaded Objects now: 9314.
+Memory consumption went from 499.0 MB to 498.2 MB.
+Total: 23.955875 ms (FindLiveObjects: 0.335667 ms CreateObjectMapping: 0.074167 ms MarkObjects: 12.756958 ms  DeleteObjects: 10.649750 ms)
+
+Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (0 B). Loaded Objects now: 9311.
+Memory consumption went from 328.5 MB to 328.5 MB.
+Total: 13.872417 ms (FindLiveObjects: 0.316167 ms CreateObjectMapping: 0.078750 ms MarkObjects: 13.332041 ms  DeleteObjects: 0.008042 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (0 B). Loaded Objects now: 9311.
+Memory consumption went from 328.5 MB to 328.5 MB.
+Total: 14.038333 ms (FindLiveObjects: 0.406041 ms CreateObjectMapping: 0.078292 ms MarkObjects: 13.411125 ms  DeleteObjects: 0.007042 ms)
+
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 162 unused Assets / (145.2 MB). Loaded Objects now: 9311.
+Memory consumption went from 474.7 MB to 329.4 MB.
+Total: 17.341791 ms (FindLiveObjects: 0.259792 ms CreateObjectMapping: 0.066291 ms MarkObjects: 12.473917 ms  DeleteObjects: 4.406875 ms)
+
+Compiling shader "Hidden/Universal Render Pipeline/Sampling"
+  Pass "BoxDownsample" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "BoxDownsample" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass BoxDownsample (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass BoxDownsample (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Serialized binary data for shader Hidden/Universal Render Pipeline/Sampling in 0.00s
+    metal (total internal programs: 2, unique: 2)
+Compiling shader "Hidden/Universal Render Pipeline/ScreenSpaceAmbientOcclusion"
+  Pass "SSAO_Occlusion" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Occlusion" (fp)
+    Target graphics API: metal
+    Full variant space:         192
+    After settings filtering:   8
+    After built-in stripping:   8
+    After scriptable stripping: 8
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_HorizontalBlur" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_HorizontalBlur" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_VerticalBlur" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_VerticalBlur" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_FinalBlur" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_FinalBlur" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_FinalBlur_AfterOpaque" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Bilateral_FinalBlur_AfterOpaque" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Gaussian_HorizontalBlur" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Gaussian_HorizontalBlur" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Gaussian_VerticalBlur" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Gaussian_VerticalBlur" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Gaussian_VerticalBlur_AfterOpaque" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Gaussian_VerticalBlur_AfterOpaque" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Kawase" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Kawase" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Kawase_AfterOpaque" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Kawase_AfterOpaque" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Box_AfterOpaque" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SSAO_Box_AfterOpaque" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass SSAO_Occlusion (vp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Occlusion (fp, metal) finished in 0.01 seconds. Local cache hits 8 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_HorizontalBlur (vp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_HorizontalBlur (fp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_VerticalBlur (vp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_VerticalBlur (fp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_FinalBlur (vp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_FinalBlur (fp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_FinalBlur_AfterOpaque (vp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Bilateral_FinalBlur_AfterOpaque (fp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Gaussian_HorizontalBlur (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Gaussian_HorizontalBlur (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Gaussian_VerticalBlur (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Gaussian_VerticalBlur (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Gaussian_VerticalBlur_AfterOpaque (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Gaussian_VerticalBlur_AfterOpaque (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Kawase (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Kawase (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Kawase_AfterOpaque (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Kawase_AfterOpaque (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Box_AfterOpaque (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SSAO_Box_AfterOpaque (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Serialized binary data for shader Hidden/Universal Render Pipeline/ScreenSpaceAmbientOcclusion in 0.00s
+    metal (total internal programs: 29, unique: 19)
+Compiling shader "Hidden/Universal Render Pipeline/Terrain/Lit (Add Pass)"
+  Pass "ForwardLit" (vp)
+    Target graphics API: metal
+    Full variant space:         73.728
+    After settings filtering:   2.048
+    After built-in stripping:   64
+    After scriptable stripping: 32
+    Processed in 0.00 seconds
+  Pass "ForwardLit" (fp)
+    Target graphics API: metal
+    Full variant space:         377.487.360
+    After settings filtering:   49.152
+    After built-in stripping:   1.536
+    After scriptable stripping: 384
+    Processed in 0.02 seconds
+  Pass "GBuffer" (vp)
+    Target graphics API: metal
+    Full variant space:         3.072
+    After settings filtering:   512
+    After built-in stripping:   32
+    After scriptable stripping: 0
+    Processed in 0.00 seconds
+  Pass "GBuffer" (fp)
+    Target graphics API: metal
+    Full variant space:         1.966.080
+    After settings filtering:   2.048
+    After built-in stripping:   128
+    After scriptable stripping: 0
+    Processed in 0.00 seconds
+  Pass ForwardLit (vp, metal) finished in 0.02 seconds. Local cache hits 32 (0.01s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.06 seconds
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.01 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.04 seconds
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.04 seconds
+    [ 95s] 370 / 384 variants ready
+  Pass ForwardLit (fp, metal) finished in 72.91 seconds. Local cache hits 317 (0.11s CPU time), remote cache hits 0 (0.00s CPU time), compiled 67 variants (712.33s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.03s
+Serialized binary data for shader Hidden/Universal Render Pipeline/Terrain/Lit (Add Pass) in 0.00s
+    metal (total internal programs: 416, unique: 416)
+Compressed shader 'Hidden/Universal Render Pipeline/Terrain/Lit (Add Pass)' on metal from 32.09MB to 5.70MB
+Compressed shader 'Hidden/Universal Render Pipeline/Terrain/Lit (Add Pass)' in 0.21s
+Compiling shader "HAREKAT/PostFx/CasSharpen"
+  Pass "Cas" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Cas" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Copy" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Copy" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass Cas (vp, metal) finished in 0.03 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.03s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Cas (fp, metal) finished in 0.03 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.03s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Copy (vp, metal) finished in 0.03 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.03s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Copy (fp, metal) finished in 0.03 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.02s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Serialized binary data for shader HAREKAT/PostFx/CasSharpen in 0.00s
+    metal (total internal programs: 4, unique: 3)
+Compiling shader "Hidden/Universal Render Pipeline/Stop NaN"
+  Pass "Stop NaN" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Stop NaN" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass Stop NaN (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Stop NaN (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Serialized binary data for shader Hidden/Universal Render Pipeline/Stop NaN in 0.00s
+    metal (total internal programs: 2, unique: 2)
+Compiling shader "Hidden/CoreSRP/CoreCopy"
+  Pass "Copy" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Copy" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   2
+    After built-in stripping:   2
+    After scriptable stripping: 2
+    Processed in 0.00 seconds
+  Pass "CopyMS" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "CopyMS" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   2
+    After built-in stripping:   2
+    After scriptable stripping: 2
+    Processed in 0.00 seconds
+  Pass "Copy" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Copy" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   2
+    After built-in stripping:   2
+    After scriptable stripping: 2
+    Processed in 0.00 seconds
+  Pass Copy (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Copy (fp, metal) finished in 0.00 seconds. Local cache hits 2 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass CopyMS (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass CopyMS (fp, metal) finished in 0.00 seconds. Local cache hits 2 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Copy (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Copy (fp, metal) finished in 0.00 seconds. Local cache hits 2 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Serialized binary data for shader Hidden/CoreSRP/CoreCopy in 0.00s
+    metal (total internal programs: 9, unique: 5)
+Compiling shader "HAREKAT/ScreenSpace/SSRLite"
+  Pass "SsrMarch" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SsrMarch" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SsrApply" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "SsrApply" (fp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass SsrMarch (vp, metal) finished in 0.03 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.03s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SsrMarch (fp, metal) finished in 0.08 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.08s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SsrApply (vp, metal) finished in 0.08 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.03s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass SsrApply (fp, metal) finished in 0.08 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 1 variants (0.04s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Serialized binary data for shader HAREKAT/ScreenSpace/SSRLite in 0.00s
+    metal (total internal programs: 4, unique: 3)
+Compiling shader "Hidden/Universal Render Pipeline/CameraMotionBlur"
+  Pass "Camera Motion Blur - Low Quality" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera Motion Blur - Low Quality" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera Motion Blur - Medium Quality" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera Motion Blur - Medium Quality" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera Motion Blur - High Quality" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera Motion Blur - High Quality" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera And Object Motion Blur - Low Quality" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera And Object Motion Blur - Low Quality" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera And Object Motion Blur - Medium Quality" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera And Object Motion Blur - Medium Quality" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera And Object Motion Blur - High Quality" (vp)
+    Target graphics API: metal
+    Full variant space:         1
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass "Camera And Object Motion Blur - High Quality" (fp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   1
+    After built-in stripping:   1
+    After scriptable stripping: 1
+    Processed in 0.00 seconds
+  Pass Camera Motion Blur - Low Quality (vp, metal) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera Motion Blur - Low Quality (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera Motion Blur - Medium Quality (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera Motion Blur - Medium Quality (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera Motion Blur - High Quality (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera Motion Blur - High Quality (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera And Object Motion Blur - Low Quality (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera And Object Motion Blur - Low Quality (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera And Object Motion Blur - Medium Quality (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera And Object Motion Blur - Medium Quality (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera And Object Motion Blur - High Quality (vp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+  Pass Camera And Object Motion Blur - High Quality (fp, metal) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+Serialized binary data for shader Hidden/Universal Render Pipeline/CameraMotionBlur in 0.00s
+    metal (total internal programs: 12, unique: 7)
+Compiling shader "Hidden/Universal Render Pipeline/Terrain/Lit (Base Pass)"
+  Pass "ForwardLit" (vp)
+    Target graphics API: metal
+    Full variant space:         49.152
+    After settings filtering:   2.048
+    After built-in stripping:   32
+    After scriptable stripping: 32
+    Processed in 0.00 seconds
+  Pass "ForwardLit" (fp)
+    Target graphics API: metal
+    Full variant space:         1.006.632.960
+    After settings filtering:   81.920
+    After built-in stripping:   1.280
+    After scriptable stripping: 384
+    Processed in 0.02 seconds
+  Pass "ShadowCaster" (vp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   2
+    After built-in stripping:   2
+    After scriptable stripping: 2
+    Processed in 0.00 seconds
+  Pass "ShadowCaster" (fp)
+    Target graphics API: metal
+    Full variant space:         4
+    After settings filtering:   4
+    After built-in stripping:   4
+    After scriptable stripping: 4
+    Processed in 0.00 seconds
+  Pass "GBuffer" (vp)
+    Target graphics API: metal
+    Full variant space:         2.048
+    After settings filtering:   512
+    After built-in stripping:   16
+    After scriptable stripping: 0
+    Processed in 0.00 seconds
+  Pass "GBuffer" (fp)
+    Target graphics API: metal
+    Full variant space:         5.242.880
+    After settings filtering:   4.096
+    After built-in stripping:   128
+    After scriptable stripping: 0
+    Processed in 0.00 seconds
+  Pass "DepthOnly" (vp)
+    Target graphics API: metal
+    Full variant space:         2
+    After settings filtering:   2
+    After built-in stripping:   2
+    After scriptable stripping: 2
+    Processed in 0.00 seconds
+  Pass "DepthOnly" (fp)
+    Target graphics API: metal
+    Full variant space:         4
+    After settings filtering:   4
+    After built-in stripping:   4
+    After scriptable stripping: 4
+    Processed in 0.00 seconds
+  Pass "DepthNormals" (vp)
+    Target graphics API: metal
+    Full variant space:         8
+    After settings filtering:   4
+    After built-in stripping:   4
+    After scriptable stripping: 4
+    Processed in 0.00 seconds
+  Pass "DepthNormals" (fp)
+    Target graphics API: metal
+    Full variant space:         32
+    After settings filtering:   8
+    After built-in stripping:   8
+    After scriptable stripping: 8
+    Processed in 0.00 seconds
+  Pass ForwardLit (vp, metal) finished in 0.80 seconds. Local cache hits 0 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 32 variants (6.89s CPU time), skipped 0 variants.
+    Prepared data for serialisation in 0.00s
+    [168s] 67 / 384 variants ready
+    [234s] 155 / 384 variants ready
+    [298s] 230 / 384 variants ready

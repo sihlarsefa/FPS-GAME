@@ -13,6 +13,12 @@
  * @property {string} password
  */
 /**
+ * @typedef {Object} SteamAuthRequest
+ * @property {string} ticket
+ * @property {(string|null)} personaName
+ * @property {(string|null)} region
+ */
+/**
  * @typedef {Object} AuthResponse
  * @property {string} accessToken
  * @property {string} refreshToken
@@ -121,6 +127,25 @@
  * @property {number} maxPlayers
  */
 /**
+ * @typedef {Object} ClaimMatchRequest
+ * @property {string} host
+ * @property {number} port
+ * @property {string} serverKey
+ * @property {(string|null)} region
+ * @property {number} maxPlayers
+ */
+/**
+ * @typedef {Object} ClaimMatchResponse
+ * @property {MatchDto} match
+ * @property {string} serverId
+ * @property {string} endpoint
+ */
+/**
+ * @typedef {Object} ReleaseServerRequest
+ * @property {string} serverId
+ * @property {string} serverKey
+ */
+/**
  * @typedef {Object} PlayerMatchResultDto
  * @property {string} playerId
  * @property {number} kills
@@ -200,6 +225,16 @@
  * @property {boolean} unlocked
  */
 /**
+ * @typedef {Object} AchievementSyncRequest
+ * @property {(Array<string>|null)} unlockedIds
+ * @property {(int>|null)} progress
+ */
+/**
+ * @typedef {Object} AchievementSyncResult
+ * @property {Array<string>} newlyUnlocked
+ * @property {Array<AchievementDto>} achievements
+ */
+/**
  * @typedef {Object} CosmeticDto
  * @property {string} id
  * @property {string} name
@@ -243,6 +278,47 @@
  * @property {string} playerId
  * @property {boolean} isReady
  * @property {boolean} allReady
+ */
+/**
+ * @typedef {Object} NewsItemDto
+ * @property {string} id
+ * @property {string} title
+ * @property {string} body
+ * @property {string} language
+ * @property {(string|null)} author
+ * @property {string} publishedAt
+ * @property {number} sortOrder
+ */
+/**
+ * @typedef {Object} UpsertNewsRequest
+ * @property {string} title
+ * @property {string} body
+ * @property {(string|null)} language
+ * @property {(string|null)} author
+ * @property {boolean} isPublished
+ * @property {number} sortOrder
+ * @property {(string|null)} publishedAt
+ */
+/**
+ * @typedef {Object} ClientVersionDto
+ * @property {string} channel
+ * @property {string} version
+ * @property {string} patchUrl
+ * @property {string} sha256
+ * @property {number} patchSizeBytes
+ * @property {(string|null)} releaseNotes
+ * @property {boolean} mandatory
+ * @property {string} publishedAt
+ */
+/**
+ * @typedef {Object} UpsertClientVersionRequest
+ * @property {string} version
+ * @property {string} patchUrl
+ * @property {string} sha256
+ * @property {(number|null)} patchSizeBytes
+ * @property {(string|null)} releaseNotes
+ * @property {boolean} mandatory
+ * @property {(string|null)} channel
  */
 // Backend/Harekat.Domain/ValueObjects/CareerStats.cs
 /**
@@ -398,5 +474,53 @@
  * @property {string} formatVersion
  * @property {number} frameCount
  * @property {number} compressedBytes
+ */
+/**
+ * @typedef {Object} ClientErrorRequest
+ * @property {(string|null)} id
+ * @property {(string|null)} trigger
+ * @property {(string|null)} version
+ * @property {(string|null)} scene
+ * @property {(string|null)} platform
+ * @property {(string|null)} deviceModel
+ * @property {(string|null)} operatingSystem
+ * @property {(string|null)} processorType
+ * @property {number} processorCount
+ * @property {number} systemMemoryMb
+ * @property {(string|null)} graphicsDeviceName
+ * @property {number} graphicsMemoryMb
+ * @property {(string|null)} unityVersion
+ * @property {(string|null)} exceptionType
+ * @property {(string|null)} message
+ * @property {(string|null)} stackTrace
+ * @property {(Array<string>|null)} recentLogs
+ * @property {(string|null)} createdAtUtc
+ */
+/**
+ * @typedef {Object} ClientErrorDto
+ * @property {string} id
+ * @property {string} trigger
+ * @property {string} version
+ * @property {string} scene
+ * @property {string} platform
+ * @property {string} deviceModel
+ * @property {string} operatingSystem
+ * @property {string} processorType
+ * @property {number} processorCount
+ * @property {number} systemMemoryMb
+ * @property {string} graphicsDeviceName
+ * @property {number} graphicsMemoryMb
+ * @property {string} unityVersion
+ * @property {string} exceptionType
+ * @property {string} message
+ * @property {string} stackTrace
+ * @property {Array<string>} recentLogs
+ * @property {(string|null)} clientIp
+ * @property {string} createdAt
+ */
+/**
+ * @typedef {Object} ClientErrorListResponse
+ * @property {Array<ClientErrorDto>} items
+ * @property {number} total
  */
 export {};

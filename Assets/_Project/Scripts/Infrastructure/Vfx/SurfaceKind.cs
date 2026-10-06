@@ -9,6 +9,7 @@ namespace Project.Infrastructure.Vfx
         Wood = 4,
         Flesh = 5,
         Water = 6,
-        Foliage = 7
+        Foliage = 7,
+        Snow = 8
     }
 }

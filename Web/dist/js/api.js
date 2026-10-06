@@ -240,6 +240,26 @@ async function mockCall(name, options = {}) {
       };
     case 'telemetryPerf':
       return { ingestPerSec: 120, queueMs: 14, queueDepth: 3 };
+    case 'clientErrors':
+      return {
+        total: 1,
+        items: [{
+          id: 'ce-mock-1',
+          trigger: 'exception',
+          version: '0.1.0',
+          scene: 'KuzgunVadisi',
+          platform: 'WindowsPlayer',
+          deviceModel: 'MockPC',
+          operatingSystem: 'Windows 11',
+          exceptionType: 'Exception',
+          message: 'Mock NullReference',
+          stackTrace: 'at Mock.Foo()',
+          recentLogs: ['[Error] mock'],
+          createdAt: new Date().toISOString(),
+        }],
+      };
+    case 'postClientError':
+      return { id: 'ce-new', message: body.message || 'ok' };
     case 'heatmap':
       return {
         matchId: params.matchId,
@@ -337,6 +357,8 @@ export const api = {
   reviewQueue: () => call('reviewQueue'),
   playerRisk: (playerId) => call('playerRisk', { params: { playerId } }),
   telemetryPerf: () => call('telemetryPerf'),
+  clientErrors: (query = {}) => call('clientErrors', { query }),
+  postClientError: (body) => call('postClientError', { body }),
   heatmap: (matchId) => call('heatmap', { params: { matchId } }),
   weaponBalance: () => call('weaponBalance'),
 

@@ -34,6 +34,8 @@ namespace Project.Infrastructure.Weapons
         public static BuiltMeshPart Forearm { get; private set; }
         public static BuiltMeshPart HandGripRight { get; private set; }
         public static BuiltMeshPart HandGripLeft { get; private set; }
+        /// <summary>Sağ el, işaret parmağı tetikte (ateş anı ~80 ms).</summary>
+        public static BuiltMeshPart HandFireRight { get; private set; }
         public static BuiltMeshPart FistRight { get; private set; }
         public static BuiltMeshPart FistLeft { get; private set; }
         public static BuiltMeshPart Flash { get; private set; }
@@ -71,7 +73,7 @@ namespace Project.Infrastructure.Weapons
 
         private static bool IsAlive()
         {
-            return Valid(UpperArm) && Valid(Forearm) && Valid(HandGripRight) && Valid(HandGripLeft) && Valid(FistRight)
+            return Valid(UpperArm) && Valid(Forearm) && Valid(HandGripRight) && Valid(HandGripLeft) && Valid(HandFireRight) && Valid(FistRight)
                    && Valid(FistLeft) && Valid(Flash);
         }
 
@@ -95,8 +97,9 @@ namespace Project.Infrastructure.Weapons
         {
             var sleeve = Safe(MaterialLibrary.Get(MaterialId.CamoWoodland));
             var skin = Safe(MaterialLibrary.Get(MaterialId.Skin));
-            var glove = Safe(MaterialLibrary.Lit(new Color(0.11f, 0.105f, 0.09f), 0.12f));
-            var gloveDark = Safe(MaterialLibrary.Lit(new Color(0.06f, 0.06f, 0.055f), 0.1f));
+            var glove = Safe(MaterialLibrary.Lit(new Color(0.16f, 0.15f, 0.105f), 0.12f));
+            var sleeveDark = Safe(MaterialLibrary.Lit(new Color(0.12f, 0.14f, 0.09f), 0.15f));
+            var gloveDark = Safe(MaterialLibrary.Lit(new Color(0.09f, 0.085f, 0.06f), 0.1f));
             var metal = Safe(MaterialLibrary.Get(MaterialId.GunMetal));
             var olive = Safe(MaterialLibrary.Lit(new Color(0.25f, 0.28f, 0.17f), 0.25f));
             var smokeBody = Safe(MaterialLibrary.Lit(new Color(0.42f, 0.45f, 0.4f), 0.3f, 0.2f));
@@ -113,6 +116,10 @@ namespace Project.Infrastructure.Weapons
             b.Ellipsoid(sleeve, Vector3.zero, new Vector3(0.062f, 0.062f, 0.062f), 3, 8);
             b.Cylinder(sleeve, new Vector3(0f, 0f, -0.02f), new Vector3(0f, 0f, UpperArmLength + 0.02f), 0.057f, 0.048f, 8);
             b.Box(sleeve, new Vector3(0.045f, 0.01f, UpperArmLength * 0.45f), new Vector3(0.022f, 0.06f, 0.09f));
+            // Omuz yaması (bayrak) + kol dikişi + biceps bandı.
+            b.Box(red, new Vector3(0.0f, 0.054f, UpperArmLength * 0.35f), new Vector3(0.036f, 0.006f, 0.05f), new Vector3(0f, 0f, 0f));
+            b.Box(white, new Vector3(0.0f, 0.0575f, UpperArmLength * 0.35f), new Vector3(0.012f, 0.002f, 0.012f));
+            b.Cylinder(sleeveDark, new Vector3(0f, 0f, UpperArmLength * 0.72f), new Vector3(0f, 0f, UpperArmLength * 0.78f), 0.0535f, 0.0525f, 8);
 
             // --- Ön kol (dirsek → bilek): kol yeni, ucunda katlanmış kol ağzı, bilekte ten.
             b.BeginGroup("Forearm", Vector3.zero);
@@ -120,18 +127,24 @@ namespace Project.Infrastructure.Weapons
             b.Cylinder(sleeve, new Vector3(0f, 0f, -0.03f), new Vector3(0f, 0f, ForearmLength - 0.06f), 0.048f, 0.04f, 8);
             b.Cylinder(sleeve, new Vector3(0f, 0f, ForearmLength - 0.085f), new Vector3(0f, 0f, ForearmLength - 0.045f), 0.0435f, 0.042f, 8);
             b.Box(sleeve, new Vector3(0f, 0.04f, ForearmLength - 0.065f), new Vector3(0.03f, 0.008f, 0.03f));
+            // Dirsek koruması + kol ağzı lastiği + cep kapağı.
+            b.Ellipsoid(sleeveDark, new Vector3(0f, 0.012f, 0.004f), new Vector3(0.045f, 0.038f, 0.034f), 2, 8);
+            b.Cylinder(sleeveDark, new Vector3(0f, 0f, ForearmLength - 0.09f), new Vector3(0f, 0f, ForearmLength - 0.082f), 0.0443f, 0.0441f, 8);
+            b.Box(sleeveDark, new Vector3(0.036f, 0.016f, ForearmLength * 0.45f), new Vector3(0.006f, 0.026f, 0.05f));
             b.Cylinder(skin, new Vector3(0f, 0f, ForearmLength - 0.07f), new Vector3(0f, 0f, ForearmLength - 0.015f), 0.031f, 0.0285f, 8);
 
             // --- Eller.
             b.BeginGroup("HandGripR", Vector3.zero);
-            Hand(b, glove, gloveDark, skin, false);
+            Hand(b, glove, gloveDark, skin, false, IndexRest);
+            b.BeginGroup("HandFireR", Vector3.zero);
+            Hand(b, glove, gloveDark, skin, false, IndexPress);
             b.BeginGroup("FistR", Vector3.zero);
-            Hand(b, glove, gloveDark, skin, true);
+            Hand(b, glove, gloveDark, skin, true, IndexWrap);
             b.MirrorX = true;
             b.BeginGroup("HandGripL", Vector3.zero);
-            Hand(b, glove, gloveDark, skin, false);
+            Hand(b, glove, gloveDark, skin, false, IndexWrap);
             b.BeginGroup("FistL", Vector3.zero);
-            Hand(b, glove, gloveDark, skin, true);
+            Hand(b, glove, gloveDark, skin, true, IndexWrap);
             b.MirrorX = false;
 
             // --- Eşyalar (orijin: tutma noktası).
@@ -191,7 +204,7 @@ namespace Project.Infrastructure.Weapons
 
             var parts = b.Build("Viewmodel", true);
             Props.Clear();
-            UpperArm = Forearm = HandGripRight = HandGripLeft = FistRight = FistLeft = Flash = null;
+            UpperArm = Forearm = HandGripRight = HandGripLeft = HandFireRight = FistRight = FistLeft = Flash = null;
             for (var i = 0; i < parts.Count; i++)
             {
                 var part = parts[i];
@@ -201,6 +214,7 @@ namespace Project.Infrastructure.Weapons
                     case "Forearm": Forearm = part; break;
                     case "HandGripR": HandGripRight = part; break;
                     case "HandGripL": HandGripLeft = part; break;
+                    case "HandFireR": HandFireRight = part; break;
                     case "FistR": FistRight = part; break;
                     case "FistL": FistLeft = part; break;
                     case "Flash": Flash = part; break;
@@ -222,13 +236,31 @@ namespace Project.Infrastructure.Weapons
         /// <summary>
         /// Eldivenli (parmak uçları açık) sağ el; kavrama: parmaklar avuç tarafına (-Y) kıvrılır; yumruk: parmaklar avuca kapanır.
         /// </summary>
-        private static void Hand(WeaponMeshBuilder b, Material glove, Material gloveDark, Material skin, bool fist)
+        private const int IndexWrap = 0;
+        private const int IndexRest = 1;
+        private const int IndexPress = 2;
+
+        private static void Hand(WeaponMeshBuilder b, Material glove, Material gloveDark, Material skin, bool fist, int indexMode)
         {
             // Bilek manşeti + avuç.
             b.Cylinder(gloveDark, new Vector3(0f, 0f, -0.05f), new Vector3(0f, 0f, 0.012f), 0.035f, 0.032f, 8);
             b.Taper(glove, new Vector3(0f, 0f, 0.002f), new Vector2(0.064f, 0.03f), new Vector3(0f, -0.002f, 0.086f), new Vector2(0.083f, 0.026f));
             b.Box(gloveDark, new Vector3(0f, 0.0155f, 0.068f), new Vector3(0.072f, 0.006f, 0.032f));
             b.Ellipsoid(glove, new Vector3(-0.022f, -0.01f, 0.026f), new Vector3(0.017f, 0.012f, 0.025f), 3, 6);
+
+            // Boğum koruması (sert kauçuk), bilek kayışı + cırt, avuç dikişi.
+            b.Box(gloveDark, new Vector3(0f, 0.0185f, 0.082f), new Vector3(0.066f, 0.005f, 0.012f));
+            for (var k = 0; k < 4; k++)
+                b.Box(gloveDark, new Vector3(-0.0285f + k * 0.019f, 0.021f, 0.084f), new Vector3(0.013f, 0.003f, 0.007f));
+            b.Box(gloveDark, new Vector3(0f, 0.0168f, 0.004f), new Vector3(0.05f, 0.004f, 0.016f));
+            b.Box(glove, new Vector3(0f, 0.0190f, 0.004f), new Vector3(0.022f, 0.002f, 0.01f));
+            b.Box(gloveDark, new Vector3(0f, -0.0145f, 0.045f), new Vector3(0.05f, 0.002f, 0.004f));
+            // Bilek körüğü: manşet üzerinde üç kıvrım halkası.
+            for (var ring = 0; ring < 3; ring++)
+            {
+                var z = -0.046f + ring * 0.016f;
+                b.Cylinder(gloveDark, new Vector3(0f, 0f, z), new Vector3(0f, 0f, z + 0.006f), 0.0368f, 0.0368f, 8);
+            }
 
             // Parmaklar (işaret parmağı başparmak tarafında, -X).
             for (var i = 0; i < 4; i++)
@@ -244,11 +276,26 @@ namespace Project.Infrastructure.Weapons
                     p2 = p1 + new Vector3(0f, -0.024f, -0.009f) * length;
                     p3 = p2 + new Vector3(0f, 0.002f, -0.021f) * length;
                 }
+                else if (i == 0 && indexMode == IndexRest)
+                {
+                    // İşaret parmağı tetik korkuluğu üstünde düz (yan tarafa yaslı).
+                    p1 = k + new Vector3(0.003f, -0.002f, 0.032f);
+                    p2 = p1 + new Vector3(0.003f, -0.002f, 0.028f);
+                    p3 = p2 + new Vector3(0.001f, -0.002f, 0.022f);
+                }
+                else if (i == 0 && indexMode == IndexPress)
+                {
+                    // Tetikte: ilk boğum öne-aşağı, ikinci boğum tetiğe iner, uç boğum hafif geri.
+                    p1 = k + new Vector3(0f, -0.010f, 0.030f);
+                    p2 = p1 + new Vector3(0f, -0.019f, 0.012f);
+                    p3 = p2 + new Vector3(0f, -0.014f, -0.007f);
+                }
                 else
                 {
-                    p1 = k + new Vector3(0f, -0.016f, 0.026f) * length;
-                    p2 = p1 + new Vector3(0f, -0.028f, -0.004f) * length;
-                    p3 = p2 + new Vector3(0f, -0.012f, -0.017f) * length;
+                    // Kabzayı saran 3 boğum: kök boğum ~50, orta ~95, uç boğum avuca dönük.
+                    p1 = k + new Vector3(0f, -0.017f, 0.024f) * length;
+                    p2 = p1 + new Vector3(0f, -0.027f, -0.006f) * length;
+                    p3 = p2 + new Vector3(0f, -0.006f, -0.021f) * length;
                 }
 
                 b.Cylinder(glove, k, p1, radius, radius * 0.97f, 6);
@@ -256,6 +303,7 @@ namespace Project.Infrastructure.Weapons
                 b.Cylinder(glove, p1, p2, radius * 0.97f, radius * 0.92f, 6);
                 b.Ellipsoid(skin, p2, new Vector3(radius * 0.92f, radius * 0.92f, radius * 0.92f), 2, 6);
                 b.Cylinder(skin, p2, p3, radius * 0.9f, radius * 0.8f, 6);
+                b.Cylinder(gloveDark, p1 + (p2 - p1) * 0.35f, p1 + (p2 - p1) * 0.45f, radius * 1.08f, radius * 1.08f, 6); // eldiven dikiş halkası
             }
 
             // Başparmak.

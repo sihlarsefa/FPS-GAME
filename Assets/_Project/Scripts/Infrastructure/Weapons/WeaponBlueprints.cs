@@ -62,7 +62,7 @@ namespace Project.Infrastructure.Weapons
     /// +Z namlu yönü. Her tarif gövde + hareketli parçaları (şarjör, kurma kolu, kızak, pompa, kapak) ve el/nişan/namlu
     /// bağlantılarını üretir.
     /// </summary>
-    internal static class WeaponBlueprints
+    internal static partial class WeaponBlueprints
     {
         /// <summary>El modelinde bilekten avuç merkezine uzaklık (ViewmodelHands ile aynı).</summary>
         public const float PalmCenter = 0.045f;
@@ -83,26 +83,47 @@ namespace Project.Infrastructure.Weapons
             public Material Reticle;
             public Material Brass;
             public Material ShellRed;
+            public Material WoodDark;
+            public Material GlassDark;
+            public Material Dot;
+            public Material Tritium;
 
             public static Palette Create()
             {
                 return new Palette
                 {
-                    Metal = Safe(MaterialLibrary.Get(MaterialId.GunMetal)),
-                    Polymer = Safe(MaterialLibrary.Get(MaterialId.GunPolymer)),
-                    Tan = Safe(MaterialLibrary.Get(MaterialId.GunTan)),
-                    Wood = Safe(MaterialLibrary.Get(MaterialId.GunWood)),
-                    DarkMetal = Safe(MaterialLibrary.Lit(new Color(0.05f, 0.05f, 0.055f), 0.35f, 0.5f)),
-                    Olive = Safe(MaterialLibrary.Lit(new Color(0.24f, 0.27f, 0.17f), 0.22f)),
-                    Rubber = Safe(MaterialLibrary.Lit(new Color(0.045f, 0.045f, 0.045f), 0.08f)),
-                    Glass = Safe(MaterialLibrary.Lit(new Color(0.05f, 0.09f, 0.13f), 0.95f, 0.4f)),
+                    Metal = Gun(MaterialId.GunMetal, GunMaterials.ParkerizedSteel()),
+                    Polymer = Gun(MaterialId.GunPolymer, GunMaterials.Polymer()),
+                    Tan = Gun(MaterialId.GunTan, GunMaterials.TanPaint()),
+                    Wood = Gun(MaterialId.GunWood, GunMaterials.WoodGrain()),
+                    DarkMetal = Safe(GunMaterials.DarkAnodized()),
+                    Olive = Safe(GunMaterials.OlivePaint()),
+                    Rubber = Safe(GunMaterials.RubberGrip()),
+                    Glass = Safe(GunMaterials.OpticGlass(false)),
                     Reticle = Safe(MaterialLibrary.Unlit(new Color(1f, 0.12f, 0.06f))),
                     Brass = Safe(MaterialLibrary.Lit(new Color(0.75f, 0.58f, 0.26f), 0.65f, 0.85f)),
-                    ShellRed = Safe(MaterialLibrary.Lit(new Color(0.55f, 0.08f, 0.06f), 0.35f))
+                    ShellRed = Safe(MaterialLibrary.Lit(new Color(0.55f, 0.08f, 0.06f), 0.35f)),
+                    WoodDark = Safe(GunMaterials.DarkWoodGrain()),
+                    GlassDark = Safe(GunMaterials.OpticGlass(true)),
+                    Dot = Safe(MaterialLibrary.Unlit(SightVisuals.DotColor(new Color(1f, 0.35f, 0.18f)))),
+                    Tritium = Safe(MaterialLibrary.Unlit(new Color(0.45f, 1f, 0.55f)))
                 };
             }
 
             private static Material Safe(Material m) => m != null ? m : MaterialLibrary.Get(MaterialId.Gray);
+
+            /// <summary>Hazır varlık (ContentOverrides) malzemesi varsa o; yoksa prosedürel silah malzemesi.</summary>
+            private static Material Gun(MaterialId id, Material procedural)
+            {
+                try
+                {
+                    if (Project.Infrastructure.Content.ContentOverrides.TryGetMaterial(id, out var overridden) && overridden != null)
+                        return overridden;
+                }
+                catch (System.Exception) { /* override yolu isteğe bağlı */ }
+
+                return Safe(procedural);
+            }
         }
 
         private sealed class Ctx
@@ -110,6 +131,8 @@ namespace Project.Infrastructure.Weapons
             public readonly WeaponMeshBuilder B = new WeaponMeshBuilder();
             public readonly WeaponBlueprint Bp = new WeaponBlueprint();
             public Palette P;
+            /// <summary>0 = tam detay, 1 = yarım detay (LOD1).</summary>
+            public int Lod;
 
             public void Anchor(string name, Vector3 position, Quaternion rotation, string parent = WeaponModel.BodyPart)
             {
@@ -120,9 +143,12 @@ namespace Project.Infrastructure.Weapons
                 Anchor(name, position, Quaternion.identity, parent);
         }
 
-        public static WeaponBlueprint Build(WeaponStyle style)
+        public static WeaponBlueprint Build(WeaponStyle style) => Build(style, 0);
+
+        /// <summary>lod 0 = tam detay, 1 = yarım detay (ray dişleri seyrek, ince detaylar atlanır). Köşe bütçesi: WeaponDetailBudget.</summary>
+        public static WeaponBlueprint Build(WeaponStyle style, int lod)
         {
-            var c = new Ctx { P = Palette.Create() };
+            var c = new Ctx { P = Palette.Create(), Lod = lod > 0 ? 1 : 0 };
             c.Bp.Style = style;
 
             switch (style)
@@ -137,9 +163,16 @@ namespace Project.Infrastructure.Weapons
                 case WeaponStyle.Jng90: BuildJng90(c); break;
                 case WeaponStyle.Pmt76: BuildPmt76(c); break;
                 case WeaponStyle.Escort: BuildEscort(c); break;
+                case WeaponStyle.Sar223: BuildSar223(c); break;
+                case WeaponStyle.Mpt76K: BuildMpt76K(c); break;
+                case WeaponStyle.MeteSft: BuildMeteSft(c); break;
+                case WeaponStyle.Sar762Mt: BuildSar762Mt(c); break;
+                case WeaponStyle.Mg3: BuildMg3(c); break;
+                case WeaponStyle.EscortMagnum: BuildEscortMagnum(c); break;
                 default: return null;
             }
 
+            ApplyDetail(c, style);
             c.Bp.Parts = c.B.Build("Weapon_" + style);
             return c.Bp;
         }
@@ -180,12 +213,14 @@ namespace Project.Infrastructure.Weapons
                 return;
 
             b.Box(m, new Vector3(0f, yBase + 0.003f, (z0 + z1) * 0.5f), new Vector3(width * 0.8f, 0.006f, length));
-            var teeth = Mathf.Max(1, Mathf.FloorToInt(length / 0.01f));
+            var teeth = WeaponDetailBudget.RailTeeth(length, c.Lod);
             var step = length / teeth;
             for (var i = 0; i < teeth; i++)
             {
                 var z = z0 + step * (i + 0.5f);
-                b.Box(m, new Vector3(0f, yBase + 0.008f, z), new Vector3(width, 0.004f, step * 0.55f));
+                b.FlatBox(m, new Vector3(0f, yBase + 0.008f, z), new Vector3(width, 0.004f, step * 0.55f), Quaternion.identity);
+                // Dişler arası koyu yuva (Picatinny slot).
+                b.FlatBox(c.P.DarkMetal, new Vector3(0f, yBase + 0.0062f, z + step * 0.5f), new Vector3(width * 0.7f, 0.0012f, step * 0.3f), Quaternion.identity);
             }
         }
 
@@ -224,12 +259,17 @@ namespace Project.Infrastructure.Weapons
         private static void FlashHider(Ctx c, float y, float z0, float z1, float r)
         {
             var p = c.P;
-            c.B.Cylinder(p.Metal, new Vector3(0f, y, z0), new Vector3(0f, y, z1), r, 6);
-            c.B.Cylinder(p.DarkMetal, new Vector3(0f, y, z1 - 0.006f), new Vector3(0f, y, z1), r * 1.06f, 6);
-            var mid = (z0 + z1) * 0.5f + 0.004f;
-            c.B.Box(p.DarkMetal, new Vector3(r * 0.9f, y, mid), new Vector3(0.003f, 0.004f, (z1 - z0) * 0.55f));
-            c.B.Box(p.DarkMetal, new Vector3(-r * 0.9f, y, mid), new Vector3(0.003f, 0.004f, (z1 - z0) * 0.55f));
-            c.B.Box(p.DarkMetal, new Vector3(0f, y + r * 0.9f, mid), new Vector3(0.004f, 0.003f, (z1 - z0) * 0.55f));
+            // Open bore and separated outer prongs; the muzzle no longer ends in a solid hexagon.
+            var shoulder = z0 + (z1 - z0) * 0.32f;
+            c.B.Tube(p.Metal, new Vector3(0f, y, z0), new Vector3(0f, y, shoulder), r, r * 0.54f, 12);
+            for (var i = 0; i < 6; i++)
+            {
+                var angle = i * 60f;
+                var rotation = Quaternion.Euler(0f, 0f, angle);
+                var position = new Vector3(0f, y, (shoulder + z1) * 0.5f) + rotation * Vector3.up * (r * 0.81f);
+                c.B.Box(p.Metal, position, new Vector3(r * 0.53f, r * 0.38f, z1 - shoulder), rotation);
+            }
+
         }
 
         /// <summary>Kompakt kırmızı nokta nişangâhı (içi boş tüp + kızıl nokta). Nişan hattı: yCenter.</summary>
@@ -249,8 +289,13 @@ namespace Project.Infrastructure.Weapons
             b.Cylinder(p.Polymer, new Vector3(outer - 0.002f, yCenter, mid), new Vector3(outer + 0.008f, yCenter, mid), 0.0085f, 8);
             // Ön mercek halkası (koyu, biraz geniş).
             b.Tube(p.DarkMetal, new Vector3(0f, yCenter, zFront - 0.004f), new Vector3(0f, yCenter, zFront + 0.002f), outer + 0.0015f, inner, 12);
-            // Kızıl nokta (ön mercekte).
-            b.Box(p.Reticle, new Vector3(0f, yCenter, zFront - 0.006f), new Vector3(0.0018f, 0.0018f, 0.0008f));
+            // Cam mercek (koyu, yansımalı) + parlak nokta.
+            // Cam: nişan görüşünü kapatmamak için yalnızca ince koyu mercek halkası + nokta.
+            b.Tube(p.GlassDark, new Vector3(0f, yCenter, zFront - 0.0075f), new Vector3(0f, yCenter, zFront - 0.0062f), inner, inner * 0.82f, 12);
+            // Nokta gözden ~(göz mesafesi + tüp derinliği) uzakta; ADS viewmodel FOV'unda 1080p'de 2.5 px (4K'da orantılı ölçeklenir).
+            var dotSize = SightVisuals.AdsDotWorldSize(0.15f, zFront - zRear - 0.0058f);
+            b.Box(p.Dot, new Vector3(0f, yCenter, zFront - 0.0058f), new Vector3(dotSize, dotSize, 0.0006f));
+            b.Box(p.Reticle, new Vector3(0f, yCenter, zFront - 0.006f), new Vector3(dotSize * 0.4f, dotSize * 0.4f, 0.0008f));
 
             c.Anchor(WeaponModel.SightAnchor, new Vector3(0f, yCenter, zRear));
             c.Bp.HasOptic = true;
@@ -272,6 +317,7 @@ namespace Project.Infrastructure.Weapons
             b.Box(p.Polymer, new Vector3(halfWidth, yCenter, zFront - 0.012f), new Vector3(0.004f, windowHeight + 0.004f, 0.026f));
             b.Box(p.Polymer, new Vector3(-halfWidth, yCenter, zFront - 0.012f), new Vector3(0.004f, windowHeight + 0.004f, 0.026f));
             b.Box(p.Polymer, new Vector3(0f, baseTop + windowHeight + 0.002f, zFront - 0.012f), new Vector3(halfWidth * 2f + 0.004f, 0.004f, 0.026f));
+            // Cam pencere şeffaf bırakılır (görüş açık); yalnızca çerçeve + retikül.
             // Yan düğmeler.
             b.Box(p.Rubber, new Vector3(halfWidth - 0.002f, railTop + 0.007f, zRear - 0.01f), new Vector3(0.008f, 0.008f, 0.012f));
             // Retikül: nokta + 4 halka parçası.
@@ -307,6 +353,8 @@ namespace Project.Infrastructure.Weapons
             b.Cylinder(p.Polymer, new Vector3(0f, y, bellEnd), new Vector3(0f, y, zFront), objR, objR, 12, false, false, true);
             b.Tube(p.Polymer, new Vector3(0f, y, zFront - 0.002f), new Vector3(0f, y, zFront + 0.004f), objR * 1.04f, objR * 0.85f, 12);
             b.Cylinder(p.Glass, new Vector3(0f, y, zFront - 0.006f), new Vector3(0f, y, zFront - 0.003f), objR * 0.97f, 12);
+            b.Cylinder(p.GlassDark, new Vector3(0f, y, zFront - 0.012f), new Vector3(0f, y, zFront - 0.0058f), objR * 0.9f, 12);
+            b.Cylinder(p.GlassDark, new Vector3(0f, y, zRear + 0.006f), new Vector3(0f, y, zRear + 0.0075f), ocuR * 0.9f, 12);
 
             // Kuleler (yükseliş, rüzgâr, paralaks).
             var turretZ = (zRear + ocuLen + bellStart) * 0.5f;
@@ -339,6 +387,7 @@ namespace Project.Infrastructure.Weapons
         private static void IronRearAperture(Ctx c, Material m, float z, float yCenter, float railTop, float outer, float inner)
         {
             var b = c.B;
+            inner = Mathf.Max(inner, outer * SightVisuals.ApertureInnerRatio * 0.65f);
             var baseTop = yCenter - outer * 0.55f;
             b.Box(m, new Vector3(0f, (railTop + baseTop) * 0.5f, z), new Vector3(0.02f, Mathf.Max(0.004f, baseTop - railTop), 0.012f));
             b.Tube(m, new Vector3(0f, yCenter, z - 0.004f), new Vector3(0f, yCenter, z + 0.004f), outer, inner, 10);
@@ -352,8 +401,10 @@ namespace Project.Infrastructure.Weapons
         {
             var b = c.B;
             var h = Mathf.Max(0.004f, yTop - baseY);
-            b.Box(m, new Vector3(0.0058f, baseY + h * 0.5f, z), new Vector3(0.0062f, h, 0.008f));
-            b.Box(m, new Vector3(-0.0058f, baseY + h * 0.5f, z), new Vector3(0.0062f, h, 0.008f));
+            var earW = SightVisuals.RearEarWidth;
+            var earX = 0.0027f + earW * 0.5f;
+            b.Box(m, new Vector3(earX, baseY + h * 0.5f, z), new Vector3(earW, h, 0.008f));
+            b.Box(m, new Vector3(-earX, baseY + h * 0.5f, z), new Vector3(earW, h, 0.008f));
             b.Box(m, new Vector3(0f, baseY + 0.002f, z), new Vector3(0.018f, 0.004f, 0.008f));
             c.Anchor(WeaponModel.SightAnchor, new Vector3(0f, yTop - 0.0015f, z - 0.004f));
         }
@@ -363,7 +414,8 @@ namespace Project.Infrastructure.Weapons
         {
             var b = c.B;
             var h = Mathf.Max(0.004f, yTop - baseY);
-            b.Box(m, new Vector3(0f, baseY + h * 0.5f, z), new Vector3(0.0032f, h, 0.004f));
+            b.Box(m, new Vector3(0f, baseY + h * 0.5f, z), new Vector3(SightVisuals.FrontPostWidth, h, 0.004f));
+            c.Anchor(WeaponModel.FrontSightAnchor, new Vector3(0f, yTop, z));
             b.Box(m, new Vector3(0f, baseY - 0.003f, z), new Vector3(0.02f, 0.008f, 0.016f));
             var wingH = h + 0.006f;
             b.Box(m, new Vector3(0.0095f, baseY + wingH * 0.5f, z), new Vector3(0.003f, wingH, 0.014f));
@@ -510,7 +562,11 @@ namespace Project.Infrastructure.Weapons
             const float bore = 0.035f;
             var gripTop = new Vector3(0f, -0.012f, 0f);
 
+            // Gövde kum/bej (ASKER_REFERANSI); ray, namlu ve şarjör siyah kalır.
+            var darkMetal = p.Metal;
+            p.Metal = p.Tan;
             ArReceiver(c, -0.07f, 0.2f, 0.135f, 0.085f, 0.032f);
+            p.Metal = darkMetal;
             Rail(c, p.Metal, -0.068f, 0.198f, 0.065f);
 
             // Kum rengi sekizgen el kundağı + ray + M-LOK yuvaları.

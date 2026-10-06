@@ -22,6 +22,7 @@ namespace Project.Infrastructure.Weapons
 
         public const string MuzzleAnchor = "Muzzle";
         public const string SightAnchor = "Sight";
+        public const string FrontSightAnchor = "FrontSight";
         public const string RightHandAnchor = "RightHand";
         public const string LeftHandAnchor = "LeftHand";
         public const string MagazineHandAnchor = "MagazineHand";
@@ -50,6 +51,12 @@ namespace Project.Infrastructure.Weapons
         /// <summary>Nişan hattı üzerindeki arka nokta (gez / dürbün göz merceği / nokta nişangâh arka ağzı); +Z nişan yönü.</summary>
         public Transform SightPoint { get; internal set; }
 
+        /// <summary>Arpacık / ön nişan noktası (iron sight: tepe; optikte null). SightLine hizası için.</summary>
+        public Transform FrontSightPoint { get; internal set; }
+
+        /// <summary>Ön nişan model-yerel konumu; yoksa null (WeaponViewModel 2 argümanlı EyeOffset'e düşer).</summary>
+        public Vector3? FrontSightLocal => FrontSightPoint != null ? transform.InverseTransformPoint(FrontSightPoint.position) : (Vector3?)null;
+
         /// <summary>Sağ el bileği hedefi (kabza).</summary>
         public Transform RightHandGrip { get; internal set; }
 
@@ -72,7 +79,7 @@ namespace Project.Infrastructure.Weapons
         public Transform CoverHandGrip { get; internal set; }
 
         /// <summary>Kovan rengi (pompalıda kırmızı fişek).</summary>
-        public bool ShotgunShells => Style == WeaponStyle.Escort;
+        public bool ShotgunShells => Style == WeaponStyle.Escort || Style == WeaponStyle.EscortMagnum;
 
         public Transform Body { get; internal set; }
         public Transform Magazine { get; internal set; }

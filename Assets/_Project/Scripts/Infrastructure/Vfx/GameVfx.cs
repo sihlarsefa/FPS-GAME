@@ -1,4 +1,5 @@
 using System;
+using Project.Infrastructure.Audio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,7 +14,7 @@ namespace Project.Infrastructure.Vfx
     /// mesafe ayıklaması yapılmaz, her şey yine çalışır. Sıcak yolda (ateş/isabet) yönetilen bellek ayırmaz.
     /// </para>
     /// </summary>
-    public static class GameVfx
+    public static partial class GameVfx
     {
         /// <summary>Aynı anda yanabilecek en fazla namlu alevi ışığı.</summary>
         public const int MaxMuzzleLights = 3;
@@ -105,16 +106,41 @@ namespace Project.Infrastructure.Vfx
             if (IsBeyond(position, MuzzleCullDistance))
                 return;
 
-            scale = Sanitize(scale, 1f, 0.1f, 5f);
+            scale = Sanitize(scale * Project.Infrastructure.Rendering.Atmosphere.MuzzleFlashBoost, 1f, 0.1f, 5f);
             var forward = SafeDirection(direction, Vector3.forward);
-            Spawn(EffectKind.MuzzleFlash, position, SurfaceRotation(forward), scale);
+            if (!GpuVfx.TryPlay(GpuVfxEffect.MuzzleRifle, position, forward, scale))
+                Spawn(EffectKind.MuzzleFlash, position, SurfaceRotation(forward), scale);
 
             if (!IsBeyond(position, MuzzleLightDistance))
             {
-                var intensity = 2.2f + 1.4f * scale;
-                var range = 4f + 3f * scale;
-                _muzzleLights.Flash(position + forward * (0.12f * scale), MuzzleLightColor, intensity, range, 0.05f);
+                FireMuzzleLight(position, forward, scale, FpGunfireRules.FlashDuration(Time.unscaledDeltaTime, MuzzleDevice.None));
             }
+
+            NotifySmokeFlash(position, 0.6f);
+        }
+
+        private static float _nextFeelSmoke;
+
+        /// <summary>
+        /// Ateş hissi katmanı (FireFeelRules): güçlü ilk atışta ekstra flaş, atış temposuna bağlı namlu dumanı.
+        /// smokeRate yüksekse duman aralığı kısalır ve boyutu büyür. Mevcut MuzzleFlash çağrılarını değiştirmez.
+        /// </summary>
+        public static void FireFeelLayer(Vector3 position, Vector3 direction, float flashScale, float smokeRate)
+        {
+            if (!IsFinite(position) || !EnsureReady() || IsBeyond(position, 120f))
+                return;
+
+            var forward = SafeDirection(direction, Vector3.forward);
+            if (flashScale > 1.15f)
+                Spawn(EffectKind.MuzzleFlash, position, SurfaceRotation(forward), Sanitize(flashScale - 1f, 0.3f, 0.1f, 1f));
+
+            smokeRate = Sanitize(smokeRate, 1f, 0.1f, 3f);
+            var now = Time.unscaledTime;
+            if (now < _nextFeelSmoke || !VfxQuality.AllowOptional(VfxQuality.Tier))
+                return;
+
+            _nextFeelSmoke = now + 0.12f / smokeRate;
+            Spawn(EffectKind.MuzzleSmoke, position + forward * 0.15f, Quaternion.identity, Mathf.Clamp(0.5f + smokeRate * 0.4f, 0.5f, 1.6f));
         }
 
         /// <summary>Mermi izi: havuzlanmış katkılı LineRenderer, süre boyunca kuyruğu başa doğru kısalır.</summary>
@@ -131,7 +157,39 @@ namespace Project.Infrastructure.Vfx
 
             duration = Sanitize(duration, 0.05f, 0.01f, 2f);
             width = Sanitize(width, 0.025f, 0.002f, 0.5f);
+            VfxMaterials.SetTracerBrightness(VfxNightRules.TracerHdr(NightNow()));
+            if (_hasCamera)
+                from = FpGunfireRules.TracerStart(from, to, _cameraPosition, FpGunfireRules.TracerMinCameraDistance);
             _tracers.Spawn(from, to, duration, width, _hasCamera, _cameraPosition);
+        }
+
+        /// <summary>
+        /// Balistik yolu izleyen ince, gerilmiş, HDR parlak mermi izi (her 3. mermi + tüm makineli tüfek mermileri).
+        /// <paramref name="origin"/> merminin bu karedeki konumu, <paramref name="dir"/> uçuş yönü, <paramref name="speed"/> m/sn.
+        /// Gece bloom'a uygun şekilde daha parlak. Dönüş: iz çizildi mi.
+        /// </summary>
+        public static bool Tracer(Vector3 origin, Vector3 dir, float speed, CaliberClass caliber)
+        {
+            if (!IsFinite(origin) || !IsFinite(dir) || !EnsureReady())
+                return false;
+
+            _shotCounter++;
+            if (!VfxNightRules.ShouldDrawTracer(_shotCounter, caliber))
+                return false;
+
+            var forward = SafeDirection(dir, Vector3.forward);
+            var length = VfxNightRules.TracerLength(speed, 0.02f);
+            var to = origin + forward * length;
+            if (_hasCamera)
+                origin = FpGunfireRules.TracerStart(origin, to, _cameraPosition, FpGunfireRules.TracerMinCameraDistance);
+            if (_hasCamera && SegmentDistanceSqr(_cameraPosition, origin, to) > TracerCullDistance * TracerCullDistance)
+                return false;
+
+            VfxMaterials.SetTracerBrightness(VfxNightRules.TracerHdr(NightNow()));
+            var duration = Mathf.Clamp(length / Mathf.Max(60f, speed) * 1.5f, 0.03f, 0.09f);
+            _tracers.Spawn(origin, to, duration, VfxNightRules.TracerWidth(caliber), _hasCamera, _cameraPosition,
+                VfxNightRules.TracerTint(caliber));
+            return true;
         }
 
         /// <summary>Yüzey isabeti (parçacık + mermi deliği). Et → kan, su → sıçrama, yaprak → çıkartmasız.</summary>
@@ -162,7 +220,8 @@ namespace Project.Infrastructure.Vfx
                     return;
             }
 
-            if (!IsBeyond(point, ImpactCullDistance))
+            if (!IsBeyond(point, ImpactCullDistance)
+                && !GpuVfx.TryPlay(GpuVfxEffect.Impact, point + n * 0.02f, n, 1f, (int)surface))
                 Spawn(ImpactKindFor(surface), point + n * 0.02f, SurfaceRotation(n), 1f);
 
             if (surface == SurfaceKind.Foliage || IsBeyond(point, DecalCullDistance))
@@ -173,8 +232,8 @@ namespace Project.Infrastructure.Vfx
                 collider = ProbeCollider(point, n);
 
             var size = DecalSize(surface);
-            _decals.Place(point + n * DecalOffset, n, size, _rng.Range(0f, 360f), VfxMaterials.DecalFor(surface),
-                AttachTarget(collider));
+            _decals.Place(point + n * DecalOffset, n, size, _rng.Range(0f, 360f),
+                VfxDecalVariants.Get(surface, (int)(_rng.Value() * VfxDecalVariants.VariantCount)), AttachTarget(collider));
         }
 
         /// <summary>Kan: kırmızı bulut + damlacıklar; arkadaki duvara/zemine kan lekesi.</summary>
@@ -188,6 +247,7 @@ namespace Project.Infrastructure.Vfx
 
             var n = SafeDirection(normal, Vector3.up);
             Spawn(EffectKind.Blood, point, SurfaceRotation(n), 1f);
+            BloodExtras(point, n);
 
             if (IsBeyond(point, DecalCullDistance) || _rng.Value() > 0.55f)
                 return;
@@ -221,15 +281,23 @@ namespace Project.Infrastructure.Vfx
             }
             else
             {
-                Spawn(EffectKind.Explosion, position, Quaternion.identity, scale);
+                // Sinematik katmanlı patlama; gölgelendirici yoksa eski GPU/parçacık efektine düşer.
+                if (!PlayExplosionFx(position, radius)
+                    && !GpuVfx.TryPlay(GpuVfxEffect.Explosion, position, Vector3.up, radius))
+                    Spawn(EffectKind.Explosion, position, Quaternion.identity, scale);
+                ExplosionExtras(position, radius, scale);
             }
 
             if (!IsBeyond(position, ExplosionLightDistance))
             {
-                var intensity = underwater ? 3f : 7f + 2f * scale;
+                var night = NightNow();
+                var intensity = (underwater ? 3f : 7f + 2f * scale) * VfxNightRules.ExplosionIntensityScale(night);
                 _explosionLights.Flash(position + Vector3.up * (0.8f * scale), ExplosionLightColor, intensity,
-                    radius * 3f + 6f, 0.45f);
+                    (radius * 3f + 6f) * VfxNightRules.ExplosionRangeScale(night), 0.45f);
             }
+
+            if (!underwater)
+                NotifySmokeFlash(position, 1f);
 
             if (underwater || IsBeyond(position, DecalCullDistance * 2f))
                 return;
@@ -257,11 +325,18 @@ namespace Project.Infrastructure.Vfx
             radius = Sanitize(radius, VfxEffectLibrary.ReferenceRadius, 0.5f, 40f);
             duration = Sanitize(duration, 20f, 1f, 300f);
             var scale = radius / VfxEffectLibrary.ReferenceRadius;
+            RegisterSmokeCloud(position, radius, duration);
 
             var lifeMax = Mathf.Clamp(duration * 0.5f, 1.5f, 8f);
             var lifeMin = lifeMax * 0.75f;
             var emitSeconds = Mathf.Max(0.5f, duration - lifeMax * 0.5f);
             var busy = emitSeconds + lifeMax + 0.5f;
+
+            if (GpuVfx.TryPlay(GpuVfxEffect.SmokeGrenade, position, Vector3.up, radius, 0, duration))
+            {
+                SmokeBillowExtras(position, scale, emitSeconds, lifeMin, lifeMax, busy);
+                return;
+            }
 
             var pool = Pool(EffectKind.Smoke);
             var ps = pool != null ? pool.Prepare(position, Quaternion.identity, scale, busy) : null;
@@ -273,7 +348,7 @@ namespace Project.Infrastructure.Vfx
             main.startLifetime = new ParticleSystem.MinMaxCurve(lifeMin, lifeMax);
             var emission = ps.emission;
             // Yaşayan parçacık sayısı ≈ oran × ömür: süreden bağımsız sabit yoğunluk.
-            emission.rateOverTime = new ParticleSystem.MinMaxCurve(52f / ((lifeMin + lifeMax) * 0.5f));
+            emission.rateOverTime = new ParticleSystem.MinMaxCurve(52f / ((lifeMin + lifeMax) * 0.5f) * VfxQuality.CountFactor);
 
             var t = ps.transform;
             if (t.childCount > 0 && t.GetChild(0).TryGetComponent(out ParticleSystem skirt))
@@ -283,6 +358,7 @@ namespace Project.Infrastructure.Vfx
             }
 
             ps.Play(true);
+            SmokeBillowExtras(position, scale, emitSeconds, lifeMin, lifeMax, busy);
         }
 
         /// <summary>Toz bulutu (iniş, rotor rüzgârı, araç). Su üstünde su serpintisine döner.</summary>
@@ -302,6 +378,8 @@ namespace Project.Infrastructure.Vfx
             }
 
             Spawn(EffectKind.Dust, position, Quaternion.identity, scale);
+            if (RotorRingDue(scale) && VfxQuality.AllowOptional(VfxQuality.Tier))
+                Spawn(EffectKind.RotorRing, position, Quaternion.identity, 0.4f);
         }
 
         /// <summary>
@@ -341,6 +419,7 @@ namespace Project.Infrastructure.Vfx
             _tracers?.Clear();
             _muzzleLights?.Clear();
             _explosionLights?.Clear();
+            ClearExtras();
             _lastCollider = null;
             _lastFrame = -1;
         }
@@ -389,11 +468,12 @@ namespace Project.Infrastructure.Vfx
                         pools[i] = new ParticleEffectPool(kind, template, effects, VfxEffectLibrary.Capacity(kind), lifetime);
                 }
 
-                _decals = new DecalPool("BulletHole", decals, MaxDecals);
-                _scorches = new DecalPool("Scorch", decals, MaxScorchDecals);
+                _decals = new DecalPool("BulletHole", decals, VfxQuality.DecalCap(VfxQuality.Tier, MaxDecals));
+                _scorches = new DecalPool("Scorch", decals, VfxQuality.ScorchCap(VfxQuality.Tier, MaxScorchDecals));
                 _tracers = new TracerPool(tracers, MaxTracers);
                 _muzzleLights = new FlashLightPool("MuzzleLight", lights, MaxMuzzleLights);
                 _explosionLights = new FlashLightPool("ExplosionLight", lights, MaxExplosionLights);
+                BuildExtras(root);
                 _root = root;
                 _pools = pools;
 
@@ -406,6 +486,9 @@ namespace Project.Infrastructure.Vfx
                 Prewarm(EffectKind.Dust, 2);
                 Prewarm(EffectKind.Explosion, 1);
                 Prewarm(EffectKind.Smoke, 1);
+                Prewarm(EffectKind.MuzzleHeavy, 2);
+                Prewarm(EffectKind.MuzzleSuppressed, 2);
+                Prewarm(EffectKind.BloodMist, 2);
 
                 // AddComponent Awake'i hemen çalıştırır; host durumsuz olduğu için havuzlardan sonra eklenir.
                 _host = rootObject.AddComponent<GameVfxHost>();
@@ -477,6 +560,7 @@ namespace Project.Infrastructure.Vfx
             _tracers = null;
             _muzzleLights = null;
             _explosionLights = null;
+            ResetExtras();
             _camera = null;
             _cameraTransform = null;
             _hasCamera = false;
@@ -512,6 +596,7 @@ namespace Project.Infrastructure.Vfx
             _muzzleLights?.Tick(deltaTime);
             _explosionLights?.Tick(deltaTime);
             _tracers?.Tick(deltaTime, _hasCamera, _cameraPosition);
+            TickExtras(deltaTime);
         }
 
         internal static void HostDestroyed(GameVfxHost host)
@@ -527,6 +612,8 @@ namespace Project.Infrastructure.Vfx
             _tracers = null;
             _muzzleLights = null;
             _explosionLights = null;
+            _casings = null;
+            _explosionFx = null;
         }
 
         // ================================================================== kamera
@@ -618,6 +705,7 @@ namespace Project.Infrastructure.Vfx
                 case SurfaceKind.Wood: return EffectKind.ImpactWood;
                 case SurfaceKind.Water: return EffectKind.ImpactWater;
                 case SurfaceKind.Foliage: return EffectKind.ImpactFoliage;
+                case SurfaceKind.Snow: return EffectKind.ImpactSnow;
                 case SurfaceKind.Flesh: return EffectKind.Blood;
                 default: return EffectKind.ImpactConcrete;
             }
@@ -630,6 +718,7 @@ namespace Project.Infrastructure.Vfx
                 case SurfaceKind.Metal: return _rng.Range(0.05f, 0.07f);
                 case SurfaceKind.Wood: return _rng.Range(0.06f, 0.085f);
                 case SurfaceKind.Dirt: return _rng.Range(0.09f, 0.13f);
+                case SurfaceKind.Snow: return _rng.Range(0.08f, 0.12f);
                 default: return _rng.Range(0.07f, 0.1f);
             }
         }

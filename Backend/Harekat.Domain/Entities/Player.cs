@@ -29,7 +29,7 @@ public sealed class Player
     public DateTimeOffset LastSeenAt { get; set; } = DateTimeOffset.UtcNow;
     public bool IsOnline { get; set; }
     public string Region { get; set; } = "tr";
-    public List<string> OwnedCosmetics { get; set; } = ["camo_standard", "beret_green"];
+    public List<string> OwnedCosmetics { get; set; } = ["camo_standard", "beret_green", "beret_steel", "beret_frost", "armband_kartal", "armband_season1", "skin_mpt55_coast", "pose_salute", "pose_flag_plant", "frame_plain", "frame_season1", "frame_archive_s1_top10", "frame_archive_s1_top100"];
     public string EquippedCamo { get; set; } = "camo_standard";
     public string EquippedBeret { get; set; } = "beret_green";
     public Dictionary<string, int> AchievementProgress { get; set; } = new();

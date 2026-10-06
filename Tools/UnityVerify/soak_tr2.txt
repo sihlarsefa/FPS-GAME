@@ -1,0 +1,10 @@
+== Soak PlayMode: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/MacOS/Unity
+== HAREKAT_SOAK_SECONDS=60 SHORT=30
+== Filtre: TrainingRange_Soak
+
+Aborting batchmode due to failure:
+Scripts have compiler errors.
+
+== Unity çıkış kodu: 1
+== Özet: passed=0 failed=7
+== Rapor: Logs/soak/RAPOR.md

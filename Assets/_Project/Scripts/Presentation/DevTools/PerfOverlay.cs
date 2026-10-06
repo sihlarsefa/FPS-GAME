@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 namespace Project.Presentation.DevTools
 {
     /// <summary>
-    /// Performans göstergesi — F3 ile aç/kapa.
+    /// Performans göstergesi — F3 (ya da F10) ile aç/kapa.
     /// Kare süresi grafiği, %1 low, GC tahsis, draw call, aktif bot ve mermi sayısı.
     /// </summary>
     public sealed class PerfOverlay : MonoBehaviour
@@ -43,7 +43,7 @@ namespace Project.Presentation.DevTools
             if (_bootstrapped != 0) return;
             _bootstrapped = 1;
 
-            // Development / -dev / -perfrun / her zaman hazır (F3 ile açılır; release'de de zararsız)
+            // Development / -dev / -perfrun / her zaman hazır (F10 ile açılır; release'de de zararsız)
             Ensure();
         }
 
@@ -74,7 +74,7 @@ namespace Project.Presentation.DevTools
         {
             _sampler.SampleFrame();
 
-            if (WasF3Pressed())
+            if (WasToggleKeyPressed())
                 _visible = !_visible;
         }
 
@@ -97,6 +97,8 @@ namespace Project.Presentation.DevTools
             var oneLowFps = _sampler.OnePercentLowFps();
 
             var y = rect.y + 8f;
+            float cpuMs = 0f, gpuMs = 0f;
+            ReadFrameTimings(out cpuMs, out gpuMs);
             GUI.Label(new Rect(rect.x + 10f, y, panelW - 20f, 20f),
                 $"PERF  FPS {_sampler.Fps:0.0}  avg {avg:0.0} ms  1%low {oneLowFps:0.0} ({oneLow:0.0} ms)", _labelStyle);
             y += 22f;
@@ -104,12 +106,31 @@ namespace Project.Presentation.DevTools
                 $"GC.Alloc {_sampler.GcAllocBytesLast} B   Draw {_sampler.DrawCallsLast}   Batches {_sampler.BatchesLast}", _labelStyle);
             y += 18f;
             GUI.Label(new Rect(rect.x + 10f, y, panelW - 20f, 18f),
-                $"Bot {bots}   Mermi {projectiles}   F3 kapat", _labelStyle);
+                $"CPU {FmtMs(cpuMs)}  GPU {FmtMs(gpuMs)}  Bot {bots}  Mermi {projectiles}  F3 kapat", _labelStyle);
             y += 22f;
 
             var graph = new Rect(rect.x + 10f, y, panelW - 20f, 110f);
             DrawFrameGraph(graph);
         }
+
+        private readonly UnityEngine.FrameTiming[] _timing = new UnityEngine.FrameTiming[1];
+
+        private void ReadFrameTimings(out float cpu, out float gpu)
+        {
+            cpu = 0f; gpu = 0f;
+            try
+            {
+                UnityEngine.FrameTimingManager.CaptureFrameTimings();
+                if (UnityEngine.FrameTimingManager.GetLatestTimings(1, _timing) > 0)
+                {
+                    cpu = (float)_timing[0].cpuFrameTime;
+                    gpu = (float)_timing[0].gpuFrameTime;
+                }
+            }
+            catch (Exception) { }
+        }
+
+        private static string FmtMs(float v) => v > 0.001f ? v.ToString("0.0") + " ms" : "n/a";
 
         private void DrawFrameGraph(Rect area)
         {
@@ -190,20 +211,10 @@ namespace Project.Presentation.DevTools
             return tex;
         }
 
-        private static bool WasF3Pressed()
+        private static bool WasToggleKeyPressed()
         {
-            try
-            {
-                var kb = Keyboard.current;
-                if (kb != null && kb.f3Key.wasPressedThisFrame)
-                    return true;
-            }
-            catch
-            {
-                // Input System yoksa eski API
-            }
-
-            return Input.GetKeyDown(KeyCode.F3);
+            var kb = Keyboard.current;
+            return kb != null && (kb.f10Key.wasPressedThisFrame || kb.f3Key.wasPressedThisFrame);
         }
 
         public void SetVisible(bool visible) => _visible = visible;

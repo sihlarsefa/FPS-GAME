@@ -1,0 +1,378 @@
+newmtl material_0
+Kd 0.12 0.09999997 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_1
+Kd 0.12 0.09999997 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_2
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_3
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_4
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_5
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_5.png
+newmtl material_6
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_7
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_8
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_8.png
+newmtl material_9
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_9.png
+newmtl material_10
+Kd 0.12 0.09999997 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_11
+Kd 0.12 0.09999997 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_12
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_13
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_14
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_15
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_15.png
+newmtl material_16
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_17
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_18
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_18.png
+newmtl material_19
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_19.png
+newmtl material_20
+Kd 0.66 0.48 0.35
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_21
+Kd 0.07058821 0.05490194 0.04313724
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_22
+Kd 0.66 0.48 0.35
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_23
+Kd 0.9215686 0.9215686 0.9019608
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_24
+Kd 0.07058821 0.05490194 0.04313724
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_25
+Kd 0.07058821 0.05490194 0.04313724
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_26
+Kd 0.66 0.48 0.35
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_27
+Kd 0.9215686 0.9215686 0.9019608
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_28
+Kd 0.07058821 0.05490194 0.04313724
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_29
+Kd 0.07058821 0.05490194 0.04313724
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_30
+Kd 0.66 0.48 0.35
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_31
+Kd 0.66 0.48 0.35
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_32
+Kd 0.07058821 0.05490194 0.04313724
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_33
+Kd 0.2 0.2099999 0.19
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_34
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_34.png
+newmtl material_35
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_36
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_37
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_38
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_39
+Kd 0.66 0.48 0.35
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_40
+Kd 0.2 0.2099999 0.19
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_41
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_42
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_42.png
+newmtl material_43
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_44
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_45
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_45.png
+newmtl material_46
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_46.png
+newmtl material_47
+Kd 0.85 0.09999997 0.09999997
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_48
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_49
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_50
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_50.png
+newmtl material_51
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_52
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_53
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_53.png
+newmtl material_54
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_54.png
+newmtl material_55
+Kd 0.85 0.09999997 0.09999997
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_56
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_57
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_58
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_59
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_60
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_61
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_61.png
+newmtl material_62
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_62.png
+newmtl material_63
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_64
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_65
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_66
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_67
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_68
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_69
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_70
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_71
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_72
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_73
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_74
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_75
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_76
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_76.png
+newmtl material_77
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_78
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_79
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_80
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_81
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_82
+Kd 0.09 0.09 0.07999996
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_83
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_83.png
+newmtl material_84
+Kd 0.3 0.31 0.28
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_85
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_86
+Kd 1 1 1
+Ks 0.12 0.12 0.12
+Ns 40
+map_Kd Soldier_1_material_86.png
+newmtl material_87
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_88
+Kd 0.13 0.13 0.14
+Ks 0.12 0.12 0.12
+Ns 40
+newmtl material_89
+Kd 0.18 0.186 0.168
+Ks 0.12 0.12 0.12
+Ns 40

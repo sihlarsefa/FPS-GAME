@@ -51,7 +51,7 @@ compile Project.Infrastructure "$EDEFS" $O/Project.Infrastructure.dll $(files_in
 CUR_REFS+=(-r:$O/Project.Infrastructure.dll)
 compile Project.Presentation "$EDEFS" $O/Project.Presentation.dll $(files_in $SC/Presentation)
 CUR_REFS+=(-r:$O/Project.Presentation.dll)
-compile Project.Editor "$EDEFS" $O/Project.Editor.dll $(files_in $SC/Editor)
+compile Project.Editor "$EDEFS" $O/Project.Editor.dll $(files_in $SC/Editor | grep -v "/Editor/Tests/")
 
 if [[ " $* " == *" --player "* ]]; then
   mkdir -p $O/player
@@ -62,15 +62,21 @@ if [[ " $* " == *" --player "* ]]; then
 fi
 
 if [[ " $* " == *" --tests "* ]]; then
-  NR=$(ls -d /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/*/ref/net* | tail -1)
-  TREFS=(); for f in $NR/*.dll; do TREFS+=(-r:$f); done
+  # Testler artık DERLENMİŞ Core/Application/Infrastructure/Presentation/Editor DLL'lerine karşı (netstandard + UnityEngine) derlenir ve
+  # UNITY_EDITOR tanımlıdır; böylece "#if UNITY_EDITOR" ile sarılı Infrastructure testleri de gerçekten koşar.
+  # (Unity yerel köprüsüne dokunan testler bu ortamda başarısız olabilir; saf mantık testleri çalışır.)
   mkdir -p $O/tests
-  res=$(csc -nologo -noconfig -nostdlib -target:exe -langversion:9.0 $NOWARN -define:"$BASEDEFS;UNITY_INCLUDE_TESTS" "${TREFS[@]}" -out:$O/tests/TestRunner.dll \
-      $T/testshim/NUnitShim.cs $(files_in $SC/Core $SC/Application $R/Tests/EditMode) 2>&1)
+  TDIR=$O/tests
+  rm -f $TDIR/*.dll 2>/dev/null
+  for d in Project.Core Project.Application Project.Infrastructure Project.Presentation Project.Editor; do cp -f $O/$d.dll $TDIR/ 2>/dev/null; done
+  for f in $U/Scripting/Managed/UnityEngine/UnityEngine*.dll $U/Scripting/Managed/UnityEngine/UnityEditor*.dll $DEPS/*.dll; do ln -sf $f $TDIR/$(basename $f); done
+  CUR_REFS=("${ENGINE[@]}" "${EDITOR[@]}" "${PKG[@]}" -r:$O/Project.Core.dll -r:$O/Project.Application.dll -r:$O/Project.Infrastructure.dll -r:$O/Project.Presentation.dll -r:$O/Project.Editor.dll)
+  res=$(csc -nologo -noconfig -nostdlib -target:exe -langversion:9.0 -unsafe $NOWARN -define:"$EDEFS;UNITY_INCLUDE_TESTS" "${CUR_REFS[@]}" -out:$TDIR/TestRunner.dll \
+      $T/testshim/NUnitShim.cs $(files_in $R/Tests/EditMode) 2>&1)
   errs=$(echo "$res" | grep -E "error CS" | sed "s|$SC/||; s|$R/||" | sort -u)
   echo "== Tests(compile): $(echo -n "$errs" | grep -c error) errors"; [ -n "$errs" ] && echo "$errs" | head -100
   if [ -z "$errs" ]; then
-    echo '{"runtimeOptions":{"tfm":"net10.0","framework":{"name":"Microsoft.NETCore.App","version":"'$(basename $(dirname $(dirname $NR)))'"}}}' > $O/tests/TestRunner.runtimeconfig.json
-    dotnet $O/tests/TestRunner.dll $TESTFILTER 2>&1 | tail -60
+    echo '{"runtimeOptions":{"tfm":"net10.0","framework":{"name":"Microsoft.NETCore.App","version":"'$(basename $(dirname $(dirname $(ls -d /usr/local/share/dotnet/packs/Microsoft.NETCore.App.Ref/*/ref/net* | tail -1))))'"}}}' > $TDIR/TestRunner.runtimeconfig.json
+    dotnet $TDIR/TestRunner.dll $TESTFILTER 2>&1 | tail -${TESTTAIL:-80}
   fi
 fi

@@ -89,12 +89,13 @@ public sealed class InMemoryStore
     private void SeedSeason()
     {
         if (!Seasons.IsEmpty) return;
+        // Design/Progression/season1.json
         var season = new Season
         {
             Number = 1,
-            Name = "Sezon 1 — Kuzgun Vadisi",
-            StartsAt = DateTimeOffset.UtcNow.AddDays(-7),
-            EndsAt = DateTimeOffset.UtcNow.AddDays(83)
+            Name = "Sezon 1 — Kuzgun İnişi",
+            StartsAt = DateTimeOffset.Parse("2026-11-02T00:00:00+00:00"),
+            EndsAt = DateTimeOffset.Parse("2027-01-11T00:00:00+00:00")
         };
         Seasons[1] = season;
     }

@@ -16,6 +16,7 @@ namespace UnityEngine.Rendering
     public class FloatParameter : VolumeParameter<float> { public FloatParameter(float value, bool overrideState = false) : base(value, overrideState) { } }
     public class MinFloatParameter : FloatParameter { public float min; public MinFloatParameter(float value, float min, bool overrideState = false) : base(value, overrideState) { this.min = min; } }
     public class ClampedFloatParameter : FloatParameter { public float min, max; public ClampedFloatParameter(float value, float min, float max, bool overrideState = false) : base(value, overrideState) { this.min = min; this.max = max; } }
+    public class Vector4Parameter : VolumeParameter<Vector4> { public Vector4Parameter(Vector4 value, bool overrideState = false) : base(value, overrideState) { } }
     public class ColorParameter : VolumeParameter<Color>
     {
         public ColorParameter(Color value, bool overrideState = false) : base(value, overrideState) { }

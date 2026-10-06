@@ -347,25 +347,64 @@ public sealed class LeaderboardService
         _seasons = seasons;
     }
 
-    public async Task<IReadOnlyList<LeaderboardEntryDto>> GetAsync(string metric = "experience", int take = 50, CancellationToken ct = default)
+    public async Task<IReadOnlyList<LeaderboardEntryDto>> GetAsync(
+        string metric = "experience",
+        int take = 50,
+        string? mapId = null,
+        string? mode = null,
+        CancellationToken ct = default)
     {
         take = Math.Clamp(take, 1, 100);
-        var players = await _players.GetLeaderboardAsync(metric.ToLowerInvariant(), take, ct);
+        metric = metric.ToLowerInvariant();
+
+        // Harita/mod süzgeci: oyuncu AchievementProgress anahtarları kills_<map> / wins_<mode>.
+        // Örn. map=kuzgun → kills_kuzgun; mode=skirmish → wins_skirmish.
+        var mapKey = string.IsNullOrWhiteSpace(mapId) ? null : "kills_" + mapId.Trim().ToLowerInvariant();
+        var modeKey = string.IsNullOrWhiteSpace(mode) ? null : "wins_" + mode.Trim().ToLowerInvariant();
+
+        IReadOnlyList<Player> players;
+        if (mapKey is null && modeKey is null)
+        {
+            players = await _players.GetLeaderboardAsync(metric, take, ct);
+        }
+        else
+        {
+            // Geniş çek, istemci tarafı metrik ile sırala/süz.
+            var pool = await _players.GetLeaderboardAsync("experience", Math.Max(take * 4, 100), ct);
+            players = pool
+                .Where(p =>
+                    (mapKey is null || p.AchievementProgress.GetValueOrDefault(mapKey) > 0) &&
+                    (modeKey is null || p.AchievementProgress.GetValueOrDefault(modeKey) > 0))
+                .OrderByDescending(p => ScoreOf(p, metric, mapKey, modeKey))
+                .Take(take)
+                .ToList();
+        }
+
         return players.Select((p, i) => new LeaderboardEntryDto(
             i + 1,
             p.Id,
             p.Username,
             p.Stats.Rank,
-            metric switch
-            {
-                "kills" => p.Stats.Kills,
-                "wins" => p.Stats.Wins,
-                "elo" => p.EloRating,
-                "headshots" => p.Stats.Headshots,
-                "season" => p.SeasonXp,
-                _ => p.Stats.Experience
-            },
+            ScoreOf(p, metric, mapKey, modeKey),
             p.EloRating)).ToList();
+    }
+
+    private static int ScoreOf(Player p, string metric, string? mapKey, string? modeKey)
+    {
+        if (mapKey is not null && metric is "kills" or "map")
+            return p.AchievementProgress.GetValueOrDefault(mapKey);
+        if (modeKey is not null && metric is "wins" or "mode")
+            return p.AchievementProgress.GetValueOrDefault(modeKey);
+
+        return metric switch
+        {
+            "kills" => p.Stats.Kills,
+            "wins" => p.Stats.Wins,
+            "elo" => p.EloRating,
+            "headshots" => p.Stats.Headshots,
+            "season" => p.SeasonXp,
+            _ => p.Stats.Experience
+        };
     }
 
     public async Task<IReadOnlyList<LeaderboardEntryDto>> GetSeasonAsync(int? seasonNumber, int take = 50, CancellationToken ct = default)

@@ -71,6 +71,23 @@ namespace Project.Infrastructure.Vfx
                 t.SetParent(attachTo, true);
         }
 
+        /// <summary>Sıradaki <see cref="Place"/> çağrısının yazacağı yuva (halka sırası; FootprintTrail zaman çizelgesi için).</summary>
+        public int NextSlot => _count < Capacity ? _count : _cursor;
+
+        /// <summary>Yuvadaki çıkartmayı gizler (solma bitti).</summary>
+        public void HideSlot(int slot)
+        {
+            if (slot >= 0 && slot < Capacity && _renderers[slot] != null)
+                _renderers[slot].enabled = false;
+        }
+
+        /// <summary>Yuvadaki çıkartmaya örnek başına renk/alfa uygular (paylaşılan malzemeyi bozmaz).</summary>
+        public void TintSlot(int slot, MaterialPropertyBlock block)
+        {
+            if (slot >= 0 && slot < Capacity && _renderers[slot] != null)
+                _renderers[slot].SetPropertyBlock(block);
+        }
+
         public void Clear()
         {
             for (var i = 0; i < _count; i++)

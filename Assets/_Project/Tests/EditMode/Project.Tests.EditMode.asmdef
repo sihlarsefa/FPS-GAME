@@ -5,7 +5,12 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Project.Core",
-        "Project.Application"
+        "Project.Application",
+        "Project.Infrastructure",
+        "Project.Presentation",
+        "Project.Editor",
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,3 +1,4 @@
+using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Core.Interfaces;
 using UnityEngine;
@@ -8,13 +9,14 @@ namespace Project.Infrastructure.Input
     /// <summary>
     /// Input System tabanlı klavye/fare okuyucu. Bir karede birden çok kez okunabilir (kenar tetikleri kare bazlıdır).
     /// GameplayEnabled false iken oyun girdileri sıfır döner (menü/harita açıkken). UI girdisi her zaman okunur.
-    /// Tuşlar: WASD, Fare, Space zıpla, Shift koş, Ctrl (basılı) / C (aç-kapa) eğil, Z yüzüstü, Q/E eğilme,
+    /// Tuşlar (varsayılan, InputBindings ile değiştirilebilir; gamepad eşlemesi eklidir): WASD, Fare, Space zıpla, Shift koş, Ctrl (basılı) / C (aç-kapa) eğil, Z yüzüstü, Q/E eğilme,
     /// Sol tık ateş, Sağ tık nişan, R şarjör, F etkileşim, 1-4 silah, tekerlek silah değiştir, B ateş modu,
     /// H iyileş, J boost, G el bombası, T sis bombası, X silahı indir, Tab envanter, M harita, Esc duraklat.
     /// </summary>
     public sealed class UnityInputReader : MonoBehaviour, IMovementInputReader, ILookInputReader, ICombatInputReader
     {
         private const float MouseDeltaScale = 1f;
+        private const float StickLookPixelsPerSecond = 1100f;
 
         private InputAction _moveAction;
         private InputAction _lookAction;
@@ -30,11 +32,6 @@ namespace Project.Infrastructure.Input
         private void Awake()
         {
             _moveAction = new InputAction("Move", InputActionType.Value);
-            _moveAction.AddCompositeBinding("2DVector")
-                .With("Up", "<Keyboard>/w")
-                .With("Down", "<Keyboard>/s")
-                .With("Left", "<Keyboard>/a")
-                .With("Right", "<Keyboard>/d");
             _moveAction.AddBinding("<Gamepad>/leftStick");
 
             _lookAction = new InputAction("Look", InputActionType.Value, "<Mouse>/delta");
@@ -80,16 +77,21 @@ namespace Project.Infrastructure.Input
                 return MovementInputState.Zero;
 
             var move = _moveAction.ReadValue<Vector2>();
+            var fwd = (InputBindings.Held(BindAction.MoveForward) ? 1f : 0f) - (InputBindings.Held(BindAction.MoveBack) ? 1f : 0f);
+            var side = (InputBindings.Held(BindAction.MoveRight) ? 1f : 0f) - (InputBindings.Held(BindAction.MoveLeft) ? 1f : 0f);
+            var v = new Vector2(side + move.x, fwd + move.y);
+            if (v.sqrMagnitude > 1f) v.Normalize();
+            var pad = Gamepad.current;
             return new MovementInputState(
-                move.y,
-                move.x,
-                KeyHeld(Key.LeftShift),
-                KeyPressed(Key.Space),
-                KeyHeld(Key.LeftCtrl),
-                KeyPressed(Key.C),
-                KeyPressed(Key.Z),
-                KeyHeld(Key.Q),
-                KeyHeld(Key.E));
+                v.y,
+                v.x,
+                InputBindings.Held(BindAction.Sprint) || (pad != null && pad.leftStickButton.isPressed),
+                InputBindings.Pressed(BindAction.Jump) || (pad != null && pad.buttonSouth.wasPressedThisFrame),
+                InputBindings.Held(BindAction.CrouchHold),
+                InputBindings.Pressed(BindAction.CrouchToggle) || (pad != null && pad.buttonEast.wasPressedThisFrame),
+                InputBindings.Pressed(BindAction.Prone) || (pad != null && pad.rightStickButton.wasPressedThisFrame),
+                InputBindings.Held(BindAction.LeanLeft),
+                InputBindings.Held(BindAction.LeanRight));
         }
 
         public LookInputState ReadLook()
@@ -98,6 +100,13 @@ namespace Project.Infrastructure.Input
                 return LookInputState.Zero;
 
             var look = _lookAction.ReadValue<Vector2>() * MouseDeltaScale;
+            var pad = Gamepad.current;
+            if (pad != null)
+            {
+                var stick = pad.rightStick.ReadValue();
+                if (stick.sqrMagnitude > 0.04f)
+                    look += stick * (StickLookPixelsPerSecond * InputBindings.StickSensitivity * Time.unscaledDeltaTime);
+            }
             return new LookInputState(look.y, look.x);
         }
 
@@ -106,37 +115,45 @@ namespace Project.Infrastructure.Input
             if (!GameplayEnabled || _fireAction == null)
                 return CombatInputState.Zero;
 
+            var pad = Gamepad.current;
             var slot = -1;
-            if (KeyPressed(Key.Digit1)) slot = 0;
-            else if (KeyPressed(Key.Digit2)) slot = 1;
-            else if (KeyPressed(Key.Digit3)) slot = 2;
-            else if (KeyPressed(Key.Digit4)) slot = 3;
+            if (InputBindings.Pressed(BindAction.Slot1) || (pad != null && pad.dpad.up.wasPressedThisFrame)) slot = 0;
+            else if (InputBindings.Pressed(BindAction.Slot2) || (pad != null && pad.dpad.right.wasPressedThisFrame)) slot = 1;
+            else if (InputBindings.Pressed(BindAction.Slot3) || (pad != null && pad.dpad.down.wasPressedThisFrame)) slot = 2;
+            else if (InputBindings.Pressed(BindAction.Slot4) || (pad != null && pad.dpad.left.wasPressedThisFrame)) slot = 3;
 
             var scroll = _scrollAction.ReadValue<Vector2>().y;
             var cycle = scroll > 0.01f ? -1 : scroll < -0.01f ? 1 : 0;
 
+            var padFire = pad != null && pad.rightTrigger.ReadValue() > 0.5f;
+            var padFireDown = pad != null && pad.rightTrigger.wasPressedThisFrame;
+            var padAim = pad != null && pad.leftTrigger.ReadValue() > 0.5f;
+            var aimPressed = _aimAction.WasPressedThisFrame() || (pad != null && pad.leftTrigger.wasPressedThisFrame);
+
             return new CombatInputState(
-                _fireAction.IsPressed(),
-                _fireAction.WasPressedThisFrame(),
-                KeyPressed(Key.R),
-                _aimAction.IsPressed(),
-                KeyPressed(Key.F),
+                _fireAction.IsPressed() || padFire,
+                _fireAction.WasPressedThisFrame() || padFireDown,
+                InputBindings.Pressed(BindAction.Reload) || (pad != null && pad.buttonWest.wasPressedThisFrame),
+                _aimAction.IsPressed() || padAim,
+                InputBindings.Pressed(BindAction.Interact) || (pad != null && pad.buttonNorth.wasPressedThisFrame),
                 slot,
                 cycle,
-                KeyPressed(Key.B),
-                KeyPressed(Key.H),
-                KeyPressed(Key.J),
-                KeyPressed(Key.G),
-                KeyPressed(Key.T),
-                KeyPressed(Key.X));
+                InputBindings.Pressed(BindAction.FireMode),
+                InputBindings.Pressed(BindAction.Heal) || (pad != null && pad.leftShoulder.wasPressedThisFrame),
+                InputBindings.Pressed(BindAction.Boost),
+                InputBindings.Pressed(BindAction.Grenade) || (pad != null && pad.rightShoulder.wasPressedThisFrame),
+                InputBindings.Pressed(BindAction.Smoke),
+                InputBindings.Pressed(BindAction.Lower),
+                aimPressed);
         }
 
         public UiInputState ReadUi()
         {
+            var pad = Gamepad.current;
             return new UiInputState(
-                KeyPressed(Key.Escape),
-                KeyPressed(Key.Tab) || KeyPressed(Key.I),
-                KeyPressed(Key.M),
+                KeyPressed(Key.Escape) || (pad != null && pad.startButton.wasPressedThisFrame),
+                InputBindings.Pressed(BindAction.Inventory),
+                InputBindings.Pressed(BindAction.Map) || (pad != null && pad.selectButton.wasPressedThisFrame),
                 KeyHeld(Key.CapsLock));
         }
 

@@ -148,6 +148,7 @@ namespace Project.Infrastructure.Transport
             BuildCab(b);
             BuildRoofFittings(b);
             BuildInterior(b);
+            TransportDetailKit.KirpiBody(b);
 
             return Finish(b, "Kirpi_Govde");
         }
@@ -445,6 +446,7 @@ namespace Project.Infrastructure.Transport
                 b.Box(Tire, rotation * new Vector3(0f, WheelRadius + 0.005f, 0f), new Vector3(0.38f, 0.03f, 0.1f), rotation);
             }
 
+            TransportDetailKit.KirpiWheel(b);
             return Finish(b, "Kirpi_Teker");
         }
 
@@ -500,6 +502,7 @@ namespace Project.Infrastructure.Transport
             b.Box(Paint, new Vector3(-0.5f, 0.5f, 0.32f), new Vector3(0.04f, 0.46f, 0.22f), Quaternion.Euler(0f, -25f, 0f));
             b.Box(Paint, new Vector3(0.5f, 0.5f, 0.32f), new Vector3(0.04f, 0.46f, 0.22f), Quaternion.Euler(0f, 25f, 0f));
 
+            TransportDetailKit.KirpiTurret(b);
             return Finish(b, "Kirpi_Kule");
         }
     }

@@ -16,6 +16,20 @@ namespace Project.Infrastructure.Vfx
         Explosion,
         Smoke,
         Dust,
+        MuzzlePistol,
+        MuzzleHeavy,
+        MuzzleSuppressed,
+        ImpactSnow,
+        BloodMist,
+        ExplosionDebris,
+        ExplosionColumn,
+        ShockRing,
+        CameraDust,
+        SmokeBillow,
+        RotorRing,
+        FootDust,
+        FootSnow,
+        MuzzleSmoke,
         Count
     }
 
@@ -24,7 +38,7 @@ namespace Project.Infrastructure.Vfx
     /// alt sistemler de oynar. Darbe efektleri yerel +Z = yüzey normali olacak şekilde döndürülür.
     /// Patlama ve sis 5 m yarıçap için, toz 1 ölçek için tasarlanmıştır (dönüşüm ölçeğiyle büyütülür).
     /// </summary>
-    internal static class VfxEffectLibrary
+    internal static partial class VfxEffectLibrary
     {
         /// <summary>Patlama/sis tariflerinin tasarlandığı yarıçap (m).</summary>
         public const float ReferenceRadius = 5f;
@@ -46,7 +60,7 @@ namespace Project.Infrastructure.Vfx
                 case EffectKind.Explosion: return 10;
                 case EffectKind.Smoke: return 8;
                 case EffectKind.Dust: return 24;
-                default: return 4;
+                default: return ExtraCapacity(kind);
             }
         }
 
@@ -67,7 +81,42 @@ namespace Project.Infrastructure.Vfx
                 lifetime = Mathf.Max(lifetime, recipes[i].MaxLifetime);
             }
 
+            LinkSubEmitters(root, recipes);
+
             return root;
+        }
+
+        /// <summary>Tarifteki DeathSubEmitter adlarını aynı efektteki çocuk sistemlere bağlar (hata olursa yok sayılır).</summary>
+        private static void LinkSubEmitters(ParticleSystem root, ParticleRecipe[] recipes)
+        {
+            for (var i = 0; i < recipes.Length; i++)
+            {
+                var name = recipes[i].DeathSubEmitter;
+                if (string.IsNullOrEmpty(name))
+                    continue;
+
+                var owner = i == 0 ? root : FindChild(root, recipes[i].Name);
+                var target = FindChild(root, name);
+                if (owner == null || target == null || owner == target)
+                    continue;
+
+                var subs = owner.subEmitters;
+                subs.enabled = true;
+                subs.AddSubEmitter(target, ParticleSystemSubEmitterType.Death, ParticleSystemSubEmitterProperties.InheritNothing);
+            }
+        }
+
+        private static ParticleSystem FindChild(ParticleSystem root, string name)
+        {
+            var t = root.transform;
+            for (var i = 0; i < t.childCount; i++)
+            {
+                var child = t.GetChild(i);
+                if (child.name == name && child.TryGetComponent(out ParticleSystem ps))
+                    return ps;
+            }
+
+            return root.name == name ? root : null;
         }
 
         private static ParticleRecipe[] Recipes(EffectKind kind)
@@ -85,7 +134,7 @@ namespace Project.Infrastructure.Vfx
                 case EffectKind.Explosion: return Explosion();
                 case EffectKind.Smoke: return Smoke();
                 case EffectKind.Dust: return Dust();
-                default: return null;
+                default: return ExtraRecipes(kind);
             }
         }
 
@@ -294,7 +343,12 @@ namespace Project.Infrastructure.Vfx
                 ShapeAngle = 14f,
                 ShapeRadius = 0.01f
             };
-            return new[] { dust, clods, spray };
+            clods.DeathSubEmitter = "ClodPuff";
+            var clodPuff = DustPuff("ClodPuff", new Color(0.46f, 0.39f, 0.29f, 0.35f), new Color(0.56f, 0.48f, 0.36f, 0.3f), 1, 1, new Vector2(0.08f, 0.14f), 40f);
+            clodPuff.MaxParticles = 24;
+            clodPuff.Lifetime = new Vector2(0.3f, 0.6f);
+            clodPuff.Speed = new Vector2(0.1f, 0.4f);
+            return new[] { dust, clods, spray, clodPuff };
         }
 
         private static ParticleRecipe[] ImpactConcrete()
@@ -303,7 +357,12 @@ namespace Project.Infrastructure.Vfx
             var chips = Chunks("Chips", new Color(0.55f, 0.54f, 0.5f, 1f), new Color(0.72f, 0.7f, 0.66f, 1f), 5, 8, new Vector2(0.018f, 0.035f), new Vector2(3f, 6.5f), 1.3f);
             chips.ShapeAngle = 38f;
             var sparks = Sparks("Sparks", 0, 3, new Vector2(0.06f, 0.14f), new Vector2(5f, 9f), new Vector2(0.015f, 0.025f), 40f, 0.5f);
-            return new[] { dust, chips, sparks };
+            chips.DeathSubEmitter = "ChipDust";
+            var chipDust = DustPuff("ChipDust", new Color(0.7f, 0.68f, 0.64f, 0.3f), new Color(0.76f, 0.74f, 0.7f, 0.25f), 1, 1, new Vector2(0.06f, 0.11f), 40f);
+            chipDust.MaxParticles = 24;
+            chipDust.Lifetime = new Vector2(0.25f, 0.5f);
+            chipDust.Speed = new Vector2(0.1f, 0.3f);
+            return new[] { dust, chips, sparks, chipDust };
         }
 
         private static ParticleRecipe[] ImpactMetal()

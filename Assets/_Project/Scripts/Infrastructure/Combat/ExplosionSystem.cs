@@ -51,6 +51,7 @@ namespace Project.Infrastructure.Combat
                 ApplyDamage(position, radius, maxDamage, attackerId, string.IsNullOrEmpty(sourceId) ? DamageSourceIds.FragGrenade : sourceId);
 
             PushBodies(position, radius);
+            try { Destructible.ExplodeAt(position, radius, maxDamage); } catch (Exception e) { Debug.LogException(e); }
             ShakeLocalCamera(position, radius);
 
             try
@@ -86,7 +87,8 @@ namespace Project.Infrastructure.Combat
             try
             {
                 var pitch = UnityEngine.Random.Range(0.88f, 1.05f) * Mathf.Lerp(1.1f, 0.85f, Mathf.InverseLerp(4f, 12f, radius));
-                GameAudio.Play(SoundId.Explosion, position, 1f, pitch, Mathf.Clamp(radius * 30f, 150f, 400f));
+                // Yakın rapor burada; >15 m gecikmeli rapor + yankılar Acoustics.OnExplosion'da (çift çalma yok).
+                GameAudio.PlayExplosion(position, radius, pitch, Mathf.Clamp(radius * 30f, 150f, 400f));
             }
             catch (Exception e)
             {

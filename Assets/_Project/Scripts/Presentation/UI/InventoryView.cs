@@ -6,6 +6,7 @@ using Project.Core.Domain;
 using Project.Infrastructure;
 using Project.Infrastructure.Audio;
 using Project.Infrastructure.Combat;
+using Project.Infrastructure.Localization;
 using Project.Infrastructure.Loot;
 using Project.Presentation.Player;
 using UnityEngine;
@@ -23,7 +24,7 @@ namespace Project.Presentation.UI
     /// Envanter <see cref="InventoryService.Changed"/> ile kirlenir; satırlar havuzlanır, yazılar yalnızca değişince
     /// güncellenir. Kapalıyken hiçbir iş yapmaz.
     /// </summary>
-    public sealed class InventoryView : MonoBehaviour
+    public sealed partial class InventoryView : MonoBehaviour
     {
         private const float BodyWidth = 1280f;
         private const float BodyHeight = 860f;
@@ -33,36 +34,61 @@ namespace Project.Presentation.UI
         private const float LeftWidth = 620f;
         private const float RightLeft = 640f;
         private const float RightWidth = BodyWidth - RightLeft;
-        private const float WeaponCardHeight = 108f;
-        private const float GearRowHeight = 70f;
-        private const float ItemRowHeight = 54f;
+        private const float WeaponCardHeight = 124f;
+        private const float GearRowHeight = 56f;
+        private const float ZoneHeight = 38f;
+        private const float TileWidth = 112f;
+        private const float TileHeight = 88f;
+        private const float TileSpacing = 6f;
+        private const float GroundRowHeight = 50f;
+        private const float GroundRadius = 12f;
+        private const float GroundRefreshInterval = 0.25f;
         private const float DynamicRefreshInterval = 0.15f;
         private const float DropDistance = 1.3f;
+        private const int LeftFocusCount = InventoryService.WeaponSlotCount + 3;
 
         private static readonly Color CardColor = UiTheme.WithAlpha(UiTheme.PanelLight, 0.92f);
         private static readonly Color ActiveCardColor = UiTheme.Hex(0x45, 0x40, 0x22, 0xF0);
-        private static readonly Color MedicalColor = UiTheme.Hex(0xE0, 0x4B, 0x4B);
-        private static readonly Color ThrowableColor = UiTheme.Hex(0x9A, 0xA5, 0x78);
+        private static readonly Color SlotEmptyColor = UiTheme.Hex(0x1B, 0x20, 0x14, 0xE0);
+        private static readonly Color ZoneDropColor = UiTheme.Hex(0x6A, 0x1C, 0x1C, 0xC0);
+        private static readonly Color ZoneHandColor = UiTheme.Hex(0x2C, 0x4A, 0x24, 0xC0);
+
+        private sealed class AttachmentChip
+        {
+            public Image Background;
+            public Text Label;
+            public AttachmentSlot Slot;
+        }
 
         private sealed class WeaponCard
         {
             public int Slot;
             public Image Background;
+            public Image Strip;
+            public Image Focus;
+            public RectTransform IconHolder;
+            public InventoryIcon Icon;
             public Text Type;
             public Text Name;
             public Text Info;
             public Text Badge;
             public Button Equip;
             public Button Drop;
+            public AttachmentChip[] Chips;
             public string ShownWeaponId;
             public int ShownKey = int.MinValue;
             public int ShownBadgeKey = int.MinValue;
+            public int ShownAttachKey = int.MinValue;
         }
 
         private sealed class GearRow
         {
             public ItemCategory Category;
             public string TypeName;
+            public Image Strip;
+            public Image Focus;
+            public RectTransform IconHolder;
+            public InventoryIcon Icon;
             public Text Type;
             public Text Name;
             public Text Info;
@@ -72,26 +98,37 @@ namespace Project.Presentation.UI
             public int ShownKey = int.MinValue;
         }
 
-        private sealed class ItemRow
+        private sealed class Tile
         {
             public RectTransform Root;
             public Image Strip;
+            public Image Focus;
+            public RectTransform IconHolder;
+            public InventoryIcon Icon;
             public Text Name;
-            public Text Sub;
             public Text Count;
-            public Button Use;
-            public Button DropChunk;
-            public Text DropChunkLabel;
-            public Button DropAll;
             public string ItemId;
             public int Quantity;
             public int Chunk;
             public bool Usable;
             public bool Visible;
+            public InventoryRarity Rarity;
+            public ItemCategory Category;
+            public float UnitWeight;
+            public string Detail;
+        }
+
+        private sealed class ZoneView
+        {
+            public RectTransform Rect;
+            public Image Background;
+            public Text Label;
+            public Color Base;
         }
 
         private IPlayerHudSource _player;
         private RectTransform _panel;
+        private RectTransform _backpackRect;
         private Text _subtitle;
         private Text _vitals;
         private Text _emptyEquipment;
@@ -102,9 +139,10 @@ namespace Project.Presentation.UI
         private GearRow _backpackRow;
         private UiProgressBar _capacityBar;
         private Text _capacityText;
-        private RectTransform _listContent;
+        private RectTransform _gridContent;
+        private ScrollRect _gridScroll;
         private Text _emptyList;
-        private readonly List<ItemRow> _rows = new List<ItemRow>(16);
+        private readonly List<Tile> _tiles = new List<Tile>(24);
         private RectTransform _usePanel;
         private Text _useText;
         private UiProgressBar _useBar;
@@ -180,6 +218,7 @@ namespace Project.Presentation.UI
 
             _dirty = true;
             _nextDynamicRefresh = 0f;
+            _nextGround = 0f;
             InvalidateShown();
             Refresh();
         }
@@ -191,6 +230,7 @@ namespace Project.Presentation.UI
                 return;
 
             IsOpen = false;
+            CancelDrag();
             if (_panel != null)
                 _panel.gameObject.SetActive(false);
             MapOverlayInput.Release(this);
@@ -236,7 +276,7 @@ namespace Project.Presentation.UI
             accent.gameObject.name = "Accent";
             UiFactory.SetRect(accent, new Vector2(0f, 0.18f), new Vector2(0f, 0.82f), new Vector2(10f, 0f), new Vector2(16f, 0f));
 
-            var title = UiFactory.Label(header, "ENVANTER", UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.TextHeader, FontStyle.Bold);
+            var title = UiFactory.Label(header, Loc.Get("inv.title", "ENVANTER"), UiTheme.FontMedium, TextAnchor.MiddleLeft, UiTheme.TextHeader, FontStyle.Bold);
             title.horizontalOverflow = HorizontalWrapMode.Overflow;
             UiFactory.Stretch(title, 30f, 0f, 0f, 0f);
             UiFactory.AddShadow(title, UiTheme.TextShadow, new Vector2(1f, -1f));
@@ -255,21 +295,39 @@ namespace Project.Presentation.UI
             column.gameObject.name = "Equipment";
             UiFactory.SetRect(column, 0f, ColumnTop, LeftWidth, ColumnHeight);
 
-            _equipmentRoot = UiFactory.VerticalList(column, 8f, UiTheme.Padding);
+            _equipmentRoot = UiFactory.VerticalList(column, 6f, UiTheme.Padding);
             _equipmentRoot.gameObject.name = "List";
 
-            UiWidgets.Header(_equipmentRoot, "SİLAHLAR", UiTheme.FontNormal);
+            UiWidgets.Header(_equipmentRoot, Loc.Get("inv.weapons", "SİLAHLAR"), UiTheme.FontNormal);
             for (var slot = 0; slot < _weapons.Length; slot++)
                 _weapons[slot] = CreateWeaponCard(_equipmentRoot, slot);
 
-            UiFactory.Spacer(_equipmentRoot, 4f);
-            UiWidgets.Header(_equipmentRoot, "KORUYUCU TEÇHİZAT", UiTheme.FontNormal);
-            _vestRow = CreateGearRow(_equipmentRoot, ItemCategory.Armor, "YELEK");
-            _helmetRow = CreateGearRow(_equipmentRoot, ItemCategory.Helmet, "KASK");
-            _backpackRow = CreateGearRow(_equipmentRoot, ItemCategory.Backpack, "ÇANTA");
+            UiWidgets.Header(_equipmentRoot, Loc.Get("inv.armor", "KORUYUCU TEÇHİZAT"), UiTheme.FontNormal);
+            _vestRow = CreateGearRow(_equipmentRoot, ItemCategory.Armor, "YELEK", 0);
+            _helmetRow = CreateGearRow(_equipmentRoot, ItemCategory.Helmet, "KASK", 1);
+            _backpackRow = CreateGearRow(_equipmentRoot, ItemCategory.Backpack, Loc.Get("inv.backpack_slot", "ÇANTA"), 2);
 
-            _emptyEquipment = UiFactory.Label(column, "Envanter bilgisi yok", UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.TextMuted, FontStyle.Bold);
+            BuildZones(_equipmentRoot);
+
+            _emptyEquipment = UiFactory.Label(column, Loc.Get("inv.empty", "Envanter bilgisi yok"), UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.TextMuted, FontStyle.Bold);
             _emptyEquipment.enabled = false;
+        }
+
+        private Image CreateFocus(RectTransform parent)
+        {
+            var image = UiFactory.Image(parent, UiSprites.GetRoundedRectOutline(6), UiTheme.Amber);
+            image.gameObject.name = "Focus";
+            UiFactory.Stretch(image.rectTransform, -2f);
+            image.gameObject.SetActive(false);
+            return image;
+        }
+
+        private static Image CreateStrip(RectTransform parent)
+        {
+            var strip = UiFactory.Image(parent, null, UiTheme.Khaki);
+            strip.gameObject.name = "Strip";
+            UiFactory.SetRect(strip, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 6f), new Vector2(5f, -6f));
+            return strip;
         }
 
         private WeaponCard CreateWeaponCard(RectTransform parent, int slot)
@@ -279,69 +337,144 @@ namespace Project.Presentation.UI
             root.gameObject.name = "WeaponSlot" + (slot + 1);
             UiFactory.LayoutSize(root, -1f, WeaponCardHeight, 1f);
             card.Background = root.GetComponent<Image>();
-            card.Background.raycastTarget = false;
+            card.Background.raycastTarget = true;
+            card.Strip = CreateStrip(root);
 
             var keyBox = UiFactory.Panel(root, UiTheme.Hex(0xEC, 0xEB, 0xE0, 0xE6), UiSprites.GetRoundedRect(4));
             keyBox.gameObject.name = "Key";
             keyBox.GetComponent<Image>().raycastTarget = false;
-            UiFactory.SetRect(keyBox, 12f, 12f, 34f, 34f);
+            UiFactory.SetRect(keyBox, 14f, 10f, 30f, 30f);
             var keyText = UiFactory.Label(keyBox, UiWidgets.Number(slot + 1), UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.Background, FontStyle.Bold);
             keyText.horizontalOverflow = HorizontalWrapMode.Overflow;
 
-            card.Type = UiFactory.Label(root, slot == InventoryService.SidearmSlot ? "TABANCA" : "ANA SİLAH", UiTheme.FontTiny, TextAnchor.UpperLeft, UiTheme.TextMuted, FontStyle.Bold);
+            card.IconHolder = UiFactory.CreateRect("IconHolder", root);
+            UiFactory.SetRect(card.IconHolder, 54f, 8f, 96f, 50f);
+
+            card.Type = UiFactory.Label(root, slot == InventoryService.SidearmSlot ? Loc.Get("inv.sidearm", "TABANCA") : Loc.Get("inv.primary", "ANA SİLAH"), UiTheme.FontTiny, TextAnchor.UpperLeft, UiTheme.TextMuted, FontStyle.Bold);
             card.Type.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(card.Type, 58f, 10f, 300f, 20f);
+            UiFactory.SetRect(card.Type, 158f, 8f, 240f, 20f);
 
             card.Name = UiFactory.Label(root, string.Empty, UiTheme.FontMedium, TextAnchor.UpperLeft, UiTheme.Text, FontStyle.Bold);
             card.Name.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(card.Name, 58f, 28f, 330f, 34f);
+            UiFactory.SetRect(card.Name, 158f, 26f, 250f, 34f);
             UiFactory.AddShadow(card.Name, UiTheme.TextShadow, new Vector2(1f, -1f));
 
             card.Info = UiFactory.Label(root, string.Empty, UiTheme.FontTiny + 2, TextAnchor.UpperLeft, UiTheme.TextDim);
             card.Info.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(card.Info, 58f, 72f, 400f, 24f);
+            UiFactory.SetRect(card.Info, 54f, 64f, 430f, 22f);
 
             card.Badge = UiFactory.Label(root, string.Empty, UiTheme.FontTiny, TextAnchor.UpperRight, UiTheme.Amber, FontStyle.Bold);
             card.Badge.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.Anchor(card.Badge, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-128f, -10f), new Vector2(220f, 20f));
+            UiFactory.Anchor(card.Badge, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-112f, -10f), new Vector2(220f, 20f));
+
+            // Eklenti yuvaları (görsel): Nişan / Namlu / Tutamak / Şarjör / Dipçik.
+            card.Chips = new AttachmentChip[AttachmentCatalog.SlotCount];
+            for (var s = 0; s < card.Chips.Length; s++)
+                card.Chips[s] = CreateChip(root, (AttachmentSlot)s, 54f + s * 83f, 92f);
 
             // Sağda dikey düğme sütunu: KUŞAN üstte, BIRAK altta.
-            card.Equip = SmallButton(root, "KUŞAN", () => EquipWeapon(card.Slot), UiButtonStyle.Default, 104f, 40f);
-            UiFactory.Anchor(card.Equip, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -10f), new Vector2(104f, 40f));
+            card.Equip = SmallButton(root, Loc.Get("inv.equip", "KUŞAN"), () => EquipWeapon(card.Slot), UiButtonStyle.Default, 88f, 36f);
+            UiFactory.Anchor(card.Equip, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -10f), new Vector2(88f, 36f));
 
-            card.Drop = SmallButton(root, "BIRAK", () => DropWeapon(card.Slot), UiButtonStyle.Danger, 104f, 40f);
-            UiFactory.Anchor(card.Drop, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-12f, 10f), new Vector2(104f, 40f));
+            card.Drop = SmallButton(root, Loc.Get("inv.drop", "BIRAK"), () => DropWeapon(card.Slot), UiButtonStyle.Danger, 88f, 36f);
+            UiFactory.Anchor(card.Drop, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-12f, 10f), new Vector2(88f, 36f));
+
+            card.Focus = CreateFocus(root);
+
+            var index = slot;
+            AttachDrag(root.gameObject, () => SetFocus(FocusArea.Left, index),
+                () => MakeWeaponPayload(card.Slot));
             return card;
         }
 
-        private GearRow CreateGearRow(RectTransform parent, ItemCategory category, string type)
+        private static AttachmentChip CreateChip(RectTransform parent, AttachmentSlot slot, float x, float y)
+        {
+            var chip = new AttachmentChip { Slot = slot };
+            var root = UiFactory.Panel(parent, SlotEmptyColor, UiSprites.GetRoundedRect(4));
+            root.gameObject.name = "Att_" + slot;
+            root.GetComponent<Image>().raycastTarget = false;
+            UiFactory.SetRect(root, x, y, 80f, 22f);
+            chip.Background = root.GetComponent<Image>();
+            chip.Label = UiFactory.Label(root, SlotName(slot), 14, TextAnchor.MiddleCenter, UiTheme.TextMuted, FontStyle.Bold);
+            chip.Label.resizeTextForBestFit = true;
+            chip.Label.resizeTextMinSize = 8;
+            chip.Label.resizeTextMaxSize = 11;
+            chip.Label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Stretch(chip.Label, 2f, 0f, 2f, 0f);
+            return chip;
+        }
+
+        private static string SlotName(AttachmentSlot slot)
+        {
+            switch (slot)
+            {
+                case AttachmentSlot.Sight: return "NİŞAN";
+                case AttachmentSlot.Muzzle: return "NAMLU";
+                case AttachmentSlot.Grip: return "TUTAMAK";
+                case AttachmentSlot.Magazine: return "ŞARJÖR";
+                default: return "DİPÇİK";
+            }
+        }
+
+        private GearRow CreateGearRow(RectTransform parent, ItemCategory category, string type, int gearIndex)
         {
             var row = new GearRow { Category = category };
             var root = UiFactory.Panel(parent, CardColor, UiSprites.ChamferRect);
             root.gameObject.name = "Gear_" + type;
             UiFactory.LayoutSize(root, -1f, GearRowHeight, 1f);
-            root.GetComponent<Image>().raycastTarget = false;
+            root.GetComponent<Image>().raycastTarget = true;
+            row.Strip = CreateStrip(root);
+
+            row.IconHolder = UiFactory.CreateRect("IconHolder", root);
+            UiFactory.SetRect(row.IconHolder, 14f, 6f, 44f, 44f);
 
             row.Type = UiFactory.Label(root, type, UiTheme.FontTiny, TextAnchor.UpperLeft, UiTheme.TextMuted, FontStyle.Bold);
             row.Type.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(row.Type, 14f, 8f, 240f, 20f);
+            UiFactory.SetRect(row.Type, 68f, 5f, 220f, 20f);
             row.TypeName = type;
 
             row.Name = UiFactory.Label(root, string.Empty, UiTheme.FontNormal, TextAnchor.UpperLeft, UiTheme.Text, FontStyle.Bold);
             row.Name.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(row.Name, 14f, 30f, 240f, 30f);
+            UiFactory.SetRect(row.Name, 68f, 24f, 220f, 28f);
 
             row.Bar = UiFactory.ProgressBar(root, UiTheme.Armor, UiTheme.Track);
             row.Bar.TrailEnabled = false;
-            UiFactory.SetRect(row.Bar, 262f, 22f, 190f, 12f);
+            UiFactory.SetRect(row.Bar, 296f, 14f, 184f, 14f);
 
             row.Info = UiFactory.Label(root, string.Empty, UiTheme.FontTiny, TextAnchor.UpperLeft, UiTheme.TextDim, FontStyle.Bold);
             row.Info.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(row.Info, 262f, 40f, 200f, 20f);
+            UiFactory.SetRect(row.Info, 296f, 32f, 190f, 20f);
 
-            row.Drop = SmallButton(root, "BIRAK", () => DropGear(row.Category), UiButtonStyle.Danger, 104f, 38f);
-            UiFactory.Anchor(row.Drop, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-12f, 0f), new Vector2(104f, 38f));
+            row.Drop = SmallButton(root, Loc.Get("inv.drop", "BIRAK"), () => DropGear(row.Category), UiButtonStyle.Danger, 88f, 34f);
+            UiFactory.Anchor(row.Drop, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-12f, 0f), new Vector2(88f, 34f));
+
+            row.Focus = CreateFocus(root);
+
+            var index = InventoryService.WeaponSlotCount + gearIndex;
+            AttachDrag(root.gameObject, () => SetFocus(FocusArea.Left, index), () => MakeGearPayload(row));
             return row;
+        }
+
+        private void BuildZones(RectTransform parent)
+        {
+            var holder = UiFactory.CreateRect("Zones", parent);
+            UiFactory.LayoutSize(holder, -1f, ZoneHeight, 1f);
+            _dropZone = CreateZone(holder, "ZoneDrop", Loc.Get("inv.zone.drop", "BIRAK  ·  sürükle-bırak"), 0f, 0.5f, ZoneDropColor);
+            _handZone = CreateZone(holder, "ZoneHand", Loc.Get("inv.zone.hand", "EL  ·  kuşan / kullan"), 0.5f, 1f, ZoneHandColor);
+        }
+
+        private static ZoneView CreateZone(RectTransform holder, string name, string label, float x0, float x1, Color color)
+        {
+            var zone = new ZoneView { Base = color };
+            var rect = UiFactory.Panel(holder, color, UiSprites.ChamferRect);
+            rect.gameObject.name = name;
+            UiFactory.SetRect(rect, new Vector2(x0, 0f), new Vector2(x1, 1f), new Vector2(x0 > 0f ? 3f : 0f, 0f), new Vector2(x1 < 1f ? -3f : 0f, 0f));
+            zone.Rect = rect;
+            zone.Background = rect.GetComponent<Image>();
+            zone.Background.raycastTarget = false;
+            zone.Label = UiFactory.Label(rect, label, UiTheme.FontSmall, TextAnchor.MiddleCenter, UiTheme.TextDim, FontStyle.Bold);
+            zone.Label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            return zone;
         }
 
         private void BuildBackpack(RectTransform body)
@@ -349,28 +482,40 @@ namespace Project.Presentation.UI
             var column = UiFactory.Panel(body, UiTheme.Panel, UiSprites.ChamferRect);
             column.gameObject.name = "Backpack";
             UiFactory.SetRect(column, RightLeft, ColumnTop, RightWidth, ColumnHeight);
+            _backpackRect = column;
+            const float inner = RightWidth - UiTheme.Padding * 2f;
 
-            var header = UiWidgets.Header(column, "SIRT ÇANTASI", UiTheme.FontNormal);
-            UiFactory.SetRect(header.transform.parent as RectTransform, UiTheme.Padding, UiTheme.Padding, RightWidth - UiTheme.Padding * 2f, UiTheme.FontNormal + 18f);
+            var header = UiWidgets.Header(column, Loc.Get("inv.backpack", "SIRT ÇANTASI"), UiTheme.FontNormal);
+            UiFactory.SetRect(header.transform.parent as RectTransform, UiTheme.Padding, UiTheme.Padding, inner, UiTheme.FontNormal + 18f);
 
             // Yük / kapasite.
-            var capacityLabel = UiFactory.Label(column, "YÜK", UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted, FontStyle.Bold);
-            UiFactory.SetRect(capacityLabel, UiTheme.Padding, 62f, 60f, 20f);
+            var capacityLabel = UiFactory.Label(column, Loc.Get("inv.load", "YÜK"), UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted, FontStyle.Bold);
+            UiFactory.SetRect(capacityLabel, UiTheme.Padding, 56f, 60f, 20f);
             _capacityBar = UiFactory.ProgressBar(column, UiTheme.HealthHigh, UiTheme.Track);
             _capacityBar.TrailEnabled = false;
             _capacityBar.SetSegments(4, UiTheme.WithAlpha(UiTheme.Background, 0.6f), 2f);
-            UiFactory.SetRect(_capacityBar, UiTheme.Padding + 52f, 66f, RightWidth - UiTheme.Padding * 2f - 52f - 170f, 14f);
+            UiFactory.SetRect(_capacityBar, UiTheme.Padding + 52f, 60f, inner - 52f - 170f, 14f);
             _capacityText = UiFactory.Label(column, string.Empty, UiTheme.FontSmall, TextAnchor.MiddleRight, UiTheme.Text, FontStyle.Bold);
             _capacityText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(_capacityText, RightWidth - UiTheme.Padding - 160f, 60f, 160f, 26f);
+            UiFactory.SetRect(_capacityText, RightWidth - UiTheme.Padding - 160f, 54f, 160f, 26f);
 
-            // Yığın listesi.
-            var listHolder = UiFactory.CreateRect("ListHolder", column);
-            UiFactory.Stretch(listHolder, UiTheme.Padding, 96f, UiTheme.Padding, 84f);
-            UiWidgets.ScrollList(listHolder, out _listContent, 6f, 0);
+            // Kalibre özeti.
+            BuildAmmoRow(column, 86f, inner);
 
-            _emptyList = UiFactory.Label(listHolder, "Çanta boş", UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.TextMuted, FontStyle.Bold);
+            // Izgara.
+            var gridHolder = UiFactory.CreateRect("GridHolder", column);
+            UiFactory.SetRect(gridHolder, UiTheme.Padding, 124f, inner, TileHeight * 3f + TileSpacing * 2f + 4f);
+            _gridScroll = UiWidgets.ScrollList(gridHolder, out _gridContent, TileSpacing, 0);
+            ConvertToGrid(_gridContent);
+
+            _emptyList = UiFactory.Label(gridHolder, Loc.Get("inv.empty", "Çanta boş"), UiTheme.FontNormal, TextAnchor.MiddleCenter, UiTheme.TextMuted, FontStyle.Bold);
             _emptyList.enabled = false;
+
+            // Hızlı eylemler.
+            BuildQuickBar(column, 124f + TileHeight * 3f + TileSpacing * 2f + 10f, inner);
+
+            // Yerdeki eşyalar.
+            BuildGround(column, 124f + TileHeight * 3f + TileSpacing * 2f + 52f, inner);
 
             // Eşya kullanım durumu.
             _usePanel = UiFactory.Panel(column, UiTheme.PanelDark, UiSprites.ChamferRect);
@@ -382,10 +527,28 @@ namespace Project.Presentation.UI
             UiFactory.SetRect(_useText, 12f, 8f, 400f, 24f);
             _useBar = UiFactory.ProgressBar(_usePanel, UiTheme.Success, UiTheme.Track);
             _useBar.TrailEnabled = false;
-            UiFactory.SetRect(_useBar, 12f, 38f, RightWidth - UiTheme.Padding * 2f - 24f - 120f, 10f);
-            var cancel = SmallButton(_usePanel, "İPTAL", CancelUse, UiButtonStyle.Default, 104f, 38f);
+            UiFactory.SetRect(_useBar, 12f, 38f, inner - 24f - 120f, 10f);
+            var cancel = SmallButton(_usePanel, Loc.Get("inv.cancel", "İPTAL"), CancelUse, UiButtonStyle.Default, 104f, 38f);
             UiFactory.Anchor(cancel, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(104f, 38f));
             _usePanel.gameObject.SetActive(false);
+        }
+
+        private static void ConvertToGrid(RectTransform content)
+        {
+            var vertical = content.GetComponent<VerticalLayoutGroup>();
+            if (vertical != null)
+                DestroyImmediate(vertical); // Aynı nesnede iki yerleşim grubu olamaz: Destroy ertelenir, anında kaldırılmalı.
+
+            var grid = content.GetComponent<GridLayoutGroup>();
+            if (grid == null)
+                grid = content.gameObject.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(TileWidth, TileHeight);
+            grid.spacing = new Vector2(TileSpacing, TileSpacing);
+            grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
+            grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+            grid.childAlignment = TextAnchor.UpperLeft;
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = InventoryUiLogic.GridColumns;
         }
 
         private static void BuildFooter(RectTransform body)
@@ -393,15 +556,26 @@ namespace Project.Presentation.UI
             var footer = UiFactory.CreateRect("Footer", body);
             UiFactory.SetRect(footer, new Vector2(0f, 0f), new Vector2(1f, 0f), Vector2.zero, new Vector2(0f, 32f));
             var hint = UiFactory.Label(footer,
-                UiTheme.Colorize("[Tab]", UiTheme.Amber) + " / " + UiTheme.Colorize("[Esc]", UiTheme.Amber) + " Kapat     "
-                + UiTheme.Colorize("[H]", UiTheme.Amber) + " İyileş     " + UiTheme.Colorize("[J]", UiTheme.Amber) + " Takviye",
+                UiTheme.Colorize("[Tab]", UiTheme.Amber) + " Kapat   "
+                + UiTheme.Colorize("[Ok/WASD]", UiTheme.Amber) + " Gezin   "
+                + UiTheme.Colorize("[Enter]", UiTheme.Amber) + " Kuşan/Kullan/Al   "
+                + UiTheme.Colorize("[Del]", UiTheme.Amber) + " Bırak   "
+                + UiTheme.Colorize("[Q]", UiTheme.Amber) + " Paket   "
+                + UiTheme.Colorize("[X]", UiTheme.Amber) + " Yarısı   "
+                + UiTheme.Colorize("[Sürükle]", UiTheme.Amber) + " Bırak/El/Çanta   "
+                + UiTheme.Colorize(Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Heal), UiTheme.Amber) + " İyileş   " + UiTheme.Colorize(Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Boost), UiTheme.Amber) + " Takviye",
                 UiTheme.FontSmall, TextAnchor.MiddleCenter, UiTheme.TextDim, FontStyle.Bold);
             hint.horizontalOverflow = HorizontalWrapMode.Overflow;
         }
 
         private static Button SmallButton(Transform parent, string label, Action onClick, UiButtonStyle style, float width, float height)
         {
-            var button = UiFactory.Button(parent, label, onClick, style);
+            // Tıklamadan sonra seçimi bırak: aksi hâlde Boşluk/Enter "gönder" ile aynı düğme yeniden tetiklenir.
+            var button = UiFactory.Button(parent, label, () =>
+            {
+                onClick?.Invoke();
+                UiFactory.ClearSelection();
+            }, style);
             UiFactory.LayoutSize(button, width, height);
             var text = UiFactory.GetButtonLabel(button);
             if (text != null)
@@ -418,45 +592,64 @@ namespace Project.Presentation.UI
             return button;
         }
 
-        private ItemRow CreateItemRow(int index)
+        private Tile CreateTile(int index)
         {
-            var row = new ItemRow();
-            var root = UiFactory.Panel(_listContent, CardColor, UiSprites.ChamferRect);
-            root.gameObject.name = "Item" + index;
-            root.GetComponent<Image>().raycastTarget = false;
-            UiFactory.LayoutSize(root, -1f, ItemRowHeight, 1f);
-            row.Root = root;
+            var tile = new Tile();
+            var root = UiFactory.Panel(_gridContent, CardColor, UiSprites.ChamferRect);
+            root.gameObject.name = "Tile" + index;
+            root.GetComponent<Image>().raycastTarget = true;
+            tile.Root = root;
 
-            row.Strip = UiFactory.Image(root, null, UiTheme.Khaki);
-            row.Strip.gameObject.name = "Strip";
-            UiFactory.SetRect(row.Strip, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 6f), new Vector2(5f, -6f));
+            tile.Strip = UiFactory.Image(root, null, UiTheme.Khaki);
+            tile.Strip.gameObject.name = "Rarity";
+            UiFactory.SetRect(tile.Strip, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(4f, 0f), new Vector2(-4f, 4f));
 
-            row.Name = UiFactory.Label(root, string.Empty, UiTheme.FontSmall, TextAnchor.UpperLeft, UiTheme.Text, FontStyle.Bold);
-            row.Name.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(row.Name, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -30f), new Vector2(-370f, -6f));
+            tile.IconHolder = UiFactory.CreateRect("IconHolder", root);
+            UiFactory.Anchor(tile.IconHolder, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -6f), new Vector2(58f, 46f));
 
-            row.Sub = UiFactory.Label(root, string.Empty, UiTheme.FontTiny, TextAnchor.UpperLeft, UiTheme.TextMuted);
-            row.Sub.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.SetRect(row.Sub, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -50f), new Vector2(-370f, -30f));
+            tile.Count = UiFactory.Label(root, string.Empty, UiTheme.FontSmall, TextAnchor.UpperRight, UiTheme.Text, FontStyle.Bold);
+            tile.Count.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.Anchor(tile.Count, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-7f, -4f), new Vector2(56f, 20f));
+            UiFactory.AddShadow(tile.Count, UiTheme.TextShadow, new Vector2(1f, -1f));
 
-            row.Count = UiFactory.Label(root, string.Empty, UiTheme.FontNormal, TextAnchor.MiddleRight, UiTheme.Text, FontStyle.Bold);
-            row.Count.horizontalOverflow = HorizontalWrapMode.Overflow;
-            UiFactory.Anchor(row.Count, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-296f, 0f), new Vector2(70f, 30f));
+            tile.Name = UiFactory.Label(root, string.Empty, UiTheme.FontTiny, TextAnchor.MiddleCenter, UiTheme.TextDim, FontStyle.Bold);
+            tile.Name.resizeTextForBestFit = true;
+            tile.Name.resizeTextMinSize = 8;
+            tile.Name.resizeTextMaxSize = UiTheme.FontTiny;
+            tile.Name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Anchor(tile.Name, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 8f), new Vector2(TileWidth - 8f, 28f));
 
-            row.DropAll = SmallButton(root, "BIRAK", () => DropStack(row, false), UiButtonStyle.Danger, 88f, 36f);
-            UiFactory.Anchor(row.DropAll, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-8f, 0f), new Vector2(88f, 36f));
+            tile.Focus = CreateFocus(root);
 
-            row.DropChunk = SmallButton(root, "BIRAK", () => DropStack(row, true), UiButtonStyle.Default, 88f, 36f);
-            UiFactory.Anchor(row.DropChunk, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-102f, 0f), new Vector2(88f, 36f));
-            row.DropChunkLabel = UiFactory.GetButtonLabel(row.DropChunk);
-            if (row.DropChunkLabel != null)
-                row.DropChunkLabel.fontSize = UiTheme.FontTiny;
-
-            row.Use = SmallButton(root, "KULLAN", () => UseItem(row), UiButtonStyle.Primary, 92f, 36f);
-            UiFactory.Anchor(row.Use, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-196f, 0f), new Vector2(92f, 36f));
+            var captured = tile;
+            AttachDrag(root.gameObject, () => SelectTile(_tiles.IndexOf(captured)), () => MakeStackPayload(captured),
+                () => { var i = _tiles.IndexOf(captured); SelectTile(i); QuickPrimary(captured); });
 
             root.gameObject.SetActive(false);
-            return row;
+            return tile;
+        }
+
+        private void BuildAmmoRow(RectTransform column, float y, float inner)
+        {
+            var count = InventoryUiLogic.AmmoOrder.Length;
+            var gap = 6f;
+            var width = (inner - gap * (count - 1)) / count;
+            for (var i = 0; i < count; i++)
+            {
+                var chip = new AmmoChip { Type = InventoryUiLogic.AmmoOrder[i] };
+                var root = UiFactory.Panel(column, SlotEmptyColor, UiSprites.ChamferRect);
+                root.gameObject.name = "Ammo_" + chip.Type;
+                root.GetComponent<Image>().raycastTarget = false;
+                UiFactory.SetRect(root, UiTheme.Padding + i * (width + gap), y, width, 30f);
+                chip.Background = root.GetComponent<Image>();
+                chip.Label = UiFactory.Label(root, InventoryUiLogic.CaliberLabel(chip.Type), UiTheme.FontTiny, TextAnchor.MiddleLeft, UiTheme.TextMuted, FontStyle.Bold);
+                chip.Label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                UiFactory.Stretch(chip.Label, 10f, 0f, 0f, 0f);
+                chip.Value = UiFactory.Label(root, "0", UiTheme.FontSmall, TextAnchor.MiddleRight, UiTheme.Text, FontStyle.Bold);
+                chip.Value.horizontalOverflow = HorizontalWrapMode.Overflow;
+                UiFactory.Stretch(chip.Value, 0f, 0f, 10f, 0f);
+                _ammoChips[i] = chip;
+            }
         }
 
         // ================================================================== Kare döngüsü
@@ -467,6 +660,7 @@ namespace Project.Presentation.UI
                 return;
 
             MapOverlayInput.Maintain();
+            HandleInput();
             Refresh();
         }
 
@@ -513,9 +707,13 @@ namespace Project.Presentation.UI
                 }
 
                 UpdateCapacity(inventory);
+                UpdateAmmoRow(inventory);
                 UpdateVitals(combatant);
-                UpdateUseButtons(player);
+                UpdateQuickBar(player);
             }
+
+            UpdateGround(player, inventory);
+            UpdateDragVisuals();
 
             UpdateUseStatus(player);
         }
@@ -547,6 +745,7 @@ namespace Project.Presentation.UI
                 _weapons[i].ShownKey = int.MinValue;
                 _weapons[i].ShownBadgeKey = int.MinValue;
                 _weapons[i].ShownWeaponId = null;
+                _weapons[i].ShownAttachKey = int.MinValue;
             }
 
             if (_vestRow != null) { _vestRow.ShownKey = int.MinValue; _vestRow.ShownItemId = null; }
@@ -555,6 +754,8 @@ namespace Project.Presentation.UI
             _shownVitalsKey = int.MinValue;
             _shownCapacityKey = int.MinValue;
             _shownUseKey = int.MinValue;
+            _shownQuickKey = int.MinValue;
+            _shownAmmoKey = int.MinValue;
         }
 
         // ------------------------------------------------------------------ Silahlar
@@ -569,21 +770,32 @@ namespace Project.Presentation.UI
             {
                 card.ShownWeaponId = weaponId;
                 card.ShownKey = int.MinValue;
+                card.ShownAttachKey = int.MinValue;
                 if (weapon == null)
                 {
-                    card.Name.text = "— Boş —";
+                    card.Name.text = Loc.Get("inv.empty_dash", "— Boş —");
                     card.Name.color = UiTheme.TextMuted;
-                    card.Info.text = card.Slot == InventoryService.SidearmSlot ? "Tabanca yuvası" : "Ana silah yuvası";
+                    card.Type.text = card.Slot == InventoryService.SidearmSlot ? Loc.Get("inv.sidearm", "TABANCA") : Loc.Get("inv.primary", "ANA SİLAH");
+                    card.Info.text = card.Slot == InventoryService.SidearmSlot ? Loc.Get("inv.slot.sidearm", "Tabanca yuvası") : Loc.Get("inv.slot.primary", "Ana silah yuvası");
+                    card.Strip.color = UiTheme.WithAlpha(UiTheme.PanelBorder, 0.6f);
+                    card.Icon = ReplaceIcon(card.IconHolder, card.Icon, ItemCategory.None, null, WeaponCategory.None, Color.white);
                 }
                 else
                 {
                     card.Name.text = WeaponName(weapon);
                     card.Name.color = UiTheme.Text;
+                    var rarity = InventoryRarityRules.OfWeapon(weapon.Category);
+                    var tint = InventoryRarityRules.ColorOf(rarity);
+                    card.Strip.color = tint;
+                    card.Type.text = (card.Slot == InventoryService.SidearmSlot ? Loc.Get("inv.sidearm", "TABANCA") : Loc.Get("inv.primary", "ANA SİLAH"))
+                                     + "  ·  " + UiTheme.Colorize(InventoryRarityRules.NameOf(rarity), tint);
+                    card.Icon = ReplaceIcon(card.IconHolder, card.Icon, ItemCategory.Weapon, weaponId, weapon.Category, tint);
                 }
 
                 SetActive(card.Drop, weapon != null);
             }
 
+            UpdateChips(card, weapon);
             SetActive(card.Equip, weapon != null && !active);
             var background = active ? ActiveCardColor : CardColor;
             if (card.Background.color != background)
@@ -607,7 +819,7 @@ namespace Project.Presentation.UI
             if (key != card.ShownKey)
             {
                 card.ShownKey = key;
-                card.Info.text = "Şarjör " + UiWidgets.Number(weapon.CurrentAmmo) + "/" + UiWidgets.Number(weapon.MagazineSize)
+                card.Info.text = Loc.Format("inv.mag", "Şarjör {0}/{1}", UiWidgets.Number(weapon.CurrentAmmo), UiWidgets.Number(weapon.MagazineSize))
                                  + "  ·  Yedek " + (infinite ? "∞" : UiWidgets.Number(reserve))
                                  + "  ·  " + AmmoName(weapon.Definition.AmmoType)
                                  + "  ·  " + FireModeName(weapon.CurrentFireMode);
@@ -621,7 +833,7 @@ namespace Project.Presentation.UI
                 if (weapon.IsReloading)
                 {
                     card.Badge.color = UiTheme.Amber;
-                    card.Badge.text = "ŞARJÖR DEĞİŞİYOR %" + UiWidgets.Number(badgeKey - 1000);
+                    card.Badge.text = Loc.Format("inv.reloading", "ŞARJÖR DEĞİŞİYOR %{0}", UiWidgets.Number(badgeKey - 1000));
                 }
                 else if (active)
                 {
@@ -659,9 +871,9 @@ namespace Project.Presentation.UI
         {
             switch (mode)
             {
-                case FireMode.Burst: return "SERİ";
+                case FireMode.Burst: return Loc.Get("inv.fire.burst", "SERİ");
                 case FireMode.Auto: return "OTO";
-                default: return "TEK";
+                default: return Loc.Get("inv.fire.semi", "TEK");
             }
         }
 
@@ -697,7 +909,9 @@ namespace Project.Presentation.UI
 
             if (itemId == null)
             {
-                row.Name.text = row.Category == ItemCategory.Armor ? "Yelek yok" : row.Category == ItemCategory.Helmet ? "Kask yok" : "Çanta yok";
+                row.Strip.color = UiTheme.WithAlpha(UiTheme.PanelBorder, 0.6f);
+                row.Icon = ReplaceIcon(row.IconHolder, row.Icon, ItemCategory.None, null, WeaponCategory.None, Color.white);
+                row.Name.text = row.Category == ItemCategory.Armor ? Loc.Get("inv.no_vest", "Yelek yok") : row.Category == ItemCategory.Helmet ? Loc.Get("inv.no_helmet", "Kask yok") : Loc.Get("inv.no_pack", "Çanta yok");
                 row.Name.color = UiTheme.TextMuted;
                 row.Type.text = row.TypeName;
                 row.Info.text = string.Empty;
@@ -711,6 +925,10 @@ namespace Project.Presentation.UI
                 row.Name.text = ItemCatalog.GetDisplayName(itemId);
                 row.Name.color = UiTheme.Text;
                 SetActive(row.Drop, true);
+                var level = piece != null ? piece.Level : inventory.BackpackLevel;
+                var gearTint = InventoryRarityRules.ColorOf(InventoryRarityRules.Of(row.Category, itemId, level));
+                row.Strip.color = gearTint;
+                row.Icon = ReplaceIcon(row.IconHolder, row.Icon, row.Category, itemId, WeaponCategory.None, gearTint);
             }
 
             if (piece != null)
@@ -718,10 +936,12 @@ namespace Project.Presentation.UI
                 SetActive(row.Bar, true);
                 var fraction = piece.DurabilityNormalized;
                 row.Bar.SetValue(fraction, true);
-                row.Bar.FillColor = piece.IsBroken ? UiTheme.Danger : fraction < 0.3f ? UiTheme.Amber : UiTheme.Armor;
-                row.Info.text = piece.IsBroken
+                var state = InventoryUiLogic.DurabilityState(fraction, piece.IsBroken);
+                row.Bar.FillColor = state == 2 ? UiTheme.Danger : state == 1 ? UiTheme.Amber : UiTheme.Armor;
+                row.Info.text = state == 2
                     ? UiTheme.Colorize("KIRIK", UiTheme.Danger)
-                    : "Dayanıklılık " + UiWidgets.Number(durability) + "/" + UiWidgets.Number(Mathf.CeilToInt(piece.MaxDurability));
+                    : Loc.Format("inv.durability", "Dayanıklılık {0}/{1}", UiWidgets.Number(durability), UiWidgets.Number(Mathf.CeilToInt(piece.MaxDurability)))
+                      + "  %" + UiWidgets.Number(Mathf.RoundToInt(fraction * 100f));
                 if (idChanged)
                 {
                     row.Type.text = row.Category == ItemCategory.Armor
@@ -742,47 +962,106 @@ namespace Project.Presentation.UI
 
         private void RebuildStacks(InventoryService inventory)
         {
+            var selectedId = _selectedItemId;
             _stacks.Clear();
             if (inventory != null)
                 inventory.GetStacks(_stacks);
+            _stacks.Sort(CompareStacks);
 
             for (var i = 0; i < _stacks.Count; i++)
             {
-                while (_rows.Count <= i)
-                    _rows.Add(CreateItemRow(_rows.Count));
+                while (_tiles.Count <= i)
+                    _tiles.Add(CreateTile(_tiles.Count));
 
-                BindRow(_rows[i], _stacks[i].Key, _stacks[i].Value);
+                BindTile(_tiles[i], _stacks[i].Key, _stacks[i].Value);
             }
 
-            for (var i = _stacks.Count; i < _rows.Count; i++)
+            for (var i = _stacks.Count; i < _tiles.Count; i++)
             {
-                var row = _rows[i];
-                row.ItemId = null;
-                row.Quantity = 0;
-                if (row.Visible)
+                var tile = _tiles[i];
+                tile.ItemId = null;
+                tile.Quantity = 0;
+                if (tile.Visible)
                 {
-                    row.Visible = false;
-                    row.Root.gameObject.SetActive(false);
+                    tile.Visible = false;
+                    tile.Root.gameObject.SetActive(false);
                 }
             }
 
             _emptyList.enabled = _stacks.Count == 0;
             if (_emptyList.enabled)
-                _emptyList.text = inventory == null ? "Envanter bilgisi yok" : "Çanta boş";
+                _emptyList.text = inventory == null ? Loc.Get("inv.no_data", "Envanter bilgisi yok") : Loc.Get("inv.empty", "Çanta boş");
+
+            // Seçim eşya kimliğiyle korunur (sıra değişse de aynı eşya seçili kalır).
+            _selectedTile = -1;
+            if (selectedId != null)
+            {
+                for (var i = 0; i < _stacks.Count; i++)
+                {
+                    if (string.Equals(_stacks[i].Key, selectedId, StringComparison.Ordinal))
+                    {
+                        _selectedTile = i;
+                        break;
+                    }
+                }
+            }
+
+            if (_selectedTile < 0)
+                _selectedItemId = null;
+            if (_focusArea == FocusArea.Grid)
+            {
+                if (_stacks.Count == 0)
+                    _focusArea = FocusArea.None;
+                else
+                    _focusIndex = Mathf.Clamp(_selectedTile >= 0 ? _selectedTile : _focusIndex, 0, _stacks.Count - 1);
+            }
+
+            _shownQuickKey = int.MinValue;
+            ApplyFocusVisual();
         }
 
-        private void BindRow(ItemRow row, string itemId, int quantity)
+        /// <summary>Izgara sırası: kategori (mermi, tıbbi, takviye, fırlatılabilir, eklenti, teçhizat), sonra nadirlik (yüksek önce), sonra ad.</summary>
+        private static int CompareStacks(KeyValuePair<string, int> a, KeyValuePair<string, int> b)
         {
-            var sameItem = string.Equals(row.ItemId, itemId, StringComparison.Ordinal);
-            if (sameItem && row.Quantity == quantity && row.Visible)
+            ItemCatalog.TryGet(a.Key, out var da);
+            ItemCatalog.TryGet(b.Key, out var db);
+            var ca = da != null ? CategoryOrder(da.Category) : 99;
+            var cb = db != null ? CategoryOrder(db.Category) : 99;
+            if (ca != cb)
+                return ca.CompareTo(cb);
+            var ra = da != null ? InventoryRarityRules.Of(da.Category, a.Key, da.Level) : InventoryRarity.Common;
+            var rb = db != null ? InventoryRarityRules.Of(db.Category, b.Key, db.Level) : InventoryRarity.Common;
+            if (ra != rb)
+                return rb.CompareTo(ra);
+            return string.CompareOrdinal(a.Key, b.Key);
+        }
+
+        private static int CategoryOrder(ItemCategory category)
+        {
+            switch (category)
+            {
+                case ItemCategory.Ammunition: return 0;
+                case ItemCategory.Medical: return 1;
+                case ItemCategory.Boost: return 2;
+                case ItemCategory.Throwable: return 3;
+                case ItemCategory.Attachment: return 4;
+                case ItemCategory.Equipment: return 5;
+                default: return 6;
+            }
+        }
+
+        private void BindTile(Tile tile, string itemId, int quantity)
+        {
+            var sameItem = string.Equals(tile.ItemId, itemId, StringComparison.Ordinal);
+            if (sameItem && tile.Quantity == quantity && tile.Visible)
                 return;
 
-            row.ItemId = itemId;
-            row.Quantity = quantity;
-            if (!row.Visible)
+            tile.ItemId = itemId;
+            tile.Quantity = quantity;
+            if (!tile.Visible)
             {
-                row.Visible = true;
-                row.Root.gameObject.SetActive(true);
+                tile.Visible = true;
+                tile.Root.gameObject.SetActive(true);
             }
 
             ItemCatalog.TryGet(itemId, out var definition);
@@ -790,42 +1069,28 @@ namespace Project.Presentation.UI
 
             if (!sameItem)
             {
-                row.Name.text = definition != null ? definition.DisplayName : itemId;
-                row.Strip.color = CategoryColor(category);
-                row.Usable = category == ItemCategory.Medical || category == ItemCategory.Boost;
-                SetActive(row.Use, row.Usable);
+                tile.Category = category;
+                tile.Name.text = definition != null ? definition.DisplayName : itemId;
+                tile.Rarity = InventoryRarityRules.Of(category, itemId, definition != null ? definition.Level : 0);
+                var tint = InventoryRarityRules.ColorOf(tile.Rarity);
+                tile.Strip.color = tint;
+                tile.Icon = ReplaceIcon(tile.IconHolder, tile.Icon, category, itemId, WeaponCategory.None, tint);
+                tile.Usable = category == ItemCategory.Medical || category == ItemCategory.Boost;
+                tile.UnitWeight = definition != null ? definition.Weight : 0f;
+                var detail = string.Empty;
+                if (category == ItemCategory.Medical && definition != null && definition.HealAmount > 0f)
+                    detail = "  ·  +" + UiWidgets.Number(Mathf.RoundToInt(definition.HealAmount)) + " can";
+                else if (category == ItemCategory.Boost && definition != null && definition.BoostAmount > 0f)
+                    detail = "  ·  +" + UiWidgets.Number(Mathf.RoundToInt(definition.BoostAmount)) + " takviye";
+                tile.Detail = detail;
             }
 
-            var weight = definition != null ? definition.Weight * quantity : 0f;
-            row.Sub.text = "Ağırlık " + MapMath.FormatDecimal(weight, 1)
-                           + (category == ItemCategory.Medical && definition.HealAmount > 0f
-                               ? "  ·  +" + UiWidgets.Number(Mathf.RoundToInt(definition.HealAmount)) + " can"
-                               : string.Empty)
-                           + (category == ItemCategory.Boost && definition.BoostAmount > 0f
-                               ? "  ·  +" + UiWidgets.Number(Mathf.RoundToInt(definition.BoostAmount)) + " takviye"
-                               : string.Empty);
-            row.Count.text = "×" + UiWidgets.Number(quantity);
+            tile.Count.text = "×" + UiWidgets.Number(quantity);
 
             var chunk = definition != null ? Mathf.Max(1, definition.PickupQuantity) : 1;
             if (category == ItemCategory.Throwable || category == ItemCategory.Medical || category == ItemCategory.Boost)
                 chunk = 1;
-            row.Chunk = chunk;
-            var showChunk = quantity > chunk;
-            SetActive(row.DropChunk, showChunk);
-            if (showChunk && row.DropChunkLabel != null)
-                row.DropChunkLabel.text = UiWidgets.Number(chunk) + " BIRAK";
-        }
-
-        private static Color CategoryColor(ItemCategory category)
-        {
-            switch (category)
-            {
-                case ItemCategory.Ammunition: return UiTheme.Khaki;
-                case ItemCategory.Medical: return MedicalColor;
-                case ItemCategory.Boost: return UiTheme.Boost;
-                case ItemCategory.Throwable: return ThrowableColor;
-                default: return UiTheme.TextDim;
-            }
+            tile.Chunk = chunk;
         }
 
         private void UpdateCapacity(InventoryService inventory)
@@ -853,7 +1118,7 @@ namespace Project.Presentation.UI
             _capacityBar.SetValue(fraction, true);
             _capacityBar.FillColor = inventory.IsOverweight || fraction >= 0.95f ? UiTheme.Danger : fraction >= 0.75f ? UiTheme.Amber : UiTheme.HealthHigh;
             var text = MapMath.FormatDecimal(weight, 1) + " / " + UiWidgets.Number(Mathf.RoundToInt(capacity));
-            _capacityText.text = inventory.IsOverweight ? UiTheme.Colorize("AŞIRI YÜK  " + text, UiTheme.Danger) : text;
+            _capacityText.text = inventory.IsOverweight ? UiTheme.Colorize(Loc.Format("inv.overweight", "AŞIRI YÜK  {0}", text), UiTheme.Danger) : text;
         }
 
         private void UpdateVitals(Combatant combatant)
@@ -873,25 +1138,8 @@ namespace Project.Presentation.UI
             }
 
             var fraction = max > 0 ? health / (float)max : 0f;
-            _vitals.text = "Sağlık " + UiTheme.Colorize(UiWidgets.Number(health) + "/" + UiWidgets.Number(max), UiTheme.HealthColor(fraction))
-                           + "     Takviye " + UiTheme.Colorize(UiWidgets.Number(boost), UiTheme.Boost);
-        }
-
-        private void UpdateUseButtons(IPlayerHudSource player)
-        {
-            var itemUse = player != null ? player.ItemUse : null;
-            var alive = player != null && !player.IsDead;
-            for (var i = 0; i < _rows.Count; i++)
-            {
-                var row = _rows[i];
-                if (!row.Visible || !row.Usable || row.Use == null)
-                    continue;
-
-                var canUse = alive && itemUse != null && itemUse.CanUse(row.ItemId)
-                             && !string.Equals(itemUse.CurrentItemId, row.ItemId, StringComparison.Ordinal);
-                if (row.Use.interactable != canUse)
-                    UiWidgets.SetInteractable(row.Use, canUse);
-            }
+            _vitals.text = Loc.Format("inv.health", "Sağlık {0}/{1}", UiTheme.Colorize(UiWidgets.Number(health), UiTheme.HealthColor(fraction)), UiWidgets.Number(max))
+                           + "     " + Loc.Get("inv.boost", "Takviye") + " " + UiTheme.Colorize(UiWidgets.Number(boost), UiTheme.Boost);
         }
 
         private void UpdateUseStatus(IPlayerHudSource player)
@@ -911,7 +1159,7 @@ namespace Project.Presentation.UI
                 return;
 
             _shownUseKey = key;
-            _useText.text = "Kullanılıyor: " + itemUse.CurrentItemName + "   " + UiTheme.Colorize(MapMath.FormatDecimal(Mathf.Max(0f, itemUse.RemainingSeconds), 1) + " sn", UiTheme.Amber);
+            _useText.text = Loc.Format("inv.using", "Kullanılıyor: {0}   {1} sn", itemUse.CurrentItemName, UiTheme.Colorize(MapMath.FormatDecimal(Mathf.Max(0f, itemUse.RemainingSeconds), 1), UiTheme.Amber));
         }
 
         // ================================================================== Eylemler
@@ -965,18 +1213,17 @@ namespace Project.Presentation.UI
                 SpawnDropped(dropped);
         }
 
-        private void DropStack(ItemRow row, bool chunkOnly)
+        private void DropStackQuantity(string itemId, int quantity)
         {
             var inventory = CurrentInventory();
-            if (inventory == null || row == null || string.IsNullOrEmpty(row.ItemId) || !CanDropNow())
+            if (inventory == null || string.IsNullOrEmpty(itemId) || quantity <= 0 || !CanDropNow())
                 return;
 
-            var itemId = row.ItemId;
             var count = inventory.GetCount(itemId);
             if (count <= 0)
                 return;
 
-            var quantity = chunkOnly ? Mathf.Min(count, Mathf.Max(1, row.Chunk)) : count;
+            quantity = Mathf.Min(quantity, count);
             if (ForwardIfRemote(InventoryActionRequest.DropStack(itemId, quantity)))
                 return;
 
@@ -990,26 +1237,26 @@ namespace Project.Presentation.UI
                 SpawnDropped(dropped);
         }
 
-        private void UseItem(ItemRow row)
+        private void UseItem(string itemId)
         {
             var player = Player;
-            if (player == null || row == null || string.IsNullOrEmpty(row.ItemId) || player.IsDead)
+            if (player == null || string.IsNullOrEmpty(itemId) || player.IsDead)
                 return;
 
             var itemUse = player.ItemUse;
             if (itemUse == null)
                 return;
 
-            if (!itemUse.CanUse(row.ItemId))
+            if (!itemUse.CanUse(itemId))
             {
                 UiWidgets.PlaySound(SoundId.DryFire);
                 return;
             }
 
-            if (ForwardIfRemote(InventoryActionRequest.Use(row.ItemId)))
+            if (ForwardIfRemote(InventoryActionRequest.Use(itemId)))
                 return;
 
-            if (itemUse.TryBegin(row.ItemId))
+            if (itemUse.TryBegin(itemId))
                 _nextDynamicRefresh = 0f;
             else
                 UiWidgets.PlaySound(SoundId.DryFire);
@@ -1077,7 +1324,7 @@ namespace Project.Presentation.UI
             if (player.IsInVehicle || player.DropState != DropState.Landed)
             {
                 if (player is PlayerController controller && controller != null)
-                    controller.Notify("Araçtayken eşya bırakılamaz", 2f);
+                    controller.Notify(Loc.Get("inv.notify.vehicle_drop", "Araçtayken eşya bırakılamaz"), 2f);
                 UiWidgets.PlaySound(SoundId.DryFire);
                 return false;
             }

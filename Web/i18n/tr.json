@@ -87,5 +87,8 @@
   "error_generic": "Bir hata oluştu",
   "not_found": "Sayfa bulunamadı",
   "a11y_skip": "İçeriğe geç",
-  "footer": "HAREKÂT © Tatbikat — Mavi / Kırmızı kuvvetler. Kazanmak için ödeme yok; yalnızca kozmetik."
+  "footer": "HAREKÂT © Tatbikat — Mavi / Kırmızı kuvvetler. Kazanmak için ödeme yok; yalnızca kozmetik.",
+  "nav_maps": "Haritalar",
+  "map_tactics": "Taktik notları",
+  "map_locations": "Lokasyonlar"
 }

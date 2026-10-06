@@ -2,6 +2,7 @@ using System;
 using Project.Core.Domain;
 using Project.Infrastructure.Combat;
 using Project.Infrastructure.World;
+using Project.Infrastructure.Localization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -88,6 +89,22 @@ namespace Project.Presentation.UI
             _fps.enabled = false;
         }
 
+        private void OnEnable() => Loc.LanguageChanged += OnLanguageChanged;
+        private void OnDisable() => Loc.LanguageChanged -= OnLanguageChanged;
+
+        // Önbellek anahtarlarını sıfırla: sonraki güncelleme tüm metinleri yeni dilde yeniden yazar.
+        private void OnLanguageChanged(string code)
+        {
+            _shownTeams = int.MinValue;
+            _shownAlive = int.MinValue;
+            _shownKills = int.MinValue;
+            _zoneKey = int.MinValue;
+            _outsideKey = int.MinValue;
+            _shownLocation = null;
+            _nextUpdate = 0f;
+            _nextLocation = 0f;
+        }
+
         private static void EnsureColors()
         {
             if (_labelHex != null)
@@ -172,9 +189,9 @@ namespace Project.Presentation.UI
             _shownKills = kills;
 
             var sep = HudFormat.Colorize("   |   ", _sepHex);
-            var text = HudFormat.Colorize("TİM: ", _labelHex) + HudFormat.Colorize(UiWidgets.Number(teams), _valueHex) + sep
-                       + HudFormat.Colorize("HAYATTA: ", _labelHex) + HudFormat.Colorize(UiWidgets.Number(alive), _valueHex) + sep
-                       + HudFormat.Colorize("ÖLDÜRME: ", _labelHex) + HudFormat.Colorize(UiWidgets.Number(kills), HudFormat.Hex(kills > 0 ? UiTheme.Amber : UiTheme.Text));
+            var text = HudFormat.Colorize(Loc.Get("hud.top.team", "TİM: "), _labelHex) + HudFormat.Colorize(UiWidgets.Number(teams), _valueHex) + sep
+                       + HudFormat.Colorize(Loc.Get("hud.top.alive", "HAYATTA: "), _labelHex) + HudFormat.Colorize(UiWidgets.Number(alive), _valueHex) + sep
+                       + HudFormat.Colorize(Loc.Get("hud.top.kills", "ÖLDÜRME: "), _labelHex) + HudFormat.Colorize(UiWidgets.Number(kills), HudFormat.Hex(kills > 0 ? UiTheme.Amber : UiTheme.Text));
             _counters.text = text;
             var width = Mathf.Clamp(_counters.preferredWidth + 32f, 200f, Width);
             _countersBackdrop.rectTransform.sizeDelta = new Vector2(width, 34f);

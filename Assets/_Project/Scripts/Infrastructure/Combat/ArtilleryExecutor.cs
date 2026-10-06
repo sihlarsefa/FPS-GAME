@@ -117,6 +117,13 @@ namespace Project.Infrastructure.Combat
                 {
                     GameAudio.Play(SoundId.ArtilleryWhistle, position + Vector3.up * 25f, 1f,
                         UnityEngine.Random.Range(0.93f, 1.07f), 320f);
+
+                    // Online: istemcilere ıslık sesini yay (patlama efekti Exploded olayıyla yayılır).
+                    if (GameContext.Network is Project.Core.Interfaces.IWorldEffectRelay relay)
+                    {
+                        var whistlePos = position + Vector3.up * 25f;
+                        relay.BroadcastArtilleryWhistle(new Float3(whistlePos.x, whistlePos.y, whistlePos.z));
+                    }
                 }
                 catch (Exception e)
                 {

@@ -135,6 +135,12 @@
  * @property {number} maxPlayers
  */
 /**
+ * @typedef {Object} ClaimMatchResponse
+ * @property {MatchDto} match
+ * @property {string} serverId
+ * @property {string} endpoint
+ */
+/**
  * @typedef {Object} ReleaseServerRequest
  * @property {string} serverId
  * @property {string} serverKey
@@ -217,6 +223,16 @@
  * @property {number} target
  * @property {number} progress
  * @property {boolean} unlocked
+ */
+/**
+ * @typedef {Object} AchievementSyncRequest
+ * @property {(Array<string>|null)} unlockedIds
+ * @property {(int>|null)} progress
+ */
+/**
+ * @typedef {Object} AchievementSyncResult
+ * @property {Array<string>} newlyUnlocked
+ * @property {Array<AchievementDto>} achievements
  */
 /**
  * @typedef {Object} CosmeticDto

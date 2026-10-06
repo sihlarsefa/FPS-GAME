@@ -21,7 +21,8 @@ namespace Project.Presentation.Bootstrap
         public static void PrepareScene()
         {
             Time.timeScale = 1f;
-            AudioListener.pause = false;
+            if (!ServerRuntime.IsDedicatedServer)
+                AudioListener.pause = false;   // sunucuda ses kalıcı olarak kapalı (ServerRuntime.ConfigureProcess)
             Try(GameLayers.ConfigureCollisionMatrix, "GameLayers.ConfigureCollisionMatrix");
             ClearStaticRegistries();
         }
@@ -32,18 +33,39 @@ namespace Project.Presentation.Bootstrap
             Try(CombatantRegistry.Clear, "CombatantRegistry.Clear");
             Try(LootRegistry.Clear, "LootRegistry.Clear");
             Try(SmokeVolume.Clear, "SmokeVolume.Clear");
+            Try(Project.Infrastructure.Drone.ReconDroneSystem.ResetAll, "ReconDroneSystem.ResetAll");
         }
 
         /// <summary>Ses, efekt, post-processing ve atmosfer (sis/gökyüzü/ortam ışığı).</summary>
         public static void InitializeEngineSystems(PostProcessing.Look look, int qualityLevel, bool withVfx)
         {
             Try(GameAudio.Initialize, "GameAudio.Initialize");
+            Try(() => Project.Infrastructure.Vfx.GpuVfx.Tier = Mathf.Clamp(qualityLevel, 0, 3), "GpuVfx.Tier");
             if (withVfx)
                 Try(GameVfx.Initialize, "GameVfx.Initialize");
 
             Try(() => PostProcessing.EnsureGlobalVolume(look), "PostProcessing.EnsureGlobalVolume");
             Try(() => PostProcessing.ApplyQuality(qualityLevel), "PostProcessing.ApplyQuality");
             Try(() => RenderSettingsUtil.ApplyOutdoorAtmosphere(look == PostProcessing.Look.Menu), "RenderSettingsUtil.ApplyOutdoorAtmosphere");
+        }
+
+        /// <summary>
+        /// Arazi + kamera hazır olduktan sonra GPU çim sistemini kurar (arazi/kamera/shader yoksa sessizce atlanır).
+        /// Maç, çatışma, antrenman ve benchmark kurulumlarının sunum aşamasından çağrılır.
+        /// </summary>
+        public static void InstallGrass(WorldMetadata world, int qualityLevel)
+        {
+            Try(() =>
+            {
+                var terrain = world != null && world.Terrain != null ? world.Terrain : Terrain.activeTerrain;
+                if (terrain == null)
+                    return;
+                var camera = Camera.main;
+                if (camera == null && CombatantRegistry.LocalPlayer != null)
+                    camera = CombatantRegistry.LocalPlayer.GetComponentInChildren<Camera>();
+                var water = world != null ? world.WaterLevel : float.NegativeInfinity;
+                Project.Infrastructure.World.GrassSystem.Install(camera, terrain, Mathf.Clamp(qualityLevel, 0, 3), water);
+            }, "GrassSystem.Install");
         }
 
         /// <summary>Sahnede yönlü ışık yoksa bir "güneş" oluşturur.</summary>

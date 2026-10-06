@@ -2,6 +2,7 @@ using System;
 using Project.Core.Domain;
 using Project.Core.Interfaces;
 using Project.Infrastructure;
+using Project.Infrastructure.Combat;
 using Project.Infrastructure.Rendering;
 using Project.Infrastructure.World;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace Project.Presentation.World
         private Transform _wall;
         private MeshRenderer _wallRenderer;
         private LineRenderer _ring;
+        private ZoneWallVisual _energy;
         private readonly Vector3[] _ringPositions = new Vector3[RingPoints];
 
         private float _lastCenterX = float.NaN;
@@ -68,6 +70,8 @@ namespace Project.Presentation.World
             _zone = zone;
             _world = world;
             EnsureVisuals();
+            if (_energy != null)
+                _energy.SetZone(zone);
             _lastRadius = float.NaN;
             _ringRadius = float.NaN;
             Refresh();
@@ -96,7 +100,9 @@ namespace Project.Presentation.World
                 return;
 
             var current = _zone.CurrentZone;
-            if (!IsFinite(current.Radius) || current.Radius <= 0.01f)
+            // Kademe 1+ : enerji duvarı (ZoneWallVisual) çizer; kademe 0'da bu basit silindir duvar kalır.
+            var energy = _energy != null && _energy.Supported;
+            if (!IsFinite(current.Radius) || current.Radius <= 0.01f || energy)
             {
                 SetWallVisible(false);
             }
@@ -230,6 +236,8 @@ namespace Project.Presentation.World
             _ring.endColor = RingColor;
             _ring.sharedMaterial = ResolveRingMaterial();
             _ring.enabled = false;
+
+            _energy = ZoneWallVisual.Create(_zone, transform);
         }
 
         private void SetWallVisible(bool visible)

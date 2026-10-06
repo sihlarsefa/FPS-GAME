@@ -5554,5 +5554,442 @@
     "source": "Tools/BalanceCalc/out/ttk.csv",
     "basis": "Sözleşme",
     "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "KRP-001",
+    "module": "Sürülebilir Kirpi",
+    "title": "Kirpi'ye binme",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Kirpi yakınında, ayakta.",
+    "steps": [
+      "Kirpi'ye yaklaş",
+      "Bin tuşuna bas"
+    ],
+    "expected": "Sürücü koltuğuna geçilir; kamera araç kamerasına döner; HUD araç göstergesi açılır.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (araç/Kirpi)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "KRP-002",
+    "module": "Sürülebilir Kirpi",
+    "title": "Gaz, fren ve direksiyon",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Kirpi'de sürücü.",
+    "steps": [
+      "W ile hızlan",
+      "S ile fren",
+      "A/D ile dön"
+    ],
+    "expected": "Araç girdiyle tutarlı hızlanır, durur ve döner; ani takla yok.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (araç/Kirpi)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "KRP-003",
+    "module": "Sürülebilir Kirpi",
+    "title": "Araçtan inme",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Kirpi sürülüyor.",
+    "steps": [
+      "Dur",
+      "İn tuşuna bas"
+    ],
+    "expected": "Oyuncu araç yanında güvenli noktada belirir; motor kilidi kalkar (bkz. MOV-023).",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (araç/Kirpi)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "KRP-004",
+    "module": "Sürülebilir Kirpi",
+    "title": "Yolcu koltukları",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; İki oyuncu veya bot ile.",
+    "steps": [
+      "Sürücü bin",
+      "İkinci oyuncu bin"
+    ],
+    "expected": "Yolcular boş koltuklara oturur; dolu koltuk reddedilir.",
+    "priority": "P2",
+    "source": "Assets/_Project/Scripts (araç/Kirpi)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "KRP-005",
+    "module": "Sürülebilir Kirpi",
+    "title": "Araç hasarı ve imha",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Kirpi, silah veya bomba ile.",
+    "steps": [
+      "Araca ateş et/bomba at",
+      "Sağlık sıfırlanana kadar devam"
+    ],
+    "expected": "Hasar kademeleri görünür; imhada içindekiler hasar alır veya atılır; enkaz kalır.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (araç/Kirpi)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "KRP-006",
+    "module": "Sürülebilir Kirpi",
+    "title": "Kirpi ile intikal",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Maç, intikal aşaması.",
+    "steps": [
+      "Kirpi ile intikal et",
+      "Bölgeye in"
+    ],
+    "expected": "Kirpi intikali tamamlanır; oyuncular indikten sonra sürülebilir araç olarak kalır.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (araç/Kirpi)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "KRP-007",
+    "module": "Sürülebilir Kirpi",
+    "title": "Eğimde ve engelde sürüş",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Arazi sahnesi.",
+    "steps": [
+      "Rampaya çık",
+      "Alçak engele çarp"
+    ],
+    "expected": "Araç tırmanır; takılma halinde geri alınabilir; yere gömülme yok.",
+    "priority": "P2",
+    "source": "Assets/_Project/Scripts (araç/Kirpi)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "DEV-001",
+    "module": "Geliştirici konsolu",
+    "title": "Konsolu açma/kapama",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Menü veya maçta.",
+    "steps": [
+      "Konsol tuşuna bas",
+      "Tekrar bas"
+    ],
+    "expected": "Konsol açılır/kapanır; açıkken oyuncu girdisi kilitlenir.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (konsol)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "DEV-002",
+    "module": "Geliştirici konsolu",
+    "title": "Komut listesi ve yardım",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Konsol açık.",
+    "steps": [
+      "help yaz",
+      "Bilinmeyen komut yaz"
+    ],
+    "expected": "Komut listesi görünür; bilinmeyen komut anlaşılır hata verir, çökme yok.",
+    "priority": "P2",
+    "source": "Assets/_Project/Scripts (konsol)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "DEV-003",
+    "module": "Geliştirici konsolu",
+    "title": "Hile komutları yerel modda",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Atış Poligonu.",
+    "steps": [
+      "Silah/can komutu çalıştır"
+    ],
+    "expected": "Poligonda komutlar etkili olur; sonuç konsola yazılır.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (konsol)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "DEV-004",
+    "module": "Geliştirici konsolu",
+    "title": "Çevrimiçi maçta hile engeli",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Online maç, normal oyuncu.",
+    "steps": [
+      "Hile komutu çalıştır"
+    ],
+    "expected": "Sunucu yetkisiz komutu reddeder; durum değişmez.",
+    "priority": "P0",
+    "source": "Assets/_Project/Scripts (konsol)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "DEV-005",
+    "module": "Geliştirici konsolu",
+    "title": "Komut geçmişi",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Konsol açık.",
+    "steps": [
+      "Üç komut yaz",
+      "Yukarı oka bas"
+    ],
+    "expected": "Önceki komutlar sırayla gelir.",
+    "priority": "P3",
+    "source": "Assets/_Project/Scripts (konsol)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "DEV-006",
+    "module": "Geliştirici konsolu",
+    "title": "Release derlemede konsol",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Release build.",
+    "steps": [
+      "Konsol tuşuna bas"
+    ],
+    "expected": "Konsol kapalı veya yetki kapısı arkasındadır.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts (konsol)",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "PNL-001",
+    "module": "Online paneller",
+    "title": "Giriş/hesap paneli",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Ana menü, backend açık.",
+    "steps": [
+      "Giriş panelini aç",
+      "Geçerli hesapla giriş yap"
+    ],
+    "expected": "Giriş başarılı; oyuncu adı ve rütbe görünür.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts/Presentation/UI/MainMenuController.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "PNL-002",
+    "module": "Online paneller",
+    "title": "Giriş hatası",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Backend açık.",
+    "steps": [
+      "Yanlış parola gir"
+    ],
+    "expected": "Anlaşılır hata mesajı; tekrar denenebilir; parola düz metin görünmez.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts/Presentation/UI/MainMenuController.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "PNL-003",
+    "module": "Online paneller",
+    "title": "Sunucu listesi",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Giriş yapılmış.",
+    "steps": [
+      "Sunucu paneline gir",
+      "Yenile"
+    ],
+    "expected": "Sunucular ad, oyuncu sayısı ve gecikmeyle listelenir; boş liste mesajı vardır.",
+    "priority": "P1",
+    "source": "Assets/_Project/Scripts/Presentation/UI/MainMenuController.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "PNL-004",
+    "module": "Online paneller",
+    "title": "Sunucuya bağlanma",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Çalışan sunucu.",
+    "steps": [
+      "Sunucu seç",
+      "Bağlan"
+    ],
+    "expected": "Lobiye geçilir; hata durumunda menüye dönülür.",
+    "priority": "P0",
+    "source": "Assets/_Project/Scripts/Presentation/Bootstrap/GameSession.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "PNL-005",
+    "module": "Online paneller",
+    "title": "Backend kapalıyken çevrimdışı",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Backend durdurulmuş.",
+    "steps": [
+      "Oyunu aç",
+      "Atış Poligonu'nu başlat"
+    ],
+    "expected": "Oyun çökmez; online panelleri 'bağlanılamadı' gösterir; offline mod çalışır.",
+    "priority": "P0",
+    "source": "Assets/_Project/Scripts/Presentation/Bootstrap/GameSession.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "PNL-006",
+    "module": "Online paneller",
+    "title": "Steam kancası",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Steam yok.",
+    "steps": [
+      "Menüde Steam öğelerine bak"
+    ],
+    "expected": "Steam yoksa öğeler pasif/gizli; hata günlüğü yok.",
+    "priority": "P3",
+    "source": "Assets/_Project/Scripts/Presentation/UI/MainMenuController.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "SRV-001",
+    "module": "Windows sunucu",
+    "title": "Sunucu servisini başlatma",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Windows Server, Backend/Harekat.ServerManager.",
+    "steps": [
+      "Servisi/konsolu başlat"
+    ],
+    "expected": "Yönetici açılır, port dinler, günlük yazar.",
+    "priority": "P0",
+    "source": "Backend/Harekat.ServerManager/Program.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "SRV-002",
+    "module": "Windows sunucu",
+    "title": "Dedicated maç örneği",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; ServerManager çalışıyor.",
+    "steps": [
+      "Maç örneği oluştur"
+    ],
+    "expected": "Dedicated sunucu işlemi başlar ve listede görünür.",
+    "priority": "P0",
+    "source": "Backend/Harekat.ServerManager/Program.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "SRV-003",
+    "module": "Windows sunucu",
+    "title": "Örnek kapatma",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Çalışan örnek.",
+    "steps": [
+      "Örneği durdur"
+    ],
+    "expected": "İşlem temiz kapanır, port serbest kalır, oyuncular menüye döner.",
+    "priority": "P1",
+    "source": "Backend/Harekat.ServerManager/Program.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "SRV-004",
+    "module": "Windows sunucu",
+    "title": "Çökme sonrası toparlama",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Çalışan örnek.",
+    "steps": [
+      "Dedicated işlemi öldür"
+    ],
+    "expected": "Yönetici kaybı algılar; liste güncellenir; yeni örnek açılabilir.",
+    "priority": "P1",
+    "source": "Backend/Harekat.ServerManager/Program.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "SRV-005",
+    "module": "Windows sunucu",
+    "title": "appsettings yapılandırması",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; appsettings.json değiştirilmiş.",
+    "steps": [
+      "Portu değiştir",
+      "Yeniden başlat"
+    ],
+    "expected": "Yeni ayar uygulanır; geçersiz değerde açık hata ile durur.",
+    "priority": "P2",
+    "source": "Backend/Harekat.ServerManager/appsettings.json",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "SRV-006",
+    "module": "Windows sunucu",
+    "title": "Güvenlik duvarı ve dış erişim",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Ayrı makineden istemci.",
+    "steps": [
+      "Sunucuya LAN/İnternetten bağlan"
+    ],
+    "expected": "Gerekli portlar açıkken bağlanılır; kapalıyken zaman aşımı mesajı.",
+    "priority": "P1",
+    "source": "Backend/Harekat.ServerManager",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "OVR-001",
+    "module": "İçerik override",
+    "title": "Varsayılan içerik",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Override yok.",
+    "steps": [
+      "Oyunu başlat"
+    ],
+    "expected": "Yer tutucu/varsayılan varlıklar yüklenir; eksik varlık uyarısı çökertmez.",
+    "priority": "P1",
+    "source": "Assets/ThirdParty/README.md",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "OVR-002",
+    "module": "İçerik override",
+    "title": "Model override",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Geçerli model ThirdParty'ye konmuş.",
+    "steps": [
+      "Oyunu başlat",
+      "Silahı gözle"
+    ],
+    "expected": "Override model kullanılır; ölçek/pivot doğru.",
+    "priority": "P2",
+    "source": "Assets/ThirdParty/README.md",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "OVR-003",
+    "module": "İçerik override",
+    "title": "Ses override",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Geçerli ses dosyası konmuş.",
+    "steps": [
+      "Silahla ateş et"
+    ],
+    "expected": "Override ses çalınır; ses seviyesi ayarlara uyar.",
+    "priority": "P2",
+    "source": "Assets/_Project/Scripts/Infrastructure/Audio/GameAudio.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "OVR-004",
+    "module": "İçerik override",
+    "title": "Bozuk override",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Geçersiz/bozuk dosya konmuş.",
+    "steps": [
+      "Oyunu başlat"
+    ],
+    "expected": "Varsayılana düşülür, uyarı günlüğe yazılır, oyun çökmez.",
+    "priority": "P1",
+    "source": "Assets/ThirdParty/README.md",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
+  },
+  {
+    "id": "OVR-005",
+    "module": "İçerik override",
+    "title": "Malzeme override",
+    "precondition": "Windows istemci, Unity Editör veya yerel derleme; Malzeme dosyası konmuş.",
+    "steps": [
+      "Sahneyi aç"
+    ],
+    "expected": "Malzeme uygulanır; shader eksikse yedek malzeme kullanılır.",
+    "priority": "P2",
+    "source": "Assets/_Project/Scripts/Infrastructure/Rendering/MaterialLibrary.cs",
+    "basis": "FAZ3 görev C3-8",
+    "status": "Çalıştırılmadı"
   }
 ]

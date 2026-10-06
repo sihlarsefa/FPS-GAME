@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
-  <rect width="64" height="64" rx="8" fill="#121820" stroke="#243040"/>
-  <polyline points="16,28 32,20 48,28" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,24 32,16 48,24" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,20 32,12 48,20" fill="none" stroke="#E30A17" stroke-width="3"/><polyline points="16,16 32,8 48,16" fill="none" stroke="#E30A17" stroke-width="3"/>
-  <text x="32" y="58" text-anchor="middle" fill="#8FA3B8" font-size="8" font-family="monospace">4</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <title>Uzman Onbaşı — stilize nişan</title>
+  <rect x="6" y="14" width="52" height="36" rx="4" fill="#2C3422" stroke="#6B744E" stroke-width="1.5"/>
+  <path d="M18 40L32 26L46 40" stroke="#E2B84A" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="44" y="18" width="5" height="28" rx="1" fill="#E2B84A"/>
 </svg>

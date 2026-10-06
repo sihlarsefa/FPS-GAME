@@ -15,11 +15,13 @@ namespace Project.Presentation.UI
     public sealed class CrosshairView : MonoBehaviour
     {
         private const float LineLength = 11f;
-        private const float LineThickness = 2f;
+        private const float LineThickness = 2f; // 2 px çizgi + 1 px gölge (Outline)
         private const float MinGap = 5f;
         private const float MaxGap = 140f;
         private const float HitMarkerDuration = 0.28f;
         private const float KillMarkerDuration = 0.55f;
+        private const float HitArmOffset = 5f;
+        private const float HitArmLength = 8f;
 
         private HudContext _ctx;
         private RectTransform _crosshair;
@@ -52,6 +54,7 @@ namespace Project.Presentation.UI
             view._ctx = context;
             view.Root = root;
             view.Build();
+            view.ApplyAppearance();
             return view;
         }
 
@@ -68,20 +71,34 @@ namespace Project.Presentation.UI
             _left = CreateLine("Left", new Vector2(LineLength, LineThickness), new Vector2(1f, 0.5f));
             _right = CreateLine("Right", new Vector2(LineLength, LineThickness), new Vector2(0f, 0.5f));
 
-            _dot = HudBuild.Image("Dot", _crosshair, UiSprites.Circle, Color.white, Vector2.zero, new Vector2(3.5f, 3.5f));
+            _dot = HudBuild.Image("Dot", _crosshair, UiSprites.Circle, Color.white, Vector2.zero, new Vector2(2f, 2f));
             UiFactory.AddOutline(_dot, UiTheme.WithAlpha(Color.black, 0.6f), 1f);
 
-            _hitMarker = HudBuild.Rect("HitMarker", Root, HudBuild.Center, HudBuild.Center, Vector2.zero, new Vector2(60f, 60f));
+            _hitMarker = HudBuild.Rect("HitMarker", Root, HudBuild.Center, HudBuild.Center, Vector2.zero, new Vector2(HudVisualRules.MaxHitMarkerPx, HudVisualRules.MaxHitMarkerPx));
             _hitGroup = HudBuild.PassiveGroup(_hitMarker, 0f);
             for (var i = 0; i < 4; i++)
             {
                 var holder = HudBuild.Rect("Arm" + i, _hitMarker, HudBuild.Center, HudBuild.Center, Vector2.zero, new Vector2(2f, 2f));
                 holder.localRotation = Quaternion.Euler(0f, 0f, 45f + 90f * i);
                 var line = HudBuild.Image("Line", holder, UiSprites.White, Color.white, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f),
-                    new Vector2(0f, 7f), new Vector2(2.5f, 10f));
+                    new Vector2(0f, HitArmOffset), new Vector2(2.5f, HitArmLength));
                 UiFactory.AddOutline(line, UiTheme.WithAlpha(Color.black, 0.55f), 1f);
                 _hitLines[i] = line;
             }
+        }
+
+        /// <summary>Ayarlardaki nişangâh rengi/boyutunu uygular (anında).</summary>
+        public void ApplyAppearance()
+        {
+            if (_crosshair == null)
+                return;
+            var color = AdvancedDisplay.CrosshairTint;
+            _crosshair.localScale = Vector3.one * HudVisualRules.ClampCrosshairScale(AdvancedDisplay.CrosshairSize);
+            foreach (var line in new[] { _top, _bottom, _left, _right })
+                if (line != null && line.TryGetComponent<Image>(out var img))
+                    img.color = color;
+            if (_dot != null)
+                _dot.color = color;
         }
 
         private RectTransform CreateLine(string name, Vector2 size, Vector2 pivot)
@@ -92,26 +109,25 @@ namespace Project.Presentation.UI
         }
 
         /// <summary>Yerel oyuncunun isabetini gösterir (HitConfirmedEvent).</summary>
-        public void ShowHit(bool headshot, bool kill, bool armorAbsorbed)
+        public void ShowHit(bool headshot, bool kill, bool armorAbsorbed, float damage = 0f)
         {
-            var color = kill ? UiTheme.EnemyRed : headshot ? UiTheme.Amber : armorAbsorbed ? UiTheme.Armor : Color.white;
+            var color = kill ? HudRules.KillConfirm : headshot ? UiTheme.Amber : armorAbsorbed ? UiTheme.Armor : Color.white;
             for (var i = 0; i < _hitLines.Length; i++)
-                _hitLines[i].color = color;
+                if (_hitLines[i] != null)
+                    _hitLines[i].color = color;
 
             _hitDuration = kill ? KillMarkerDuration : HitMarkerDuration;
             _hitTimer = _hitDuration;
-            _hitScale = kill ? 1.45f : headshot ? 1.25f : 1.05f;
+            _hitScale = kill ? HudVisualRules.ClampHitMarkerScale(HitArmOffset, HitArmLength, 1.15f) : 1f;
 
             // Aynı karede gelen saçma (pompalı) isabetlerinde sesi çoğaltma.
             var now = Time.unscaledTime;
-            if (kill || now - _lastHitSound > 0.045f)
+            if (HitTones.ShouldPlay(kill, now, _lastHitSound))
             {
                 _lastHitSound = now;
-                var id = kill ? SoundId.KillConfirm : headshot ? SoundId.Headshot : SoundId.HitMarker;
-                var volume = kill ? 0.8f : headshot ? 0.7f : 0.5f;
                 try
                 {
-                    GameAudio.Play2D(id, volume);
+                    HitTones.Play(damage, headshot, kill, armorAbsorbed);
                 }
                 catch (Exception)
                 {
@@ -123,6 +139,8 @@ namespace Project.Presentation.UI
         /// <summary>HUD denetleyicisi her karede çağırır. <paramref name="hidden"/>: nişangâh tamamen gizlensin.</summary>
         public void Tick(float deltaTime, bool hidden)
         {
+            if (hidden)
+                _hitTimer = 0f; // ölüm/gizli: takılı kalan isabet X'i kalmasın
             UpdateCrosshair(deltaTime, hidden);
             UpdateHitMarker(deltaTime);
         }
@@ -216,7 +234,11 @@ namespace Project.Presentation.UI
             _hitTimer -= deltaTime;
             var t = Mathf.Clamp01(_hitTimer / Mathf.Max(0.01f, _hitDuration));
             HudBuild.SetAlpha(_hitGroup, t < 0.5f ? t * 2f : 1f);
-            var scale = Mathf.Lerp(1f, _hitScale, Mathf.Sqrt(t));
+            // Hafif pop yalnızca ilk 80 ms ve yalnızca etkisiz hâlde; sonra sabit.
+            var elapsed = _hitDuration - _hitTimer;
+            var scale = 1f;
+            if (_hitScale > 1f && elapsed < 0.08f)
+                scale = 1f + (_hitScale - 1f) * Mathf.Sin(elapsed / 0.08f * Mathf.PI);
             HudBuild.SetScale(_hitMarker, scale);
         }
     }

@@ -1,5 +1,5 @@
 import { api, WEAPONS, RANKS } from './api.js';
-import { LOCATIONS, PATCHES, MATCH_DEMO } from './mock-data.js';
+import { LOCATIONS, MAPS, PATCHES, MATCH_DEMO } from './mock-data.js';
 import { t } from './i18n.js';
 import { esc, formatNumber, xpProgress, worldToSvg } from './util.js';
 import { CONFIG } from './config.js';
@@ -88,6 +88,17 @@ export async function renderProfile() {
   const xp = xpProgress(me.stats?.experience ?? me.seasonXp ?? 0, me.rank);
   const weapon = WEAPONS.find((w) => w.id === (me.bestWeaponId || 'ar_mpt76'));
   const recent = me.recentMatches || [2, 5, 1, 8, 3, 4, 1, 6, 2, 7];
+  let cosmetics = [];
+  let achPreview = [];
+  if (api.isAuthed()) {
+    try { cosmetics = await api.cosmetics(); } catch { cosmetics = []; }
+    try {
+      const ach = await api.achievements();
+      achPreview = (ach || []).filter((a) => a.unlocked).slice(0, 8);
+    } catch { achPreview = []; }
+  }
+  const owned = (cosmetics || []).filter((c) => c.owned);
+  const equipped = (cosmetics || []).filter((c) => c.equipped);
   return `
   <section class="section grid cols-2">
     <article class="card">
@@ -114,6 +125,26 @@ export async function renderProfile() {
         <li>En uzun hayatta kalma: ${me.stats?.longestSurvivalSeconds ?? 0}s</li>
         <li>Sezon XP: ${formatNumber(me.seasonXp, CONFIG.lang)}</li>
         <li>Bölge: ${esc(me.region)} · Rol: ${esc(me.role)}</li>
+      </ul>
+    </article>
+  </section>
+  <section class="section grid cols-2">
+    <article class="card">
+      <h2>${esc(t('nav_achievements'))}</h2>
+      ${achPreview.length
+        ? `<ul>${achPreview.map((a) => `<li><strong>${esc(a.title || a.id)}</strong> <span class="muted">${esc(a.description || '')}</span></li>`).join('')}</ul>
+           <p><a class="btn ghost" href="#/achievements">${esc(t('nav_achievements'))} →</a></p>`
+        : `<p class="muted">${api.isAuthed() ? 'Henüz açılan başarım yok.' : `<a href="#/login">${esc(t('nav_login'))}</a>`}</p>`}
+    </article>
+    <article class="card">
+      <h2>Kozmetikler</h2>
+      <p class="muted">Sahiplik ${owned.length} · Kuşanılmış ${equipped.length}</p>
+      <ul>
+        ${(cosmetics || []).slice(0, 12).map((c) =>
+          `<li><strong>${esc(c.name || c.id)}</strong>
+            <span class="pill">${esc(c.slot || '')}</span>
+            ${c.equipped ? '<span class="pill ok">kuşanıldı</span>' : c.owned ? '<span class="pill">sahip</span>' : '<span class="muted">kilitli</span>'}
+          </li>`).join('') || '<li class="muted">Katalog yüklenemedi</li>'}
       </ul>
     </article>
   </section>
@@ -541,23 +572,41 @@ export async function renderArsenal() {
   return `<section class="section"><h2>${esc(t('nav_arsenal'))}</h2><div class="grid cols-3">${cards}</div></section>`;
 }
 
-export async function renderMap() {
-  const marks = LOCATIONS.map((l) => {
+export async function renderMap(mapId) {
+  const maps = MAPS || [{ id: 'kuzgun', name: 'Kuzgun Vadisi', size: '1024×1024 m', mode: 'BR', blurb: '', tactics: [], locations: LOCATIONS }];
+  const id = mapId || 'kuzgun';
+  const map = maps.find((m) => m.id === id) || maps[0];
+  const locs = map.locations || LOCATIONS;
+  const marks = locs.map((l) => {
     const [sx, sy] = worldToSvg(l.x, l.z);
     return `<g><circle cx="${sx}" cy="${sy}" r="10" fill="#e30a17" opacity=".85"/><text x="${sx + 14}" y="${sy + 4}" fill="#e8eef5" font-size="14" font-family="Oswald,sans-serif">${esc(l.name)}</text></g>`;
   }).join('');
+  const tabs = maps.map((m) =>
+    `<a class="btn ${m.id === map.id ? '' : 'ghost'}" href="#/map/${m.id}">${esc(m.name)}</a>`).join(' ');
   return `
   <section class="section">
-    <h2>Kuzgun Vadisi</h2>
-    <p class="muted">1024×1024 m · grid 100 m · A–J / 1–10 · kuzey = +Z</p>
-    <svg class="map-svg" viewBox="0 0 1000 1000" role="img" aria-label="Kuzgun Vadisi paftası">
+    <h2>${esc(t('nav_map'))}</h2>
+    <p class="muted" style="margin-bottom:.75rem">${tabs}</p>
+    <h3>${esc(map.name)}</h3>
+    <p class="muted">${esc(map.size)} · ${esc(map.mode)}</p>
+    <p>${esc(map.blurb || '')}</p>
+    <svg class="map-svg" viewBox="0 0 1000 1000" role="img" aria-label="${esc(map.name)} paftası">
       <rect width="1000" height="1000" fill="#0e1520"/>
       ${mapGrid()}
       <path d="M520 0 C510 120 480 250 500 400 S530 700 510 1000" fill="none" stroke="#3d7eff" stroke-width="8" opacity=".55"/>
       ${marks}
     </svg>
-    <div class="grid cols-3" style="margin-top:1rem">
-      ${LOCATIONS.map((l) => `<article class="card"><h3>${esc(l.name)}</h3><p class="muted">${esc(l.kind)} · (${l.x}, ${l.z})</p></article>`).join('')}
+    <div class="grid cols-2" style="margin-top:1rem">
+      <article class="card">
+        <h3>Taktik notları</h3>
+        <ul>${(map.tactics || []).map((n) => `<li>${esc(n)}</li>`).join('') || '<li class="muted">—</li>'}</ul>
+      </article>
+      <article class="card">
+        <h3>Lokasyonlar</h3>
+        <div class="grid cols-2">
+          ${locs.map((l) => `<div><strong>${esc(l.name)}</strong><br/><span class="muted">${esc(l.kind)} · (${l.x}, ${l.z})</span></div>`).join('')}
+        </div>
+      </article>
     </div>
   </section>`;
 }

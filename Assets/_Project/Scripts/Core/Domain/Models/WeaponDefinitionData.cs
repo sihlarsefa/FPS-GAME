@@ -40,6 +40,15 @@ namespace Project.Core.Domain
         public float AdsZoom { get; set; } = 1.3f;
 
         public bool HasScope { get; set; }
+
+        /// <summary>Nişan alma geçiş süresi (sn); yayılım ve zoom bu sürede harmanlanır.</summary>
+        public float AdsTime { get; set; } = 0.18f;
+
+        /// <summary>Sekme/yayılım toparlanma hızı çarpanı (1 = standart, yüksek = hızlı toparlanır).</summary>
+        public float RecoilRecovery { get; set; } = 1f;
+
+        /// <summary>Tetik bırakıldıktan sonra ilk atışta yayılım çarpanı (&lt;1 = ilk atış isabet bonusu).</summary>
+        public float FirstShotSpreadFactor { get; set; } = 0.5f;
         public FireMode[] FireModes { get; set; } = { FireMode.Single };
         public int BurstCount { get; set; } = 3;
         public float FalloffStart { get; set; } = 60f;

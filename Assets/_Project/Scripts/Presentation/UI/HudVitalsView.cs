@@ -100,7 +100,7 @@ namespace Project.Presentation.UI
             _boost.SetValue(0f, true);
             _boostGroup = HudBuild.PassiveGroup(_boost, 0f);
 
-            var boostLabel = HudBuild.Text("BoostLabel", _boost.transform, "TAKVİYE", 12, TextAnchor.LowerLeft,
+            var boostLabel = HudBuild.Text("BoostLabel", _boost.transform, "TAKVİYE", 14, TextAnchor.LowerLeft,
                 UiTheme.WithAlpha(UiTheme.Boost, 0.9f), FontStyle.Bold, new Vector2(0f, 1f), new Vector2(0f, 0f),
                 new Vector2(0f, 2f), new Vector2(120f, 16f));
             boostLabel.gameObject.name = "BoostLabel";
@@ -116,7 +116,7 @@ namespace Project.Presentation.UI
             var border = HudBuild.FillImage("Border", chip.Root, UiSprites.RoundedRectOutline, UiTheme.WithAlpha(UiTheme.PanelBorder, 0.9f));
             border.type = UiSprites.HasBorder(UiSprites.RoundedRectOutline) ? Image.Type.Sliced : Image.Type.Simple;
 
-            HudBuild.Text("Title", chip.Root, title, 11, TextAnchor.UpperCenter, UiTheme.TextDim, FontStyle.Bold,
+            HudBuild.Text("Title", chip.Root, title, 14, TextAnchor.UpperCenter, UiTheme.TextDim, FontStyle.Bold,
                 new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -3f), new Vector2(ChipSize, 14f), false);
 
             chip.Level = HudBuild.Text("Level", chip.Root, HudFormat.Dash, UiTheme.FontMedium, TextAnchor.MiddleCenter, UiTheme.Text,

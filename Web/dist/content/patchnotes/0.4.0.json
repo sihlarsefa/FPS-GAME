@@ -1,0 +1,22 @@
+{
+  "id": "0.4.0",
+  "slug": "0.4.0",
+  "version": "0.4.0",
+  "title": "0.4.0 — Web portal v2",
+  "date": "2026-10-05",
+  "tags": [],
+  "summary": "Portal JWT API katmanı ve yönetici paneli IIS web.config proxy / SPA fallback İndirme, sistem gereksinimleri ve yama RSS Not Kurulum paketi SHA-256 henüz yer tutucu; F3-8 launcher çıktısıyla güncellenecek.",
+  "html": "<h2 id=\"portal\">Portal</h2>\n<ul><li>JWT API katmanı ve yönetici paneli</li><li>IIS <code>web.config</code> proxy / SPA fallback</li><li>İndirme, sistem gereksinimleri ve yama RSS</li></ul>\n<h2 id=\"not\">Not</h2>\n<p>Kurulum paketi SHA-256 henüz yer tutucu; F3-8 launcher çıktısıyla güncellenecek.</p>",
+  "toc": [
+    {
+      "level": 2,
+      "id": "portal",
+      "text": "Portal"
+    },
+    {
+      "level": 2,
+      "id": "not",
+      "text": "Not"
+    }
+  ]
+}

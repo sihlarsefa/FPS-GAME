@@ -1,0 +1,24 @@
+export const meta = {
+  name: 'harekat-integ-audio-g7',
+  description: 'HAREKÂT ses entegrasyonu G7: G5 kancalarını (akustik, foley, diyalog v2, HDR miks, ortam) oyuna bağla + v2 replik listesini seslendir (2 Sonnet ajanı)',
+  phases: [{ title: 'Ses entegrasyon', detail: '2 ajan' }],
+}
+const ROOT = '/Users/f2gomac/Desktop/FPS-GAME'
+const J5 = '/Users/f2gomac/.claude/projects/-Users-f2gomac-Desktop-FPS-GAME/68731bbb-b09c-4658-bc93-146394d39180/subagents/workflows/wf_07551dbe-785/journal.jsonl'
+const SCRATCH = '/private/tmp/claude-501/-Users-f2gomac-Desktop-FPS-GAME/68731bbb-b09c-4658-bc93-146394d39180/scratchpad'
+const V = (n) => `zsh ${ROOT}/Tools/UnityVerify/verify.sh ${ROOT}/Tools/UnityVerify/out_g7_${n} --player --tests`
+const COMMON = `Project HAREKÂT, Unity 6000.6.4 C# at ${ROOT}. No deletes/.meta/file-changing git. UnityEngine.Application inside Project.*. Verify with ${V('<id>')}. Append one dated Turkish line to ${ROOT}/Docs/DURUM.md "Günlük".
+Parallel integration agents are editing: Rendering/PostProcessing, PerformanceProfile, Atmosphere, World/**, Editor/**, Vfx/GameVfx*, Transport/**, Vehicles/**, Presentation/Bootstrap/**, PlayerController*.cs (spawn/grass hooks), Content validator, localization — don't edit those.`
+const SCHEMA = { type: 'object', properties: { summary: { type: 'string' }, files: { type: 'array', items: { type: 'string' } }, concerns: { type: 'array', items: { type: 'string' } } }, required: ['summary', 'files', 'concerns'] }
+const T = [
+  ['I4-ses-kancalari', `${COMMON}
+TASK: The audio wave G5 (A1 acoustics, A2 weapon foley, A3 dialogue v2, A4 voice v2, A5 HDR mix/ambience) left "ENTEGRASYON" hook lines. Get them: grep -o 'ENTEGRASYON[^"]*' ${J5} (JSONL). Wire ALL of them so the systems actually run in matches:
+FILES YOU OWN: Infrastructure/Audio/** (incl. GameAudio.cs, SoundId.cs, AudioPool.cs, AudioQuality.cs, FootstepEmitter.cs — C11 is finished now), Infrastructure/AI/BotController.Combat.cs (fire/reload hooks only), Presentation/Player/PlayerWeaponHandler*.cs, Infrastructure/Combat/BallisticsSystem.cs + ExplosionSystem.cs (hook lines only), Infrastructure/Audio/Radio*.
+Key points: avoid double playback (GameAudio's own distance delay vs Acoustics.OnShot — pick ONE owner: Acoustics for non-local shooters); Acoustics.OnBulletPassed for every fired ray incl. misses; OnExplosion for grenades/artillery/vehicle explosions; WeaponFoley.BeginReload/CancelReload/PlayEquip/PlayHolster/PlaySelector/PlayDryFire/PlayAds in player + bot paths; GameAudio.PlayGunshot tries WeaponFoley.TryGetFireClip layers then procedural; GearFoleyEmitter.Attach for player + bots (find spawn in BotDirector/BotController init — hook line allowed there); dialogue v2 voice resolver (VoiceV2Resolver) used by the radio/shout player with voice id per soldier, falling back to old Voice/ clips; AudioMix/Ambience bootstrapping at match start (one static Init call — if it must go into a Presentation/Bootstrap file, list it in concerns instead of editing).
+Also make the test runner actually RUN Infrastructure tests: tests wrapped in #if UNITY_EDITOR currently never execute in Tools/UnityVerify (verify.sh test compile lacks UNITY_EDITOR). Inspect Tools/UnityVerify/verify.sh; if the test compile references the Infrastructure DLL already, add -define:UNITY_EDITOR (or a HAREKAT_VERIFY define and switch the guards) so they run; fix any tests that then fail (real bugs first). Report before/after test counts.`],
+  ['A4b-v2-seslendirme', `${COMMON}
+TASK: Voice v2 generation, part 2. Docs/SES_TTS_NOTU.md (v2 section) and Docs/SES_GERCEKCILIK.md (A4 section) describe the pipeline used (Piper tr_TR-dfki-medium in a venv under ${SCRATCH} — reuse it if present, else recreate there; pyloudnorm). Design/Audio/telsiz_replikleri_v2.csv now exists (written by A3 after A4 ran). Generate every row of that CSV whose id is NOT already present under Assets/_Project/Resources/Audio/Voice/v2/<voice>/<stress>/ — voices dfki_er, dfki_kalin, dfki_genc only (skip yelda), 3 stresses (sakin/catisma/panik) same params as before — BUT encode as Ogg Vorbis (.ogg, quality ~4, mono 22.05 kHz) to keep repo size down (Unity's Resources.Load ignores extensions; confirm VoiceV2Resolver/loader doesn't depend on .wav — fix if it does). If no Vorbis encoder is available (check oggenc, ffmpeg, python soundfile with libsndfile OGG support, pip install soundfile in the venv), fall back to WAV. Update voice_manifest_v2.json additively. Report counts and size. Also write Design/Audio/telsiz_replikleri_v2_durum.md: which ids are covered by which voices. Do NOT touch C# files other than the resolver/manifest loader if needed.`],
+]
+phase('Ses entegrasyon')
+const out = await parallel(T.map(([id, task]) => () => agent(task.replaceAll('<id>', id), { label: id, phase: 'Ses entegrasyon', schema: SCHEMA, model: 'sonnet', effort: 'medium' })))
+return out.filter(Boolean)

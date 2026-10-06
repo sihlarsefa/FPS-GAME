@@ -1,0 +1,20 @@
+<!doctype html><html lang="tr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA Takip Panosu</title>
+<style>body{font:14px system-ui;margin:16px;background:#14181c;color:#e6e6e6}table{border-collapse:collapse;width:100%}td,th{border:1px solid #333;padding:4px 6px;text-align:left}th{background:#222}.b{display:inline-block;margin:4px 8px 4px 0;padding:6px 10px;background:#222;border-radius:4px}</style>
+<h1>QA Takip Panosu</h1>
+<p>Dosya seç: <input type="file" id="f" accept=".csv"> (varsayılan: Senaryolar/senaryolar.csv, http üzerinden sunulursa otomatik). Durum değişiklikleri tarayıcıda saklanır.</p>
+<div id="sum"></div><select id="m"></select> <select id="p"><option value="">Tüm öncelik</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>
+<table id="t"></table>
+<script>
+const ST=["Çalıştırılmadı","Geçti","Kaldı","Engelli"];let rows=[],saved={};
+try{saved=JSON.parse(localStorage.qa||"{}")}catch(e){}
+function parse(s){const o=[];let r=[],c="",q=false;s=s.replace(/^﻿/,"");for(let i=0;i<s.length;i++){const ch=s[i];if(q){if(ch=='"'){if(s[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==','){r.push(c);c=""}else if(ch=='\n'){r.push(c);o.push(r);r=[];c=""}else if(ch!='\r')c+=ch}if(c||r.length){r.push(c);o.push(r)}const h=o.shift();return o.filter(x=>x.length>=h.length).map(x=>Object.fromEntries(h.map((k,i)=>[k,x[i]])))}
+function load(t){rows=parse(t);const ms=[...new Set(rows.map(r=>r.module))];m.innerHTML='<option value="">Tüm modül</option>'+ms.map(x=>`<option>${x}</option>`).join("");draw()}
+function draw(){const fm=m.value,fp=p.value,vis=rows.filter(r=>(!fm||r.module==fm)&&(!fp||r.priority==fp));
+const cnt={};ST.forEach(s=>cnt[s]=0);rows.forEach(r=>cnt[saved[r.id]||r.status||ST[0]]=(cnt[saved[r.id]||r.status||ST[0]]||0)+1);
+sum.innerHTML=`<span class=b>Toplam ${rows.length}</span>`+ST.map(s=>`<span class=b>${s}: ${cnt[s]||0}</span>`).join("");
+t.innerHTML="<tr><th>ID<th>Modül<th>Senaryo<th>Öncelik<th>Durum</tr>"+vis.map(r=>{const v=saved[r.id]||r.status||ST[0];return`<tr><td>${r.id}<td>${r.module}<td>${r.title}<td>${r.priority}<td><select data-id="${r.id}">${ST.map(s=>`<option${s==v?" selected":""}>${s}</option>`).join("")}</select></tr>`}).join("")}
+t.onchange=e=>{saved[e.target.dataset.id]=e.target.value;try{localStorage.qa=JSON.stringify(saved)}catch(x){}draw()};
+m.onchange=p.onchange=draw;f.onchange=e=>e.target.files[0].text().then(load);
+fetch("Senaryolar/senaryolar.csv").then(r=>r.text()).then(load).catch(()=>{sum.textContent="CSV dosyası seçin."});
+</script></html>

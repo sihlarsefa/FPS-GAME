@@ -108,7 +108,7 @@ namespace Project.Infrastructure.Audio
                 case SoundId.VehicleDoor: return VehicleDoor(ref rng);
 
                 default:
-                    return null;
+                    return RenderQuality(id, ref rng);
             }
         }
 
@@ -131,7 +131,8 @@ namespace Project.Infrastructure.Audio
 
         private static float[] Finish(float[] b, float peak, float fadeOut = 0.012f)
         {
-            Normalize(b, peak);
+            // Yüklülük geçişi: hiçbir prosedürel katman -1 dBFS tavanını aşmaz.
+            Normalize(b, Math.Min(peak, LoudnessMath.PeakCeilingLinear));
             FadeEdges(b, 0f, fadeOut);
             return b;
         }
@@ -254,8 +255,10 @@ namespace Project.Infrastructure.Audio
             var n = buf.Length;
 
             var crackHp = Biquad.Create(FilterKind.Highpass, s.CrackHighpass, 0.7f);
-            var bodyLp = Biquad.Create(FilterKind.Lowpass, s.BodyCut, 0.8f);
-            var bodyGain = BandwidthGain(FilterKind.Lowpass, s.BodyCut, 0.8f);
+            // Parlaklık payı (boğukluk şikayeti): gövde kesimi +%35, çat/snap geçişi +%30.
+            var bodyCut = s.BodyCut * 1.35f;
+            var bodyLp = Biquad.Create(FilterKind.Lowpass, bodyCut, 0.8f);
+            var bodyGain = BandwidthGain(FilterKind.Lowpass, bodyCut, 0.8f);
             var tailLp = Biquad.Create(FilterKind.Lowpass, s.TailCut, 0.7f);
             var tailGain = BandwidthGain(FilterKind.Lowpass, s.TailCut, 0.7f);
 
@@ -275,7 +278,7 @@ namespace Project.Infrastructure.Audio
             {
                 var a = i < attack ? (float)i / attack : 1f;
                 var w = rng.Bipolar();
-                var crack = crackHp.Process(w) * crackEnv * s.CrackAmp;
+                var crack = crackHp.Process(w) * crackEnv * s.CrackAmp * 1.3f;
                 var body = bodyLp.Process(w) * (bodyEnv * 0.7f + bodyFast * 0.6f) * s.BodyAmp * bodyGain;
 
                 var f = s.ThumpF1 + (s.ThumpF0 - s.ThumpF1) * sweep;
@@ -540,7 +543,8 @@ namespace Project.Infrastructure.Audio
             for (var i = 0; i < n; i++)
             {
                 var u = (float)i / n;
-                var center = 4200f * (float)Math.Pow(1300f / 4200f, u);
+                // Doppler benzeri: yaklaşırken tiz, tam geçişte hızlı düşüş, uzaklaşırken kalın (tanh basamağı).
+                var center = 1050f + 4300f * 0.5f * (1f - (float)Math.Tanh((u - 0.3f) * 9f));
                 if ((i & 31) == 0)
                     filter.Set(FilterKind.Bandpass, center, 3f);
 

@@ -100,11 +100,14 @@ namespace Project.Infrastructure.World
     {
         public Vector3 Position;
         public float Yaw;
+        /// <summary>true: yer aracı değil, helipad üzerindeki uçurulabilir T-70 noktası.</summary>
+        public bool IsAir;
 
-        public VehicleSpawnData(Vector3 position, float yaw)
+        public VehicleSpawnData(Vector3 position, float yaw, bool isAir = false)
         {
             Position = position;
             Yaw = yaw;
+            IsAir = isAir;
         }
     }
 
@@ -167,6 +170,19 @@ namespace Project.Infrastructure.World
         public float MaxHeight = 160f;
         public float WaterLevel = 18f;
         public int Seed;
+
+        /// <summary>Kar çizgisi (m). Varsayılan Kuzgun Vadisi değeri (<see cref="TerrainPainter.SnowLine"/>).</summary>
+        public float SnowLine = TerrainPainter.SnowLine;
+
+        /// <summary>Haritayı çevreleyen sonsuz deniz düzlemi (kıyı haritaları; yalnız görsel, WaterLevel'da).</summary>
+        public bool SeaPlane;
+
+        /// <summary>Göller donmuş (buz yüzeyi + kar yamaları); varsayılan false, Ayaz Geçidi true.</summary>
+        public bool FrozenLakes;
+
+        /// <summary>Su seviyesi üstünde bu yüksekliğe kadar kumsal boyanır (m; 0 → kumsal yok).</summary>
+        public float BeachHeight;
+
         public List<LocationSpec> Locations = new();
         public List<RoadSpec> Roads = new();
         public List<LakeSpec> Lakes = new();

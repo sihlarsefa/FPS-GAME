@@ -23,6 +23,7 @@ namespace Project.Core.Domain
             Category == ItemCategory.Ammunition ||
             Category == ItemCategory.Medical ||
             Category == ItemCategory.Boost ||
+            Category == ItemCategory.Equipment ||
             Category == ItemCategory.Throwable;
     }
 }

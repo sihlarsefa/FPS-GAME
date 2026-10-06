@@ -17,6 +17,21 @@ namespace Project.Infrastructure.World
     {
         public const string TreePrefabPrefix = "Tree_";
 
+        public const string TreeVersionFile = "TreePrototypes.version.txt";
+
+        /// <summary>Klasördeki kalıcı ağaç prototipleri eski mesh sürümünden mi (damga yok/farklı)? Evetse yeniden üretilmeli.</summary>
+        public static bool TreePrototypesStale(string folder)
+        {
+#if UNITY_EDITOR
+            if (string.IsNullOrEmpty(folder))
+                return false;
+            var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(folder + "/" + TreeVersionFile);
+            return asset == null || asset.text.Trim() != TreeMeshes.MeshVersion.ToString();
+#else
+            return false;
+#endif
+        }
+
         /// <summary>Bu TerrainData için varlık kalıcılaştırma yapılmalı mı (editör, oynatma dışı, data bir varlık)?</summary>
         public static bool ShouldPersist(Object terrainDataAsset)
         {
@@ -93,6 +108,15 @@ namespace Project.Infrastructure.World
             if (string.IsNullOrEmpty(folder))
                 return result;
 
+            // Sürüm damgası: eski mesh sürümüyle kalıcılaştırılmış varlıklar her durumda yeniden yazılır.
+            var stale = TreePrototypesStale(folder);
+            if (stale)
+            {
+                var stampPath = folder + "/" + TreeVersionFile;
+                System.IO.File.WriteAllText(stampPath, TreeMeshes.MeshVersion.ToString());
+                AssetDatabase.ImportAsset(stampPath);
+            }
+
             for (var i = 0; i < count; i++)
             {
                 var go = prototypes[i];
@@ -101,21 +125,26 @@ namespace Project.Infrastructure.World
 
                 try
                 {
-                    var filter = go.GetComponent<MeshFilter>();
-                    if (filter != null && filter.sharedMesh != null && !AssetDatabase.Contains(filter.sharedMesh))
+                    // Kök ve LOD çocukları (LOD0/1/2): her MeshFilter/MeshRenderer kalıcılaştırılır.
+                    var filters = go.GetComponentsInChildren<MeshFilter>(true);
+                    for (var f = 0; f < filters.Length; f++)
                     {
+                        var filter = filters[f];
+                        if (filter.sharedMesh == null || AssetDatabase.Contains(filter.sharedMesh))
+                            continue;
                         var mesh = Object.Instantiate(filter.sharedMesh);
                         mesh.name = filter.sharedMesh.name;
-                        filter.sharedMesh = SaveAsset(mesh, folder + "/" + TreePrefabPrefix + i + "_Mesh.asset");
+                        var suffix = filter.transform == go.transform ? string.Empty : "_" + SafeName(filter.name);
+                        filter.sharedMesh = SaveAsset(mesh, folder + "/" + TreePrefabPrefix + i + suffix + "_Mesh.asset");
                     }
 
-                    var renderer = go.GetComponent<MeshRenderer>();
-                    if (renderer != null)
+                    var renderers = go.GetComponentsInChildren<MeshRenderer>(true);
+                    for (var r = 0; r < renderers.Length; r++)
                     {
-                        var materials = renderer.sharedMaterials;
+                        var materials = renderers[r].sharedMaterials;
                         for (var m = 0; m < materials.Length; m++)
                             materials[m] = PersistMaterial(materials[m], folder);
-                        renderer.sharedMaterials = materials;
+                        renderers[r].sharedMaterials = materials;
                     }
 
                     var prefab = PrefabUtility.SaveAsPrefabAsset(go, folder + "/" + TreePrefabPrefix + i + ".prefab", out var success);
@@ -129,6 +158,34 @@ namespace Project.Infrastructure.World
             }
 #endif
             return result;
+        }
+
+        /// <summary>Ayrıntı (çimen/çiçek) prototip dokularını klasöre varlık olarak kaydeder (bellek içi doku kalıcı TerrainData'da kaybolmasın).</summary>
+        public static void PersistDetailTextures(TerrainData data, string folder)
+        {
+#if UNITY_EDITOR
+            if (data == null || string.IsNullOrEmpty(folder))
+                return;
+            var prototypes = data.detailPrototypes;
+            if (prototypes == null || prototypes.Length == 0)
+                return;
+            for (var i = 0; i < prototypes.Length; i++)
+            {
+                var tex = prototypes[i].prototypeTexture;
+                if (tex == null || AssetDatabase.Contains(tex))
+                    continue;
+                try
+                {
+                    prototypes[i].prototypeTexture = SaveAsset(tex, folder + "/Detail_" + i + "_Tex.asset");
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning("[WorldAssetPersistence] Ayrıntı dokusu kaydedilemedi: " + e.Message);
+                }
+            }
+
+            data.detailPrototypes = prototypes;
+#endif
         }
 
         /// <summary>Editörde varlığı kirli işaretler (kaydedilsin). Oyuncuda/oynatmada etkisiz.</summary>

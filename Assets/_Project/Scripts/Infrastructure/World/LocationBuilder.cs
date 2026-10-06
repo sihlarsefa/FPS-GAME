@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Project.Core.Domain;
+using Project.Infrastructure.World.Lighting;
 using UnityEngine;
 
 namespace Project.Infrastructure.World
@@ -23,6 +24,8 @@ namespace Project.Infrastructure.World
             structuresOut ??= new List<Bounds>();
             vehiclesOut ??= new List<VehicleSpawnData>();
 
+            PoiLights.ResetBudget();
+            var probes = new List<ProbeSpec>();
             var root = new GameObject("[Lokasyonlar]");
             if (parent != null)
                 root.transform.SetParent(parent, false);
@@ -36,11 +39,18 @@ namespace Project.Infrastructure.World
                     var loc = locations[i];
                     if (loc == null)
                         continue;
-                    BuildLocation(loc, terrain, root.transform, rng.Next(), lootOut, structuresOut, vehiclesOut);
+                    BuildLocation(loc, terrain, root.transform, rng.Next(), lootOut, structuresOut, vehiclesOut, probes);
                 }
             }
 
             ScatterRoadside(layout, terrain, root.transform, rng, lootOut);
+            MaviLimanProps.BuildIfApplicable(layout, terrain, root.transform, seed, lootOut, structuresOut);
+            KartalYaylasiProps.BuildIfApplicable(layout, terrain, root.transform, seed, lootOut, structuresOut);
+            MapIdentityProps.BuildIfApplicable(layout, terrain, root.transform, seed, lootOut, structuresOut);
+            PoiDetailProps.BuildIfApplicable(layout, terrain, root.transform, seed, lootOut, structuresOut);
+
+            if (probes.Count > 0)
+                PoiLights.BuildProbes(root.transform, probes, Vector3.zero);
         }
 
         private static void BuildLocation(
@@ -50,8 +60,13 @@ namespace Project.Infrastructure.World
             int seed,
             List<LootSpawnPointData> lootOut,
             List<Bounds> structuresOut,
-            List<VehicleSpawnData> vehiclesOut)
+            List<VehicleSpawnData> vehiclesOut,
+            List<ProbeSpec> probes)
         {
+            // Kimlik POI'leri (donmuş göl, konteyner sahası, telesiyej...) MapIdentityProps tarafından özel kurulur.
+            if (MapLayout.IsIdentityPoi(loc.Name))
+                return;
+
             var folder = new GameObject(loc.Name ?? loc.Kind.ToString());
             folder.transform.SetParent(parent, false);
             var rng = new System.Random(seed);
@@ -90,6 +105,27 @@ namespace Project.Infrastructure.World
                     PropFactory.TreeStump(folder.transform, center, rng.Next(0, 360), rng);
                     PropFactory.Woodpile(folder.transform, OffsetGround(terrain, center, 4f, -3f), 20f, rng);
                     break;
+            }
+
+            // Gece aktif yerel ışıklar + reflection probe (gündüz kapalı, bütçe PoiLights içinde).
+            var site = SiteFor(loc.Kind);
+            if (site.HasValue)
+            {
+                var rad = Mathf.Max(12f, loc.Radius);
+                PoiLights.Build(folder.transform, site.Value, center, rad, seed ^ 0x11A7, center);
+                probes.Add(ReflectionProbePlanner.ForPoi(center, rad));
+            }
+        }
+
+        private static PoiSiteType? SiteFor(LocationKind k)
+        {
+            switch (k)
+            {
+                case LocationKind.Village: return PoiSiteType.Village;
+                case LocationKind.Karakol: return PoiSiteType.Checkpoint;
+                case LocationKind.ForwardBase: return PoiSiteType.MilitaryBase;
+                case LocationKind.Outpost: return PoiSiteType.Camp;
+                default: return null;
             }
         }
 
@@ -170,6 +206,8 @@ namespace Project.Infrastructure.World
 
             vehiclesOut.Add(new VehicleSpawnData(OffsetGround(terrain, center, 20f, 10f), 270f));
             vehiclesOut.Add(new VehicleSpawnData(OffsetGround(terrain, center, 20f, 16f), 270f));
+            // Helipad üzerindeki uçurulabilir T-70 (MatchBootstrap IsAir noktalarını helikopter olarak üretir).
+            vehiclesOut.Add(new VehicleSpawnData(OffsetGround(terrain, center, -5f, -16f) + Vector3.up * 0.15f, 0f, true));
             lootOut.Add(new LootSpawnPointData(OffsetGround(terrain, center, 0f, 0f), LootTier.Military));
             lootOut.Add(new LootSpawnPointData(OffsetGround(terrain, center, 5f, -5f), LootTier.Military));
         }

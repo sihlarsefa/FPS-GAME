@@ -2,6 +2,7 @@ using System;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
+using Project.Core.Events;
 using Project.Core.Interfaces;
 using Project.Infrastructure;
 using Project.Infrastructure.Audio;
@@ -34,7 +35,7 @@ namespace Project.Presentation.Player
     /// </summary>
     [DisallowMultipleComponent]
     [DefaultExecutionOrder(-50)]
-    public sealed class PlayerController : MonoBehaviour, IPlayerHudSource
+    public sealed partial class PlayerController : MonoBehaviour, IPlayerHudSource
     {
         public const float DefaultFieldOfView = 80f;
         public const float ReferenceStandingHeight = 1.8f;
@@ -154,6 +155,10 @@ namespace Project.Presentation.Player
             {
                 if (_notification != null && Time.time < _notificationUntil)
                     return _notification;
+
+                // Yaralıyken bilgi DownedOverlayView'de gösterilir (çift metin olmasın).
+                if (_combatant != null && _combatant.IsDowned)
+                    return string.Empty;
 
                 return _interaction != null && _mode != Mode.Dead ? _interaction.Prompt : string.Empty;
             }
@@ -322,6 +327,8 @@ namespace Project.Presentation.Player
             combatant.DropState = transport != null ? DropState.InTransport : DropState.Landed;
             CombatantRegistry.LocalPlayer = combatant;
 
+            SafeRun(() => Project.Infrastructure.World.GrassSystem.AddInteractor(go.transform, 0.9f), go);
+
             var hitboxes = PlayerHitboxRig.Build(go.transform, combatant);
             combatant.AimPoint = hitboxes.AimPoint;
 
@@ -336,6 +343,7 @@ namespace Project.Presentation.Player
             }
 
             var footsteps = go.AddComponent<FootstepEmitter>();
+            go.AddComponent<Project.Infrastructure.Audio.PlayerBreathing>().Bind(motor, combatant); // nefes (stamina)
 
             var controller = go.AddComponent<PlayerController>();
             controller.Setup(cc, motor, input, pivot, offset, rig, camera, viewModel, combatant, footsteps, hitboxes, settings);
@@ -383,6 +391,8 @@ namespace Project.Presentation.Player
                 _motor.Landed += OnMotorLanded;
 
             ApplySettings(settings);
+            GameContext.TryGet<IEventBus>(out var kickBus);
+            HookKick(kickBus);
 
             if (_input != null)
                 _input.GameplayEnabled = _inputEnabled;
@@ -445,13 +455,81 @@ namespace Project.Presentation.Player
                 _camera.InvertY = settings.InvertY;
                 _camera.BaseFieldOfView = fov;
                 _camera.SetFieldOfView(fov);
+                _camera.ZoomSensitivityScaling = settings.AdsFovRelativeSensitivity;
             }
             catch (Exception e)
             {
                 Debug.LogException(e, this);
             }
 
+            ApplyFeelAndGraphics(settings);
             UpdateSensitivity();
+        }
+
+        private int _lastGfxHash = int.MinValue;
+
+        /// <summary>Silah FOV'u, kamera tepmesi ve kullanıcı grafik tercihleri (hepsi try/catch; eksik özellik sessizce atlanır).</summary>
+        private void ApplyFeelAndGraphics(GameSettings settings)
+        {
+            try
+            {
+                if (_rig != null)
+                {
+                    _rig.SetViewmodelFieldOfView(Mathf.Clamp(settings.ViewmodelFov, SettingsService.MinViewmodelFov, SettingsService.MaxViewmodelFov));
+                    _rig.CameraKickEnabled = settings.CameraShakeIntensity > 0.001f;
+                }
+            }
+            catch (Exception e) { Debug.LogException(e, this); }
+
+            var hash = (settings.VolumetricFog ? 1 : 0) | (settings.ContactShadows ? 2 : 0) | (settings.ScreenSpaceReflections ? 4 : 0);
+            if (hash == _lastGfxHash)
+                return;
+            // İlk uygulamada hepsi açıksa (varsayılan) kademe zaten doğru kurmuştur; yalnızca kapalıları uygula.
+            var first = _lastGfxHash == int.MinValue;
+            _lastGfxHash = hash;
+            try
+            {
+                if (!first || !settings.VolumetricFog)
+                    Project.Infrastructure.Rendering.QualityTierApplier.SetVolumetricUser(settings.VolumetricFog);
+                if (!first || !settings.ContactShadows)
+                    Project.Infrastructure.Rendering.Features.HarekatRendererFeatures.SetUserEnabled(
+                        Project.Infrastructure.Rendering.Features.HarekatContactShadowsFeature.Key, settings.ContactShadows);
+                if (!first || !settings.ScreenSpaceReflections)
+                    Project.Infrastructure.Rendering.Features.HarekatRendererFeatures.SetUserEnabled(
+                        Project.Infrastructure.Rendering.Features.HarekatSsrLiteFeature.Key, settings.ScreenSpaceReflections);
+            }
+            catch (Exception e) { Debug.LogException(e, this); }
+        }
+
+        // ---- Kamera tepmesi (CameraRig; denetleyiciden bağımsız, toplamsal) ----
+        private Action<WeaponFiredEvent> _onFiredKick;
+        private IEventBus _kickBus;
+
+        /// <summary>Kamera tepmesi darbesi (derece). Çarpan ve ADS ölçeği uygulanır; CameraRig kapalıysa etkisizdir.</summary>
+        public void AddCameraKick(float pitchDegrees, float yawDegrees)
+        {
+            if (_rig == null)
+                return;
+            var k = CameraKickMath.Scale(_settings != null ? _settings.CameraShakeIntensity : 1f, IsAiming);
+            if (k > 0f)
+                _rig.AddCameraKick(pitchDegrees * k, yawDegrees * k);
+        }
+
+        private void HookKick(IEventBus bus)
+        {
+            // Kamera tepmesi artık PlayerWeaponHandler.FireShot'tan gerçek geri tepme ile verilir (çift etki olmasın).
+            if (bus == null || _onFiredKick != null || _weapons != null)
+                return;
+            _kickBus = bus;
+            _onFiredKick = e =>
+            {
+                if (_combatant == null || !e.ShooterId.Equals(_combatant.Id) || _rig == null)
+                    return;
+                CameraKickMath.Shot(_settings != null ? _settings.CameraShakeIntensity : 1f, IsAiming,
+                    UnityEngine.Random.value * 2f - 1f, 1f, out var pitch, out var yaw);
+                _rig.AddCameraKick(pitch, yaw);
+            };
+            bus.Subscribe(_onFiredKick);
         }
 
         private void OnSettingsChanged(GameSettings settings) => ApplySettings(settings);
@@ -468,14 +546,24 @@ namespace Project.Presentation.Player
 
             ResolveServicesIfChanged();
 
+            {
+                var nvMsg = Project.Infrastructure.Rendering.NightVisionEffect.Drive(
+                    _mode != Mode.Dead && Inventory != null && Inventory.GetCount(Project.Application.Catalogs.ItemIds.NightVision) > 0,
+                    GameplayInputActive && Infrastructure.Input.InputBindings.Pressed(BindAction.NightVision), dt);
+                if (nvMsg != null)
+                    Notify(nvMsg, 2f, false);
+            }
+
             // 1) Girdi → komut (okuyucu kapalıysa sıfır döner)
             MovementInputState movement;
             LookInputState look;
             CombatInputState combatInput;
             if (_input != null && _inputEnabled && _mode != Mode.Dead)
             {
-                movement = _input.ReadMovement();
+                movement = _weapons != null ? _weapons.AdaptMovement(_input.ReadMovement()) : _input.ReadMovement();
                 look = _input.ReadLook();
+                if (_weapons != null)
+                    look = _weapons.ModifyLook(look, dt);
                 combatInput = _input.ReadCombat();
             }
             else
@@ -485,7 +573,7 @@ namespace Project.Presentation.Player
                 combatInput = CombatInputState.Zero;
             }
 
-            if (_mode != Mode.Dead)
+            if (_mode != Mode.Dead && !HeliConsumesLook(look))
                 ApplyLook(look);
 
             var tick = _clock != null ? _clock.CurrentTick : ++_localTick;
@@ -527,7 +615,7 @@ namespace Project.Presentation.Player
                     AlignSeat(_transport != null ? SafeViewPoint(_transport, _seat) : null);
                     break;
                 case Mode.Driving:
-                    AlignSeat(_vehicle != null ? _vehicle.DriverViewPoint : null);
+                    AlignSeat(_heli != null ? HeliViewPoint() : (_vehicle != null ? _vehicle.ActiveViewPoint : null));
                     break;
                 case Mode.Dead:
                     UpdateDeathCam();
@@ -565,8 +653,75 @@ namespace Project.Presentation.Player
                 _squad.Tick(dt);
         }
 
+        private bool _downedPose;
+
+        /// <summary>Yaralı: yalnızca yatarak yavaş sürünür; ateş/eşya yok, görünüm modeli gizli.</summary>
+        private void SimulateDowned(PlayerCommand command, float dt)
+        {
+            var raw = command.ToMovement();
+            var proneToggle = false;
+            if (!_downedPose)
+            {
+                _downedPose = true;
+                proneToggle = _motor != null && _motor.CurrentStance != Stance.Prone;
+                _weapons.SetViewModelVisible(false);
+                _weapons.OnLeaveFoot();
+                if (ItemUse != null && ItemUse.IsUsing)
+                    ItemUse.Cancel();
+            }
+
+            var movement = new MovementInputState(raw.Forward, raw.Right, false, false, false, false, proneToggle, false, false);
+            if (_motor != null)
+            {
+                _motor.SpeedMultiplier = _combatant != null ? _combatant.MovementSpeedMultiplier : 0.18f;
+                _motor.ApplyMovement(movement, dt);
+            }
+
+            SyncCombatantFromMotor();
+            SyncCameraFromMotor();
+            if (_motor != null)
+                _hitboxes?.Follow(_motor.CurrentStance, _motor.CurrentHeight, false);
+
+            _weapons.TickPassive(dt);
+        }
+
+        /// <summary>Envanter yükü + zırh seviyesi motora bildirilir (atalet, hız, stamina harcaması).</summary>
+        private void ApplyMovementLoad()
+        {
+            var inventory = _combatant != null ? _combatant.Inventory : null;
+            if (_motor == null || inventory == null)
+                return;
+
+            var armor = 0f;
+            if (inventory.Vest != null && !inventory.Vest.IsBroken)
+                armor += inventory.Vest.Level;
+            if (inventory.Helmet != null && !inventory.Helmet.IsBroken)
+                armor += inventory.Helmet.Level * 0.5f;
+
+            _motor.SetLoad(inventory.LoadFraction, armor);
+        }
+
+        /// <summary>Kaldırılınca ayağa kalk, görünüm modelini geri getir.</summary>
+        private void EndDownedPose()
+        {
+            _downedPose = false;
+            if (_motor != null && _motor.CurrentStance == Stance.Prone)
+                _motor.ApplyMovement(new MovementInputState(0f, 0f, false, false, false, false, true, false, false), 0.016f);
+
+            _weapons.SetViewModelVisible(true);
+        }
+
         private void SimulateOnFoot(PlayerCommand command, LookInputState look, float dt)
         {
+            if (_combatant != null && _combatant.IsDowned)
+            {
+                SimulateDowned(command, dt);
+                return;
+            }
+
+            if (_downedPose)
+                EndDownedPose();
+
             var movement = command.ToMovement();
             var combatInput = command.ToCombat();
 
@@ -589,6 +744,7 @@ namespace Project.Presentation.Player
                     speedMultiplier *= AdsMoveSpeedFactor;
 
                 _motor.SpeedMultiplier = speedMultiplier;
+                ApplyMovementLoad();
                 _motor.ApplyMovement(movement, dt);
             }
 
@@ -628,6 +784,12 @@ namespace Project.Presentation.Player
 
         private void SimulateDriving(PlayerCommand command, float dt)
         {
+            if (_heli != null)
+            {
+                SimulateHeli(command, dt);
+                return;
+            }
+
             // Araç yok oldu/patladı, sürücü kaydı düştü (araç Exit ile bıraktı) ya da araç bizi koltuktan ayırdı: in.
             var vehicle = _vehicle;
             if (vehicle == null || !vehicle.isActiveAndEnabled || vehicle.Health <= 0f
@@ -637,16 +799,51 @@ namespace Project.Presentation.Player
                 return;
             }
 
-            var brake = false;
-            if (GameplayInputActive)
+            // Yaralı düştü: sürüş/taret kullanılamaz; araç frenlenir, sürücü yanına indirilir (yerde sürünür, müttefik kaldırır).
+            if (_combatant != null && DownedRules.ShouldEjectFromVehicle(_combatant.IsAlive, _combatant.IsDowned))
             {
-                var keyboard = Keyboard.current;
-                brake = keyboard != null && keyboard.spaceKey.isPressed;
+                ExitVehicle(true);
+                Notify("Yaralandın — araçtan indirildin", 2f, false);
+                return;
             }
 
+            var brake = false;
+            var turret = vehicle.Turret;
+            if (GameplayInputActive)
+            {
+                // Araç tuşları da InputBindings'ten: Zıpla = el freni, Silah 1/2 = sürücü/nişancı koltuğu, Şarjör = taret mermisi.
+                brake = Infrastructure.Input.InputBindings.Held(BindAction.Jump);
+                if (turret != null)
+                {
+                    if (Infrastructure.Input.InputBindings.Pressed(BindAction.Slot2) && !turret.PlayerGunner)
+                    {
+                        turret.PlayerGunner = true;
+                        AlignSeat(vehicle.ActiveViewPoint);
+                        Notify("Taret nişancı koltuğu — [Sol Tık] ateş, [" + Infrastructure.Input.InputBindings.Map.Display(BindAction.Reload) + "] mermi", 2f, false);
+                    }
+                    else if (Infrastructure.Input.InputBindings.Pressed(BindAction.Slot1) && turret.PlayerGunner)
+                    {
+                        turret.PlayerGunner = false;
+                        AlignSeat(vehicle.ActiveViewPoint);
+                        Notify("Sürücü koltuğu", 1.5f, false);
+                    }
+                }
+            }
+
+            var gunner = turret != null && turret.PlayerGunner;
             try
             {
-                vehicle.SetInput(command.MoveForward, command.MoveRight, brake);
+                if (gunner)
+                {
+                    vehicle.SetInput(0f, 0f, true);
+                    TickKirpiTurret(turret, keyboardReload: GameplayInputActive && Infrastructure.Input.InputBindings.Pressed(BindAction.Reload));
+                }
+                else
+                {
+                    vehicle.SetInput(command.MoveForward, command.MoveRight, brake);
+                }
+
+                TickKirpiHud(vehicle, turret, gunner);
             }
             catch (Exception e)
             {
@@ -654,6 +851,38 @@ namespace Project.Presentation.Player
             }
 
             SeatedTick(command, dt);
+        }
+
+        private float _nextKirpiHud;
+
+        private void TickKirpiTurret(KirpiTurret turret, bool keyboardReload)
+        {
+            if (turret == null || _combatant == null)
+                return;
+            var point = turret.ResolveAimPoint(AimOrigin, AimForward, 400f);
+            turret.AimAt(point);
+            if (keyboardReload)
+                turret.ReloadNow();
+            var mouse = Mouse.current;
+            if (GameplayInputActive && mouse != null && mouse.leftButton.isPressed)
+                turret.TryFire(_combatant, point);
+        }
+
+        /// <summary>Araç HUD satırı (hız, zırh, taret) ve mürettebat mesajları; mevcut Notify kancasıyla.</summary>
+        private void TickKirpiHud(DrivableVehicle vehicle, KirpiTurret turret, bool gunner)
+        {
+            var crew = vehicle.GetComponent<KirpiCrew>();
+            var msg = crew != null ? crew.ConsumeMessage() : null;
+            if (msg != null)
+                Notify(msg, 2.5f, false);
+
+            if (Time.time < _nextKirpiHud)
+                return;
+            _nextKirpiHud = Time.time + 0.4f;
+            // Olay yayınlamadan yalnızca istem satırına yazar (HUD merkez mesajı spam'lenmesin).
+            _notification = KirpiCrewRules.Hud(vehicle.SpeedKmh, vehicle.Health, vehicle.Config.MaxHealth, gunner,
+                turret != null ? turret.Ammo : 0, turret != null && turret.IsReloading, vehicle.Config.DisplayName);
+            _notificationUntil = Time.time + 0.6f;
         }
 
         private void SeatedTick(PlayerCommand command, float dt)
@@ -789,6 +1018,7 @@ namespace Project.Presentation.Player
 
             _mode = Mode.OnFoot;
             ResetCameraOffset();
+            PostProcessing.SetDeathBlur(false);
             TeleportMotor(SnapToGround(position), yaw);
             SetPhysicalBody(true);
             if (_motor != null)
@@ -885,7 +1115,7 @@ namespace Project.Presentation.Player
 
             _transportArrivedAt = Time.time;
             // İstem satırı geri sayımı gösterir ("[F] Araçtan in (3)"); mesaj yalnızca olayla (HUD merkez mesajı) gider.
-            Notify("İniş bölgesine varıldı — [F] araçtan in", AutoDisembarkSeconds, false);
+            Notify("İniş bölgesine varıldı — " + Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Interact) + " araçtan in", AutoDisembarkSeconds, false);
         }
 
         /// <summary>İntikal aracından iner (araç vardıysa ya da zorunluysa): iniş noktasına konur, kontrol açılır.</summary>
@@ -990,6 +1220,12 @@ namespace Project.Presentation.Player
             if (_mode != Mode.Driving)
                 return;
 
+            if (_heli != null)
+            {
+                ExitHeli(!notifyVehicle);
+                return;
+            }
+
             var vehicle = _vehicle;
             _vehicle = null;
 
@@ -1071,6 +1307,7 @@ namespace Project.Presentation.Player
 
         private void LeaveVehicleImmediate()
         {
+            LeaveHeliImmediate();
             if (_vehicle != null)
             {
                 try
@@ -1178,6 +1415,7 @@ namespace Project.Presentation.Player
         private void BeginDeathCam(DamageInfo damage)
         {
             _deathTime = Time.time;
+            PostProcessing.SetDeathBlur(true);
             if (_cameraOffset == null)
                 return;
 
@@ -1463,7 +1701,7 @@ namespace Project.Presentation.Player
         {
             try
             {
-                inventory.ApplyLoadout(args.Loadout ?? LoadoutCatalog.For(args.Role, 0), true);
+                inventory.ApplyLoadout(Project.Application.Services.NightVisionRules.IssueFor(args.Loadout ?? LoadoutCatalog.For(args.Role, 0), Project.Infrastructure.Rendering.Atmosphere.CurrentTime), true);
             }
             catch (Exception e)
             {
@@ -1577,6 +1815,10 @@ namespace Project.Presentation.Player
 
         private void OnDestroy()
         {
+            try { Project.Infrastructure.World.GrassSystem.RemoveInteractor(transform); } catch (Exception) { /* yok sayılır */ }
+            if (_kickBus != null && _onFiredKick != null)
+                _kickBus.Unsubscribe(_onFiredKick);
+
             if (_combatant != null)
             {
                 _combatant.Died -= OnCombatantDied;
@@ -1589,6 +1831,7 @@ namespace Project.Presentation.Player
             if (_settingsService != null)
                 _settingsService.Changed -= OnSettingsChanged;
 
+            LeaveHeliImmediate();
             if (_mode == Mode.Driving && _vehicle != null)
             {
                 try

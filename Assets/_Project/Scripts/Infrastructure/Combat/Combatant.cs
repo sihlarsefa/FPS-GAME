@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
+using Project.Core.Events;
 using Project.Core.Interfaces;
 using Project.Infrastructure.Loot;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace Project.Infrastructure.Combat
         private bool _deathHandled;
         private bool _hitboxScanDone;
         private bool _inDamageRegistry;
+        private bool _downed;
 
         public PlayerId Id { get; private set; } = PlayerId.Invalid;
         public PlayerId OwnerId => Id;
@@ -47,8 +49,33 @@ namespace Project.Infrastructure.Combat
         public BoostService Boost { get; private set; }
         public ItemUseService ItemUse { get; private set; }
 
+        /// <summary>Uzuv yaraları (bacak/kol/kanama/sıyrık) — sunucu tarafı, botlar da aynı cezaları yer.</summary>
+        public LimbDamageState Limbs { get; } = new LimbDamageState();
+
+        /// <summary>Yaralı kol: nişan sarsıntısı çarpanı (HUD/silah kancası).</summary>
+        public float LimbSwayMultiplier => Limbs.SwayMultiplier;
+
+        /// <summary>Yaralı kol: ADS süresi çarpanı (1 = normal).</summary>
+        public float LimbAdsTimeMultiplier => Limbs.AdsTimeMultiplier;
+
+        /// <summary>Kasklı kafa sıyrığı sersemliği (1,2 sn). AudioMix boğma + ağır sarsıntı bunu okur.</summary>
+        public bool IsFlinching => Limbs.IsFlinching;
+
         public HealthState State => Health != null ? Health.State : new HealthState(0f, 100f);
         public bool IsAlive => Health != null && Health.IsAlive;
+
+        /// <summary>"Yaralı" (DBNO): yaşıyor ama sürünür, ateş edemez, kanar; müttefik kaldırabilir.</summary>
+        public bool IsDowned => _downed && IsAlive;
+
+        /// <summary>Kalan kanama süresi (sn); yaralı değilse 0.</summary>
+        public float BleedRemaining => IsDowned ? ReviveRuntime.Service.BleedRemaining(Id) : 0f;
+
+        /// <summary>Kaldırma ilerlemesi 0..1.</summary>
+        public float ReviveProgress => IsDowned ? ReviveRuntime.Service.ReviveProgress(Id) : 0f;
+
+        /// <summary>Yaralıya düşüldüğünde / kalkınca tetiklenir.</summary>
+        public event Action<Combatant> BecameDowned;
+        public event Action<Combatant> Recovered;
         public IArmorProvider Armor => Inventory;
 
         public Transform EyePoint { get; set; }
@@ -98,11 +125,12 @@ namespace Project.Infrastructure.Combat
                 if (!IsAlive)
                     return 1f;
 
-                var m = 1f;
+                var m = _downed ? 0.18f : 1f; // yaralı sürünür
                 if (Boost != null)
                     m *= Boost.SpeedMultiplier;
                 if (ItemUse != null)
                     m *= ItemUse.MovementSpeedMultiplier;
+                m *= Limbs.MoveSpeedMultiplier;
 
                 return m > 0f && !float.IsNaN(m) ? m : 1f;
             }
@@ -142,6 +170,8 @@ namespace Project.Infrastructure.Combat
             Inventory = new InventoryService(eventBus, id);
             Boost = new BoostService();
             ItemUse = new ItemUseService(id, Inventory, Health, Boost, eventBus);
+            Limbs.Reset();
+            ItemUse.Completed += OnItemCompletedClearWounds;
 
             Health.Damaged += OnHealthDamaged;
             Health.Died += OnHealthDied;
@@ -165,8 +195,18 @@ namespace Project.Infrastructure.Combat
             if (!_initialized || Health == null)
                 return;
 
+            if (_downed)
+            {
+                _downed = false;
+                ReviveRuntime.Service.Remove(Id);
+                // Maç servisi yaralı kaydını düşsün (kaldıran yok: antrenman/yeniden doğma).
+                try { _eventBus?.Publish(new RevivedEvent(Id, PlayerId.Invalid)); }
+                catch (Exception e) { Debug.LogException(e, this); }
+            }
+
             Health.ResetToFull();
             Boost?.Reset();
+            Limbs.Reset();
             _deathHandled = false;
             DeathTime = -1f;
             IsTargetable = true;
@@ -181,12 +221,115 @@ namespace Project.Infrastructure.Combat
             if (Health == null || !Health.IsAlive || damage.Amount <= 0f)
                 return;
 
+            if (_downed)
+            {
+                // Yaralıyı yalnızca düşman (ya da çevre/kendisi) bitirir; müttefik hasarı yok sayılır.
+                if (damage.AttackerId.IsValid && damage.AttackerId != Id
+                    && CombatantRegistry.TryGet(damage.AttackerId, out var friend) && friend != null && friend.Team == Team)
+                    return;
+
+                FinishOff(damage);
+                return;
+            }
+
+            if (ShouldGoDown(damage))
+            {
+                EnterDowned(damage);
+                return;
+            }
+
             Health.ApplyDamage(damage);
+        }
+
+        private bool ShouldGoDown(DamageInfo damage)
+        {
+            if (!ReviveRuntime.Enabled || Team < 0 || !GameContext.HasAuthority || Health.Current - damage.Amount > 0.001f)
+                return false;
+
+            return ReviveRuntime.CountHealthyAllies(this) > 0;
+        }
+
+        private void EnterDowned(DamageInfo damage)
+        {
+            // Ölümcül hasar 1 can bırakacak biçimde kısılır.
+            var capped = Mathf.Max(0f, Health.Current - 1f);
+            if (capped > 0f)
+                Health.ApplyDamage(damage.WithAmount(capped));
+
+            if (!Health.IsAlive)
+                return;
+
+            _downed = true;
+            Velocity = Vector3.zero;
+            try
+            {
+                if (ItemUse != null && ItemUse.IsUsing)
+                    ItemUse.Cancel();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, this);
+            }
+
+            if (!ReviveRuntime.Service.TryDown(Id, damage.AttackerId, Team, ReviveRuntime.CountHealthyAllies(this)))
+            {
+                _downed = false;
+                Health.ApplyDamage(damage.WithAmount(Health.Current + 1f));
+                return;
+            }
+
+            try
+            {
+                BecameDowned?.Invoke(this);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, this);
+            }
+
+            ReviveRuntime.KillTeamIfWiped(Team);
+        }
+
+        private void FinishOff(DamageInfo damage)
+        {
+            _downed = false;
+            ReviveRuntime.Service.Remove(Id);
+            Health.ApplyDamage(damage.WithAmount(Health.Current + 1f));
+        }
+
+        /// <summary>Kanamadan ya da takım yok olunca ölüm (servis çağırır).</summary>
+        internal void BleedToDeath(PlayerId attacker)
+        {
+            if (!_downed || Health == null || !Health.IsAlive)
+                return;
+
+            _downed = false;
+            ReviveRuntime.Service.Remove(Id);
+            Health.ApplyDamage(new DamageInfo(Health.Current + 1f, attacker, "bleedout"));
+        }
+
+        /// <summary>Kaldırma tamamlandı: ayağa kalk, canın %30'u (servis çağırır).</summary>
+        internal void CompleteRevive()
+        {
+            if (!_downed || Health == null || !Health.IsAlive)
+                return;
+
+            _downed = false;
+            var target = Health.Max * ReviveService.ReviveHealthFraction;
+            Health.HealCapped(target, target);
+            try
+            {
+                Recovered?.Invoke(this);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, this);
+            }
         }
 
         public void Heal(float amount)
         {
-            if (Health == null || !Health.IsAlive || amount <= 0f)
+            if (Health == null || !Health.IsAlive || amount <= 0f || _downed)
                 return;
 
             Health.Heal(amount);
@@ -252,15 +395,36 @@ namespace Project.Infrastructure.Combat
                 return;
 
             var dt = Time.deltaTime;
-            if (dt <= 0f)
+            if (dt <= 0f || _downed)
                 return;
 
             ItemUse?.Tick(dt);
             Boost?.Tick(dt, Health, Health.IsAlive);
+
+            var bleed = Limbs.Tick(dt);
+            if (bleed > 0f)
+                ApplyDamage(new DamageInfo(bleed, PlayerId.Invalid, LimbDamageRules.BleedSourceId));
+        }
+
+        private void OnItemCompletedClearWounds(string itemId)
+        {
+            if (ItemCatalog.TryGet(itemId, out var def) && def.Category == ItemCategory.Medical)
+                Limbs.Bandage();
+        }
+
+        private void RecordLimbHit(DamageInfo damage)
+        {
+            if (!GameContext.HasAuthority || LimbDamageRules.IsEnvironmentalSource(damage.SourceWeaponId))
+                return;
+
+            var vest = Inventory != null ? Inventory.GetArmorFor(BodyPart.Torso) : null;
+            var helmet = Inventory != null ? Inventory.GetArmorFor(BodyPart.Head) : null;
+            Limbs.OnHit(damage.BodyPart, damage.Amount, vest == null || vest.IsBroken, helmet != null, !Health.IsAlive);
         }
 
         private void OnHealthDamaged(DamageInfo damage)
         {
+            RecordLimbHit(damage);
             LastDamageTime = Time.time;
             LastAttackerId = damage.AttackerId;
             LastDamageSource = damage.HasSourcePosition
@@ -287,6 +451,13 @@ namespace Project.Infrastructure.Combat
                 return;
 
             _deathHandled = true;
+            var wasHealthyDeath = !_downed;
+            if (_downed)
+            {
+                _downed = false;
+                ReviveRuntime.Service.Remove(Id);
+            }
+
             DeathTime = Time.time;
             LastDeathInfo = damage;
             IsTargetable = false;
@@ -308,16 +479,30 @@ namespace Project.Infrastructure.Combat
                 DropInventory();
 
             var handler = Died;
-            if (handler == null)
-                return;
-
-            try
+            if (handler != null)
             {
-                handler(this, damage);
+                try
+                {
+                    handler(this, damage);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, this);
+                }
             }
-            catch (Exception e)
+
+            // Yaralı olmayan son sağ müttefik öldüyse (ör. yaralı arkadaşı varken doğrudan ölüm) kalan yaralılar kimse kaldıramayacağı
+            // için 45 sn beklemeden elenir; takım ve maç durumu tutarlı kalır.
+            if (wasHealthyDeath && Team >= 0 && GameContext.HasAuthority)
             {
-                Debug.LogException(e, this);
+                try
+                {
+                    ReviveRuntime.KillTeamIfWiped(Team);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, this);
+                }
             }
         }
 

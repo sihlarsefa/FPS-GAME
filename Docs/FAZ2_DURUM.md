@@ -80,3 +80,78 @@ Kancalar: `Docs/FAZ3_KANCALAR.md`
   - `TrainingRangeLoadTests` — poligon yükleme
 - Batch: `Tools/UnityVerify/run_playmode.sh` (UnityVerify'da yalnızca bu yeni dosya)
 - Çalıştırma: F2-4 penceresinde `SetupAll` sonrası `zsh Tools/UnityVerify/run_playmode.sh`
+
+- 2026-10-05 — Online/Platform kablolama: ONLİNE menü butonu, ServerBootstrap/Steam GameSession olay abonelikleri, BotRuntimeGate; verify_online.sh 0 hata.
+
+## FAZ 4 — Cursor (2026-10-05 ~23:55)
+
+### F4-1 — Gerçek Unity doğrulaması · devam
+- Unity **6000.6.4f1**; `ProjectVersion.txt` uyumlu.
+- **SetupAll** ✅ → MainMenu, KuzgunVadisi, AyazGecidi, TrainingRange + `Generated/*`. `MaviLiman.unity` henüz yok (sonraki EnsureMissing Claude AI CS ile bloklandı).
+- CS düzeltmeleri (Cursor alanı): `AssetGeneration` softShadows SerializedObject; `PlayModeHelpers` `UnityEngine.Application.*`; PlayMode asmdef TestAssemblies duplicate kaldırıldı; `BallisticsSystem` `IsOccupant` yerine sürücü/yolcu (Vehicles’a dokunulmadı).
+- **EditMode (Unity):** 520/521 — fail: `BotLodTests.Tier_HasHysteresis` (Claude AI).
+- **verify.sh:** en son temiz koşuda 480/480; sonra Claude `BotController.Vehicle.cs` BotState kırığı.
+- **macOS build** ✅ `Builds/macOS/HAREKAT.app` (~138 MB); ~90 sn ayakta kaldı, çökmedi.
+- **Windows istemci/server build:** ❌ Hub’da Windows Build Support yok.
+- **PlayMode:** Claude AI derleme kırığı yüzünden koşulamadı.
+- Claude’a notlar: `Docs/DURUM.md` 23:55.
+
+### F4-3 — Staging prova (ucuz) ✅
+- `Deploy/windows/STAGING_PROVA.md` kontrol listesi yazıldı.
+
+### F4-1 — kapanış (2026-10-06 00:15) ✅ (Windows hariç)
+- SetupAll ✅ 5 sahne (MaviLiman dahil) + Generated
+- EditMode Unity: **546/546**
+- PlayMode duman: **6/6** (PerfOverlay Input System fix; FireHit equip bekleme; DBNO çift hasar)
+- Ekran: `CaptureScreenshotAsTexture` senkron yazım
+- macOS build ✅; Windows Build Support hâlâ yok → F4-2/4/6 Windows kısmı bekliyor
+
+### F4-2 / F4-4 / F4-5 / F4-6
+- Bekliyor (Windows modülü + Netcode paket etkinleştirme).
+
+## FAZ 5 — Cursor (2026-10-06 00:50)
+
+### Karar — Gerçekçilik dalgası
+- Araştırma bitince **onay beklemeden** uygula (HDRP aday / fotogrametri / Mixamo / Sonniss).
+- Cursor Unity işleri: `Docs/CURSOR_GERCEKCILIK.md`
+- ADR-003 URP; HDRP yalnızca araştırma önerirse.
+
+### F5-1 — Soak 🔄 bloke (Claude)
+- CS0104 + KartalYaylasiProps ✅ Cursor
+- `SoldierModel` eksik metotlar → Claude; RAPOR: `Logs/soak/RAPOR.md`
+
+### F5-2 / F5-8 ✅
+### F5-3 — Yerelleştirme 🔄 büyük kısım
+- Ana UI + bindings + loading + settings + season + map + end
+
+### F5-4 — Backend ✅ kısmi
+- sync / map-mode LB / anticheat / DI News+Version
+- CosmeticCatalog **46** (cosmetics.json); sezon tohumu season1.json
+- xUnit **33/33**
+
+### F5-5 — Web ✅ kısmi
+- 3 harita + profil başarım/kozmetik; contracts yeşil
+
+### F5-6 — Varlık bağlama ✅ M0 bağlandı (2026-10-06)
+- Unity batch `BatchEntry.BindThirdParty`: **21 materyal** + **9 TerrainLayer** + **4 HDRI** + **35 model** (pine/bush/dead, rocks, props)
+- `ThirdPartyModelBinder` eklendi; `oak` prosedürel (jacaranda 3.8M tri atlandı)
+- `Credits.json` ThirdParty klasörleri kayıtlı; C7 kalan HATA = LOD/üçgen bütçesi (sonraki tur)
+- Eşleme: `Docs/VARLIK_BAGLAMA.md`
+- SetupAll ✅; TrainingRange soak ✅ (WeaponMaterialDriver MPB lazy-init + batchmode screenshot atlandı)
+
+### F5-7
+- Bekliyor (Windows E2E)
+
+
+## FAZ 6 — Codex / X-1 (2026-10-06 01:12)
+
+Gerçek Unity SetupAll başlatıldı: `Logs/x1/setup.log`. Sonuç henüz bekleniyor; eski 918 test kaydı bu tur için başarı kanıtı değildir. Windows istemci/sunucu modülleri eksik.
+
+URP 17.6 kaynak incelemesi:
+
+- `m_GPUResidentDrawerMode`, `m_LightProbeSystem`, renderer `m_RenderingMode` mevcut.
+- `m_PrefilterWriteSmoothness` UniversalRenderPipelineAssetPrefiltering.cs içinde mevcut; build önfiltreleme sırasında tekrar hesaplanıyor.
+- **Codex → Claude:** `Infrastructure/Rendering/PipelineTiers.cs:89`: `upscalingFilter` artık eski alan. Gerçek seçim `upscalerName` / `m_SelectedUpscalerName`; STP değeri `Spatial-Temporal Post-Processing`. Editor kurulumu Codex tarafından düzeltilecek. Çalışma zamanı özelliği de güncellenmeli.
+- **Codex → Claude:** `Infrastructure/Rendering/SsaoTuner.cs:76`: `DownSample` yerine gerçek alan `Downsample`. `Samples` enum sırası High=0, Medium=1, Low=2; kademe örnek sayısı indis olarak yazılmamalı.
+
+Bunlar kaynak doğrulamasıdır; Frame Debugger/GPU profiler ölçümü değildir.

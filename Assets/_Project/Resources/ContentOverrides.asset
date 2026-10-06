@@ -1,0 +1,254 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76fa34e6364504ee59b5168517bee394, type: 3}
+  m_Name: ContentOverrides
+  m_EditorClassIdentifier: Project.Infrastructure::Project.Infrastructure.Content.ContentOverrides
+  weapons:
+  - weaponId: ar_mpt76
+    prefab: {fileID: 5539835831936810169, guid: fd50c2dcfb63f47a29c7f313e85be21b, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: ar_mpt55
+    prefab: {fileID: 1839081581587141455, guid: acb62c7a4eb0a49b59bceddc6e5d2e0f, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: ar_sar223
+    prefab: {fileID: 1502843398695351729, guid: b6b4b303e010044f5af44f915006631a, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: ar_g3a7
+    prefab: {fileID: 5515865302493464775, guid: 473b54b0b6cc54376996af42822fef86, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: ar_mpt76k
+    prefab: {fileID: 6190964077769867063, guid: f2c16ca6d34014a29b949fe1848c4f07, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: dmr_knt76
+    prefab: {fileID: 3808382319871806761, guid: 77c5e62d597974f7387915977cec57c2, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: dmr_sar762mt
+    prefab: {fileID: 8017726869319131076, guid: 9cd139e5227eb44408444653a8100fee, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: sr_jng90
+    prefab: {fileID: 1732753887645237217, guid: 184a0c8e41cc64e01933f05a699129e0, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: smg_sar109t
+    prefab: {fileID: 4910388366165815991, guid: 2fce6d1717c0c4116afb0040d20020b4, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: pistol_sar9
+    prefab: {fileID: 2705076005199554908, guid: 6af0c9f9bffb646379ceb4f4158bc40a, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: pistol_tp9
+    prefab: {fileID: 5660641606318834418, guid: 319bb0df6bdc140ef9708baece5d3a24, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: pistol_mete
+    prefab: {fileID: 6600683806448823044, guid: 3bee0e4eb9bde4554a741a96bc536a87, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: sg_escort
+    prefab: {fileID: 5523918329690690608, guid: ff04cea19f09b4b15a907539e7ef40a0, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  - weaponId: sg_escort_magnum
+    prefab: {fileID: 5878935478408133297, guid: c81d95967b7984adca0c6c72d26abd44, type: 3}
+    muzzleName: Muzzle
+    gripRName: Grip_R
+    gripLName: Grip_L
+  sounds: []
+  materials:
+  - materialId: 11
+    material: {fileID: 2100000, guid: cc9607d649ce047f494cc7ce2196b178, type: 2}
+  - materialId: 10
+    material: {fileID: 2100000, guid: 0d33275fca65e4e7eabb0d5db36f9649, type: 2}
+  - materialId: 8
+    material: {fileID: 2100000, guid: bce4b458a257342d6a56d11c9f27ed13, type: 2}
+  - materialId: 9
+    material: {fileID: 2100000, guid: 8a3253a2008624dfe900dcc1dbbf48c3, type: 2}
+  - materialId: 21
+    material: {fileID: 2100000, guid: ac838c6c278af43a8b37eccb21aaffcf, type: 2}
+  - materialId: 12
+    material: {fileID: 2100000, guid: 5c960c023f5d34d34821b73bf230d7c3, type: 2}
+  - materialId: 13
+    material: {fileID: 2100000, guid: aedbf8dc275b241d6b5ccb624651626a, type: 2}
+  - materialId: 16
+    material: {fileID: 2100000, guid: 9e077ee512b844d19804cde9abfa630c, type: 2}
+  - materialId: 17
+    material: {fileID: 2100000, guid: c4b8b6ad3dfe444349c40edebe479dd6, type: 2}
+  - materialId: 24
+    material: {fileID: 2100000, guid: 4a4c47e2653b04ed08c2dc861a4cbb03, type: 2}
+  - materialId: 25
+    material: {fileID: 2100000, guid: d31c84912d9404a02b1e79ea5bfaf94f, type: 2}
+  - materialId: 26
+    material: {fileID: 2100000, guid: bc700cf647d6a4d198e47fc692ba6698, type: 2}
+  - materialId: 27
+    material: {fileID: 2100000, guid: dd8765481263641d787fdc96deb72107, type: 2}
+  - materialId: 28
+    material: {fileID: 2100000, guid: bbd49c9f526874c01bac9c8140be6758, type: 2}
+  - materialId: 29
+    material: {fileID: 2100000, guid: 915dc86d00e4d42ce823a18243a938ea, type: 2}
+  - materialId: 31
+    material: {fileID: 2100000, guid: 02113b9de1a5646b3b0eeb7de1354f33, type: 2}
+  - materialId: 32
+    material: {fileID: 2100000, guid: ee28be3db829241539c1f1c9c9c70c89, type: 2}
+  - materialId: 33
+    material: {fileID: 2100000, guid: 8c9a646fa2d4d4bd99d25f27fe4466a5, type: 2}
+  - materialId: 34
+    material: {fileID: 2100000, guid: fdef4c0d4ab144aa9b251ebef84f692c, type: 2}
+  - materialId: 38
+    material: {fileID: 2100000, guid: b00768e8773df4a6b910f89c6ae31922, type: 2}
+  - materialId: 42
+    material: {fileID: 2100000, guid: 66fd93137ab2a4fa8a0b7281a8a730d7, type: 2}
+  soldier:
+    humanoidPrefab: {fileID: 0}
+    animatorController: {fileID: 0}
+  vehicles: []
+  buildings: []
+  terrainLayers:
+  - materialId: 8
+    layer: {fileID: 8574412962073106934, guid: 9d3ebd3b29b2c47dd91f22701a88852e, type: 2}
+  - materialId: 9
+    layer: {fileID: 8574412962073106934, guid: 52a174401f2a64017ad0291cd3dad3ae, type: 2}
+  - materialId: 10
+    layer: {fileID: 8574412962073106934, guid: b2afe8630d4d249c18ecd80fdd6b3fb7, type: 2}
+  - materialId: 11
+    layer: {fileID: 8574412962073106934, guid: a8f1bba0ee6364d9bb1f58e1d3c1e9bc, type: 2}
+  - materialId: 12
+    layer: {fileID: 8574412962073106934, guid: 66e273c8bc48f49538f6fd85124bdd3f, type: 2}
+  - materialId: 13
+    layer: {fileID: 8574412962073106934, guid: f99d8111db0174e1d8273e1e8c162549, type: 2}
+  - materialId: 16
+    layer: {fileID: 8574412962073106934, guid: 2351e2d87d75f4f82a6aa3d6a66a3c6f, type: 2}
+  - materialId: 17
+    layer: {fileID: 8574412962073106934, guid: bf54384ee036d4803a818c0f5b21264c, type: 2}
+  - materialId: 21
+    layer: {fileID: 8574412962073106934, guid: fa0c6ec9a23674d5fac92535f03476c0, type: 2}
+  vegetation:
+  - speciesId: pine
+    prefabs:
+    - {fileID: 3221184492560571423, guid: 60d3db2c6e08640a5ad9c18fb3e52f5f, type: 3}
+    - {fileID: 3547403751020558510, guid: 3b7e0e61d0a4a45d9b250dde3e2007bd, type: 3}
+  - speciesId: bush
+    prefabs:
+    - {fileID: 4484008843325539429, guid: 5e36037918f064cbdbb828d9459f9846, type: 3}
+    - {fileID: 2550520041100527130, guid: 0aa4eb4edc84843b6b1df36792cd3130, type: 3}
+    - {fileID: 8323632167163388169, guid: 83944be2563bf4cc09ceda1a6d4bfc33, type: 3}
+    - {fileID: 4828015048765971059, guid: ff095ce9cb1af4693b88c79c3baa58b1, type: 3}
+    - {fileID: 8233570502901358159, guid: 1d47662a09d9b4a7aac40af01d1593e1, type: 3}
+  - speciesId: grass
+    prefabs:
+    - {fileID: 672414884655735890, guid: b05715227617d4d6283b55139ca02886, type: 3}
+    - {fileID: 8980654785238546758, guid: 3eef6ab13ee884fb298d9ee00e4103a8, type: 3}
+  rocks:
+  - sizeClass: small
+    prefabs:
+    - {fileID: 6079815877983942734, guid: d181cd346c7e647d8af8c430a907f6e0, type: 3}
+    - {fileID: 6381163244254848186, guid: c6f55c2e5630e47c480fd501001fc27b, type: 3}
+  - sizeClass: medium
+    prefabs:
+    - {fileID: 7031752592960976637, guid: 44c148e12b99343e7b48c15129c72ef4, type: 3}
+    - {fileID: 2006410395298982013, guid: 49d187de52ab44d66be31a2d8575c1f8, type: 3}
+    - {fileID: 9035566508769877472, guid: 29128aee8a5ce467cadcbd17e044598b, type: 3}
+    - {fileID: 4903647768030392333, guid: 300cc508172c1433caea4897292fe5b7, type: 3}
+  - sizeClass: large
+    prefabs:
+    - {fileID: 1482278437935789819, guid: 8268859ab31bd493fa5a6c2cd72094f4, type: 3}
+    - {fileID: 7114152287165162941, guid: 04f8ee134bed640a6ae1403d99c35d5c, type: 3}
+    - {fileID: 1576804861086602183, guid: 48737d3c590564d2abdfce72c43828a2, type: 3}
+  props:
+  - propId: ammo_crate
+    prefab: {fileID: 6647596778124536966, guid: f89c7abd6f82d4d17a13225e17a00ef3, type: 3}
+  - propId: crate
+    prefab: {fileID: 1184250289861529829, guid: a89f8dad8a66f465a8ad21974a770457, type: 3}
+  - propId: crate_02
+    prefab: {fileID: 8194088727846020876, guid: eb1e5cd44ffeb43aa8c891cd6a2cb61b, type: 3}
+  - propId: ammo_box
+    prefab: {fileID: 1401331040265752526, guid: 9e4c14a9b86c746f4830e1b59e566d77, type: 3}
+  - propId: barrel
+    prefab: {fileID: 3945035368429949304, guid: 4b8f5d25bda414a6f86c4599b83358e0, type: 3}
+  - propId: barrel_explosive
+    prefab: {fileID: 2059733156096431151, guid: f62ed00c783914e9599bbb820da21149, type: 3}
+  - propId: barrel_wood
+    prefab: {fileID: 1965470170266566378, guid: f3ba6beaadd6547c39edfb0e0c683ca7, type: 3}
+  - propId: barrel_wine
+    prefab: {fileID: 2822357635725630079, guid: fe4045afac87c4fc89696798f72b02dd, type: 3}
+  - propId: barrier
+    prefab: {fileID: 5041640381578976855, guid: 9a30021041be543d897385e3b236565c, type: 3}
+  - propId: fence
+    prefab: {fileID: 150299698104676051, guid: 5ccf9332215874abbbe666c6344cfd07, type: 3}
+  - propId: jerrycan
+    prefab: {fileID: 7964003021895749155, guid: ef2ad006a1900442986c8d249c87cee8, type: 3}
+  - propId: bucket
+    prefab: {fileID: 8201579061082610968, guid: 75ae97202de3d4c96b7d9bf02e660010, type: 3}
+  - propId: bucket_02
+    prefab: {fileID: 1498639628810539387, guid: 81de91efc3a08428b8382f9d38b7d4b3, type: 3}
+  - propId: ladder
+    prefab: {fileID: 4499831018875924734, guid: 036e4dc43d2f44a118a2b23f23a5bedb, type: 3}
+  - propId: ladder_02
+    prefab: {fileID: 862258916262812261, guid: 27f098491973149029034e3642f3c8bf, type: 3}
+  - propId: spade
+    prefab: {fileID: 2518453363814516464, guid: c84a5bf6067264bda9de9553bf33a70a, type: 3}
+  - propId: basket
+    prefab: {fileID: 4640724015225989077, guid: 9d976ed2fc28b46508331ae38beb9139, type: 3}
+  - propId: bags
+    prefab: {fileID: 252790743319241986, guid: d582f62fb1a80460e99b2474ba585148, type: 3}
+  - propId: cement_bag
+    prefab: {fileID: 2009816342677334128, guid: 103484c5416e8467bb90e6d1f465c6bf, type: 3}
+  - propId: handtruck
+    prefab: {fileID: 467100028739202897, guid: e4fd34a2e3ba44bacaaffa756143b9aa, type: 3}
+  - propId: stump
+    prefab: {fileID: 6751929776207784623, guid: 55be6cd34e97a47469fa09ffc62de320, type: 3}
+  - propId: stump_02
+    prefab: {fileID: 3662492549327585629, guid: d165119fd934e419d82fef256550d53e, type: 3}
+  - propId: log
+    prefab: {fileID: 5975108220260126610, guid: 26524b856e8e5401eaeb66f8d188fa7a, type: 3}
+  - propId: log_02
+    prefab: {fileID: 8833042437612149596, guid: 7ce645aa2e62f45ae971467407f56aeb, type: 3}
+  - propId: branches
+    prefab: {fileID: 4499666668184957850, guid: 3931e69df57224cc2b28528a5bf0c6d1, type: 3}
+  viewmodelArms:
+    armsPrefab: {fileID: 0}
+    gloveMaterial: {fileID: 0}
+  weaponAnimations: []
+  skies:
+  - skyId: day_clear
+    hdri: {fileID: 8900000, guid: 0439b855bfc924d45804dd66710b2cfb, type: 3}
+    exposure: 1
+  - skyId: cloudy
+    hdri: {fileID: 8900000, guid: 24b1887eef5474fc7b19a7b7853c786a, type: 3}
+    exposure: 1
+  - skyId: sunset
+    hdri: {fileID: 8900000, guid: 054535c746751439bb035263a235848e, type: 3}
+    exposure: 1
+  - skyId: sunrise
+    hdri: {fileID: 8900000, guid: f2a7bb270c9134414a70ab3aaeb7e6e1, type: 3}
+    exposure: 1
+  decalSets: []

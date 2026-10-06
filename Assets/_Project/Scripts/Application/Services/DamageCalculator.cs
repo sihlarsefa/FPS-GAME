@@ -73,13 +73,61 @@ namespace Project.Application.Services
             return 1f + (min - 1f) * t;
         }
 
-        public static DamageResult ComputeBulletDamage(WeaponDefinitionData weapon, BodyPart part, float distance, ArmorPiece armor)
+        /// <param name="armorCoverage">
+        /// Zırh bölgesi çarpanı (ArmorZones): 1 = vuruş zırhın tam kapladığı yerde (varsayılan, eski davranış), 0 = zırhı atlar
+        /// (omuz/yan, miğfer yüzü), arası kısmi (yumuşak zırh, miğfer kenarı). Zırhın etkinliğini çarpar; 0'da zırh aşınmaz.
+        /// </param>
+        public static DamageResult ComputeBulletDamage(WeaponDefinitionData weapon, BodyPart part, float distance, ArmorPiece armor,
+            float damageScale = 1f, float armorCoverage = 1f)
         {
             if (weapon == null || weapon.Damage <= 0f)
                 return new DamageResult(0f, 0f);
 
+            var raw = weapon.Damage * BodyPartMultiplier(weapon, part) * DistanceFactor(weapon, distance) *
+                      (damageScale < 0f ? 0f : damageScale);
+            // Zırh sınıfı vs kalibre: Sv.1 yelek 7.62'ye karşı zayıf, 9 mm'ye karşı güçlü (PenetrationRules.ArmorEffectiveness);
+            // bölge kapsaması (plaka/omuz/yan, miğfer kabuk/kenar/yüz) etkinliği ayrıca ölçekler.
+            var effectiveness = armor != null
+                ? PenetrationRules.ArmorEffectiveness(weapon.AmmoType, armor.Level) * Clamp01(armorCoverage)
+                : 1f;
+            return ApplyArmor(raw, armor, effectiveness);
+        }
+
+        /// <summary>
+        /// Zırhsız/zırhlı (aşınmadan, ilk atış zırhıyla) tek mermi hasarı — saf hesap, zırh dayanıklılığı değişmez.
+        /// Saçma silahlarda tek peletin hasarıdır.
+        /// </summary>
+        public static float PredictBulletDamage(WeaponDefinitionData weapon, BodyPart part, float distance, int armorLevel,
+            float armorReduction)
+        {
+            if (weapon == null || weapon.Damage <= 0f)
+                return 0f;
+
             var raw = weapon.Damage * BodyPartMultiplier(weapon, part) * DistanceFactor(weapon, distance);
-            return ApplyArmor(raw, armor);
+            if (armorLevel <= 0 && armorReduction <= 0f)
+                return raw;
+            var reduction = Clamp01(armorReduction) * PenetrationRules.ArmorEffectiveness(weapon.AmmoType, armorLevel);
+            return raw * (1f - reduction);
+        }
+
+        /// <summary>Verilen sağlığı bitirmek için gereken isabetli atış (saçmada: tüm peletler isabetli sayılır).</summary>
+        public static int ShotsToKill(WeaponDefinitionData weapon, BodyPart part, float distance, int armorLevel = 0,
+            float armorReduction = 0f, float health = 100f)
+        {
+            var perPellet = PredictBulletDamage(weapon, part, distance, armorLevel, armorReduction);
+            if (perPellet <= 0f || health <= 0f)
+                return 0;
+
+            var perShot = perPellet * (weapon.PelletCount > 1 ? weapon.PelletCount : 1);
+            return (int)Math.Ceiling(health / perShot - 1e-4f);
+        }
+
+        /// <summary>İlk atıştan ölüme saniye: (atış-1) × atış aralığı (ilk mermi anında çıkar).</summary>
+        public static float TimeToKill(WeaponDefinitionData weapon, BodyPart part, float distance, int armorLevel = 0,
+            float armorReduction = 0f, float health = 100f)
+        {
+            var shots = ShotsToKill(weapon, part, distance, armorLevel, armorReduction, health);
+            return shots <= 1 ? 0f : (shots - 1) * weapon.FireIntervalSeconds;
         }
 
         /// <summary>

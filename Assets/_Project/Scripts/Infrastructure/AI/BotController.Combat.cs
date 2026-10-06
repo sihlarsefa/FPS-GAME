@@ -1,5 +1,6 @@
 using System;
 using Project.Application.Catalogs;
+using Project.Application.Dialogue;
 using Project.Application.Services;
 using Project.Core.Domain;
 using Project.Infrastructure.Audio;
@@ -17,7 +18,7 @@ namespace Project.Infrastructure.AI
     public sealed partial class BotController
     {
         private const float GrenadeMaxSpeed = 21f;
-        private const float GrenadeMinDistance = 9f;
+        private const float GrenadeMinDistance = BotCombatRules.FragMinRange;
         private const float GrenadeMaxDistance = 38f;
         private const float WeaponSwitchCooldown = 2.5f;
         private const float AllyLineOfFireRadius = 0.75f;
@@ -35,6 +36,8 @@ namespace Project.Infrastructure.AI
         private float _nextGrenadeCheck;
         private float _nextGrenadeTime;
         private float _nextSmokeTime;
+        private bool _suppressing;
+        private float _nextSuppressCallout;
 
         // tehlikeden kaçış
         private float _nextDangerCheck;
@@ -238,6 +241,13 @@ namespace Project.Infrastructure.AI
             var target = _perception.Target;
             var itemUse = combatant.ItemUse;
 
+            if (_suppressing && State == BotState.Engage && _lookMode == LookMode.Point && !_coverHidden &&
+                !(_director != null && _director.MatchEnded) && (itemUse == null || !itemUse.IsUsing))
+            {
+                UpdateSuppressTrigger(now);
+                return;
+            }
+
             var canEngage = State == BotState.Engage && _lookMode == LookMode.Target && target != null && target.IsAlive &&
                             target.IsTargetable && !(_director != null && _director.MatchEnded) &&
                             (itemUse == null || !itemUse.IsUsing);
@@ -247,8 +257,15 @@ namespace Project.Infrastructure.AI
                 return;
             }
 
-            // Tepki gecikmesi: hedefi ilk gördükten sonra.
-            if (now - _perception.TargetAcquiredTime < Profile.ReactionSeconds)
+            // Tepki gecikmesi: hedefi ilk gördükten sonra (180-450 ms, beceriye bağlı); hedef değiştirirken ek gecikme.
+            if (now - _perception.TargetAcquiredTime < Profile.ReactionSeconds || TriggerDelayActive(target, now))
+            {
+                CeaseFire();
+                return;
+            }
+
+            // Siperde saklanma evresi: ateş yok (başını çıkarınca ateş eder).
+            if (_coverHidden)
             {
                 CeaseFire();
                 return;
@@ -303,6 +320,101 @@ namespace Project.Infrastructure.AI
                 return;
             }
 
+            PullTrigger(weapon, distance, now);
+        }
+
+        /// <summary>
+        /// Bastırma ateşi: hedef siper arkasına çekildi — son bilinen konuma kısa, seyrek seriler. Mermi harcamamak için
+        /// şarjör %25 altındaysa ve dost ateş hattındaysa susar.
+        /// </summary>
+        private void UpdateSuppressTrigger(float now)
+        {
+            var weapon = ActiveWeapon;
+            if (weapon == null || !IsUsable(weapon) || weapon.IsReloading || weapon.IsEquipping || weapon.CurrentAmmo <= 0 ||
+                !_perception.HasLastKnownEnemyPosition)
+            {
+                CeaseFire();
+                return;
+            }
+
+            var eye = EyePosition;
+            var point = _perception.LastKnownEnemyPosition + Vector3.up * 1.1f;
+            var to = point - eye;
+            var distance = to.magnitude;
+            var definition = weapon.Definition;
+            var range = definition != null && definition.Range > 1f ? definition.Range : 150f;
+            if (distance > range || weapon.CurrentAmmo * 4 < weapon.MagazineSize)
+            {
+                CeaseFire();
+                return;
+            }
+
+            var yawOff = Mathf.DeltaAngle(_aimYaw, Mathf.Atan2(to.x, to.z) * Mathf.Rad2Deg);
+            if (_burstRemaining <= 0)
+            {
+                if (now < _burstPauseUntil || !BotSquadTactics.AimedAt(yawOff, distance))
+                {
+                    _triggerWasHeld = false;
+                    return;
+                }
+
+                if (AllyInLineOfFire(eye, point))
+                {
+                    _burstPauseUntil = now + 0.5f;
+                    return;
+                }
+
+                StartBurst(weapon, distance, now);
+                // Kapatıcı ateş: LMG/AR siper kenarına 3-5 mermilik seriler (pencere içinde, seyrek).
+                var supDef = weapon.Definition;
+                var supRounds = supDef != null && BotCombatRules.IsSuppressiveWeapon(supDef.Category)
+                    ? BotCombatRules.SuppressiveBurstRounds(Rand())
+                    : 5;
+                _burstRemaining = Mathf.Min(_burstRemaining, supRounds);
+                if (now >= _nextSuppressCallout)
+                {
+                    _nextSuppressCallout = now + 12f;
+                    Callout(DialogueCats.Suppress);
+                }
+            }
+            else if (Mathf.Abs(yawOff) > 14f)
+            {
+                EndBurst(now, distance);
+                return;
+            }
+
+            PullTrigger(weapon, distance, now);
+            if (_burstRemaining <= 0)
+                _burstPauseUntil += Range(0.6f, 1.4f); // bastırma: seyrek
+        }
+
+        /// <summary>Bot yerel oyuncuya otomatik/MG ateşi açtı (mesafe m, çap mm); Presentation bastırma sistemi dinler.</summary>
+        public static event Action<float, float> IncomingFireAtLocalPlayer;
+
+        private void ReportIncomingFire(WeaponRuntimeService weapon, float distance)
+        {
+            if (IncomingFireAtLocalPlayer == null)
+                return;
+            var target = _perception.Target;
+            var def = weapon.Definition;
+            if (target == null || !target.IsLocalPlayer || def == null)
+                return;
+            if (weapon.CurrentFireMode != FireMode.Auto && def.Category != WeaponCategory.Lmg)
+                return;
+            float mm;
+            switch (def.Category)
+            {
+                case WeaponCategory.Lmg: mm = 7.62f; break;
+                case WeaponCategory.Smg: mm = 9f; break;
+                default: mm = 5.56f; break;
+            }
+
+            try { IncomingFireAtLocalPlayer(distance, mm); }
+            catch (Exception e) { LogThrottled(e); }
+        }
+
+        private void PullTrigger(WeaponRuntimeService weapon, float distance, float now)
+        {
             var mode = weapon.CurrentFireMode;
             bool held;
             bool pressed;
@@ -326,6 +438,7 @@ namespace Project.Infrastructure.AI
                 return;
 
             FireShot(weapon);
+            ReportIncomingFire(weapon, distance);
             _burstRemaining--;
             if (_burstRemaining <= 0 || weapon.CurrentAmmo <= 0)
                 EndBurst(now, distance);
@@ -377,6 +490,9 @@ namespace Project.Infrastructure.AI
                 }
             }
 
+            // Baskı altında kısa, kör seriler.
+            shots = Mathf.Max(1, Mathf.RoundToInt(shots * BotSkill.SuppressedBurstScale(EffectiveSuppression)));
+            _burstShotIndex = 0;
             _burstRemaining = Mathf.Max(1, shots);
             _aimPart = RollAimPart(distance);
             _triggerWasHeld = false;
@@ -446,6 +562,8 @@ namespace Project.Infrastructure.AI
                 var ballistics = BallisticsSystem.Instance != null ? BallisticsSystem.Instance : BallisticsSystem.GetOrCreate();
                 if (ballistics != null)
                     ballistics.FireWeapon(combatant, weapon, eye, forward, spread, muzzle);
+
+                SuppressAlongShot(eye, forward, weapon.Definition);
             }
             catch (Exception e)
             {
@@ -463,22 +581,10 @@ namespace Project.Infrastructure.AI
 
             // Geri tepme: bakış yukarı/yana kayar, dönüş hızıyla toparlanır.
             weapon.GetRecoilKick(aiming, stance, Rand(), out var kickPitch, out var kickYaw);
-            var control = RecoilFactor;
+            var control = RecoilControlNow();
+            _burstShotIndex++;
             _aimPitch = Mathf.Clamp(_aimPitch + kickPitch * control, -MaxPitch, MaxPitch);
             _aimYaw = Mathf.Repeat(_aimYaw + kickYaw * control, 360f);
-        }
-
-        private float RecoilFactor
-        {
-            get
-            {
-                switch (Profile.Difficulty)
-                {
-                    case BotDifficulty.Easy: return 0.75f;
-                    case BotDifficulty.Hard: return 0.35f;
-                    default: return 0.5f;
-                }
-            }
         }
 
         /// <summary>Atış hattında (göz → hedef) bir tim arkadaşı var mı.</summary>
@@ -558,21 +664,30 @@ namespace Project.Infrastructure.AI
 
             var position = transform.position;
             var distance = FlatDistance(position, targetPosition);
-            if (distance < GrenadeMinDistance || distance > GrenadeMaxDistance)
+            if (!BotCombatRules.FragRangeOk(distance))
                 return false;
 
-            if (BotTactics.AllyNear(targetPosition, ThrowableProjectile.FragRadius + 2.5f, _team, combatant))
+            if (BotTactics.AllyNear(targetPosition, ThrowableProjectile.FragRadius + 2f, _team, combatant) ||
+                BotTactics.AllyNear(position, 1.5f, _team, combatant) && distance < 14f)
                 return false;
+
+            // Sabit, alçak siper arkasındaki hedefe bombayı 1.5 sn pişir (havada kalma süresi kısalır, kaçamaz).
+            var tgt = _perception.Target;
+            var targetStatic = tgt != null && tgt.Velocity.sqrMagnitude < 0.25f && FlatDistance(tgt.transform.position, targetPosition) < 2.5f;
+            var lowCover = tgt != null && tgt.Stance != Stance.Standing;
+            var baseFuse = Range(3.1f, 4f);
+            var fuse = baseFuse - BotCombatRules.FragCookSeconds(targetStatic, lowCover, baseFuse);
 
             // Atış hatası: zorluk ve mesafeyle büyür.
             var error = 0.6f + distance * Mathf.Tan(Mathf.Max(0.5f, Profile.AimErrorDegrees) * Mathf.Deg2Rad) * 1.4f;
             var aim = targetPosition + new Vector3(Gaussian() * error * 0.6f, 0f, Gaussian() * error * 0.6f);
 
-            if (!TryLaunch(ThrowableKind.Frag, aim, Range(3.1f, 4f)))
+            if (!TryLaunch(ThrowableKind.Frag, aim, fuse))
                 return false;
 
             _nextGrenadeTime = now + Range(14f, 24f);
             inventory.Consume(ItemIds.FragGrenade, 1);
+            Callout(DialogueCats.GrenadeThrow);
             return true;
         }
 
@@ -597,11 +712,29 @@ namespace Project.Infrastructure.AI
             if (BotTactics.TryGroundPoint(point, out var ground))
                 point = ground;
 
+            return TryThrowSmokeAtPoint(point, now);
+        }
+
+        /// <summary>Verilen noktaya sis bombası (yaralıyı ya da geri çekilmeyi örtmek için). Atıldıysa true.</summary>
+        private bool TryThrowSmokeAtPoint(Vector3 point, float now)
+        {
+            if (now < _nextSmokeTime || !GameContext.HasAuthority)
+                return false;
+
+            var inventory = Combatant.Inventory;
+            if (inventory == null || inventory.GetCount(ItemIds.SmokeGrenade) <= 0)
+                return false;
+
+            var distance = FlatDistance(transform.position, point);
+            if (distance < 3f || distance > GrenadeMaxDistance)
+                return false;
+
             if (!TryLaunch(ThrowableKind.Smoke, point, ThrowableProjectile.SmokeFuseSeconds))
                 return false;
 
             _nextSmokeTime = now + Range(20f, 35f);
             inventory.Consume(ItemIds.SmokeGrenade, 1);
+            Callout(DialogueCats.Smoke);
             return true;
         }
 

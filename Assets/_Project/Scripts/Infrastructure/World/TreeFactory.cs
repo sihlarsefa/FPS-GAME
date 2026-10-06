@@ -27,8 +27,8 @@ namespace Project.Infrastructure.World
         {
             switch (kind)
             {
-                case TreeKind.PineA: return 11f;
-                case TreeKind.PineB: return 14f;
+                case TreeKind.PineA: return TreeMeshes.PineRefHeight;
+                case TreeKind.PineB: return TreeMeshes.PineRefHeight;
                 case TreeKind.Oak: return 8.5f;
                 case TreeKind.Dead: return 7.5f;
                 default: return 1.3f;
@@ -53,53 +53,97 @@ namespace Project.Infrastructure.World
         {
             var result = new GameObject[KindCount];
             for (var i = 0; i < KindCount; i++)
-                result[i] = CreatePrototype((TreeKind)i, parent, seed + i * 7919);
+            {
+                var kind = (TreeKind)i;
+                GameObject over = null;
+                try
+                {
+                    if (Project.Infrastructure.Content.ContentOverrides.TryGetVegetation(VegetationTuning.SpeciesId(kind), out var prefab))
+                        over = VegetationTuning.PrepareOverride(prefab, parent, kind.ToString());
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning("[Bitki] Override okunamadı (" + kind + "): " + e.Message);
+                }
+
+                result[i] = over != null ? over : CreatePrototype(kind, parent, seed + i * 7919);
+            }
+
             return result;
         }
 
-        /// <summary>Tek bir ağaç prototipi (prefab adayı) üretir.</summary>
+        /// <summary>LOD geçiş ekran yükseklikleri (LOD0, LOD1, LOD2); altında arazi billboard'u çizer.</summary>
+        public static readonly float[] LodScreenHeights = { 0.42f, 0.16f, 0.055f };
+
+        /// <summary>Terrain rüzgâr bükme katsayısı (köşe rengi R kanalı ile; destekleyen gölgelendiricilerde).</summary>
+        public const float WindBend = 0.35f;
+
+        /// <summary>
+        /// Tek bir ağaç prototipi (prefab adayı) üretir: kök (gövde CapsuleCollider + LODGroup) ve 3 çocuk LOD nesnesi
+        /// (LOD0/LOD1 yüksek ayrıntılı kart ağaçları, LOD2 düz çok düşük poligon). Billboard'u arazi son LOD'un ardından kendisi çizer.
+        /// </summary>
         public static GameObject CreatePrototype(TreeKind kind, Transform parent, int seed)
         {
             var height = BaseHeight(kind);
-            Mesh mesh;
-            Material trunk;
-            Material foliage;
+            Mesh lod0, lod1, lod2;
+            Material[] mats01;
+            Material[] mats2;
             switch (kind)
             {
                 case TreeKind.PineA:
                 case TreeKind.PineB:
-                    mesh = MeshFactory.PineTree(height, seed);
-                    trunk = MaterialLibrary.Get(MaterialId.Bark);
-                    foliage = MaterialLibrary.Get(MaterialId.PineNeedles);
+                    seed = TreeMeshes.PineSeedFor(kind, seed);
+                    lod0 = MeshFactory.PineTreeLod(height, seed, 0);
+                    lod1 = MeshFactory.PineTreeLod(height, seed, 1);
+                    lod2 = lod1; // eski düz koni 'blob' görünümü yerine kart ağaç (alfa kesmeli)
+                    mats01 = new[] { MaterialLibrary.Get(MaterialId.Bark), VegetationMaterials.CreateNeedles(seed, TreeMeshes.PineVariantIndex(seed)) };
+                    mats2 = mats01;
                     break;
                 case TreeKind.Oak:
-                    mesh = MeshFactory.OakTree(height, seed);
-                    trunk = MaterialLibrary.Get(MaterialId.Bark);
-                    foliage = MaterialLibrary.Get(MaterialId.Foliage);
+                    lod0 = MeshFactory.OakTreeLod(height, seed, 0);
+                    lod1 = MeshFactory.OakTreeLod(height, seed, 1);
+                    lod2 = lod1; // eski ikosfer blob taç yerine kart ağaç
+                    mats01 = new[] { MaterialLibrary.Get(MaterialId.Bark), VegetationMaterials.CreateLeaves(seed, false, TreeMeshes.OakVariantIndex(seed)) };
+                    mats2 = mats01;
                     break;
                 case TreeKind.Dead:
-                    mesh = MeshFactory.DeadTree(height, seed);
-                    trunk = MaterialLibrary.Get(MaterialId.DeadWood);
-                    foliage = MaterialLibrary.Get(MaterialId.Bark);
+                    lod0 = MeshFactory.DeadTreeLod(height, seed, 0);
+                    lod1 = MeshFactory.DeadTreeLod(height, seed, 1);
+                    lod2 = MeshFactory.DeadTree(height, seed);
+                    mats01 = new[] { MaterialLibrary.Get(MaterialId.DeadWood), MaterialLibrary.Get(MaterialId.Bark) };
+                    mats2 = mats01;
                     break;
                 default:
-                    mesh = MeshFactory.Bush(height, seed);
-                    trunk = MaterialLibrary.Get(MaterialId.Bark);
-                    foliage = MaterialLibrary.Get(MaterialId.FoliageDark);
+                    lod0 = MeshFactory.BushLod(height, seed, 0);
+                    lod1 = MeshFactory.BushLod(height, seed, 1);
+                    lod2 = lod1;
+                    mats01 = new[] { MaterialLibrary.Get(MaterialId.Bark), VegetationMaterials.CreateLeaves(seed + 5, true) };
+                    mats2 = mats01;
                     break;
             }
+
+            // Kalıcılaştırmada malzeme dosya adı çakışmasın diye kesmeli malzemeler türe göre adlandırılır.
+            if (kind != TreeKind.Dead && mats01[1] != null)
+                mats01[1].name += "_" + kind + "_" + seed;
 
             var go = new GameObject("HK_Tree_" + kind);
             if (parent != null)
                 go.transform.SetParent(parent, false);
             go.layer = GameLayers.Default;
 
-            var filter = go.AddComponent<MeshFilter>();
-            filter.sharedMesh = mesh;
-            var renderer = go.AddComponent<MeshRenderer>();
-            renderer.sharedMaterials = new[] { trunk, foliage };
-            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
-            renderer.receiveShadows = true;
+            var renderers = new[]
+            {
+                AddLodChild(go.transform, "LOD0", lod0, mats01, true),
+                AddLodChild(go.transform, "LOD1", lod1, mats01, true),
+                AddLodChild(go.transform, "LOD2", lod2, mats2, kind == TreeKind.Dead)
+            };
+            var group = go.AddComponent<LODGroup>();
+            var lods = new LOD[renderers.Length];
+            for (var i = 0; i < renderers.Length; i++)
+                lods[i] = new LOD(LodScreenHeights[i], new Renderer[] { renderers[i] });
+            group.SetLODs(lods);
+            group.fadeMode = LODFadeMode.None;
+            group.RecalculateBounds();
 
             var radius = TrunkRadius(kind);
             if (radius > 0f)
@@ -115,13 +159,41 @@ namespace Project.Infrastructure.World
             return go;
         }
 
+        private static MeshRenderer AddLodChild(Transform parent, string name, Mesh mesh, Material[] materials, bool castShadows)
+        {
+            var child = new GameObject(name);
+            child.layer = GameLayers.Default;
+            child.transform.SetParent(parent, false);
+            child.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var renderer = child.AddComponent<MeshRenderer>();
+            renderer.sharedMaterials = materials;
+            renderer.shadowCastingMode = castShadows ? UnityEngine.Rendering.ShadowCastingMode.On : UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = true;
+            return renderer;
+        }
+
+        /// <summary>Kalite kademesine göre terrain ağaç ayarları: billboard mesafesi ve rüzgâr (çim dalgalanması).</summary>
+        public static void ApplyTier(Terrain terrain, int tier)
+        {
+            if (terrain == null)
+                return;
+            terrain.treeBillboardDistance = VegetationTuning.BillboardDistance(tier);
+            var data = terrain.terrainData;
+            if (data == null)
+                return;
+            var wind = VegetationTuning.WindFor(TreeKind.Oak, tier);
+            data.wavingGrassStrength = wind.Bend;
+            data.wavingGrassSpeed = wind.Speed;
+            data.wavingGrassAmount = wind.Amount;
+        }
+
         /// <summary>Prototip nesnelerinden TreePrototype dizisi.</summary>
         public static TreePrototype[] ToTreePrototypes(IReadOnlyList<GameObject> prefabs)
         {
             var count = prefabs != null ? prefabs.Count : 0;
             var result = new TreePrototype[count];
             for (var i = 0; i < count; i++)
-                result[i] = new TreePrototype { prefab = prefabs[i], bendFactor = 0f };
+                result[i] = new TreePrototype { prefab = prefabs[i], bendFactor = VegetationTuning.WindFor((TreeKind)i, 2).Bend };
             return result;
         }
 

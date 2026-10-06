@@ -249,8 +249,8 @@ app.MapPost("/matches/{id:guid}/result", async (
 }).WithTags("Matches").AllowAnonymous();
 
 // ——— Leaderboards ———
-app.MapGet("/leaderboards", async (string? metric, int? take, LeaderboardService lb) =>
-    Results.Ok(await lb.GetAsync(metric ?? "experience", take ?? 50))).WithTags("Leaderboards").AllowAnonymous();
+app.MapGet("/leaderboards", async (string? metric, int? take, string? map, string? mode, LeaderboardService lb) =>
+    Results.Ok(await lb.GetAsync(metric ?? "experience", take ?? 50, map, mode))).WithTags("Leaderboards").AllowAnonymous();
 
 app.MapGet("/leaderboards/season", async (int? season, int? take, LeaderboardService lb) =>
     Results.Ok(await lb.GetSeasonAsync(season, take ?? 50))).WithTags("Leaderboards").AllowAnonymous();
@@ -286,6 +286,10 @@ app.MapGet("/achievements/me", async (IPlayerRepository players, AchievementServ
     return Results.Ok(ach.ListForPlayer(me));
 }).WithTags("Achievements").RequireAuthorization();
 
+app.MapPost("/achievements/sync", async (AchievementSyncRequest req, AchievementService ach, ClaimsPrincipal user) =>
+    Results.Ok(await ach.SyncAsync(user.GetPlayerId(), req)))
+    .WithTags("Achievements").RequireAuthorization();
+
 app.MapGet("/cosmetics/me", async (CosmeticService cosmetics, ClaimsPrincipal user) =>
     Results.Ok(await cosmetics.ListAsync(user.GetPlayerId()))).WithTags("Cosmetics").RequireAuthorization();
 
@@ -313,6 +317,10 @@ app.MapPost("/moderation/mute", async (MutePlayerRequest req, ModerationService 
 
 app.MapGet("/moderation/reports", async (ModerationService mod) =>
     Results.Ok(await mod.GetOpenReportsAsync())).WithTags("Moderation").RequireAuthorization("Moderator");
+
+// ——— Anti-cheat kural kataloğu (F5-4) ———
+app.MapGet("/anticheat/rules", () => Results.Ok(AntiCheatRules.Catalog))
+    .WithTags("AntiCheat").AllowAnonymous();
 
 // ——— Client / Launcher (F3-8) ———
 app.MapGet("/news", async (string? lang, int? take, ClientContentService content) =>

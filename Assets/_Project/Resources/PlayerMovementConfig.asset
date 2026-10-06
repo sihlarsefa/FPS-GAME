@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3d4e5f6789012345678901234abcdef, type: 3}
+  m_Name: PlayerMovementConfig
+  m_EditorClassIdentifier: Project.Infrastructure::Project.Infrastructure.Config.PlayerMovementConfig
+  walkSpeed: 4.6
+  sprintSpeed: 7.2
+  crouchSpeed: 2.4
+  proneSpeed: 1.1
+  backwardSpeedFactor: 0.8
+  strafeSpeedFactor: 0.92
+  sprintForwardThreshold: 0.5
+  groundAcceleration: 38
+  groundDeceleration: 30
+  airAcceleration: 14
+  airControl: 0.3
+  jumpHeight: 1.05
+  gravity: -18
+  maxFallSpeed: 55
+  jumpCooldown: 0.3
+  coyoteTime: 0.12
+  jumpBufferTime: 0.12
+  landedEventMinSpeed: 2.5
+  mouseSensitivity: 0.12
+  minPitch: -85
+  maxPitch: 85
+  scaleSensitivityWithZoom: 1
+  standingHeight: 1.8
+  crouchHeight: 1.2
+  proneHeight: 0.6
+  stanceTransitionSpeed: 10
+  standingEyeHeight: 1.62
+  crouchEyeHeight: 1.05
+  proneEyeHeight: 0.35
+  radius: 0.3
+  slopeLimit: 46
+  stepOffset: 0.38
+  skinWidth: 0.04
+  groundSnapDistance: 0.45
+  steepSlideSpeed: 6
+  leanSpeed: 5.5
+  leanAngle: 12
+  leanOffset: 0.35
+  fieldOfView: 80
+  fovSmoothSpeed: 14
+  eyeHeightSmoothSpeed: 14
+  recoilKickTime: 0.035
+  recoilRecovery: 5.5
+  maxRecoilPitch: 12
+  recoilPermanentFraction: 0.35
+  landingDipPerSpeed: 0.012
+  landingDipMax: 0.16
+  bobFrequency: 1.4
+  bobVerticalAmplitude: 0.035
+  bobHorizontalAmplitude: 0.025
+  bobRollAmplitude: 0.35
+  shakeMaxAngle: 4.5
+  shakeFrequency: 22
+  dataVersion: 3

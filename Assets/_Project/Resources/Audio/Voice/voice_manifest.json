@@ -1,0 +1,1650 @@
+{
+ "voice": "macOS Yelda (placeholder TTS)",
+ "clips": [
+  {
+   "key": "contact_front",
+   "file": "contact_front",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Temas! Önümüzde!"
+  },
+  {
+   "key": "contact_rear",
+   "file": "contact_rear",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Temas! Arkadan!"
+  },
+  {
+   "key": "contact_left",
+   "file": "contact_left",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Temas! Sol kanat!"
+  },
+  {
+   "key": "contact_right",
+   "file": "contact_right",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Temas! Sağ kanat!"
+  },
+  {
+   "key": "contact_clock2_200",
+   "file": "contact_clock2_200",
+   "role": "Marksman",
+   "durum": "temas",
+   "text": "Temas! Saat iki yönü, iki yüz metre!"
+  },
+  {
+   "key": "contact_clock10_150",
+   "file": "contact_clock10_150",
+   "role": "Marksman",
+   "durum": "temas",
+   "text": "Temas! Saat on, yüz elli metre!"
+  },
+  {
+   "key": "contact_clock12_300",
+   "file": "contact_clock12_300",
+   "role": "Marksman",
+   "durum": "temas",
+   "text": "Temas! Saat on iki, üç yüz metre, tek nişancı!"
+  },
+  {
+   "key": "contact_clock4_80",
+   "file": "contact_clock4_80",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Temas! Saat dört, seksen metre, yakın!"
+  },
+  {
+   "key": "contact_clock8_120",
+   "file": "contact_clock8_120",
+   "role": "MachineGunner",
+   "durum": "temas",
+   "text": "Temas! Saat sekiz, yüz yirmi!"
+  },
+  {
+   "key": "contact_building",
+   "file": "contact_building",
+   "role": "Grenadier",
+   "durum": "temas",
+   "text": "Temas! Bina içinde hareket!"
+  },
+  {
+   "key": "contact_rooftop",
+   "file": "contact_rooftop",
+   "role": "Marksman",
+   "durum": "temas",
+   "text": "Temas! Çatıda silüet!"
+  },
+  {
+   "key": "contact_vehicle",
+   "file": "contact_vehicle",
+   "role": "Radioman",
+   "durum": "temas",
+   "text": "Temas! Araç sesi yaklaşıyor!"
+  },
+  {
+   "key": "contact_multiple",
+   "file": "contact_multiple",
+   "role": "Leader",
+   "durum": "temas",
+   "text": "Temas! Çoklu hedef, yayılın!"
+  },
+  {
+   "key": "contact_suppressed",
+   "file": "contact_suppressed",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Bastırılıyoruz! Kafamı kaldıramıyorum!"
+  },
+  {
+   "key": "contact_lost",
+   "file": "contact_lost",
+   "role": "Marksman",
+   "durum": "temas",
+   "text": "Hedef kayboldu, tarıyorum."
+  },
+  {
+   "key": "contact_confirmed_kill",
+   "file": "contact_confirmed_kill",
+   "role": "Marksman",
+   "durum": "temas",
+   "text": "Hedef düştü, teyit."
+  },
+  {
+   "key": "contact_near_tree",
+   "file": "contact_near_tree",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Temas! Ağaç hattında!"
+  },
+  {
+   "key": "contact_ridge",
+   "file": "contact_ridge",
+   "role": "Marksman",
+   "durum": "temas",
+   "text": "Temas! Sırtta iki kişi!"
+  },
+  {
+   "key": "contact_bridge",
+   "file": "contact_bridge",
+   "role": "MachineGunner",
+   "durum": "temas",
+   "text": "Temas! Köprü başında!"
+  },
+  {
+   "key": "contact_quarry",
+   "file": "contact_quarry",
+   "role": "Rifleman",
+   "durum": "temas",
+   "text": "Temas! Taş ocağı yönü!"
+  },
+  {
+   "key": "reload_mag",
+   "file": "reload_mag",
+   "role": "Rifleman",
+   "durum": "sarjor",
+   "text": "Şarjör!"
+  },
+  {
+   "key": "reload_mag_cover",
+   "file": "reload_mag_cover",
+   "role": "Rifleman",
+   "durum": "sarjor",
+   "text": "Şarjör! Örtü altında!"
+  },
+  {
+   "key": "reload_last_mag",
+   "file": "reload_last_mag",
+   "role": "Rifleman",
+   "durum": "sarjor",
+   "text": "Son şarjör!"
+  },
+  {
+   "key": "reload_empty",
+   "file": "reload_empty",
+   "role": "MachineGunner",
+   "durum": "sarjor",
+   "text": "Mermi bitti, dolduruyorum!"
+  },
+  {
+   "key": "reload_mg_belt",
+   "file": "reload_mg_belt",
+   "role": "MachineGunner",
+   "durum": "sarjor",
+   "text": "Kemer! Kısa ara!"
+  },
+  {
+   "key": "reload_sniper",
+   "file": "reload_sniper",
+   "role": "Marksman",
+   "durum": "sarjor",
+   "text": "Dolduruyorum, gözünüz üzerimde olsun."
+  },
+  {
+   "key": "reload_pistol",
+   "file": "reload_pistol",
+   "role": "Leader",
+   "durum": "sarjor",
+   "text": "Tabanca şarjörü!"
+  },
+  {
+   "key": "reload_need_ammo",
+   "file": "reload_need_ammo",
+   "role": "Rifleman",
+   "durum": "sarjor",
+   "text": "Mermi lazım, kimde var?"
+  },
+  {
+   "key": "reload_ammo_here",
+   "file": "reload_ammo_here",
+   "role": "Medic",
+   "durum": "sarjor",
+   "text": "Burada mermi, al!"
+  },
+  {
+   "key": "reload_done",
+   "file": "reload_done",
+   "role": "Rifleman",
+   "durum": "sarjor",
+   "text": "Doldum, hazır!"
+  },
+  {
+   "key": "reload_cover_me",
+   "file": "reload_cover_me",
+   "role": "Grenadier",
+   "durum": "sarjor",
+   "text": "Örtün beni, şarjör!"
+  },
+  {
+   "key": "reload_smoke_first",
+   "file": "reload_smoke_first",
+   "role": "Medic",
+   "durum": "sarjor",
+   "text": "Sis atıyorum, sonra doldur!"
+  },
+  {
+   "key": "wound_hit",
+   "file": "wound_hit",
+   "role": "Rifleman",
+   "durum": "yaralanma",
+   "text": "Vuruldum!"
+  },
+  {
+   "key": "wound_hit_arm",
+   "file": "wound_hit_arm",
+   "role": "Rifleman",
+   "durum": "yaralanma",
+   "text": "Koluma yedim!"
+  },
+  {
+   "key": "wound_hit_leg",
+   "file": "wound_hit_leg",
+   "role": "Rifleman",
+   "durum": "yaralanma",
+   "text": "Bacağım! Yürüyemiyorum!"
+  },
+  {
+   "key": "wound_bleeding",
+   "file": "wound_bleeding",
+   "role": "Rifleman",
+   "durum": "yaralanma",
+   "text": "Kanıyorum, sargı lazım!"
+  },
+  {
+   "key": "wound_armor_broke",
+   "file": "wound_armor_broke",
+   "role": "MachineGunner",
+   "durum": "yaralanma",
+   "text": "Zırh gitti!"
+  },
+  {
+   "key": "wound_helmet",
+   "file": "wound_helmet",
+   "role": "Leader",
+   "durum": "yaralanma",
+   "text": "Kaska isabet, sersemledim!"
+  },
+  {
+   "key": "wound_down_but_up",
+   "file": "wound_down_but_up",
+   "role": "Rifleman",
+   "durum": "yaralanma",
+   "text": "Yere düştüm ama ayağa kalkıyorum!"
+  },
+  {
+   "key": "wound_critical",
+   "file": "wound_critical",
+   "role": "Rifleman",
+   "durum": "yaralanma",
+   "text": "Kritik! Dayanamıyorum!"
+  },
+  {
+   "key": "wound_still_fighting",
+   "file": "wound_still_fighting",
+   "role": "Grenadier",
+   "durum": "yaralanma",
+   "text": "Vuruldum ama ateş ediyorum!"
+  },
+  {
+   "key": "wound_need_cover",
+   "file": "wound_need_cover",
+   "role": "Marksman",
+   "durum": "yaralanma",
+   "text": "Vuruldum, örtüye çekiliyorum!"
+  },
+  {
+   "key": "medic_call",
+   "file": "medic_call",
+   "role": "Rifleman",
+   "durum": "sihhiye",
+   "text": "Sıhhiye! Sıhhiye buraya!"
+  },
+  {
+   "key": "medic_call_urgent",
+   "file": "medic_call_urgent",
+   "role": "Leader",
+   "durum": "sihhiye",
+   "text": "Sıhhiyeci, komutanım yaralı — hayır, ben yaralıyım!"
+  },
+  {
+   "key": "medic_coming",
+   "file": "medic_coming",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "Geliyorum! Sis atın!"
+  },
+  {
+   "key": "medic_hold",
+   "file": "medic_hold",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "Dayan, sarıyorum!"
+  },
+  {
+   "key": "medic_kit",
+   "file": "medic_kit",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "İlk yardım uyguluyorum!"
+  },
+  {
+   "key": "medic_clear",
+   "file": "medic_clear",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "Temiz, ayağa kalkabilirsin."
+  },
+  {
+   "key": "medic_out_of_supplies",
+   "file": "medic_out_of_supplies",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "Tıbbi stok azaldı!"
+  },
+  {
+   "key": "medic_drag",
+   "file": "medic_drag",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "Sürükleyeceğim, örtün!"
+  },
+  {
+   "key": "medic_zone",
+   "file": "medic_zone",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "Zone geliyor, hızlı sar!"
+  },
+  {
+   "key": "medic_self",
+   "file": "medic_self",
+   "role": "Rifleman",
+   "durum": "sihhiye",
+   "text": "Kendimi sarıyorum!"
+  },
+  {
+   "key": "medic_boost",
+   "file": "medic_boost",
+   "role": "Medic",
+   "durum": "sihhiye",
+   "text": "Ağrı kesici, al bunu!"
+  },
+  {
+   "key": "medic_priority",
+   "file": "medic_priority",
+   "role": "Leader",
+   "durum": "sihhiye",
+   "text": "Sıhhiye öncelik telsizciye!"
+  },
+  {
+   "key": "order_follow_ack_rifle",
+   "file": "order_follow_ack_rifle",
+   "role": "Rifleman",
+   "durum": "emir_onay",
+   "text": "Anlaşıldı komutanım, takipteyiz!"
+  },
+  {
+   "key": "order_follow_ack_mg",
+   "file": "order_follow_ack_mg",
+   "role": "MachineGunner",
+   "durum": "emir_onay",
+   "text": "Takipteyiz çavuşum!"
+  },
+  {
+   "key": "order_follow_ack_mark",
+   "file": "order_follow_ack_mark",
+   "role": "Marksman",
+   "durum": "emir_onay",
+   "text": "Takipteyim, mesafe koruyorum."
+  },
+  {
+   "key": "order_follow_ack_med",
+   "file": "order_follow_ack_med",
+   "role": "Medic",
+   "durum": "emir_onay",
+   "text": "Anlaşıldı, arkadan geliyorum."
+  },
+  {
+   "key": "order_hold_ack_rifle",
+   "file": "order_hold_ack_rifle",
+   "role": "Rifleman",
+   "durum": "emir_onay",
+   "text": "Mevzi alındı komutanım!"
+  },
+  {
+   "key": "order_hold_ack_mg",
+   "file": "order_hold_ack_mg",
+   "role": "MachineGunner",
+   "durum": "emir_onay",
+   "text": "Mevzideyim, sektörü tarıyorum."
+  },
+  {
+   "key": "order_hold_ack_gren",
+   "file": "order_hold_ack_gren",
+   "role": "Grenadier",
+   "durum": "emir_onay",
+   "text": "Bekliyorum, hazırım."
+  },
+  {
+   "key": "order_hold_ack_radio",
+   "file": "order_hold_ack_radio",
+   "role": "Radioman",
+   "durum": "emir_onay",
+   "text": "Mevzi tamam, telsiz açık."
+  },
+  {
+   "key": "order_attack_ack_rifle",
+   "file": "order_attack_ack_rifle",
+   "role": "Rifleman",
+   "durum": "emir_onay",
+   "text": "Taarruz! İleri!"
+  },
+  {
+   "key": "order_attack_ack_mg",
+   "file": "order_attack_ack_mg",
+   "role": "MachineGunner",
+   "durum": "emir_onay",
+   "text": "Baskı ateşi açıyorum!"
+  },
+  {
+   "key": "order_attack_ack_gren",
+   "file": "order_attack_ack_gren",
+   "role": "Grenadier",
+   "durum": "emir_onay",
+   "text": "Bomba hazır, giriyorum!"
+  },
+  {
+   "key": "order_attack_ack_mark",
+   "file": "order_attack_ack_mark",
+   "role": "Marksman",
+   "durum": "emir_onay",
+   "text": "Hedefi kilitledim, destekliyorum."
+  },
+  {
+   "key": "order_regroup_ack_rifle",
+   "file": "order_regroup_ack_rifle",
+   "role": "Rifleman",
+   "durum": "emir_onay",
+   "text": "Toplanıyoruz komutanım!"
+  },
+  {
+   "key": "order_regroup_ack_med",
+   "file": "order_regroup_ack_med",
+   "role": "Medic",
+   "durum": "emir_onay",
+   "text": "Toplanma noktasına geliyorum!"
+  },
+  {
+   "key": "order_regroup_ack_mg",
+   "file": "order_regroup_ack_mg",
+   "role": "MachineGunner",
+   "durum": "emir_onay",
+   "text": "Anlaşıldı, birleşiyoruz."
+  },
+  {
+   "key": "order_follow_leader",
+   "file": "order_follow_leader",
+   "role": "Leader",
+   "durum": "emir_onay",
+   "text": "Tim, beni takip et!"
+  },
+  {
+   "key": "order_hold_leader",
+   "file": "order_hold_leader",
+   "role": "Leader",
+   "durum": "emir_onay",
+   "text": "Mevzi al, bekle!"
+  },
+  {
+   "key": "order_attack_leader",
+   "file": "order_attack_leader",
+   "role": "Leader",
+   "durum": "emir_onay",
+   "text": "İşaretli noktaya taarruz!"
+  },
+  {
+   "key": "order_regroup_leader",
+   "file": "order_regroup_leader",
+   "role": "Leader",
+   "durum": "emir_onay",
+   "text": "Toplan! Benim yanıma!"
+  },
+  {
+   "key": "order_wilco_short",
+   "file": "order_wilco_short",
+   "role": "Rifleman",
+   "durum": "emir_onay",
+   "text": "Anlaşıldı!"
+  },
+  {
+   "key": "order_wilco_sir",
+   "file": "order_wilco_sir",
+   "role": "Rifleman",
+   "durum": "emir_onay",
+   "text": "Emredersiniz komutanım!"
+  },
+  {
+   "key": "order_neg_busy",
+   "file": "order_neg_busy",
+   "role": "Marksman",
+   "durum": "emir_onay",
+   "text": "Şu an nişan alıyorum, saniye!"
+  },
+  {
+   "key": "cmd_takeover",
+   "file": "cmd_takeover",
+   "role": "Rifleman",
+   "durum": "komuta_devri",
+   "text": "Komuta bende! Tim, beni takip et!"
+  },
+  {
+   "key": "cmd_takeover_mg",
+   "file": "cmd_takeover_mg",
+   "role": "MachineGunner",
+   "durum": "komuta_devri",
+   "text": "Komuta bende! Mevzi alın!"
+  },
+  {
+   "key": "cmd_takeover_mark",
+   "file": "cmd_takeover_mark",
+   "role": "Marksman",
+   "durum": "komuta_devri",
+   "text": "Komuta bende. Sakin, dinleyin."
+  },
+  {
+   "key": "cmd_leader_down",
+   "file": "cmd_leader_down",
+   "role": "Medic",
+   "durum": "komuta_devri",
+   "text": "Komutan düştü! Komuta devri!"
+  },
+  {
+   "key": "cmd_ack_new",
+   "file": "cmd_ack_new",
+   "role": "Grenadier",
+   "durum": "komuta_devri",
+   "text": "Anlaşıldı, yeni komutanı takip!"
+  },
+  {
+   "key": "cmd_radio_priority",
+   "file": "cmd_radio_priority",
+   "role": "Radioman",
+   "durum": "komuta_devri",
+   "text": "Telsiz hazır, emir bekliyorum."
+  },
+  {
+   "key": "cmd_stabilize",
+   "file": "cmd_stabilize",
+   "role": "Leader",
+   "durum": "komuta_devri",
+   "text": "Komuta sabit. Rapor verin!"
+  },
+  {
+   "key": "cmd_senior_rank",
+   "file": "cmd_senior_rank",
+   "role": "Leader",
+   "durum": "komuta_devri",
+   "text": "Rütbemle komutayı alıyorum."
+  },
+  {
+   "key": "arty_request",
+   "file": "arty_request",
+   "role": "Radioman",
+   "durum": "topcu",
+   "text": "Topçu! Hedef koordinatı gönderiyorum!"
+  },
+  {
+   "key": "arty_ready",
+   "file": "arty_ready",
+   "role": "Radioman",
+   "durum": "topcu",
+   "text": "Atış için hazır, hedef koordinatı alındı."
+  },
+  {
+   "key": "arty_confirm",
+   "file": "arty_confirm",
+   "role": "Leader",
+   "durum": "topcu",
+   "text": "Topçu onayı verildi, ateş!"
+  },
+  {
+   "key": "arty_danger_close",
+   "file": "arty_danger_close",
+   "role": "Radioman",
+   "durum": "topcu",
+   "text": "Dikkat! Yakın destek ateşi!"
+  },
+  {
+   "key": "arty_inbound",
+   "file": "arty_inbound",
+   "role": "Radioman",
+   "durum": "topcu",
+   "text": "Mermi yolda, örtüye!"
+  },
+  {
+   "key": "arty_splash",
+   "file": "arty_splash",
+   "role": "Marksman",
+   "durum": "topcu",
+   "text": "İsabet! Hedef bölgesi duman!"
+  },
+  {
+   "key": "arty_adjust",
+   "file": "arty_adjust",
+   "role": "Radioman",
+   "durum": "topcu",
+   "text": "Düzeltme: yüz metre kuzey!"
+  },
+  {
+   "key": "arty_denied_zone",
+   "file": "arty_denied_zone",
+   "role": "Radioman",
+   "durum": "topcu",
+   "text": "Topçu yok — zone/uygun değil!"
+  },
+  {
+   "key": "arty_out",
+   "file": "arty_out",
+   "role": "Radioman",
+   "durum": "topcu",
+   "text": "Topçu hakkı bitti!"
+  },
+  {
+   "key": "arty_mark",
+   "file": "arty_mark",
+   "role": "Leader",
+   "durum": "topcu",
+   "text": "Telsizci, şu noktayı işaretle!"
+  },
+  {
+   "key": "arty_clear",
+   "file": "arty_clear",
+   "role": "Medic",
+   "durum": "topcu",
+   "text": "Sıhhiye alanı temiz, ateş serbest!"
+  },
+  {
+   "key": "arty_abort",
+   "file": "arty_abort",
+   "role": "Leader",
+   "durum": "topcu",
+   "text": "İptal! Dost kuvvet yakın!"
+  },
+  {
+   "key": "zone_warning",
+   "file": "zone_warning",
+   "role": "Leader",
+   "durum": "alan_daralma",
+   "text": "Harekât alanı daralıyor! Hareket!"
+  },
+  {
+   "key": "zone_warning_far",
+   "file": "zone_warning_far",
+   "role": "Radioman",
+   "durum": "alan_daralma",
+   "text": "Zone geliyor, iki dakika!"
+  },
+  {
+   "key": "zone_edge",
+   "file": "zone_edge",
+   "role": "Rifleman",
+   "durum": "alan_daralma",
+   "text": "Kenardayım, yanıyorum!"
+  },
+  {
+   "key": "zone_inside_safe",
+   "file": "zone_inside_safe",
+   "role": "Marksman",
+   "durum": "alan_daralma",
+   "text": "Güvenli alanda, tarıyorum."
+  },
+  {
+   "key": "zone_cut_off",
+   "file": "zone_cut_off",
+   "role": "MachineGunner",
+   "durum": "alan_daralma",
+   "text": "Tim bölündü, zone arada!"
+  },
+  {
+   "key": "zone_vehicle_rush",
+   "file": "zone_vehicle_rush",
+   "role": "Leader",
+   "durum": "alan_daralma",
+   "text": "Kirpi'ye bin, zone kaçıracak!"
+  },
+  {
+   "key": "zone_final",
+   "file": "zone_final",
+   "role": "Leader",
+   "durum": "alan_daralma",
+   "text": "Son çember! Sıkı tutunun!"
+  },
+  {
+   "key": "zone_smoke_path",
+   "file": "zone_smoke_path",
+   "role": "Medic",
+   "durum": "alan_daralma",
+   "text": "Sis koridoru açıyorum, geçin!"
+  },
+  {
+   "key": "heli_inbound",
+   "file": "heli_inbound",
+   "role": "Radioman",
+   "durum": "intikal",
+   "text": "Helikopter yaklaşıyor, iniş sahası temizleyin!"
+  },
+  {
+   "key": "heli_touchdown",
+   "file": "heli_touchdown",
+   "role": "Leader",
+   "durum": "intikal",
+   "text": "İndik! Dağılın, örtü alın!"
+  },
+  {
+   "key": "heli_hot_lz",
+   "file": "heli_hot_lz",
+   "role": "Rifleman",
+   "durum": "intikal",
+   "text": "Sıcak iniş! Temas var!"
+  },
+  {
+   "key": "heli_board",
+   "file": "heli_board",
+   "role": "Leader",
+   "durum": "intikal",
+   "text": "Bin! Kapı kapanıyor!"
+  },
+  {
+   "key": "heli_exfil",
+   "file": "heli_exfil",
+   "role": "Radioman",
+   "durum": "intikal",
+   "text": "Tahliye helikopteri yolda!"
+  },
+  {
+   "key": "kirpi_mount",
+   "file": "kirpi_mount",
+   "role": "Leader",
+   "durum": "intikal",
+   "text": "Kirpi'ye binin, emniyet kemeri!"
+  },
+  {
+   "key": "kirpi_moving",
+   "file": "kirpi_moving",
+   "role": "Rifleman",
+   "durum": "intikal",
+   "text": "Araç hareket ediyor!"
+  },
+  {
+   "key": "kirpi_stop",
+   "file": "kirpi_stop",
+   "role": "Leader",
+   "durum": "intikal",
+   "text": "Dur! İnme emri bekleyin!"
+  },
+  {
+   "key": "kirpi_dismount",
+   "file": "kirpi_dismount",
+   "role": "Leader",
+   "durum": "intikal",
+   "text": "İnin! Saat üç yönüne dağılın!"
+  },
+  {
+   "key": "kirpi_under_fire",
+   "file": "kirpi_under_fire",
+   "role": "MachineGunner",
+   "durum": "intikal",
+   "text": "Araç ateş altında! Hızlan!"
+  },
+  {
+   "key": "kirpi_blocked",
+   "file": "kirpi_blocked",
+   "role": "Rifleman",
+   "durum": "intikal",
+   "text": "Yol kapalı, alternatif rota!"
+  },
+  {
+   "key": "kirpi_arrive_fob",
+   "file": "kirpi_arrive_fob",
+   "role": "Radioman",
+   "durum": "intikal",
+   "text": "İleri üsse vardık."
+  },
+  {
+   "key": "transport_ready",
+   "file": "transport_ready",
+   "role": "Leader",
+   "durum": "intikal",
+   "text": "İntikal hazır, tim kontrol!"
+  },
+  {
+   "key": "transport_go",
+   "file": "transport_go",
+   "role": "Leader",
+   "durum": "intikal",
+   "text": "Gidiyoruz!"
+  },
+  {
+   "key": "enemy_down",
+   "file": "enemy_down",
+   "role": "Marksman",
+   "durum": "sonuc",
+   "text": "Düşman elendi!"
+  },
+  {
+   "key": "enemy_down_multi",
+   "file": "enemy_down_multi",
+   "role": "MachineGunner",
+   "durum": "sonuc",
+   "text": "İki düşman düştü!"
+  },
+  {
+   "key": "enemy_squad_weak",
+   "file": "enemy_squad_weak",
+   "role": "Leader",
+   "durum": "sonuc",
+   "text": "Karşı tim zayıfladı, baskı!"
+  },
+  {
+   "key": "friendly_down",
+   "file": "friendly_down",
+   "role": "Medic",
+   "durum": "sonuc",
+   "text": "Dost düştü! İşaretliyorum!"
+  },
+  {
+   "key": "squad_wiped_enemy",
+   "file": "squad_wiped_enemy",
+   "role": "Radioman",
+   "durum": "sonuc",
+   "text": "Karşı tim elendi!"
+  },
+  {
+   "key": "squad_wiped_us",
+   "file": "squad_wiped_us",
+   "role": "Leader",
+   "durum": "sonuc",
+   "text": "Tim elendi… bir sonraki harekât."
+  },
+  {
+   "key": "last_standing",
+   "file": "last_standing",
+   "role": "Rifleman",
+   "durum": "sonuc",
+   "text": "Timden son kalan benim!"
+  },
+  {
+   "key": "victory",
+   "file": "victory",
+   "role": "Leader",
+   "durum": "sonuc",
+   "text": "Zafer! Tim ayakta!"
+  },
+  {
+   "key": "victory_radio",
+   "file": "victory_radio",
+   "role": "Radioman",
+   "durum": "sonuc",
+   "text": "Harekât tamam, üsse rapor!"
+  },
+  {
+   "key": "victory_medic",
+   "file": "victory_medic",
+   "role": "Medic",
+   "durum": "sonuc",
+   "text": "Yaşayanlar var, zafer bizim!"
+  },
+  {
+   "key": "ace_call",
+   "file": "ace_call",
+   "role": "Marksman",
+   "durum": "sonuc",
+   "text": "Temizledim sektörü."
+  },
+  {
+   "key": "threat_cleared",
+   "file": "threat_cleared",
+   "role": "Grenadier",
+   "durum": "sonuc",
+   "text": "Tehdit temiz!"
+  },
+  {
+   "key": "addr_sir_report",
+   "file": "addr_sir_report",
+   "role": "Rifleman",
+   "durum": "hitap",
+   "text": "Komutanım, sektör temiz."
+  },
+  {
+   "key": "addr_sir_request",
+   "file": "addr_sir_request",
+   "role": "Medic",
+   "durum": "hitap",
+   "text": "Komutanım, tıbbi durum kritik."
+  },
+  {
+   "key": "addr_sgt_ack",
+   "file": "addr_sgt_ack",
+   "role": "Rifleman",
+   "durum": "hitap",
+   "text": "Çavuşum, anlaşıldı!"
+  },
+  {
+   "key": "addr_sgt_ammo",
+   "file": "addr_sgt_ammo",
+   "role": "Rifleman",
+   "durum": "hitap",
+   "text": "Çavuşum, mermi paylaşır mısınız?"
+  },
+  {
+   "key": "addr_lt_call",
+   "file": "addr_lt_call",
+   "role": "Radioman",
+   "durum": "hitap",
+   "text": "Teğmenim, topçu hattı açık."
+  },
+  {
+   "key": "addr_captain",
+   "file": "addr_captain",
+   "role": "Leader",
+   "durum": "hitap",
+   "text": "Yüzbaşım — tatbikat komuta net."
+  },
+  {
+   "key": "addr_respect_down",
+   "file": "addr_respect_down",
+   "role": "Medic",
+   "durum": "hitap",
+   "text": "Komutanım düştü, saygıyla… komuta devam."
+  },
+  {
+   "key": "addr_informal_team",
+   "file": "addr_informal_team",
+   "role": "Grenadier",
+   "durum": "hitap",
+   "text": "Tim, bomba atıyorum, geri!"
+  },
+  {
+   "key": "tac_flank_left",
+   "file": "tac_flank_left",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Sol kanattan dönün!"
+  },
+  {
+   "key": "tac_flank_right",
+   "file": "tac_flank_right",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Sağdan çevirin!"
+  },
+  {
+   "key": "tac_grenade_out",
+   "file": "tac_grenade_out",
+   "role": "Grenadier",
+   "durum": "taktik",
+   "text": "Bomba gidiyor!"
+  },
+  {
+   "key": "tac_smoke_out",
+   "file": "tac_smoke_out",
+   "role": "Medic",
+   "durum": "taktik",
+   "text": "Sis atıldı!"
+  },
+  {
+   "key": "tac_flash_clear",
+   "file": "tac_flash_clear",
+   "role": "Grenadier",
+   "durum": "taktik",
+   "text": "Oda temizleniyor!"
+  },
+  {
+   "key": "tac_hold_fire",
+   "file": "tac_hold_fire",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Ateş kes! Dost geçiyor!"
+  },
+  {
+   "key": "tac_weapons_free",
+   "file": "tac_weapons_free",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Ateş serbest!"
+  },
+  {
+   "key": "tac_silent",
+   "file": "tac_silent",
+   "role": "Marksman",
+   "durum": "taktik",
+   "text": "Sessiz ilerleyin."
+  },
+  {
+   "key": "tac_sprint",
+   "file": "tac_sprint",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Koş! Açık alandasınız!"
+  },
+  {
+   "key": "tac_prone",
+   "file": "tac_prone",
+   "role": "Marksman",
+   "durum": "taktik",
+   "text": "Yüzüstü, silüet kırma!"
+  },
+  {
+   "key": "tac_crouch",
+   "file": "tac_crouch",
+   "role": "Rifleman",
+   "durum": "taktik",
+   "text": "Eğil, pencere altı!"
+  },
+  {
+   "key": "tac_watch_roof",
+   "file": "tac_watch_roof",
+   "role": "Marksman",
+   "durum": "taktik",
+   "text": "Çatıları izleyin!"
+  },
+  {
+   "key": "tac_loot_fast",
+   "file": "tac_loot_fast",
+   "role": "Rifleman",
+   "durum": "taktik",
+   "text": "Hızlı yağma, oturmayın!"
+  },
+  {
+   "key": "tac_share_armor",
+   "file": "tac_share_armor",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Zırh paylaşın, zayıf halka olmasın!"
+  },
+  {
+   "key": "tac_ping_enemy",
+   "file": "tac_ping_enemy",
+   "role": "Radioman",
+   "durum": "taktik",
+   "text": "Haritada işaretledim!"
+  },
+  {
+   "key": "tac_need_eyes",
+   "file": "tac_need_eyes",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Keskin, gözün lazım!"
+  },
+  {
+   "key": "tac_suppress",
+   "file": "tac_suppress",
+   "role": "MachineGunner",
+   "durum": "taktik",
+   "text": "Bastırıyorum, geçin!"
+  },
+  {
+   "key": "tac_breach",
+   "file": "tac_breach",
+   "role": "Grenadier",
+   "durum": "taktik",
+   "text": "Kapıyı kırıyorum!"
+  },
+  {
+   "key": "tac_stairwell",
+   "file": "tac_stairwell",
+   "role": "Rifleman",
+   "durum": "taktik",
+   "text": "Merdiven boşluğu tehdit!"
+  },
+  {
+   "key": "tac_basement",
+   "file": "tac_basement",
+   "role": "Grenadier",
+   "durum": "taktik",
+   "text": "Bodrumda ses var!"
+  },
+  {
+   "key": "tac_water",
+   "file": "tac_water",
+   "role": "Rifleman",
+   "durum": "taktik",
+   "text": "Dereye iniyorum, ses maskeler."
+  },
+  {
+   "key": "tac_night_light",
+   "file": "tac_night_light",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Feneri kapatın, ifşa!"
+  },
+  {
+   "key": "tac_nvg",
+   "file": "tac_nvg",
+   "role": "Marksman",
+   "durum": "taktik",
+   "text": "Gece görüşü açık, yavaş."
+  },
+  {
+   "key": "tac_check_corner",
+   "file": "tac_check_corner",
+   "role": "Rifleman",
+   "durum": "taktik",
+   "text": "Köşe temiz."
+  },
+  {
+   "key": "tac_reloading_enemy",
+   "file": "tac_reloading_enemy",
+   "role": "Marksman",
+   "durum": "taktik",
+   "text": "Düşman şarjör değiştiriyor, şimdi!"
+  },
+  {
+   "key": "tac_sniper_threat",
+   "file": "tac_sniper_threat",
+   "role": "Medic",
+   "durum": "taktik",
+   "text": "Keskin tehdidi var, koşmayın!"
+  },
+  {
+   "key": "tac_mg_nest",
+   "file": "tac_mg_nest",
+   "role": "MachineGunner",
+   "durum": "taktik",
+   "text": "Yuva kurdum, sektör kilit."
+  },
+  {
+   "key": "tac_rally_tree",
+   "file": "tac_rally_tree",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Toplanma: büyük çam!"
+  },
+  {
+   "key": "tac_rally_bridge",
+   "file": "tac_rally_bridge",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Toplanma: köprü güneyi!"
+  },
+  {
+   "key": "tac_rally_quarry",
+   "file": "tac_rally_quarry",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Toplanma: ocak girişi!"
+  },
+  {
+   "key": "tac_push_fob",
+   "file": "tac_push_fob",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "İleri üsse baskı!"
+  },
+  {
+   "key": "tac_hold_dam",
+   "file": "tac_hold_dam",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Barajı tutun!"
+  },
+  {
+   "key": "tac_village_cqb",
+   "file": "tac_village_cqb",
+   "role": "Grenadier",
+   "durum": "taktik",
+   "text": "Köy CQB, bomba hazır!"
+  },
+  {
+   "key": "tac_coast_waves",
+   "file": "tac_coast_waves",
+   "role": "Radioman",
+   "durum": "taktik",
+   "text": "Sahilde dalga maskeliyor, dikkat ayak!"
+  },
+  {
+   "key": "tac_snow_track",
+   "file": "tac_snow_track",
+   "role": "Marksman",
+   "durum": "taktik",
+   "text": "Kar izi bırakıyoruz, rota değiştir."
+  },
+  {
+   "key": "tac_wind_loud",
+   "file": "tac_wind_loud",
+   "role": "Leader",
+   "durum": "taktik",
+   "text": "Rüzgâr yüksek, ses gider — yine de fısıltı!"
+  },
+  {
+   "key": "tac_generator_mask",
+   "file": "tac_generator_mask",
+   "role": "Rifleman",
+   "durum": "taktik",
+   "text": "Jeneratör örtüyor, yaklaş!"
+  },
+  {
+   "key": "tac_boat_noise",
+   "file": "tac_boat_noise",
+   "role": "Radioman",
+   "durum": "taktik",
+   "text": "Limanda gövde sesi — dost mu?"
+  },
+  {
+   "key": "tac_olive_grove",
+   "file": "tac_olive_grove",
+   "role": "Marksman",
+   "durum": "taktik",
+   "text": "Zeytinlikte hareket, yavaş."
+  },
+  {
+   "key": "tac_radar_hum",
+   "file": "tac_radar_hum",
+   "role": "Radioman",
+   "durum": "taktik",
+   "text": "Radar uğultusu, iç mekân LP."
+  },
+  {
+   "key": "status_good",
+   "file": "status_good",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Durumum iyi."
+  },
+  {
+   "key": "status_low_hp",
+   "file": "status_low_hp",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Canım düşük!"
+  },
+  {
+   "key": "status_low_armor",
+   "file": "status_low_armor",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Zırhım zayıf."
+  },
+  {
+   "key": "status_ready",
+   "file": "status_ready",
+   "role": "MachineGunner",
+   "durum": "genel",
+   "text": "Hazırım."
+  },
+  {
+   "key": "status_waiting",
+   "file": "status_waiting",
+   "role": "Marksman",
+   "durum": "genel",
+   "text": "Emir bekliyorum."
+  },
+  {
+   "key": "loot_weapon",
+   "file": "loot_weapon",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "İyi silah buldum!"
+  },
+  {
+   "key": "loot_meds",
+   "file": "loot_meds",
+   "role": "Medic",
+   "durum": "genel",
+   "text": "Tıbbi yağma burada!"
+  },
+  {
+   "key": "loot_radio_kit",
+   "file": "loot_radio_kit",
+   "role": "Radioman",
+   "durum": "genel",
+   "text": "Telsiz takviyesi aldım."
+  },
+  {
+   "key": "loot_share",
+   "file": "loot_share",
+   "role": "Leader",
+   "durum": "genel",
+   "text": "Fazlayı bırakın, tim güçlensin!"
+  },
+  {
+   "key": "ping_go",
+   "file": "ping_go",
+   "role": "Leader",
+   "durum": "genel",
+   "text": "İşaretime gelin!"
+  },
+  {
+   "key": "ping_danger",
+   "file": "ping_danger",
+   "role": "Marksman",
+   "durum": "genel",
+   "text": "Tehlikeli bölge, işaretli!"
+  },
+  {
+   "key": "ping_loot",
+   "file": "ping_loot",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Yağma noktası!"
+  },
+  {
+   "key": "ack_roger",
+   "file": "ack_roger",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Anlaşıldı."
+  },
+  {
+   "key": "ack_negative",
+   "file": "ack_negative",
+   "role": "Radioman",
+   "durum": "genel",
+   "text": "Olumsuz, hat meşgul."
+  },
+  {
+   "key": "ack_standby",
+   "file": "ack_standby",
+   "role": "Leader",
+   "durum": "genel",
+   "text": "Beklemede kalın."
+  },
+  {
+   "key": "ack_moving",
+   "file": "ack_moving",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Hareket ediyorum."
+  },
+  {
+   "key": "ack_stopping",
+   "file": "ack_stopping",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Duruyorum."
+  },
+  {
+   "key": "spot_dog",
+   "file": "spot_dog",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Köpek havladı, ifşa riski!"
+  },
+  {
+   "key": "spot_footsteps",
+   "file": "spot_footsteps",
+   "role": "Marksman",
+   "durum": "genel",
+   "text": "Ayak sesi, yakın!"
+  },
+  {
+   "key": "spot_reload_sound",
+   "file": "spot_reload_sound",
+   "role": "Marksman",
+   "durum": "genel",
+   "text": "Şarjör sesi duydum!"
+  },
+  {
+   "key": "spot_rotor",
+   "file": "spot_rotor",
+   "role": "Radioman",
+   "durum": "genel",
+   "text": "Rotor sesi, gökyüzünü tarayın!"
+  },
+  {
+   "key": "spot_engine",
+   "file": "spot_engine",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Motor sesi, yol hattı!"
+  },
+  {
+   "key": "cheer_push",
+   "file": "cheer_push",
+   "role": "Leader",
+   "durum": "genel",
+   "text": "İyi iş, baskıyı sürdür!"
+  },
+  {
+   "key": "cheer_save",
+   "file": "cheer_save",
+   "role": "Medic",
+   "durum": "genel",
+   "text": "Kurtardım seni, ayağa!"
+  },
+  {
+   "key": "warn_friendly_fire",
+   "file": "warn_friendly_fire",
+   "role": "Leader",
+   "durum": "genel",
+   "text": "Dost ateşi! Kontrol!"
+  },
+  {
+   "key": "warn_mine_concept",
+   "file": "warn_mine_concept",
+   "role": "Grenadier",
+   "durum": "genel",
+   "text": "Tuzak ihtimali, yavaş!"
+  },
+  {
+   "key": "count_alive",
+   "file": "count_alive",
+   "role": "Radioman",
+   "durum": "genel",
+   "text": "Tim: kaç kişi ayakta?"
+  },
+  {
+   "key": "count_reply",
+   "file": "count_reply",
+   "role": "Rifleman",
+   "durum": "genel",
+   "text": "Ben ayaktayım!"
+  },
+  {
+   "key": "count_reply_2",
+   "file": "count_reply_2",
+   "role": "MachineGunner",
+   "durum": "genel",
+   "text": "Makine burada!"
+  },
+  {
+   "key": "count_reply_3",
+   "file": "count_reply_3",
+   "role": "Marksman",
+   "durum": "genel",
+   "text": "Keskin burada!"
+  },
+  {
+   "key": "intro_op",
+   "file": "intro_op",
+   "role": "Leader",
+   "durum": "genel",
+   "text": "Harekât başlıyor, disiplin!"
+  },
+  {
+   "key": "outro_good",
+   "file": "outro_good",
+   "role": "Leader",
+   "durum": "genel",
+   "text": "Temiz iş, toplanın."
+  },
+  {
+   "key": "map_kuzgun_village",
+   "file": "map_kuzgun_village",
+   "role": "Leader",
+   "durum": "harita",
+   "text": "Kuzgun Köyü'ne giriyoruz, CQB!"
+  },
+  {
+   "key": "map_kuzgun_quarry",
+   "file": "map_kuzgun_quarry",
+   "role": "Marksman",
+   "durum": "harita",
+   "text": "Taş ocağı açık, uzun hat!"
+  },
+  {
+   "key": "map_kuzgun_dam",
+   "file": "map_kuzgun_dam",
+   "role": "MachineGunner",
+   "durum": "harita",
+   "text": "Baraj kontrol, su sesi yüksek!"
+  },
+  {
+   "key": "map_kuzgun_fob",
+   "file": "map_kuzgun_fob",
+   "role": "Radioman",
+   "durum": "harita",
+   "text": "İleri üs görünürde!"
+  },
+  {
+   "key": "map_kuzgun_relay",
+   "file": "map_kuzgun_relay",
+   "role": "Marksman",
+   "durum": "harita",
+   "text": "Röle tepesindeyiz, rüzgâr sert!"
+  },
+  {
+   "key": "map_kuzgun_night",
+   "file": "map_kuzgun_night",
+   "role": "Leader",
+   "durum": "harita",
+   "text": "Gece disiplini: fısıltı, fener kapalı!"
+  },
+  {
+   "key": "map_ayaz_ridge",
+   "file": "map_ayaz_ridge",
+   "role": "Marksman",
+   "durum": "harita",
+   "text": "Ayaz sırtı, rüzgâr yönlü!"
+  },
+  {
+   "key": "map_ayaz_radar",
+   "file": "map_ayaz_radar",
+   "role": "Radioman",
+   "durum": "harita",
+   "text": "Radar üssü uğultusu var."
+  },
+  {
+   "key": "map_ayaz_snow",
+   "file": "map_ayaz_snow",
+   "role": "Rifleman",
+   "durum": "harita",
+   "text": "Kar ayak sesi net, yavaş!"
+  },
+  {
+   "key": "map_ayaz_pass",
+   "file": "map_ayaz_pass",
+   "role": "Leader",
+   "durum": "harita",
+   "text": "Geçitte yankı var, ateş kısa!"
+  },
+  {
+   "key": "map_mavi_harbor",
+   "file": "map_mavi_harbor",
+   "role": "Leader",
+   "durum": "harita",
+   "text": "Limana giriyoruz, halat sesine aldanmayın!"
+  },
+  {
+   "key": "map_mavi_beach",
+   "file": "map_mavi_beach",
+   "role": "Rifleman",
+   "durum": "harita",
+   "text": "Sahilde dalga, ayak yine duyulur!"
+  },
+  {
+   "key": "map_mavi_olive",
+   "file": "map_mavi_olive",
+   "role": "Marksman",
+   "durum": "harita",
+   "text": "Zeytinlik örtüsü iyi."
+  },
+  {
+   "key": "map_mavi_lighthouse",
+   "file": "map_mavi_lighthouse",
+   "role": "Radioman",
+   "durum": "harita",
+   "text": "Fener tepesi rüzgârlı!"
+  },
+  {
+   "key": "map_mavi_town",
+   "file": "map_mavi_town",
+   "role": "Grenadier",
+   "durum": "harita",
+   "text": "Kıyı kasabası dar sokak!"
+  },
+  {
+   "key": "player_reload_1",
+   "file": "player_reload_1",
+   "role": "Player",
+   "durum": "reload",
+   "text": "Şarjör!"
+  },
+  {
+   "key": "player_reload_2",
+   "file": "player_reload_2",
+   "role": "Player",
+   "durum": "reload",
+   "text": "Şarjör değiştiriyorum!"
+  },
+  {
+   "key": "player_grenade_1",
+   "file": "player_grenade_1",
+   "role": "Player",
+   "durum": "grenade",
+   "text": "Bomba!"
+  },
+  {
+   "key": "player_grenade_2",
+   "file": "player_grenade_2",
+   "role": "Player",
+   "durum": "grenade",
+   "text": "El bombası!"
+  },
+  {
+   "key": "player_contact_1",
+   "file": "player_contact_1",
+   "role": "Player",
+   "durum": "contact",
+   "text": "Temas!"
+  },
+  {
+   "key": "player_contact_2",
+   "file": "player_contact_2",
+   "role": "Player",
+   "durum": "contact",
+   "text": "Ateş altındayım!"
+  },
+  {
+   "key": "player_allydown_1",
+   "file": "player_allydown_1",
+   "role": "Player",
+   "durum": "ally_down",
+   "text": "Dost yaralı!"
+  },
+  {
+   "key": "player_allydown_2",
+   "file": "player_allydown_2",
+   "role": "Player",
+   "durum": "ally_down",
+   "text": "Yaralı var!"
+  },
+  {
+   "key": "player_revive_1",
+   "file": "player_revive_1",
+   "role": "Player",
+   "durum": "revive",
+   "text": "Kalk, kalk! Ayaktasın!"
+  },
+  {
+   "key": "player_revive_2",
+   "file": "player_revive_2",
+   "role": "Player",
+   "durum": "revive",
+   "text": "Tamamdır, kalk!"
+  }
+ ]
+}

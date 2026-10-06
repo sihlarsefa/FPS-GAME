@@ -255,6 +255,23 @@ tr:hover td { background: rgba(127,127,127,.04); }
 .ach-unlocked { box-shadow: inset 0 0 0 1px rgba(46,204,113,.35); }
 .prose { color: var(--text); line-height: 1.65; }
 .prose p { color: var(--text); margin: 0 0 1rem; }
+.prose ul { margin: 0 0 1rem; padding-left: 1.25rem; }
+.hash-box {
+  background: var(--bg-elev); border: 1px solid var(--line);
+  border-radius: 8px; padding: .75rem; overflow-x: auto;
+}
+.hash-box code { font-size: .8rem; word-break: break-all; }
+.steps { margin: .5rem 0 0; padding-left: 1.25rem; }
+.steps li { margin: .4rem 0; }
+.req-table th { text-align: left; color: var(--muted); font-weight: 600; width: 36%; padding: .4rem .5rem .4rem 0; }
+.req-table td { padding: .4rem 0; }
+.team-card .team-emblem {
+  width: 80px; height: 80px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 2px solid var(--team, var(--accent));
+  margin-bottom: .75rem; background: var(--bg-elev);
+}
+.team-card .team-emblem img { width: 72px; height: 72px; }
 
 @media (max-width: 900px) {
   .topbar { flex-wrap: wrap; }

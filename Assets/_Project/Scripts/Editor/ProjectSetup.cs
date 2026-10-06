@@ -15,7 +15,10 @@ namespace Project.EditorTools
             RunStep("Player Settings", SetupPlayerSettings);
             RunStep("URP kalite profili", () => UrpSetup.EnsureAll());
             RunStep("Sanat kütüphanesi", AssetGeneration.EnsureArtLibrary);
+            RunStep("Gölgelendiriciler (Always Included)", AlwaysIncludedShaders.EnsureAll);
+            RunStep("Üçüncü taraf modeller (Poly Haven bağlama)", BatchEntry.BindThirdParty);
             RunStep("Sahneler", SceneBuilder.EnsureAllScenes);
+            RunStep("AAA Benchmark sahnesi", AaaBenchmarkSceneBuilder.EnsureScene);
             RunStep("Build Settings sırası", SceneBuilder.EnsureBuildSettings);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

@@ -1,6 +1,6 @@
 # HAREKÂT — Manuel Test Senaryoları
 
-**Toplam:** 368 senaryo · **Kaynak:** `QA/cases.json` · **CSV:** [senaryolar.csv](senaryolar.csv)
+**Toplam:** 398 senaryo · **Kaynak:** `QA/cases.json` · **CSV:** [senaryolar.csv](senaryolar.csv)
 
 | # | Modül | Senaryo | Dosya |
 |---|-------|---------|-------|
@@ -22,14 +22,21 @@
 | 16 | Erişilebilirlik | 8 | [16_Erisilebilirlik.md](16_Erisilebilirlik.md) |
 | 17 | Windows matrisi | 10 | [17_Windows.md](17_Windows.md) |
 | 18 | Denge | 10 | [18_Denge.md](18_Denge.md) |
+| 19 | Sürülebilir Kirpi | 7 | [19_Surulebilir_Kirpi.md](19_Surulebilir_Kirpi.md) |
+| 20 | Geliştirici konsolu | 6 | [20_Gelistirici_Konsolu.md](20_Gelistirici_Konsolu.md) |
+| 21 | Online paneller | 6 | [21_Online_Paneller.md](21_Online_Paneller.md) |
+| 22 | Windows sunucu | 6 | [22_Windows_Sunucu.md](22_Windows_Sunucu.md) |
+| 23 | İçerik override | 5 | [23_Icerik_Override.md](23_Icerik_Override.md) |
 
 ## Öncelik özeti
 
-- **P0:** 4
-- **P1:** 364
+- **P0:** 9
+- **P1:** 380
+- **P2:** 7
+- **P3:** 2
 
 ## Kullanım
 
-1. Excel/Google Sheets için `senaryolar.csv` dosyasını açın (UTF-8 BOM).
-2. Modül dosyalarında tek tek çalıştırın; `status` alanını güncelleyin.
-3. Kaynak yenileme: `python3 QA/scripts/seed_cases.py` sonra bu export'u yeniden üretin.
+1. Excel için `senaryolar.csv` (UTF-8 BOM).
+2. Modül MD dosyalarında çalıştırın.
+3. Yenileme: `python3 QA/scripts/seed_cases.py` sonra `python3 QA/scripts/export_scenarios.py`.

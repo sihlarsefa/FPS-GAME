@@ -11,6 +11,7 @@ namespace Project.Core.Domain
         Attachment = 6,
         Helmet = 7,
         Backpack = 8,
-        Boost = 9
+        Boost = 9,
+        Equipment = 10
     }
 }

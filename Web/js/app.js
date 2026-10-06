@@ -46,7 +46,7 @@ async function route() {
     else if (head === 'requirements') html = await pages.renderRequirements();
     else if (head === 'teams') html = await pages.renderTeams();
     else if (head === 'arsenal') html = await pages.renderArsenal();
-    else if (head === 'map') html = await pages.renderMap();
+    else if (head === 'map') html = await pages.renderMap(parts[1]);
     else if (head === 'patches' && parts[1]) html = await pages.renderPatchPost(decodeURIComponent(parts[1]));
     else if (head === 'patches') html = await pages.renderPatches();
     else if (head === 'news' && parts[1]) html = await pages.renderNewsPost(decodeURIComponent(parts[1]));

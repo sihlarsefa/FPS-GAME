@@ -98,6 +98,10 @@ namespace Project.Infrastructure.AI
         private Action<WeaponFiredEvent> _onWeaponFired;
         private Action<CommandTransferredEvent> _onCommandTransferred;
         private Action<SquadOrderIssuedEvent> _onSquadOrder;
+        private Action<AirdropEvent> _onAirdrop;
+        private Vector3 _airdropPosition;
+        private bool _airdropActive;
+        private float _airdropExpire;
 
         public static BotDirector Instance => _instance;
 
@@ -160,6 +164,7 @@ namespace Project.Infrastructure.AI
             _onWeaponFired = OnWeaponFired;
             _onCommandTransferred = OnCommandTransferred;
             _onSquadOrder = OnSquadOrder;
+            _onAirdrop = OnAirdrop;
             RefreshServices(true);
         }
 
@@ -392,6 +397,8 @@ namespace Project.Infrastructure.AI
                 {
                     intel.NextArtilleryCheck = now + ArtilleryCheckInterval;
                     TryCallArtillery(intel, now);
+                    TryLaunchRecon(intel, now);
+                    TryCallAttackHeli(intel, commander, now);
                 }
             }
         }
@@ -405,6 +412,16 @@ namespace Project.Infrastructure.AI
             intel.ContactPosition = enemyPosition;
             intel.ContactTime = now;
             intel.ContactEnemy = enemy;
+            intel.HelpPosition = enemyPosition;
+            intel.HelpTime = now;
+        }
+
+        /// <summary>Oyuncu tim ping'i (düşman işareti): tim botları konumu araştırmaya gelir.</summary>
+        public void ReportPing(int team, Vector3 enemyPosition, float now)
+        {
+            var intel = GetOrCreateTeam(team);
+            intel.ContactPosition = enemyPosition;
+            intel.ContactTime = now;
             intel.HelpPosition = enemyPosition;
             intel.HelpTime = now;
         }
@@ -707,6 +724,17 @@ namespace Project.Infrastructure.AI
                 return;
             }
 
+            // 2b) Duyurulan ikmal sandığı (yakın ve bölge içindeyse; her tim değil, saldırgan olanlar).
+            if (_airdropActive && Time.time > _airdropExpire)
+                _airdropActive = false;
+            if (_airdropActive && FlatDistance(position, _airdropPosition) < 320f &&
+                (!zoneActive || SafeNextZoneContains(zone, _airdropPosition)) &&
+                NextFloat() < Mathf.Clamp01(0.25f + intel.Aggression * 0.5f))
+            {
+                SetObjective(intel, _airdropPosition, false, now, 20f, 40f);
+                return;
+            }
+
             // 3) Adlandırılmış yerleşim (yağma bölgesi).
             if (TryPickLocation(intel, position, zoneActive, out var location))
             {
@@ -883,7 +911,7 @@ namespace Project.Infrastructure.AI
             for (var i = 0; i < intel.Bots.Count; i++)
             {
                 var bot = intel.Bots[i];
-                if (bot == null || bot.Combatant == null || !bot.Combatant.IsAlive || !bot.HasLanded)
+                if (bot == null || bot.Combatant == null || !bot.Combatant.IsAlive || bot.Combatant.IsDowned || !bot.HasLanded)
                     continue;
 
                 if (bot.Combatant.Role == TeamRole.Radioman)
@@ -899,10 +927,49 @@ namespace Project.Infrastructure.AI
             if (caller == null)
                 return;
 
-            var target = intel.ContactPosition;
+            if (CallArtilleryAt(intel.Team, caller, intel.ContactPosition))
+                intel.ContactTime -= 6f; // aynı temasa tekrar çağrı yapılmasın
+        }
+
+        /// <summary>Topçu hazır mı (servis yoksa/hata verirse false). Son adam kararı için.</summary>
+        internal bool IsArtilleryReady(int team)
+        {
+            var artillery = Artillery;
+            if (artillery == null)
+                return false;
+
+            try
+            {
+                return artillery.IsReady(team);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Son kalan komutan topçu çağırır (RC2 v3: tek kalan asker, tehdit var, topçu hazır). Telsizci/lider seçimi atlanır;
+        /// mesafe (55-320 m) ve dost güvenliği (42 m) kuralları normal çağrıyla aynıdır. Kabul edildiyse true.
+        /// </summary>
+        internal bool TryCallArtilleryLastMan(BotController caller, Vector3 target)
+        {
+            if (caller == null || caller.Combatant == null || !caller.Combatant.IsAlive || MatchEnded || !IsArtilleryReady(caller.Team))
+                return false;
+
+            return CallArtilleryAt(caller.Team, caller, target);
+        }
+
+        /// <summary>Ortak son adım: menzil, dost güvenliği (hedef çevresinde tim arkadaşı yok), ardından topçu servisi çağrısı.</summary>
+        private bool CallArtilleryAt(int team, BotController caller, Vector3 target)
+        {
+            var artillery = Artillery;
+            if (artillery == null || caller == null || caller.Combatant == null)
+                return false;
+
             var distance = FlatDistance(caller.transform.position, target);
             if (distance < ArtilleryMinDistance || distance > ArtilleryMaxDistance)
-                return;
+                return false;
 
             // Dost güvenliği: hedefin çevresinde hiçbir tim arkadaşı olmamalı.
             var safetySqr = ArtilleryAllySafetyRadius * ArtilleryAllySafetyRadius;
@@ -910,19 +977,66 @@ namespace Project.Infrastructure.AI
             for (var i = 0; i < all.Count; i++)
             {
                 var c = all[i];
-                if (c == null || !c.IsAlive || c.Team != intel.Team)
+                if (c == null || !c.IsAlive || c.Team != team)
                     continue;
 
                 var d = c.transform.position - target;
                 d.y = 0f;
                 if (d.sqrMagnitude < safetySqr)
-                    return;
+                    return false;
             }
 
             try
             {
-                if (artillery.TryCall(intel.Team, caller.Combatant.Id, new Float3(target.x, target.y, target.z)))
-                    intel.ContactTime -= 6f; // aynı temasa tekrar çağrı yapılmasın
+                return artillery.TryCall(team, caller.Combatant.Id, new Float3(target.x, target.y, target.z));
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, this);
+                return false;
+            }
+        }
+
+        /// <summary>YZ komutan T-129 ATAK desteğini yakın (≤15 sn) bir temas noktasına çağırır.</summary>
+        private void TryCallAttackHeli(TeamIntel intel, Combatant commander, float now)
+        {
+            if (MatchEnded || now - intel.ContactTime > 15f || NextFloat() > 0.5f)
+                return;
+
+            try
+            {
+                Project.Infrastructure.Support.SupportAbilitySystem.TryAiCall(intel.Team, commander, intel.ContactPosition);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, this);
+            }
+        }
+
+        private void TryLaunchRecon(TeamIntel intel, float now)
+        {
+            if (MatchEnded || now - intel.ContactTime > 20f || NextFloat() > 0.15f)
+                return;
+
+            try
+            {
+                if (!Project.Infrastructure.Drone.ReconDroneSystem.IsReady(intel.Team))
+                    return;
+
+                BotController caller = null;
+                for (var i = 0; i < intel.Bots.Count; i++)
+                {
+                    var bot = intel.Bots[i];
+                    if (bot == null || bot.Combatant == null || !bot.Combatant.IsAlive || bot.Combatant.IsDowned || !bot.HasLanded)
+                        continue;
+                    if (bot.Combatant.Role == TeamRole.Radioman) { caller = bot; break; }
+                    if (bot.Combatant.Role == TeamRole.Leader && caller == null) caller = bot;
+                }
+
+                if (caller == null)
+                    return;
+
+                Project.Infrastructure.Drone.ReconDroneSystem.TryLaunch(intel.Team, caller.transform.position, intel.ContactPosition);
             }
             catch (Exception e)
             {
@@ -964,8 +1078,23 @@ namespace Project.Infrastructure.AI
                     _bus.Subscribe(_onWeaponFired);
                     _bus.Subscribe(_onCommandTransferred);
                     _bus.Subscribe(_onSquadOrder);
+                    _bus.Subscribe(_onAirdrop);
                 }
             }
+        }
+
+        /// <summary>İkmal duyurusu/inişi: botlar sandığa yönelir; açıldıktan 90 sn sonra ilgi biter.</summary>
+        private void OnAirdrop(AirdropEvent e)
+        {
+            _airdropPosition = new Vector3(e.Position.X, 0f, e.Position.Z);
+            if (e.Stage == AirdropStage.Opened)
+            {
+                _airdropExpire = Time.time + 90f;
+                return;
+            }
+
+            _airdropActive = true;
+            _airdropExpire = Time.time + e.SecondsToNextStage + 120f;
         }
 
         private void Unsubscribe()
@@ -978,6 +1107,7 @@ namespace Project.Infrastructure.AI
                 _bus.Unsubscribe(_onWeaponFired);
                 _bus.Unsubscribe(_onCommandTransferred);
                 _bus.Unsubscribe(_onSquadOrder);
+                _bus.Unsubscribe(_onAirdrop);
             }
             catch (Exception)
             {

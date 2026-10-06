@@ -84,7 +84,14 @@ Ortam: `Storage__Provider=SqlServer` (veya `Sqlite` / `Memory`).
 | POST | `/matches/{id}/claim` | → `ClaimMatchResponse` (`match`, `serverId`, `endpoint`) |
 | POST | `/matches/{id}/result` | Server key header |
 | GET | `/matchmaking/queue-depth` | İzleme |
-| GET | `/leaderboards` | experience/kills/wins/elo |
+| GET | `/leaderboards?metric=&take=&map=&mode=` | experience/kills/wins/elo + harita/mod süzgeci |
+| GET | `/achievements/me` | Bearer — katalog + ilerleme |
+| POST | `/achievements/sync` | Bearer — istemci ilerleme birleştir + kilidi aç |
+| GET | `/cosmetics/me` | Bearer |
+| POST | `/cosmetics/equip` | Bearer |
+| GET | `/seasons/active`, `/seasons/{n}/archive` | Sezon |
+| GET | `/friends`, POST `/friends/request`, POST `/friends/{id}/accept` | Arkadaşlık |
+| GET | `/anticheat/rules` | HAREKÂT hile eşikleri (JNG-90 / duvar / Kirpi) |
 | GET | `/health` | |
 | GET | `/metrics` | Prometheus |
 | GET | `/news?lang=tr` | Launcher haber akışı |

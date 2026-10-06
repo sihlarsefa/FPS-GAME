@@ -75,10 +75,10 @@ namespace Project.Tests.Match
             Assert.IsTrue(zone.IsActive);
             Assert.AreEqual(ZoneStage.Waiting, zone.Stage);
             Assert.AreEqual(0, zone.PhaseIndex);
-            Assert.AreEqual(150f, zone.StageDurationSeconds, 1e-4f);
-            Assert.AreEqual(150f, zone.StageRemainingSeconds, 1e-4f);
+            Assert.AreEqual(120f, zone.StageDurationSeconds, 1e-4f);
+            Assert.AreEqual(120f, zone.StageRemainingSeconds, 1e-4f);
             Assert.AreEqual(1f, zone.CurrentDamagePerSecond, 1e-6f);
-            Assert.AreEqual(420f, zone.NextZone.Radius, 1e-3f);
+            Assert.AreEqual(400f, zone.NextZone.Radius, 1e-3f);
             AssertInside(zone.NextZone, zone.CurrentZone, "Faz 0 hedefi başlangıç çemberinin içinde");
 
             var events = _bus.Of<ZoneStageChangedEvent>();
@@ -86,7 +86,7 @@ namespace Project.Tests.Match
             Assert.AreEqual(ZoneStage.Waiting, events[0].Stage);
             Assert.AreEqual(0, events[0].PhaseIndex);
             Assert.AreEqual(7, events[0].PhaseCount);
-            Assert.AreEqual(150f, events[0].DurationSeconds, 1e-4f);
+            Assert.AreEqual(120f, events[0].DurationSeconds, 1e-4f);
 
             zone.Start();
             Assert.AreEqual(1, _bus.Of<ZoneStageChangedEvent>().Count, "İkinci Start yok sayılır");

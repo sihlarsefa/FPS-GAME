@@ -71,6 +71,10 @@ namespace Project.Presentation.Bootstrap
                 _menu = BootstrapUtility.Try(() => go.AddComponent<MainMenuController>(), "MainMenuController");
             }
 
+            // Prosedürel menü müziği (null-güvenli; ses = MusicVolume x MasterVolume; mikser Müzik grubunu sürüyorsa yalnız MasterVolume).
+            BootstrapUtility.Try(() => Project.Infrastructure.Audio.Music.MenuMusicDirector.Ensure(GameSession.MusicScriptGain), "MenuMusicDirector");
+
+            BootstrapUtility.Try(() => MenuIntro.PlayOnce(), "MenuIntro");
             BootstrapUtility.ReleaseCursor();
             GameSession.HideLoading();
         }

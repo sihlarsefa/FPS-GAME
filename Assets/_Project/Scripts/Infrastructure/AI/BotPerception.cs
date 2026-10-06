@@ -31,8 +31,11 @@ namespace Project.Infrastructure.AI
         private readonly float[] _candidateSqr = new float[MaxCandidates];
         private readonly System.Random _rng;
 
+        private static readonly RaycastHit[] OcclusionHits = new RaycastHit[4];
+
         private Combatant _self;
         private int _gunfireCursor = -1;
+        private float _nextFootstepHear;
         private float _nextContactReport;
 
         public BotPerception(int seed)
@@ -75,6 +78,23 @@ namespace Project.Infrastructure.AI
         /// <summary>Son taramada görülebilen düşman sayısı (en fazla aday sayısı kadar).</summary>
         public int VisibleEnemyCount { get; private set; }
 
+        /// <summary>Son taramalarda biriken yakın düşman ateşi baskısı (BotController tüketir ve sıfırlar).</summary>
+        public float PendingSuppression { get; private set; }
+
+        /// <summary>Son duyulan sesin kaynağı: 0 yok, 1 silah sesi, 2 ayak sesi.</summary>
+        public int LastHeardKind { get; private set; }
+
+        /// <summary>Biriken baskıyı oku ve sıfırla.</summary>
+        public float ConsumeSuppression()
+        {
+            var v = PendingSuppression;
+            PendingSuppression = 0f;
+            return v;
+        }
+
+        /// <summary>Bot gece görüş gözlüğü taşıyor mu (gece algı cezasını kaldırır).</summary>
+        public bool HasNightVision { get; set; }
+
         public void Bind(Combatant self)
         {
             _self = self;
@@ -98,6 +118,9 @@ namespace Project.Infrastructure.AI
             AllyNeedsHelp = false;
             VisibleEnemyCount = 0;
             _gunfireCursor = -1;
+            PendingSuppression = 0f;
+            LastHeardKind = 0;
+            _nextFootstepHear = 0f;
         }
 
         /// <summary>Araştırma noktasına varıldı: duyulan/son bilinen konum hafızası tüketilir.</summary>
@@ -145,6 +168,7 @@ namespace Project.Infrastructure.AI
                 return;
 
             var viewDistance = profile != null ? Mathf.Max(20f, profile.ViewDistance) : 200f;
+            viewDistance *= Project.Application.Services.NightVisionRules.PerceptionMultiplier(Project.Infrastructure.Rendering.Atmosphere.CurrentTime, HasNightVision);
             var fov = profile != null ? Mathf.Clamp(profile.FieldOfViewDegrees, 30f, 360f) : 120f;
             var cosHalfFov = Mathf.Cos(fov * 0.5f * Mathf.Deg2Rad);
             var alwaysSqr = AlwaysAwareDistance * AlwaysAwareDistance;
@@ -168,7 +192,7 @@ namespace Project.Infrastructure.AI
                 var offset = c.transform.position - eye;
                 var sqr = offset.sqrMagnitude;
 
-                var effective = viewDistance * StanceVisibility(c);
+                var effective = viewDistance * StanceVisibility(c) * ScopeGlintVisibility(c, eye);
                 if (sqr > effective * effective)
                     continue;
 
@@ -309,6 +333,16 @@ namespace Project.Infrastructure.AI
             return !SmokeVolume.BlocksLineOfSight(from, to);
         }
 
+        /// <summary>Dürbünle nişan alan yerel oyuncunun parıltısı (güneş yansıması) algı menzilini en çok %30 artırır; yoksa 1.</summary>
+        private static float ScopeGlintVisibility(Combatant c, Vector3 observerEye)
+        {
+            if (c == null || !c.IsLocalPlayer || Project.Infrastructure.Weapons.Scope.CurrentMagnification <= 1.05f)
+                return 1f;
+            var pos = c.EyePosition;
+            var fwd = c.EyePoint != null ? c.EyePoint.forward : c.transform.forward;
+            return 1f + 0.3f * Mathf.Clamp01(Project.Infrastructure.Weapons.ScopeGlint.IntensityAt(pos, fwd, observerEye));
+        }
+
         private static float StanceVisibility(Combatant c)
         {
             float factor;
@@ -335,7 +369,10 @@ namespace Project.Infrastructure.AI
 
         // ------------------------------------------------------------------ işitme
 
-        /// <summary>Koordinatördeki yeni silah seslerini işler (düşman atışları).</summary>
+        /// <summary>
+        /// Koordinatördeki yeni silah seslerini işler (düşman atışları): menzil = işitme × şiddet × engel çarpanı
+        /// (duvar/arazi başına %35 azalır; atış başına en fazla 2 engel ışını), yakın düşman ateşi baskı biriktirir.
+        /// </summary>
         public void ProcessHearing(BotDirector director, Vector3 position, float hearingDistance, ITeamRelations relations, float now)
         {
             if (director == null || _self == null)
@@ -349,6 +386,9 @@ namespace Project.Infrastructure.AI
             var heard = false;
             var heardPosition = Vector3.zero;
             var heardTime = 0f;
+            var heardBlockers = 0;
+            var occlusionBudget = 2;
+            var inContact = now - LastSeenTime < 3f;
 
             for (var seq = _gunfireCursor; seq < latest; seq++)
             {
@@ -364,30 +404,56 @@ namespace Project.Infrastructure.AI
                 if (!IsEnemyShot(record, relations))
                     continue;
 
-                var range = hearingDistance * record.Loudness;
                 var sqr = (record.Position - position).sqrMagnitude;
-                if (sqr > range * range || sqr >= bestSqr)
+
+                // Temas halinde yakından gelen düşman ateşi baskı (suppression) biriktirir.
+                if (inContact && sqr < 35f * 35f)
+                    PendingSuppression += BotSuppression.NearbyFireAmount(Mathf.Sqrt(sqr));
+
+                var openRange = BotCombatRules.GunfireAudibleRange(hearingDistance, record.Loudness, 0);
+                if (sqr > openRange * openRange || sqr >= bestSqr)
+                    continue;
+
+                // Engel (duvar/arazi) menzili keser; ışın bütçesi bitince 20 m ötesi için tek engel varsay.
+                int blockers;
+                if (occlusionBudget > 0)
+                {
+                    occlusionBudget--;
+                    blockers = CountBlockers(record.Position, position, 2);
+                }
+                else
+                {
+                    blockers = sqr > 20f * 20f ? 1 : 0;
+                }
+
+                var audible = BotCombatRules.GunfireAudibleRange(hearingDistance, record.Loudness, blockers);
+                if (sqr > audible * audible)
                     continue;
 
                 bestSqr = sqr;
                 heard = true;
                 heardPosition = record.Position;
                 heardTime = record.Time;
+                heardBlockers = blockers;
             }
 
             _gunfireCursor = latest;
 
+            if (PendingSuppression > 0.6f)
+                PendingSuppression = 0.6f;
+
             if (!heard)
                 return;
 
-            // Uzaktan duyulan sesin konumu belirsizdir.
+            // Uzaktan/engelli duyulan sesin konumu belirsizdir.
             var distance = Mathf.Sqrt(bestSqr);
-            var error = distance * 0.08f;
+            var error = BotCombatRules.HeardPositionError(distance, heardBlockers);
             heardPosition.x += ((float)_rng.NextDouble() - 0.5f) * 2f * error;
             heardPosition.z += ((float)_rng.NextDouble() - 0.5f) * 2f * error;
 
             LastHeardTime = Mathf.Max(LastHeardTime, heardTime);
             HeardPosition = heardPosition;
+            LastHeardKind = 1;
 
             // Görsel temas yoksa duyulan atış son bilinen düşman konumu olur.
             if (Target == null && now - LastSeenTime > 2f)
@@ -402,6 +468,86 @@ namespace Project.Infrastructure.AI
                 AlertPosition = heardPosition;
                 AlertUntil = now + 1.2f;
             }
+        }
+
+        /// <summary>
+        /// Ayak sesi: görsel temas yokken yakındaki düşmanın adımları (hız/duruşa göre menzil: depar 28, koşu 22, yürüyüş 12,
+        /// çömelik 5, yatan 2 m × işitme profili; engel başına %35 azalır) → araştırma noktası. Tarama başına en fazla 1 engel ışını.
+        /// </summary>
+        public void ProcessFootsteps(Vector3 position, float hearingDistance, ITeamRelations relations, float now)
+        {
+            if (_self == null || Target != null || now < _nextFootstepHear)
+                return;
+
+            _nextFootstepHear = now + 0.45f;
+            var scale = Mathf.Clamp(hearingDistance / 85f, 0.6f, 1.4f);
+            var bestSqr = float.MaxValue;
+            Combatant best = null;
+            var bestRange = 0f;
+
+            var all = CombatantRegistry.All;
+            for (var i = 0; i < all.Count; i++)
+            {
+                var c = all[i];
+                if (c == null || !c.IsAlive || !c.IsTargetable || !IsEnemy(c, relations))
+                    continue;
+
+                var v = c.Velocity;
+                var speed = Mathf.Sqrt(v.x * v.x + v.z * v.z);
+                var range = BotCombatRules.FootstepRange(speed, c.Stance == Stance.Crouching, c.Stance == Stance.Prone) * scale;
+                if (range <= 0f)
+                    continue;
+
+                var offset = c.transform.position - position;
+                var sqr = offset.x * offset.x + offset.z * offset.z;
+                if (sqr > range * range || sqr >= bestSqr)
+                    continue;
+
+                bestSqr = sqr;
+                best = c;
+                bestRange = range;
+            }
+
+            if (best == null)
+                return;
+
+            var distance = Mathf.Sqrt(bestSqr);
+            var blockers = CountBlockers(best.transform.position + Vector3.up * 0.3f, position + Vector3.up * 1.2f, 2);
+            if (distance > bestRange * BotCombatRules.OcclusionFactor(blockers))
+                return;
+
+            var error = BotCombatRules.HeardPositionError(distance, blockers) + 0.8f;
+            var heardPosition = best.transform.position;
+            heardPosition.x += ((float)_rng.NextDouble() - 0.5f) * 2f * error;
+            heardPosition.z += ((float)_rng.NextDouble() - 0.5f) * 2f * error;
+
+            LastHeardTime = Mathf.Max(LastHeardTime, now);
+            HeardPosition = heardPosition;
+            LastHeardKind = 2;
+
+            if (now - LastSeenTime > 2f)
+            {
+                LastKnownEnemyPosition = heardPosition;
+                HasLastKnownEnemyPosition = true;
+            }
+
+            if (distance < 14f && now > AlertUntil)
+            {
+                AlertPosition = heardPosition;
+                AlertUntil = now + 1f;
+            }
+        }
+
+        /// <summary>İki nokta arasındaki katı engel sayısı (üst sınır max). GC'siz.</summary>
+        private static int CountBlockers(Vector3 from, Vector3 to, int max)
+        {
+            var delta = to - from;
+            var length = delta.magnitude;
+            if (length < 1f)
+                return 0;
+
+            var hits = Physics.RaycastNonAlloc(from, delta / length, OcclusionHits, length, GameLayers.LineOfSightMask, QueryTriggerInteraction.Ignore);
+            return Mathf.Min(max, hits);
         }
 
         private bool IsEnemyShot(in BotDirector.GunfireRecord record, ITeamRelations relations)

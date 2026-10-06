@@ -19,22 +19,47 @@ namespace Project.Presentation.Player
         public const float VehicleEnterRadius = 4.5f;
 
         private const float ScanInterval = 0.1f;
-        private const string KeyPrefix = "[F] ";
-        private const string DisembarkPrompt = "[F] Araçtan in";
-        private const string ExitVehiclePrompt = "[F] Araçtan in";
-        private const string EnterVehiclePrompt = "[F] Kirpi'yi kullan";
+        private static string _tag = string.Empty;
+        private static string _reviveHint, _reviveHintTag, _reviveHintName;
+        private static bool _reviveHintMedic;
+        private static string KeyPrefix = "[F] ";
+        private static string DisembarkPrompt = "[F] Araçtan in";
+        private static string ExitVehiclePrompt = "[F] Araçtan in";
+        private static string EnterVehiclePrompt = "[F] Kirpi'yi kullan";
         private const int MaxCountdownSeconds = 9;
 
         private static readonly Func<LootPickupComponent, bool> PickableFilter = IsPickable;
 
         /// <summary>"[F] Araçtan in (n)" — otomatik iniş geri sayımı; kare başına string üretmemek için önceden kurulur.</summary>
-        private static readonly string[] DisembarkCountdownPrompts = BuildCountdownPrompts();
+        private static string[] DisembarkCountdownPrompts = BuildCountdownPrompts();
+
+        /// <summary>Etkileşim tuşu değiştiyse istem metinlerini güncel atamayla yeniden kurar.</summary>
+        private static void RefreshTag()
+        {
+            var tag = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Interact);
+            if (tag == _tag)
+                return;
+            _tag = tag;
+            KeyPrefix = tag + " ";
+            DisembarkPrompt = tag + " Araçtan in";
+            ExitVehiclePrompt = DisembarkPrompt;
+            EnterVehiclePrompt = tag + " Kirpi'yi kullan";
+            EnterHeliPrompt = tag + " T-70'e bin";
+            DisembarkCountdownPrompts = BuildCountdownPrompts();
+        }
 
         private readonly PlayerController _owner;
 
         private float _nextScan;
         private LootPickupComponent _lootTarget;
         private DrivableVehicle _vehicleTarget;
+        private Project.Infrastructure.Transport.FlyableHelicopter _heliTarget;
+        private static string EnterHeliPrompt = "[F] T-70'e bin";
+
+        private Infrastructure.World.WoodenDoor _doorTarget, _doorPress, _doorPeek;
+        private float _doorPressAt;
+        private const float DoorReach = 2.4f;
+        private const float DoorPeekHoldSeconds = 0.3f;
 
         private LootPickupComponent _promptLoot;
         private string _promptLootText;
@@ -53,6 +78,7 @@ namespace Project.Presentation.Player
 
         public void Tick(CombatInputState input, float dt)
         {
+            RefreshTag();
             if (_owner.IsInTransport)
             {
                 _lootTarget = null;
@@ -69,16 +95,26 @@ namespace Project.Presentation.Player
             {
                 _lootTarget = null;
                 _vehicleTarget = null;
+                _heliTarget = null;
                 _prompt = ExitVehiclePrompt;
                 if (input.Interact)
                     _owner.ExitVehicle();
                 return;
             }
 
+            if (TickRevive())
+                return;
+
             if (input.Interact || Time.time >= _nextScan)
             {
                 _nextScan = Time.time + ScanInterval;
                 Scan();
+            }
+
+            if (TickDoor(input))
+            {
+                RefreshPrompt();
+                return;
             }
 
             if (input.Interact)
@@ -87,10 +123,185 @@ namespace Project.Presentation.Player
             RefreshPrompt();
         }
 
-        public void Clear()
+        /// <summary>F kısa basış kapıyı açar/kapatır; basılı tutma (0,3 sn) aralık bakışı (peek), bırakınca kapanır.</summary>
+        private bool TickDoor(CombatInputState input)
         {
+            var held = _owner.GameplayInputActive && Infrastructure.Input.InputBindings.Held(BindAction.Interact);
+            var pos = _owner.transform.position;
+            try
+            {
+                if (_doorPeek != null)
+                {
+                    if (!held || !_doorPeek.IsIntact)
+                    {
+                        _doorPeek.EndPeek();
+                        _doorPeek = null;
+                    }
+
+                    return true;
+                }
+
+                if (_doorPress != null)
+                {
+                    var door = _doorPress;
+                    if (!held)
+                    {
+                        _doorPress = null;
+                        door.Toggle(pos);
+                    }
+                    else if (Time.time - _doorPressAt >= DoorPeekHoldSeconds)
+                    {
+                        _doorPress = null;
+                        if (door.BeginPeek(pos))
+                            _doorPeek = door;
+                    }
+
+                    return true;
+                }
+
+                if (input.Interact && _doorTarget != null && _lootTarget == null && _vehicleTarget == null && _heliTarget == null)
+                {
+                    _doorPress = _doorTarget;
+                    _doorPressAt = Time.time;
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                _doorPress = null;
+                _doorPeek = null;
+            }
+
+            return false;
+        }
+
+        private void ScanDoor()
+        {
+            _doorTarget = null;
+            if (_lootTarget != null || _vehicleTarget != null || _heliTarget != null)
+                return;
+            if (Physics.Raycast(_owner.AimOrigin, _owner.AimForward, out var hit, DoorReach, Project.Infrastructure.GameLayers.LineOfSightMask, QueryTriggerInteraction.Ignore))
+            {
+                var door = Infrastructure.World.WoodenDoor.FindOn(hit.collider);
+                if (door != null && door.IsIntact)
+                    _doorTarget = door;
+            }
+        }
+
+        private Infrastructure.Combat.Combatant _revivee;
+
+        /// <summary>Yakındaki yaralı müttefiki F basılı tutarak kaldırma. True ise bu kare başka etkileşim yapılmaz.</summary>
+        private bool TickRevive()
+        {
+            var me = _owner.Combatant;
+            if (me == null || !me.IsAlive || me.IsDowned)
+            {
+                StopRevive();
+                return false;
+            }
+
+            if (_revivee != null && (!_revivee.IsAlive || !_revivee.IsDowned))
+                StopRevive();
+
+            var target = _revivee;
+            if (target == null && Time.time >= _nextReviveScan)
+            {
+                _nextReviveScan = Time.time + 0.15f;
+                target = FindDownedAlly(me);
+            }
+            else if (target != null && !InRange(me, target))
+            {
+                StopRevive();
+                target = null;
+            }
+
+            if (target == null)
+                return false;
+
+            // Oyun girdisi kapalıyken (harita/envanter/konsol/çark) F basılı tutma kurtarmayı sürdürmez.
+            var held = _owner.GameplayInputActive && Infrastructure.Input.InputBindings.Held(BindAction.Interact);
+            if (held)
+            {
+                var service = Infrastructure.Combat.ReviveRuntime.Service;
+                if (service.BeginRevive(me.Id, me.Role, target.Id))
+                {
+                    _revivee = target;
+                    _prompt = ReviveText.Reviving(target.DisplayName, service.ReviveProgress(target.Id));
+                    return true;
+                }
+
+                _prompt = string.Empty;
+                return false;
+            }
+
+            StopRevive();
+            RefreshTag();
+            var medicRole = me.Role == TeamRole.Medic;
+            if (_reviveHintTag != _tag || _reviveHintName != target.DisplayName || _reviveHintMedic != medicRole || _reviveHint == null)
+            {
+                _reviveHintTag = _tag;
+                _reviveHintName = target.DisplayName;
+                _reviveHintMedic = medicRole;
+                _reviveHint = ReviveText.ReviveHint(_reviveHintName, medicRole, _tag);
+            }
+            _prompt = _reviveHint;
             _lootTarget = null;
             _vehicleTarget = null;
+            _promptLoot = null;
+            _promptLootText = null;
+            return true;
+        }
+
+        private float _nextReviveScan;
+
+        private static bool InRange(Infrastructure.Combat.Combatant a, Infrastructure.Combat.Combatant b)
+        {
+            var d = a.transform.position - b.transform.position;
+            d.y = 0f;
+            return d.sqrMagnitude <= ReviveService.ReviveRange * ReviveService.ReviveRange;
+        }
+
+        private static Infrastructure.Combat.Combatant FindDownedAlly(Infrastructure.Combat.Combatant me)
+        {
+            Infrastructure.Combat.Combatant best = null;
+            var bestSqr = ReviveService.ReviveRange * ReviveService.ReviveRange;
+            var all = Infrastructure.Combat.CombatantRegistry.All;
+            for (var i = 0; i < all.Count; i++)
+            {
+                var c = all[i];
+                if (c == null || c == me || c.Team != me.Team || !c.IsAlive || !c.IsDowned)
+                    continue;
+
+                var d = c.transform.position - me.transform.position;
+                d.y = 0f;
+                if (d.sqrMagnitude < bestSqr)
+                {
+                    bestSqr = d.sqrMagnitude;
+                    best = c;
+                }
+            }
+
+            return best;
+        }
+
+        private void StopRevive()
+        {
+            if (_revivee != null && _owner.Combatant != null)
+                Infrastructure.Combat.ReviveRuntime.Service.CancelRevive(_owner.Combatant.Id);
+
+            _revivee = null;
+        }
+
+        public void Clear()
+        {
+            StopRevive();
+            _lootTarget = null;
+            _vehicleTarget = null;
+            _heliTarget = null;
+            if (_doorPeek != null)
+                _doorPeek.EndPeek();
+            _doorTarget = _doorPress = _doorPeek = null;
             _promptLoot = null;
             _promptLootText = null;
             _prompt = string.Empty;
@@ -100,6 +311,8 @@ namespace Project.Presentation.Player
         {
             _lootTarget = null;
             _vehicleTarget = null;
+            _heliTarget = null;
+            _doorTarget = null;
 
             var combatant = _owner.Combatant;
             if (combatant == null || !combatant.IsAlive)
@@ -122,6 +335,18 @@ namespace Project.Presentation.Player
                 var vehicle = VehicleRegistry.FindNearest(_owner.transform.position, VehicleEnterRadius);
                 if (vehicle != null && !vehicle.HasDriver && vehicle.Health > 0f)
                     _vehicleTarget = vehicle;
+
+                var heli = Project.Infrastructure.Transport.FlyableHelicopter.FindNearest(_owner.transform.position,
+                    Project.Infrastructure.Transport.FlyableHelicopter.EnterRadius);
+                if (heli != null && (_vehicleTarget == null
+                        || (heli.transform.position - _owner.transform.position).sqrMagnitude
+                        < (_vehicleTarget.transform.position - _owner.transform.position).sqrMagnitude))
+                {
+                    _heliTarget = heli;
+                    _vehicleTarget = null;
+                }
+
+                ScanDoor();
             }
             catch (Exception e)
             {
@@ -140,6 +365,15 @@ namespace Project.Presentation.Player
             if (_lootTarget != null && _lootTarget.IsAvailable)
             {
                 PickUp(_lootTarget);
+                return;
+            }
+
+            if (_heliTarget != null)
+            {
+                if (!_owner.TryEnterHeli(_heliTarget))
+                    _owner.Notify("T-70'e binilemiyor", 1.5f);
+
+                _heliTarget = null;
                 return;
             }
 
@@ -170,7 +404,7 @@ namespace Project.Presentation.Player
 
             if (result.Accepted)
             {
-                PlayerController.PlaySound2D(SoundId.Pickup, 0.6f);
+                // Alma sesini LootPickupComponent.PickupBy zaten çalıyor (yerel oyuncu için 2D).
                 if (!result.FullyTaken)
                     _owner.Notify("Envanterde yer kalmadı (bir kısmı alındı)", 1.8f);
             }
@@ -201,7 +435,9 @@ namespace Project.Presentation.Player
 
             _promptLoot = null;
             _promptLootText = null;
-            _prompt = _vehicleTarget != null ? EnterVehiclePrompt : string.Empty;
+            _prompt = _heliTarget != null ? EnterHeliPrompt : (_vehicleTarget != null ? EnterVehiclePrompt : string.Empty);
+            if (_prompt.Length == 0 && _doorTarget != null)
+                _prompt = KeyPrefix + (_doorTarget.State == Infrastructure.World.DoorState.Open ? "Kapıyı kapat" : "Kapıyı aç (basılı tut: aralık)");
         }
 
         /// <summary>Eşya istemi: LootPickupComponent metni zaten "[F] ... al" biçimindedir; değilse tuş ön eki eklenir.</summary>
@@ -210,6 +446,8 @@ namespace Project.Presentation.Player
             if (string.IsNullOrEmpty(text))
                 return KeyPrefix + "Al";
 
+            if (text.StartsWith("[F]", StringComparison.Ordinal))
+                return _tag == "[F]" ? text : _tag + text.Substring(3);
             return text.StartsWith("[", StringComparison.Ordinal) ? text : KeyPrefix + text;
         }
 

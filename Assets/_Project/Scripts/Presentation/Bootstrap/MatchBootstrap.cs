@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Project.Presentation.DevTools;
 using Project.Application.Catalogs;
 using Project.Application.Services;
 using Project.Core.Domain;
@@ -17,6 +18,7 @@ using Project.Infrastructure.Vehicles;
 using Project.Infrastructure.World;
 using Project.Infrastructure.Zone;
 using Project.Presentation.Player;
+using Project.Presentation.Spectator;
 using Project.Presentation.UI;
 using Project.Presentation.World;
 using UnityEngine;
@@ -102,6 +104,7 @@ namespace Project.Presentation.Bootstrap
 
         private ServiceContainer _container;
         private MatchConfig _config;
+        private AchievementTracker _achievementTracker;
         private IEventBus _eventBus;
         private MatchService _match;
         private ZoneService _zone;
@@ -130,6 +133,7 @@ namespace Project.Presentation.Bootstrap
         private bool _dropComplete;
         private float _insertionStartedAt;
         private float _endScreenAt = -1f;
+        private SpectatorController _spectator;
         private bool _resultRecorded;
         private bool _disposed;
         private bool _server;
@@ -157,12 +161,33 @@ namespace Project.Presentation.Bootstrap
         private void Awake()
         {
             GameSession.EnsureInitialized();
+            if (Project.Presentation.Replay.ReplayViewer.TryHandleStart(gameObject)) { enabled = false; return; } // Tekrar izleyici modu
+
+            // Çatışma modu aynı sahneyi kullanır: kurulum SkirmishBootstrap'a devredilir.
+            if (GameSession.Mode == GameMode.Skirmish && !ServerRuntime.IsDedicatedServer)
+            {
+                enabled = false;
+                if (GetComponent<SkirmishBootstrap>() == null)
+                    gameObject.AddComponent<SkirmishBootstrap>();
+                return;
+            }
+
+            // Rehine Kurtarma: aynı sahne, kurulum HostageBootstrap'ta.
+            if (GameSession.Mode == GameMode.HostageRescue && !ServerRuntime.IsDedicatedServer)
+            {
+                enabled = false;
+                if (GetComponent<HostageBootstrap>() == null)
+                    gameObject.AddComponent<HostageBootstrap>();
+                return;
+            }
+
             GameSession.Mode = GameMode.BattleRoyale;
             _server = ServerRuntime.IsDedicatedServer;
             BootstrapUtility.PrepareScene();
 
             _settings = GameSession.Settings;
             _config = GameSession.AcquireMatchConfig();
+            GameSession.AlignConfigToMap(_config, SceneNames.MapIdForScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name));
             if (teamCountOverride >= 2)
                 _config.WithTeams(teamCountOverride, _config.TeamSize);
 
@@ -185,16 +210,27 @@ namespace Project.Presentation.Bootstrap
 
             var sceneCameras = Camera.allCameras;
             _runtimeRoot = new GameObject("[Harekât]").transform;
+            if (!_server) LoadingScreen.SetContext(_config.MapName, GameMode.BattleRoyale, _config.TeamCount, _config.TeamSize);
+            ReportLoad(LoadPhase.WorldGen, 0f);
 
             // Her adım ayrı korunur: bir modülün hatası diğer adımları durdurmaz.
             BootstrapUtility.Try(SetupWorld, "Dünya kurulumu");
+            ReportLoad(LoadPhase.WorldGen, 1f);
             BootstrapUtility.Try(SetupCombatSystems, "Çatışma sistemleri");
+            ReportLoad(LoadPhase.WorldContent, 0f);
             BootstrapUtility.Try(SpawnWorldContent, "Ganimet ve araçlar");
+            ReportLoad(LoadPhase.WorldContent, 1f);
             var plans = BootstrapUtility.Try(PlanInsertion, "İntikal planı") ?? FallbackPlans(null);
+            ReportLoad(LoadPhase.BotSpawn, 0f);
             BootstrapUtility.Try(() => SpawnTeams(plans), "Timlerin oluşturulması");
+            BootstrapUtility.Try(() => SetupMatchFlow(plans), "Maç akışı (çıpa, başlangıç kiti, ikmal)");
+            ReportLoad(LoadPhase.Finalize, 0f);
             BootstrapUtility.Try(() => SetupPresentation(sceneCameras), "Arayüz");
+            BootstrapUtility.Try(() => Project.Infrastructure.Rendering.Atmosphere.Apply(_config, _server), "Atmosfer");
+            BootstrapUtility.Try(() => Project.Infrastructure.Rendering.WeatherSystem.Attach(_config, _server), "Dinamik hava");
             BootstrapUtility.Try(SetupLoop, "Simülasyon döngüsü");
             BootstrapUtility.Try(SubscribeEvents, "Olay abonelikleri");
+            if (!_server) BootstrapUtility.Try(() => Project.Infrastructure.Replay.ReplayRecorder.Attach(gameObject, _config.MapName, _config.RandomSeed, worldSeed, LocalPlayerId.Value), "Tekrar kaydı");
 
             _setupComplete = true;
             _flow = FlowState.Running;
@@ -207,6 +243,9 @@ namespace Project.Presentation.Bootstrap
 
             if (_match != null)
                 BootstrapUtility.Try(_match.Begin, "MatchService.Begin");
+
+            BootstrapUtility.Try(() => DevConsole.Ensure(), "DevConsole.Ensure");
+            GameSession.RaiseMatchStarting(_config);
 
             GameSession.HideLoading();
         }
@@ -222,6 +261,7 @@ namespace Project.Presentation.Bootstrap
 
         private void OnDestroy()
         {
+            _achievementTracker?.Dispose();
             Teardown();
         }
 
@@ -235,6 +275,8 @@ namespace Project.Presentation.Bootstrap
         private void ResolveServices()
         {
             _container.TryResolve(out _eventBus);
+            _achievementTracker?.Dispose();
+            _achievementTracker = AchievementTracker.Create(_eventBus, LocalPlayerId, LocalTeam);
             _container.TryResolve(out _match);
             _container.TryResolve(out _zone);
             _container.TryResolve(out _combat);
@@ -248,6 +290,12 @@ namespace Project.Presentation.Bootstrap
                 _killFeed.LocalTeamOverride = LocalTeam;
         }
 
+        private void ReportLoad(LoadPhase phase, float fraction)
+        {
+            if (!_server)
+                LoadingScreen.Report(phase, fraction);
+        }
+
         private void SetupWorld()
         {
             _world = WorldMetadata.Instance != null ? WorldMetadata.Instance : FindAnyObjectByType<WorldMetadata>();
@@ -259,6 +307,7 @@ namespace Project.Presentation.Bootstrap
                 var options = new WorldGenerationOptions
                 {
                     Parent = parent,
+                    MapId = _config != null ? _config.MapName : null,
                     BakeNavMesh = true,
                     GenerateMinimap = !_server,   // sunucuda harita dokusu gereksiz
                     MinimapSize = 1024
@@ -282,6 +331,60 @@ namespace Project.Presentation.Bootstrap
             }
 
             BootstrapUtility.EnsureSun();
+        }
+
+        private Action<Project.Core.Events.AirdropEvent> _airdropOpenHandler;
+        private Action<ZoneStageChangedEvent> _tipZoneHandler;
+        private Action<DownedEvent> _tipDownedHandler;
+
+        /// <summary>Maç içi bağlamsal ipuçları (yağma/nişan/araç kendi içinde; bölge ve yaralı tim arkadaşı olayları buradan).</summary>
+        private void SetupTutorialTips()
+        {
+            if (_runtimeRoot == null || _player == null)
+                return;
+            var tips = BootstrapUtility.Try(() => Project.Presentation.Tutorial.TutorialTipView.Begin(_runtimeRoot, _eventBus, _player, GameSession.Store), "TutorialTipView.Begin");
+            if (tips == null || _eventBus == null)
+                return;
+            _tipZoneHandler = e =>
+            {
+                if (e.Stage == ZoneStage.Shrinking)
+                    Project.Presentation.Tutorial.TutorialTipView.Notify(Project.Presentation.Tutorial.TutorialTipId.FirstZoneWarning);
+            };
+            _tipDownedHandler = e =>
+            {
+                if (e.Team == LocalTeam && !e.VictimId.Equals(LocalPlayerId))
+                    Project.Presentation.Tutorial.TutorialTipView.Notify(Project.Presentation.Tutorial.TutorialTipId.FirstDownedTeammate);
+            };
+            _eventBus.Subscribe(_tipZoneHandler);
+            _eventBus.Subscribe(_tipDownedHandler);
+        }
+
+        /// <summary>Bölge çıpaları (adlandırılmış konumlar), tim başlangıç kitleri, ikmal sandığı açılış yağması, ikmal düşürme saati.</summary>
+        private void SetupMatchFlow(TeamInsertion[] plans)
+        {
+            if (_zone != null && _world != null && _world.Locations != null && _world.Locations.Count > 0)
+            {
+                var anchors = new List<ZoneAnchor>(_world.Locations.Count);
+                foreach (var loc in _world.Locations)
+                    if (loc != null)
+                        anchors.Add(new ZoneAnchor(loc.Center.x, loc.Center.y, loc.IsMajor ? 2f : 1f));
+                BootstrapUtility.Try(() => _zone.SetAnchors(anchors), "ZoneService.SetAnchors");
+            }
+
+            IRandom random = null;
+            _container?.TryResolve(out random);
+            ILootSpawnService lootService = _lootSpawn;
+            if (plans != null)
+            {
+                foreach (var plan in plans)
+                {
+                    var landing = ToVector3(plan.LandingZone);
+                    BootstrapUtility.Try(() => { MatchFlowLoot.SpawnTeamStartKits(landing, Mathf.Max(1, _config.TeamSize), lootService, random); }, "MatchFlowLoot.SpawnTeamStartKits");
+                }
+            }
+
+            if (_eventBus != null)
+                _airdropOpenHandler = BootstrapUtility.Try(() => MatchFlowLoot.BindAirdropOpen(_eventBus, lootService, random), "MatchFlowLoot.BindAirdropOpen");
         }
 
         private void SetupCombatSystems()
@@ -321,12 +424,14 @@ namespace Project.Presentation.Bootstrap
         private void SpawnVehicles()
         {
             var spawns = _world.VehicleSpawns;
+            BootstrapUtility.Try(() => SpawnFlyableHelicopters(spawns), "SpawnFlyableHelicopters");
             if (vehicleCount <= 0 || spawns == null || spawns.Count == 0)
                 return;
 
             var order = new List<int>(spawns.Count);
             for (var i = 0; i < spawns.Count; i++)
-                order.Add(i);
+                if (!spawns[i].IsAir)
+                    order.Add(i);
 
             var random = new SeededRandom(GameCompositionRoot.DeriveSeed(_config.RandomSeed, 0x0EE1));
             for (var i = order.Count - 1; i > 0; i--)
@@ -339,7 +444,35 @@ namespace Project.Presentation.Bootstrap
             for (var i = 0; i < count; i++)
             {
                 var data = spawns[order[i]];
-                BootstrapUtility.Try(() => DrivableVehicle.Spawn(data.Position, data.Yaw), "DrivableVehicle.Spawn");
+                var kind = VehicleConfig.PickForLocation(data.Position, _config.RandomSeed);
+                BootstrapUtility.Try(() => DrivableVehicle.Spawn(data.Position, data.Yaw, VehicleConfig.For(kind)), "DrivableVehicle.Spawn");
+            }
+        }
+
+        /// <summary>İleri Üs helipadlerindeki IsAir noktalarından en fazla 2 uçurulabilir T-70 üretir (seed'e bağlı seçim).</summary>
+        private void SpawnFlyableHelicopters(IReadOnlyList<VehicleSpawnData> spawns)
+        {
+            if (spawns == null)
+                return;
+            var pads = new List<VehicleSpawnData>(4);
+            for (var i = 0; i < spawns.Count; i++)
+                if (spawns[i].IsAir)
+                    pads.Add(spawns[i]);
+            if (pads.Count == 0)
+                return;
+
+            var random = new SeededRandom(GameCompositionRoot.DeriveSeed(_config.RandomSeed, 0x7A70));
+            for (var i = pads.Count - 1; i > 0; i--)
+            {
+                var j = random.Next(0, i + 1);
+                (pads[i], pads[j]) = (pads[j], pads[i]);
+            }
+
+            var count = Mathf.Min(2, pads.Count);
+            for (var i = 0; i < count; i++)
+            {
+                var data = pads[i];
+                BootstrapUtility.Try(() => Project.Infrastructure.Transport.FlyableHelicopter.Spawn(data.Position, data.Yaw), "FlyableHelicopter.Spawn");
             }
         }
 
@@ -474,6 +607,7 @@ namespace Project.Presentation.Bootstrap
                     var bot = SpawnBot(setup, slot, name);
                     if (slot == 0 && bot != null)
                         setup.Leader = bot.Combatant;
+                    ReportLoad(LoadPhase.BotSpawn, nameIndex / (float)(teamCount * teamSize));
                 }
             }
 
@@ -496,6 +630,8 @@ namespace Project.Presentation.Bootstrap
                 GroundYaw = setup.Plan.HeadingDegrees,
                 Settings = settings
             };
+            try { args.Loadout = Project.Presentation.UI.LoadoutSelection.Shared.BuildMatchLoadout(); }
+            catch (Exception e) { Debug.LogWarning("[MatchBootstrap] Donanım seçimi okunamadı, rol kiti kullanılıyor: " + e.Message); }
 
             _player = BootstrapUtility.Try(() => PlayerController.Create(args), "PlayerController.Create");
             if (_player == null)
@@ -540,6 +676,7 @@ namespace Project.Presentation.Bootstrap
 
             _bots.Add(bot);
             EnsureRegistered(bot.Combatant, false);
+            Project.Infrastructure.Characters.WearDriver.Attach(bot.gameObject, bot.Combatant, bot.Model); // savaş yıpranması
             return bot;
         }
 
@@ -590,6 +727,9 @@ namespace Project.Presentation.Bootstrap
                 return;
 
             _ui = GameplayUiController.Create(_runtimeRoot, _player, _settings, GameSession.ReturnToMainMenu);
+            BootstrapUtility.InstallGrass(_world, _settings != null ? _settings.Current.QualityLevel : 2);
+            BootstrapUtility.Try(() => Project.Infrastructure.World.AmbientLife.Install(Camera.main, _world, _settings != null ? _settings.Current.QualityLevel : 2), "AmbientLife.Install");
+            SetupTutorialTips();
 
             if (_zone != null)
                 _zoneWall = BootstrapUtility.Try(() => ZoneWallView.Create(_zone, _world, _runtimeRoot), "ZoneWallView.Create");
@@ -663,6 +803,9 @@ namespace Project.Presentation.Bootstrap
                 Debug.Log("[Sunucu] İntikal başladı.");
             else
                 BootstrapUtility.Try(() => GameAudio.Play2D(SoundId.RadioChatter, 0.6f), "GameAudio.Play2D");
+
+            if (!_server)
+                BootstrapUtility.Try(() => MatchIntro.Play(_config.MapName, null, v => { if (_ui != null) _ui.SetHudVisible(v); }), "MatchIntro.Play");
         }
 
         private void OnTransportArrived(TeamSetup setup)
@@ -759,9 +902,25 @@ namespace Project.Presentation.Bootstrap
 
             _flow = FlowState.LocalDead;
             _endScreenAt = Time.time + deathScreenDelaySeconds;
+            BootstrapUtility.Try(() => GameAudio.Play2D(SoundId.Death, 0.8f), "GameAudio.Play2D");
+
+            // Killcam -> izleyici; maç sonu ekranı maç bitince ya da oyuncu isteyince açılır.
+            if (_playerCombatant != null && !_server)
+            {
+                _spectator = BootstrapUtility.Try(
+                    () => SpectatorController.Begin(_playerCombatant, OnMainMenuRequested, ShowEndScreen),
+                    "SpectatorController.Begin");
+                if (_spectator != null)
+                {
+                    _endScreenAt = -1f;
+                    if (_ui != null)
+                        _ui.SetEndScreenActive(true); // HUD'u kapatır, imleci serbest bırakır
+                    return;
+                }
+            }
+
             if (_ui != null)
                 _ui.ShowMessage("ŞEHİT DÜŞTÜN", deathScreenDelaySeconds);
-            BootstrapUtility.Try(() => GameAudio.Play2D(SoundId.Death, 0.8f), "GameAudio.Play2D");
         }
 
         private void OnMatchEnded(MatchEndedEvent e)
@@ -783,7 +942,7 @@ namespace Project.Presentation.Bootstrap
             {
                 // Ölüm ekranı sayacı sürüyorsa onu uzatma.
                 var remaining = _endScreenAt - Time.time;
-                delay = remaining > 0f ? Mathf.Min(remaining, victoryScreenDelaySeconds) : 0f;
+                delay = _spectator != null ? 2f : (remaining > 0f ? Mathf.Min(remaining, victoryScreenDelaySeconds) : 0f);
             }
 
             _endScreenAt = Time.time + delay;
@@ -825,12 +984,19 @@ namespace Project.Presentation.Bootstrap
                 return;
 
             _flow = FlowState.EndScreen;
+            if (_spectator != null)
+            {
+                _spectator.Stop();
+                _spectator = null;
+            }
 
             var result = BuildResult();
             if (!_resultRecorded)
             {
                 _resultRecorded = true;
                 GameSession.RecordResult(result);
+                GameSession.RaiseMatchFinished(result);
+                GameSession.RecordCareerMatch(result, _stats != null ? _stats.GetWeaponStats(LocalPlayerId) : null, _config.MapName);
             }
 
             if (_ui != null)
@@ -876,6 +1042,7 @@ namespace Project.Presentation.Bootstrap
         {
             _flow = FlowState.Ended;
             var quit = ServerRuntime.RegisterMatchFinished();
+            PublishServerSummary(timedOut);
 
             var elapsed = _match != null ? _match.MatchElapsedSeconds : 0f;
             var winner = winnerTeam >= 0 ? SafeTeamName(winnerTeam) : "yok";
@@ -896,6 +1063,29 @@ namespace Project.Presentation.Bootstrap
             else
             {
                 Debug.Log("[Sunucu] Otomatik yeniden başlatma kapalı (-norestart) — boşta bekleniyor.");
+            }
+        }
+
+        private void PublishServerSummary(bool timedOut)
+        {
+            try
+            {
+                if (_stats == null)
+                    return;
+
+                var ids = new System.Collections.Generic.List<PlayerId>();
+                var all = Project.Infrastructure.Combat.CombatantRegistry.All;
+                for (var i = 0; i < all.Count; i++)
+                {
+                    if (all[i] != null && all[i].Id.IsValid)
+                        ids.Add(all[i].Id);
+                }
+
+                GameSession.RaiseMatchSummary(_stats.BuildSummary(ids, timedOut));
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e, this);
             }
         }
 
@@ -964,6 +1154,12 @@ namespace Project.Presentation.Bootstrap
                     _eventBus.Unsubscribe(_onPhaseChanged);
                 if (_onMatchEnded != null)
                     _eventBus.Unsubscribe(_onMatchEnded);
+                if (_airdropOpenHandler != null)
+                    _eventBus.Unsubscribe(_airdropOpenHandler);
+                if (_tipZoneHandler != null)
+                    _eventBus.Unsubscribe(_tipZoneHandler);
+                if (_tipDownedHandler != null)
+                    _eventBus.Unsubscribe(_tipDownedHandler);
             }
 
             if (_settings != null && _onSettingsChanged != null)

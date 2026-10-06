@@ -129,6 +129,8 @@ namespace Project.Presentation.DevTools
 
             if (keyboard.escapeKey.wasPressedThisFrame)
             {
+                // Esc yalnızca konsolu kapatır; aynı karede duraklatma menüsü açılmaz.
+                UI.OverlayState.ConsumeEscape();
                 SetOpen(false);
                 return;
             }
@@ -272,6 +274,7 @@ namespace Project.Presentation.DevTools
         private void SetOpen(bool open, bool restoreCursor = true)
         {
             _open = open;
+            UI.OverlayState.ConsoleOpen = open;
             if (_group != null)
             {
                 _group.alpha = open ? 1f : 0f;
@@ -316,7 +319,7 @@ namespace Project.Presentation.DevTools
                 }
 
                 // HUD/oyun imleci: yalnızca menü açık değilse kilitle.
-                if (restoreCursor && Time.timeScale > 0f)
+                if (restoreCursor && Time.timeScale > 0f && !UI.MapOverlayInput.IsAnyOpen)
                 {
                     Cursor.lockState = CursorLockMode.Locked;
                     Cursor.visible = false;

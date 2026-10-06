@@ -248,8 +248,9 @@ namespace Project.Presentation.UI
             }
 
             var mesh = ctx.Own(b.ToMesh("HK_MenuGround"));
-            MeshObject("Zemin", ctx.Root, mesh, new[] { Mat(MaterialId.DryGrass), Mat(MaterialId.Rock) }, Vector3.zero, Quaternion.identity,
-                Vector3.one, ShadowCastingMode.Off);
+            MeshObject("Zemin", ctx.Root, mesh, new[] { GroundMat(MaterialId.DryGrass, new Color(0.45f, 0.4f, 0.24f)), GroundMat(MaterialId.Rock, new Color(0.4f, 0.38f, 0.35f)) },
+                Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.Off);
+            BuildCampGround(ctx);
 
             // Ateş çevresinde ezilmiş toprak ve platoda patika lekeleri.
             var dirt = new[] { Mat(MaterialId.Dirt) };
@@ -257,6 +258,73 @@ namespace Project.Presentation.UI
                 new Vector3(1.15f, 1f, 1f), ShadowCastingMode.Off);
             MeshObject("Patika", ctx.Root, MeshFactory.Disc(1.8f, 16), dirt, new Vector3(5.6f, 0.01f, 0.4f), Quaternion.Euler(0f, 30f, 0f),
                 new Vector3(2.2f, 1f, 1f), ShadowCastingMode.Off);
+        }
+
+        /// <summary>Malzeme alınamazsa görünür düz renkli yedek (zemin asla görünmez kalmasın).</summary>
+        private static Material GroundMat(MaterialId id, Color fallback)
+        {
+            var m = Mat(id);
+            return m != null ? m : SafeLit(fallback, 0.08f, 0f);
+        }
+
+        /// <summary>
+        /// Plato üstünde, arazi ağından bağımsız, düzensiz kenarlı kamp zemini: dış kuru çimen, içte ezilmiş toprak, ateş çevresinde
+        /// kül kararması. Askerlerin ve araçların ayağını görünür bir zemine oturtur (havada süzülme algısını bitirir).
+        /// </summary>
+        public static void BuildCampGround(Context ctx)
+        {
+            const int segments = 40;
+            const float lift = 0.02f;
+            var b = new MeshBuilder(3);
+            AddPatch(ctx, b, 0, PlateauCenter, 15.2f, 11.2f, 4, segments, lift, 0.09f);
+            AddPatch(ctx, b, 1, new Vector3(3.6f, 0f, 3.2f), 8.6f, 6.4f, 3, segments, lift + 0.012f, 0.14f);
+            AddPatch(ctx, b, 2, CampfirePosition, 2.4f, 2.1f, 2, 24, lift + 0.024f, 0.1f);
+
+            var mesh = ctx.Own(b.ToMesh("HK_MenuCampGround"));
+            MeshObject("KampZemini", ctx.Root, mesh, new[]
+            {
+                GroundMat(MaterialId.DryGrass, new Color(0.47f, 0.42f, 0.25f)),
+                GroundMat(MaterialId.Dirt, new Color(0.4f, 0.32f, 0.23f)),
+                GroundMat(MaterialId.Mud, new Color(0.2f, 0.16f, 0.12f))
+            }, Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.Off);
+        }
+
+        private static void AddPatch(Context ctx, MeshBuilder b, int submesh, Vector3 center, float radiusX, float radiusZ, int rings, int segments,
+            float y, float jitter)
+        {
+            var radial = new float[segments];
+            for (var i = 0; i < segments; i++)
+                radial[i] = 1f + ctx.Range(-jitter, jitter);
+
+            Vector3 P(int ring, int seg)
+            {
+                if (ring <= 0)
+                    return new Vector3(center.x, y, center.z);
+                var a = (seg % segments) / (float)segments * Mathf.PI * 2f;
+                var k = ring / (float)rings * radial[seg % segments];
+                var x = center.x + Mathf.Sin(a) * radiusX * k;
+                var z = center.z + Mathf.Cos(a) * radiusZ * k;
+                return new Vector3(x, y + GroundHeight(x, z), z);
+            }
+
+            for (var r = 0; r < rings; r++)
+            {
+                for (var s = 0; s < segments; s++)
+                {
+                    var a0 = P(r, s);
+                    var a1 = P(r, s + 1);
+                    var b0 = P(r + 1, s);
+                    var b1 = P(r + 1, s + 1);
+                    // Sıra yukarı bakacak şekilde (saat yönü = ön yüz).
+                    if (r == 0)
+                        AddTriangleFacing(b, submesh, a0, b1, b0, Vector3.up, 0.2f);
+                    else
+                    {
+                        AddTriangleFacing(b, submesh, a0, b1, b0, Vector3.up, 0.2f);
+                        AddTriangleFacing(b, submesh, a0, a1, b1, Vector3.up, 0.2f);
+                    }
+                }
+            }
         }
 
         private static void AddGroundTriangle(MeshBuilder b, Vector3 a, Vector3 c1, Vector3 c2)
@@ -294,7 +362,7 @@ namespace Project.Presentation.UI
             {
                 var zf = j / (float)nz;
                 // Sırt çizgisi biraz öne kaymış (izleyiciye bakan yamaç daha dik).
-                var profile = Mathf.Pow(Mathf.Sin(Mathf.PI * Mathf.Pow(zf, 0.85f)), 0.75f);
+                var profile = MenuSceneMath.RidgeProfile(zf);
                 for (var i = 0; i <= nx; i++)
                 {
                     var x = -halfWidth + i * cellX;
@@ -309,7 +377,9 @@ namespace Project.Presentation.UI
                     var peak = minPeak + (maxPeak - minPeak) * RidgeNoise(x, seed);
                     var detail = (Mathf.PerlinNoise(x * 0.045f + seed, z * 0.045f + seed * 0.5f) - 0.5f) * minPeak * 0.45f;
                     var y = baseY + (peak + detail) * profile;
-                    points[j * (nx + 1) + i] = new Vector3(x, y, z);
+                    // Geçersiz (NaN/sonsuz) köşe "abnormal bounds" uyarısı verir: taban çizgisine indirilir.
+                    points[j * (nx + 1) + i] = MenuSceneMath.FiniteOr(new Vector3(x, y, z), new Vector3(float.IsNaN(x) || float.IsInfinity(x) ? 0f : x,
+                        baseY, float.IsNaN(z) || float.IsInfinity(z) ? zCenter : z));
                 }
             }
 
@@ -600,7 +670,32 @@ namespace Project.Presentation.UI
             MeshObject("Malzemeler", ctx.Root, mesh, materials, Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.On);
 
             BuildTent(ctx, new Vector3(-4.9f, 0f, 3.6f), 72f);
+            BuildTent(ctx, new Vector3(-6.4f, 0f, 7.6f), 58f);
+            BuildFireSeats(ctx);
         }
+
+        /// <summary>Kamp ateşi çevresinde iki kütük oturak (oturan askerlerin altında); zemine oturur.</summary>
+        private static void BuildFireSeats(Context ctx)
+        {
+            var b = new MeshBuilder(1);
+            foreach (var seat in FireSeats)
+            {
+                var axis = Quaternion.Euler(0f, MenuSceneMath.YawToward(seat, CampfirePosition) + 90f, 0f) * Vector3.forward;
+                const float length = 1.5f, radius = 0.2f;
+                var start = seat - axis * (length * 0.5f) + Vector3.up * (radius * 0.98f);
+                MeshFactory.AddFrustum(b, 0, start, Quaternion.FromToRotation(Vector3.up, axis), radius, radius * 0.94f, length, 9, true, false);
+            }
+
+            var mesh = ctx.Own(b.ToMesh("HK_MenuFireSeats"));
+            MeshObject("AteşKütükleri", ctx.Root, mesh, new[] { Mat(MaterialId.Bark) }, Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.On);
+        }
+
+        /// <summary>Ateş çevresindeki kütük oturak merkezleri (yerel).</summary>
+        private static readonly Vector3[] FireSeats =
+        {
+            new Vector3(3.9f, 0f, 0.5f),
+            new Vector3(1.35f, 0f, 0.35f)
+        };
 
         private static void AddCrate(MeshBuilder b, int body, int band, Vector3 center, Vector3 size, float yaw)
         {
@@ -656,6 +751,7 @@ namespace Project.Presentation.UI
             MeshFactory.AddFrustum(b, 0, Vector3.zero, Quaternion.identity, 0.2f, 0.16f, 0.25f, 8, true, false);   // Kaide
             MeshFactory.AddFrustum(b, 1, new Vector3(0f, poleHeight, 0f), Quaternion.identity, 0.07f, 0.0f, 0.18f, 8, true, false);   // Alem
             var mesh = ctx.Own(b.ToMesh("HK_MenuFlagPole"));
+            BuildFlagBase(ctx, pole);
             var gold = SafeLit(new Color(0.85f, 0.68f, 0.28f), 0.6f, 0.8f);
             MeshObject("Direk", pole, mesh, new[] { Mat(MaterialId.MetalPanel), gold }, Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.On);
 
@@ -664,6 +760,24 @@ namespace Project.Presentation.UI
             clothRoot.localPosition = new Vector3(0.04f, poleHeight - 0.08f, 0f);
             clothRoot.localRotation = Quaternion.identity;
             return MenuFlagCloth.Create(clothRoot, 2.25f, 1.5f, Mat(MaterialId.TurkishFlag));
+        }
+
+        /// <summary>Direk dibi: beton kaide ve çevresinde taş sıra (direk zemine saplı görünür).</summary>
+        private static void BuildFlagBase(Context ctx, Transform pole)
+        {
+            var b = new MeshBuilder(1);
+            MeshFactory.AddFrustum(b, 0, new Vector3(0f, -0.02f, 0f), Quaternion.identity, 0.55f, 0.38f, 0.26f, 10, true, false);
+            var mesh = ctx.Own(b.ToMesh("HK_MenuFlagBase"));
+            MeshObject("DirekKaidesi", pole, mesh, new[] { Mat(MaterialId.Concrete) }, Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.On);
+
+            var rock = new[] { Mat(MaterialId.Rock) };
+            for (var i = 0; i < 7; i++)
+            {
+                var a = i / 7f * Mathf.PI * 2f + ctx.Range(-0.15f, 0.15f);
+                var local = new Vector3(Mathf.Sin(a) * 0.8f, 0.08f, Mathf.Cos(a) * 0.8f);
+                MeshObject("KaideTaşı", pole, MeshFactory.Rock(300 + i), rock, local, Quaternion.Euler(0f, ctx.Range(0f, 360f), 0f),
+                    new Vector3(0.28f, 0.17f, 0.24f) * ctx.Range(0.8f, 1.3f), ShadowCastingMode.On);
+            }
         }
 
         private static Material SafeLit(Color color, float smoothness, float metallic)
@@ -681,25 +795,64 @@ namespace Project.Presentation.UI
 
         // ================================================================== Askerler
 
-        /// <summary>Ateş başında bekleyen dört asker (komutan, makineli tüfekçi, keskin nişancı, nöbetçi).</summary>
+        /// <summary>Lobi askerleri: varsayılan çapalarla komutan merkezli kompozisyon + helipad ekibi.</summary>
         public static List<SoldierPose> BuildSoldiers(Context ctx)
         {
-            var poses = new List<SoldierPose>(4);
-            var rng = new System.Random(1920);
-
-            TrySpawn(ctx, poses, rng, "TimKomutanı", new Vector3(3.95f, 0f, 2.55f), 214f, WeaponIds.Mpt76, MilitaryRank.Yuzbasi,
-                Stance.Standing, false, true, 2, 2, 1, 8f, 5f, 0.21f);
-            TrySpawn(ctx, poses, rng, "MakineliTüfekçi", new Vector3(1.4f, 0f, 2.2f), 116.6f, WeaponIds.Pmt76, MilitaryRank.UzmanCavus,
-                Stance.Standing, true, false, 2, 2, 2, 18f, 3f, 0.17f);
-            TrySpawn(ctx, poses, rng, "KeskinNişancı", new Vector3(0.55f, 0f, 5.55f), 6f, WeaponIds.Jng90, MilitaryRank.AstsubayKidemliCavus,
-                Stance.Crouching, false, false, 1, 1, 1, -2f, 1.5f, 0.09f);
-            TrySpawn(ctx, poses, rng, "Nöbetçi", new Vector3(5.65f, 0f, 4.55f), 27f, WeaponIds.Mpt55, MilitaryRank.SozlesmeliEr,
-                Stance.Standing, false, false, 2, 1, 2, 2f, 6f, 0.07f);
+            var poses = BuildSquad(ctx, new Vector3(3.95f, 0f, 2.55f), VehiclePosition, VehicleYaw);
+            var rng = new System.Random(1925);
+            // Helipad ekibi: pilot yanında gözcü ve çömelmiş kapı nişancısı.
+            TrySpawn(ctx, poses, rng, "HelipadGözcü", new Vector3(3.0f, 0f, 12.2f), 168f, WeaponIds.Mpt55, MilitaryRank.Cavus,
+                Stance.Standing, false, false, 2, 2, 1, 0f, 4f, 0.1f);
+            TrySpawn(ctx, poses, rng, "KapıNişancısı", new Vector3(8.4f, 0f, 12.6f), 214f, WeaponIds.Mpt76, MilitaryRank.Er,
+                Stance.Crouching, false, false, 2, 2, 2, -3f, 3f, 0.13f);
             return poses;
         }
 
-        private static void TrySpawn(Context ctx, List<SoldierPose> poses, System.Random rng, string name, Vector3 position, float yaw, string weaponId,
-            MilitaryRank rank, Stance stance, bool seated, bool beret, int helmet, int vest, int backpack, float pitch, float pitchAmplitude, float pitchSpeed)
+        // ENTEGRASYON: MenuBackdropDiorama.cs MenuDioramaBuilder.BuildSoldier/BuildBackgroundSquad içinde canlı sahne için
+        // MenuBackdropBuilder.BuildSquad(ctx, SoldierPosition, VehiclePosition, <araç yaw>) çağrılmalı (6 askerlik komutan merkezli kompozisyon).
+
+        /// <summary>
+        /// Komutan merkezli 6 kişilik kompozisyon (<see cref="MenuSquadLayout"/>): ortada bordo bereli komutan (kameraya dönük),
+        /// çevresinde sandıkta oturan, Kirpi'ye yaslanan, tüfeğini kontrol eden, nöbetçi ve diz çöken yıpranmış askerler.
+        /// </summary>
+        public static List<SoldierPose> BuildSquad(Context ctx, Vector3 commander, Vector3 vehiclePos, float vehicleYaw)
+        {
+            var poses = new List<SoldierPose>(8);
+            var rng = new System.Random(1920);
+            var slots = MenuSquadLayout.Build(commander, vehiclePos, vehicleYaw);
+            for (var i = 0; i < slots.Length; i++)
+            {
+                var s = slots[i];
+                if (s.Pose == SquadPose.Commander && LobbyCommanderStand.TryPlace(ctx.Root, s.Position))
+                    continue;
+                if (s.Seated)
+                    BuildCrateSeat(ctx, s.Position, s.Yaw);
+
+                var weapon = s.Pose == SquadPose.Commander ? WeaponIds.Mpt76 : s.Pose == SquadPose.Kneeling ? WeaponIds.Mpt55 :
+                    s.Pose == SquadPose.Sentry ? WeaponIds.Jng90 : s.Pose == SquadPose.SeatedOnCrate ? WeaponIds.Pmt76 : WeaponIds.Mpt55;
+                var rank = s.Pose == SquadPose.Commander ? MilitaryRank.Yuzbasi : s.Pose == SquadPose.Sentry ? MilitaryRank.SozlesmeliEr :
+                    s.Pose == SquadPose.SeatedOnCrate ? MilitaryRank.UzmanCavus : s.Pose == SquadPose.CheckingRifle ? MilitaryRank.Cavus : MilitaryRank.Er;
+                TrySpawn(ctx, poses, rng, s.Name, s.Position, s.Yaw, weapon, rank, s.Crouching ? Stance.Crouching : Stance.Standing, s.Seated, s.Beret,
+                    2, s.Pose == SquadPose.Kneeling ? 1 : 2, s.Pose == SquadPose.Sentry ? 1 : 2, s.AimPitch, s.PitchAmplitude, 0.1f, s.Wear, s.Weary,
+                    s.Pose == SquadPose.Kneeling ? FacePaintKind.NightBlack : FacePaintKind.None);
+            }
+
+            return poses;
+        }
+
+        /// <summary>Oturan askerin altındaki cephane sandığı (tek mesh, bantlı).</summary>
+        private static void BuildCrateSeat(Context ctx, Vector3 at, float yaw)
+        {
+            var b = new MeshBuilder(2);
+            AddCrate(b, 0, 1, new Vector3(0f, 0.21f, 0f), new Vector3(0.76f, 0.42f, 0.44f), 0f);
+            var mesh = ctx.Own(b.ToMesh("HK_MenuSeatCrate"));
+            MeshObject("OturakSandığı", ctx.Root, mesh, new[] { Mat(MaterialId.WoodDark), Mat(MaterialId.GunMetal) }, at,
+                Quaternion.Euler(0f, yaw + 90f, 0f), Vector3.one, ShadowCastingMode.On);
+        }
+
+        internal static void TrySpawn(Context ctx, List<SoldierPose> poses, System.Random rng, string name, Vector3 position, float yaw, string weaponId,
+            MilitaryRank rank, Stance stance, bool seated, bool beret, int helmet, int vest, int backpack, float pitch, float pitchAmplitude, float pitchSpeed,
+            float wear = 0.5f, float weary = 0.3f, FacePaintKind facePaint = FacePaintKind.None)
         {
             try
             {
@@ -710,6 +863,8 @@ namespace Project.Presentation.UI
 
                 var look = SoldierLook.ForTeam(0, rng);
                 look.Beret = beret;
+                look.Wear = Mathf.Clamp01(wear);
+                look.FacePaint = facePaint;
                 var model = SoldierModel.Build(holder, look, null, false, GameLayers.Default);
                 if (model == null)
                     return;
@@ -721,6 +876,8 @@ namespace Project.Presentation.UI
                 model.SetSeated(seated);
                 model.SetLocomotion(Vector3.zero, stance, true);
                 model.SetAimPitch(pitch);
+                model.SetWear(wear);       // Yüz/üniforma kan ve barut isi (salt okunur API kullanımı).
+                model.SetWeary(weary);
 
                 if (WeaponCatalog.TryGet(weaponId, out var weapon) && weapon != null)
                 {

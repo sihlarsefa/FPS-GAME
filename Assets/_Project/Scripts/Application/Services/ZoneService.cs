@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Project.Core.Domain;
 using Project.Core.Events;
 using Project.Core.Interfaces;
@@ -22,6 +23,15 @@ namespace Project.Application.Services
         private const float CenterBoundsFactor = 0.8f;
         private const int CenterSampleAttempts = 32;
 
+        /// <summary>Arazi çıpaları yalnızca hedef yarıçapı bu değere eşit/küçük fazlarda devreye girer (final oyunu).</summary>
+        public const float AnchorMaxTargetRadius = 280f;
+
+        /// <summary>Çıpa puanlamasında değerlendirilen en çok aday merkez sayısı.</summary>
+        private const int AnchorCandidateCount = 10;
+
+        /// <summary>Çıpanın çember içinde sayılması için hedef yarıçapa eklenen pay (m).</summary>
+        private const float AnchorReachMargin = 80f;
+
         private readonly ZonePhase[] _phases;
         private readonly IRandom _random;
         private readonly IEventBus _eventBus;
@@ -37,6 +47,7 @@ namespace Project.Application.Services
         private float _lerpDuration;
         private float _baseDamagePerSecond;
         private bool _active;
+        private ZoneAnchor[] _anchors = Array.Empty<ZoneAnchor>();
 
         public ZoneService(ZonePhase[] phases, IRandom random, IEventBus eventBus, float mapHalfSize)
         {
@@ -51,6 +62,32 @@ namespace Project.Application.Services
             _next = _current;
             _shrinkFrom = _current;
         }
+
+        /// <summary>
+        /// Arazi çıpaları (tepe, köy, kale, nehir geçidi...): final çemberleri (hedef yarıçap ≤ AnchorMaxTargetRadius)
+        /// aday merkezlerden çıpaya en iyi oturanı seçer; böylece son çatışmalar açık düzlükte değil sipere/yüksekliğe denk gelir.
+        /// "Mevcut çemberin tamamen içinde" ve harita sınırı kuralları aynen korunur. Boş/null = eski rastgele davranış.
+        /// </summary>
+        public void SetAnchors(IReadOnlyList<ZoneAnchor> anchors)
+        {
+            if (anchors == null || anchors.Count == 0)
+            {
+                _anchors = Array.Empty<ZoneAnchor>();
+                return;
+            }
+
+            var list = new List<ZoneAnchor>(anchors.Count);
+            for (var i = 0; i < anchors.Count; i++)
+            {
+                var a = anchors[i];
+                if (IsFinite(a.X) && IsFinite(a.Z) && a.Weight > 0f && IsFinite(a.Weight))
+                    list.Add(a);
+            }
+
+            _anchors = list.ToArray();
+        }
+
+        public int AnchorCount => _anchors.Length;
 
         public ZoneState CurrentZone => new(_current.CenterX, _current.CenterZ, _current.Radius, CurrentDamagePerSecond);
 
@@ -291,6 +328,12 @@ namespace Project.Application.Services
             allowed = Math.Max(0f, allowed * 0.999f);
             var bound = _mapHalfSize * CenterBoundsFactor;
 
+            var useAnchors = _anchors.Length > 0 && radius <= AnchorMaxTargetRadius;
+            var bestScore = -1f;
+            var bestX = 0f;
+            var bestZ = 0f;
+            var found = 0;
+
             for (var attempt = 0; attempt < CenterSampleAttempts; attempt++)
             {
                 // Disk içinde düzgün dağılım.
@@ -299,8 +342,25 @@ namespace Project.Application.Services
                 var x = current.CenterX + (float)Math.Cos(angle) * distance;
                 var z = current.CenterZ + (float)Math.Sin(angle) * distance;
                 if (Math.Abs(x) <= bound && Math.Abs(z) <= bound)
-                    return new ZoneState(x, z, radius, phase.DamagePerSecond);
+                {
+                    if (!useAnchors)
+                        return new ZoneState(x, z, radius, phase.DamagePerSecond);
+
+                    var score = AnchorScore(x, z, radius);
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestX = x;
+                        bestZ = z;
+                    }
+
+                    if (++found >= AnchorCandidateCount)
+                        break;
+                }
             }
+
+            if (found > 0)
+                return new ZoneState(bestX, bestZ, radius, phase.DamagePerSecond);
 
             // Yedek: sınır kutusuna en yakın, izin verilen disk içindeki nokta.
             var px = Clamp(current.CenterX, -bound, bound);
@@ -316,6 +376,24 @@ namespace Project.Application.Services
             }
 
             return new ZoneState(px, pz, radius, phase.DamagePerSecond);
+        }
+
+        /// <summary>Çemberin çıpaya uyumu: en iyi (ağırlık × yakınlık). Merkezi çıpaya yakın çember yüksek puan alır.</summary>
+        private float AnchorScore(float x, float z, float radius)
+        {
+            var reach = radius + AnchorReachMargin;
+            var best = 0f;
+            for (var i = 0; i < _anchors.Length; i++)
+            {
+                var dx = x - _anchors[i].X;
+                var dz = z - _anchors[i].Z;
+                var d = (float)Math.Sqrt(dx * dx + dz * dz);
+                var s = _anchors[i].Weight * Clamp01(1f - d / reach);
+                if (s > best)
+                    best = s;
+            }
+
+            return best;
         }
 
         private void SetStage(ZoneStage stage, float duration)

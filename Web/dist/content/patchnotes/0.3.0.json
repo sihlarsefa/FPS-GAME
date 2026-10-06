@@ -1,0 +1,22 @@
+{
+  "id": "0.3.0",
+  "slug": "0.3.0",
+  "version": "0.3.0",
+  "title": "0.3.0 — Topçu ve intikal",
+  "date": "2026-10-01",
+  "tags": [],
+  "summary": "Oyun dengesi Topçu desteği bekleme süresi dengelendi Kirpi taşıma kapasitesi +1 Kuzgun Barajı yağma düzeni Düzeltmeler Bot intikal yolu kenar durumları",
+  "html": "<h2 id=\"oyun-dengesi\">Oyun dengesi</h2>\n<ul><li>Topçu desteği bekleme süresi dengelendi</li><li>Kirpi taşıma kapasitesi +1</li><li>Kuzgun Barajı yağma düzeni</li></ul>\n<h2 id=\"duzeltmeler\">Düzeltmeler</h2>\n<ul><li>Bot intikal yolu kenar durumları</li></ul>",
+  "toc": [
+    {
+      "level": 2,
+      "id": "oyun-dengesi",
+      "text": "Oyun dengesi"
+    },
+    {
+      "level": 2,
+      "id": "duzeltmeler",
+      "text": "Düzeltmeler"
+    }
+  ]
+}

@@ -55,6 +55,20 @@ namespace Project.Presentation.UI
             UiFactory.ClearChildren(root);
             var height = root.rect.height > 1f ? root.rect.height : Mathf.Max(16f, root.sizeDelta.y);
 
+            // LX4 vektör apoleti; üretilemezse aşağıdaki sprite tabanlı çizim kullanılır.
+            Sprite art = null;
+            try { art = EmblemArt.GetApoletSprite(rank); }
+            catch (System.Exception e) { Debug.LogWarning("[RütbeApoleti] sanat: " + e.Message); }
+            if (art != null)
+            {
+                var img = UiFactory.Image(root, art, Color.white);
+                img.gameObject.name = "ApoletArt";
+                img.preserveAspect = true;
+                img.raycastTarget = false;
+                UiFactory.Stretch(img);
+                return;
+            }
+
             var board = UiFactory.Panel(root, BoardColor, UiSprites.GetRoundedRect(Mathf.Clamp((int)(height * 0.18f), 3, 12)));
             board.gameObject.name = "Board";
             board.GetComponent<Image>().raycastTarget = false;

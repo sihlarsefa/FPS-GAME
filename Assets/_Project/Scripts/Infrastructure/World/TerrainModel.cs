@@ -420,6 +420,7 @@ namespace Project.Infrastructure.World
                     var de = _halfSize - Mathf.Max(Mathf.Abs(x), Mathf.Abs(z));
                     var edgeT = 1f - TerrainNoise.SmoothStep(18f, 215f, de);
                     var ridge = Mathf.Pow(edgeT, 1.45f) * (58f + 52f * _noise.Ridged(x / 165f + 3f, z / 165f - 5f, 5));
+                    ridge += TerrainPaintRules.RidgeSharpen(edgeT, _noise.Ridged(x / 62f + 9f, z / 62f - 2f, 3)); // keskin sırtlar
                     ridge *= TerrainNoise.SmoothStep(48f, 150f, dr); // dere boğazları
 
                     var detail = 1.8f * _noise.Fbm(x / 36f, z / 36f, 3) * TerrainNoise.SmoothStep(12f, 60f, dr);
@@ -639,18 +640,8 @@ namespace Project.Infrastructure.World
 
         private Vector3[] ComputeRoadProfile(RoadSpec road)
         {
-            // 4 m aralıklı örnekler.
-            var pts = new List<Vector2>(road.Points.Count * 2);
-            for (var i = 0; i + 1 < road.Points.Count; i++)
-            {
-                var a = road.Points[i];
-                var b = road.Points[i + 1];
-                var steps = Mathf.Max(1, Mathf.CeilToInt(Vector2.Distance(a, b) / 4f));
-                for (var s = 0; s < steps; s++)
-                    pts.Add(Vector2.Lerp(a, b, s / (float)steps));
-            }
-
-            pts.Add(road.Points[road.Points.Count - 1]);
+            // 4 m aralıklı örnekler; eksen layout noktalarından geçen centripetal Catmull-Rom (keskin dirsek yok).
+            var pts = RoadsidePlan.Smooth(road.Points, 4f);
             var n = pts.Count;
             var h = new float[n];
             var pinned = new bool[n];

@@ -5,7 +5,9 @@ using Project.Core.Interfaces;
 using Project.Infrastructure.DI;
 using Project.Online.Backend;
 using Project.Online.Profile;
+using Project.Online.UI;
 using Project.Presentation.Bootstrap;
+using Project.Presentation.UI;
 using UnityEngine;
 
 namespace Project.Online.Bootstrap
@@ -57,6 +59,17 @@ namespace Project.Online.Bootstrap
         {
             Ensure();
             RegisterNetworkSessionFactory();
+            RegisterMenuButton();
+        }
+
+        private static void RegisterMenuButton()
+        {
+            const string label = "ONLİNE";
+            var list = MainMenuController.ExtraButtons;
+            for (var i = 0; i < list.Count; i++)
+                if (list[i].label == label)
+                    return;
+            list.Add((label, root => OnlineLoginPanel.Show(root)));
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -77,6 +90,8 @@ namespace Project.Online.Bootstrap
 
             var baseUrl = PlayerPrefs.GetString(BaseUrlPrefsKey, BackendClient.DefaultBaseUrl);
             _client = new BackendClient(baseUrl);
+            var tokens = _client.Tokens;
+            ConnectionIdentity.TokenProvider = () => tokens.HasAccessToken ? tokens.AccessToken : null;
             _queue = new OfflineMatchQueue();
             _queue.Load();
 
@@ -109,9 +124,6 @@ namespace Project.Online.Bootstrap
             {
                 Debug.LogWarning("[Online] GameCompositionRoot fabrikası ayarlanamadı: " + e.Message);
             }
-
-            // Kanca hazırsa GameSession.NetworkSessionFactory'ye de yaz (Func<INetworkSession>).
-            TrySetGameSessionFactory(() => CreateNetworkSessionOrNull(GameCompositionRoot.DefaultLocalPlayerId));
         }
 
         public static INetworkSession CreateNetworkSessionOrNull(PlayerId localPlayerId)
@@ -119,22 +131,6 @@ namespace Project.Online.Bootstrap
             // F3-2 NetcodeNetworkSession HAREKAT_NETCODE ile kaydolur ve bu fabrikayı ezer.
             // F3-1: online istemci katmanı hazır; oturum adaptörü henüz yok → null = offline.
             return null;
-        }
-
-        private static void TrySetGameSessionFactory(Func<INetworkSession> factory)
-        {
-            try
-            {
-                var type = typeof(GameSession);
-                var prop = type.GetProperty("NetworkSessionFactory",
-                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                if (prop != null && prop.CanWrite && prop.PropertyType == typeof(Func<INetworkSession>))
-                    prop.SetValue(null, factory);
-            }
-            catch (Exception)
-            {
-                // Kanca henüz yok — FAZ3_KANCALAR.md
-            }
         }
     }
 }

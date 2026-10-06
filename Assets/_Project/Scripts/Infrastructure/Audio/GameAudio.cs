@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Project.Core.Domain;
+using Project.Infrastructure.Audio.Dialogue;
+using Project.Infrastructure.Audio.Foley;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -32,8 +34,8 @@ namespace Project.Infrastructure.Audio
         /// <summary>Ses hızı (m/s) — uzak atış seslerinin gecikmesi için.</summary>
         public const float SpeedOfSound = 343f;
 
-        private const float NearFilterDistance = 25f;
-        private const float FarCutoffHz = 900f;
+        private const float NearFilterDistance = 30f;
+        private const float FarCutoffHz = 1800f;
         private const float OpenCutoffHz = 22000f;
         private const float DedupeWindow = 0.03f;
         private const float DedupeDistanceSqr = 0.75f * 0.75f;
@@ -181,6 +183,16 @@ namespace Project.Infrastructure.Audio
             if (id == SoundId.None || index < 0 || !Enabled)
                 return null;
 
+            try
+            {
+                if (Project.Infrastructure.Content.ContentOverrides.TryGetSound(id, out AudioClip overrideClip) && overrideClip != null)
+                    return overrideClip;
+            }
+            catch (Exception)
+            {
+                // Hazır varlık erişilemedi — prosedürel yol.
+            }
+
             if (_clips == null || index >= _clips.Length)
                 EnsureClips();
 
@@ -216,13 +228,30 @@ namespace Project.Infrastructure.Audio
             if (!(volume > 0.0005f) || !EnsureReady())
                 return;
 
+            // Uzak patlamayı ses hızı gecikmesiyle Acoustics.OnExplosion çalar; burada çift çalma olmasın.
+            if (id == SoundId.Explosion && Acoustics.Enabled && _host.TryGetListenerPosition(out var lp0)
+                && Vector3.Distance(lp0, position) > ExplosionAcousticsDistance)
+                return;
+
             maxDistance = maxDistance > 1f ? maxDistance : 1f;
             var minDistance = Mathf.Clamp(maxDistance * 0.05f, 1f, 25f);
             PlaySpatial(id, position, volume, pitch, minDistance, maxDistance, false, true);
         }
 
+        /// <summary>Acoustics.OnExplosion'ın devraldığı mesafe (m): bunun ötesindeki patlamayı yalnızca o çalar.</summary>
+        public const float ExplosionAcousticsDistance = 15f;
+
+        /// <summary>
+        /// Patlama sesi: yakın raporu burada, uzak raporu + yankıları <see cref="Acoustics.OnExplosion"/> (ses hızı gecikmeli).
+        /// </summary>
+        public static void PlayExplosion(Vector3 position, float radius, float pitch, float maxDistance)
+        {
+            Play(SoundId.Explosion, position, 1f, pitch, maxDistance);
+            Acoustics.OnExplosion(position, Mathf.Clamp(radius / 6f, 0.4f, 2f));
+        }
+
         /// <summary>2B tek seferlik ses (arayüz, oyuncunun kendi sesleri).</summary>
-        public static void Play2D(SoundId id, float volume = 1f, float pitch = 1f)
+        public static void Play2D(SoundId id, float volume = 1f, float pitch = 1f, AudioClip clipOverride = null)
         {
             if (!(volume > 0.0005f) || !EnsureReady())
                 return;
@@ -231,16 +260,18 @@ namespace Project.Infrastructure.Audio
             if (!_host.HasListener)
                 return;
 
-            var clip = GetClip(id);
+            var clip = clipOverride != null ? clipOverride : GetClip(id);
             if (clip == null)
                 return;
 
             var now = Time.unscaledTime;
             var ui = IsUi(id);
+            if (!ui)
+                volume *= DialogueDirector.DuckGain; // konuşma sırasında müzik/ortam/silah sesi kısılır
             volume = Mathf.Clamp01(volume);
             // Arayüz sesleri, yoğun ateş sırasında bile düşürülmesin.
             var importance = ui ? 2f : volume;
-            var voice = _host.Flat.AcquireOneShot(now, importance);
+            var voice = _host.Flat.AcquireOneShot(now, importance, AudioLayers.NeedsSteal(ActiveVoiceCount));
             if (voice == null)
                 return;
 
@@ -259,11 +290,17 @@ namespace Project.Infrastructure.Audio
             voice.EndTime = now + clip.length / pitch + 0.05f;
         }
 
+        /// <summary>Atış sesinin ses hızı gecikmesini/uzak raporunu Acoustics devralır (m); bunun altı GameAudio'da gecikmesiz çalar.</summary>
+        public const float AcousticsMainReportDistance = 30f;
+
         /// <summary>
-        /// Silah sınıfına göre atış sesi. Yerel atıcı için 2B ve tam ses; diğerleri için 3B, sınıfa göre menzil,
-        /// mesafeyle artan alçak geçiren süzgeç ve ses hızına göre gecikme.
+        /// Silah sınıfına göre atış sesi. Yerel atıcı için 2B ve tam ses. Diğer atıcılarda tek sahip: yakın alan (&lt;30 m) katmanları
+        /// burada gecikmesiz çalar; 30 m ve ötesindeki ana rapor (ses hızı gecikmesi, hava sönümü), yankı ve slapback
+        /// <see cref="Acoustics.OnShot"/> tarafından çalınır (çift çalma yok). Mermi çatırtısı/vızıltısı
+        /// <see cref="Acoustics.OnBulletPassed"/> işidir. Hazır klip varsa (<see cref="WeaponFoley.TryGetFireClip"/>) katmanlar onu kullanır.
         /// </summary>
-        public static void PlayGunshot(WeaponDefinitionData weapon, Vector3 position, bool isLocalShooter)
+        public static void PlayGunshot(WeaponDefinitionData weapon, Vector3 position, bool isLocalShooter, bool suppressed = false,
+            Vector3 direction = default)
         {
             if (weapon == null || !EnsureReady())
                 return;
@@ -272,15 +309,290 @@ namespace Project.Infrastructure.Audio
             if (profile.Id == SoundId.None)
                 return;
 
+            var weaponId = weapon.WeaponId;
+            var sound = WeaponFoley.ProfileFor(weaponId);
+            var caliber = AcousticsBridge.CaliberFor(weapon);
+            var env = UpdateEnvironment();
             var pitch = profile.Pitch * UnityEngine.Random.Range(0.965f, 1.035f);
+            if (suppressed)
+                pitch *= 1.12f;
+
             if (isLocalShooter)
             {
-                Play2D(profile.Id, profile.LocalVolume, pitch);
+                Play2D(suppressed ? SoundId.ShotSuppressed : profile.Id, profile.LocalVolume * (suppressed ? 0.6f : 1f),
+                    suppressed ? pitch / 1.12f : pitch,
+                    FireClip(weaponId, suppressed ? FireLayer.Suppressed : FireLayer.Bang));
+                if (profile.Id == SoundId.ShotMachineGun && !suppressed && (++_beltCounter & 1) == 0)
+                    Play2D(SoundId.MgBeltRattle, 0.3f, UnityEngine.Random.Range(0.94f, 1.06f), FireClip(weaponId, FireLayer.Belt));
+                if (!suppressed)
+                    Play2D(AudioLayers.TailFor(env), 0.35f, pitch, FireClip(weaponId, TailLayerFor(env)));
+                if (sound.EjectsOnFire)
+                    TryPlayCasing(position, 0f, weapon.Category);
+                Acoustics.OnShot(position, direction, caliber, suppressed);
                 return;
             }
 
             var volume = profile.Volume * UnityEngine.Random.Range(0.92f, 1f);
-            PlaySpatial(profile.Id, position, volume, pitch, profile.MinDistance, profile.MaxDistance, true, false);
+            var maxDistance = profile.MaxDistance;
+            if (suppressed)
+            {
+                volume *= 0.3f;
+                maxDistance *= 0.4f;
+            }
+
+            var distance = 0f;
+            if (_host.TryGetListenerPosition(out var listener))
+                distance = Vector3.Distance(listener, position);
+
+            // Yankı + slapback her zaman Acoustics'te; ana rapor 30 m'den uzakta da orada (gecikmeli).
+            var acousticsOwnsReport = distance >= AcousticsMainReportDistance && Acoustics.Enabled;
+            Acoustics.OnShot(position, direction, caliber, suppressed, acousticsOwnsReport);
+            if (acousticsOwnsReport)
+                return;
+
+            // Yakın alan: gövde + mekanik + gümleme (+ ortam kuyruğu).
+            AudioLayers.LayerWeights(distance, out var wNear, out var wMid, out var wFar);
+            var dPitch = AudioQuality.DistantPitch(weapon.Category) * UnityEngine.Random.Range(0.97f, 1.03f);
+            if (wNear > 0.02f)
+            {
+                PlaySpatial(suppressed ? SoundId.ShotSuppressed : profile.Id, position, volume * wNear * (suppressed ? 1.6f : 1f),
+                    suppressed ? pitch / 1.12f : pitch, profile.MinDistance, maxDistance, true, false,
+                    0f, FireClip(weaponId, suppressed ? FireLayer.Suppressed : FireLayer.Bang));
+                if (profile.Id == SoundId.ShotMachineGun && !suppressed && distance < 40f && (++_beltCounter & 1) == 0)
+                    PlaySpatial(SoundId.MgBeltRattle, position, volume * 0.28f * wNear, UnityEngine.Random.Range(0.94f, 1.06f), 2f, 30f,
+                        false, false, 0.01f, FireClip(weaponId, FireLayer.Belt));
+                if (wNear > 0.5f && !suppressed && distance < 30f)
+                {
+                    PlaySpatial(SoundId.ShotMech, position, volume * 0.4f * wNear, pitch, 3f, 40f, false, false,
+                        0f, FireClip(weaponId, FireLayer.Mech));
+                    var thump = 0.5f * Mathf.Clamp(0.4f + sound.ThumpGain, 0.4f, 1.4f);
+                    PlaySpatial(SoundId.ShotThump, position, volume * thump * wNear, pitch, profile.MinDistance, maxDistance, true, false,
+                        0f, FireClip(weaponId, FireLayer.Thump));
+                }
+            }
+
+            if (wMid > 0.02f)
+                PlaySpatial(SoundId.ShotDistantMid, position, volume * 0.6f * wMid, dPitch, profile.MinDistance, maxDistance, true, false,
+                    0f, FireClip(weaponId, FireLayer.Distant));
+            if (wFar > 0.02f)
+                PlaySpatial(SoundId.ShotDistantFar, position, volume * 0.8f * wFar, dPitch, profile.MinDistance, maxDistance, true, false,
+                    0f, FireClip(weaponId, FireLayer.Distant));
+
+            if (!suppressed)
+                PlaySpatial(AudioLayers.TailFor(env), position, volume * 0.45f, pitch * 0.97f, profile.MinDistance,
+                    maxDistance, true, false, 0.04f, FireClip(weaponId, TailLayerFor(env)));
+
+            if (wNear > 0.5f && sound.EjectsOnFire)
+                TryPlayCasing(position, distance, weapon.Category);
+        }
+
+        private static int _beltCounter;
+
+        /// <summary>
+        /// Mermi isabet sesi, yüzeye göre: gerçek klip (<c>Resources/Audio/SFX/Impact/&lt;yüzey&gt;</c>) varsa o, yoksa prosedürel.
+        /// </summary>
+        public static void PlayBulletImpact(Project.Infrastructure.Vfx.SurfaceKind surface, Vector3 position, float volume = 0.55f,
+            float maxDistance = 80f)
+        {
+            if (!EnsureReady())
+                return;
+            var id = SurfaceImpactAudio.SoundFor(surface);
+            var clip = SurfaceImpactClip(surface);
+            var v = volume * SurfaceImpactAudio.VolumeScale(surface);
+            var pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+            maxDistance = maxDistance > 1f ? maxDistance : 1f;
+            var minDistance = Mathf.Clamp(maxDistance * 0.05f, 1f, 25f);
+            PlaySpatial(id, position, v, pitch, minDistance, maxDistance, false, true, 0f, clip);
+        }
+
+        private static readonly System.Collections.Generic.Dictionary<string, AudioClip[]> ImpactClips =
+            new System.Collections.Generic.Dictionary<string, AudioClip[]>();
+
+        private static AudioClip SurfaceImpactClip(Project.Infrastructure.Vfx.SurfaceKind surface)
+        {
+            var folder = SurfaceImpactAudio.FolderFor(surface);
+            try
+            {
+                if (!ImpactClips.TryGetValue(folder, out var arr))
+                {
+                    arr = Resources.LoadAll<AudioClip>(folder);
+                    ImpactClips[folder] = arr;
+                }
+
+                if (arr != null && arr.Length > 0)
+                    return arr[UnityEngine.Random.Range(0, arr.Length)];
+            }
+            catch (Exception)
+            {
+                // Resources erişilemedi — prosedürel yol.
+            }
+
+            return null;
+        }
+
+        private static AudioClip FireClip(string weaponId, FireLayer layer) =>
+            WeaponFoley.TryGetFireClip(weaponId, layer, out var clip) ? clip : null;
+
+        private static FireLayer TailLayerFor(AudioEnvironment env) =>
+            LoudnessMath.TailLayerFor(env);
+
+        private static bool IsSupersonicClass(WeaponCategory c) =>
+            c == WeaponCategory.AssaultRifle || c == WeaponCategory.Dmr || c == WeaponCategory.Sniper || c == WeaponCategory.Lmg;
+
+        // ---- ortam + occlusion
+        private static AudioEnvironment _env = AudioEnvironment.Outdoor;
+        private static float _nextEnvProbe;
+        private static AudioReverbFilter _reverb;
+        private static AudioReverbPreset _reverbApplied = AudioReverbPreset.Off;
+        private static AudioLayers.RayBudget _rayBudget;
+        private static readonly RaycastHit[] OcclusionHits = new RaycastHit[6];
+        private static readonly Vector3[] SideDirs = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
+
+        /// <summary>Dinleyicinin ortamını (iç/dış/vadi) ışınla saptar; 0.5 sn'de bir, ray bütçesiyle. Reverb ön ayarını günceller.</summary>
+        private static AudioEnvironment UpdateEnvironment()
+        {
+            var now = Time.unscaledTime;
+            if (now < _nextEnvProbe || !HostAlive || !_host.TryGetListenerPosition(out var pos))
+                return _env;
+
+            if (!_rayBudget.TryConsume(Time.frameCount, 5))
+                return _env; // bütçe yok: eski sonuç, sonraki karede dene
+
+            _nextEnvProbe = now + 0.5f;
+            try
+            {
+                var head = pos + Vector3.up * 0.2f;
+                var ceiling = Physics.Raycast(head, Vector3.up, 12f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                var blocked = 0;
+                if (!ceiling)
+                {
+                    for (var i = 0; i < SideDirs.Length; i++)
+                        if (Physics.Raycast(head, SideDirs[i], 30f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+                            blocked++;
+                }
+
+                _env = AudioLayers.Classify(ceiling, blocked);
+                ApplyReverb(_env);
+                if (Ambience.AmbienceBeds.IsRunning)
+                    Ambience.AmbienceBeds.SetIndoor(_env == AudioEnvironment.Indoor);
+            }
+            catch (Exception)
+            {
+                _env = AudioEnvironment.Outdoor;
+            }
+
+            return _env;
+        }
+
+        private static void ApplyReverb(AudioEnvironment env)
+        {
+            var preset = env == AudioEnvironment.Indoor ? AudioReverbPreset.Room
+                : env == AudioEnvironment.Valley ? AudioReverbPreset.Mountains
+                : AudioReverbPreset.Off;
+            if (preset == _reverbApplied && _reverb != null)
+                return;
+
+            var t = _host.ListenerTransform;
+            if (t == null)
+                return;
+
+            if (_reverb == null || _reverb.gameObject != t.gameObject)
+            {
+                _reverb = t.GetComponent<AudioReverbFilter>();
+                if (_reverb == null)
+                    _reverb = t.gameObject.AddComponent<AudioReverbFilter>();
+            }
+
+            _reverb.reverbPreset = preset;
+            _reverb.enabled = preset != AudioReverbPreset.Off;
+            _reverbApplied = preset;
+        }
+
+        /// <summary>Dinleyici-kaynak arası engelleyici sayısı (bütçeli; bütçe yoksa 0 = engelsiz).</summary>
+        private static int CountOcclusion(Vector3 listener, Vector3 source, float distance)
+        {
+            if (distance < 6f || !_rayBudget.TryConsume(Time.frameCount))
+                return 0;
+
+            try
+            {
+                var from = listener + Vector3.up * 0.3f;
+                var dir = source - from;
+                var len = dir.magnitude;
+                if (len < 0.1f)
+                    return 0;
+
+                var n = Physics.RaycastNonAlloc(from, dir / len, OcclusionHits, len - 0.5f, Physics.DefaultRaycastLayers,
+                    QueryTriggerInteraction.Ignore);
+                var blockers = 0;
+                for (var i = 0; i < n; i++)
+                {
+                    var c = OcclusionHits[i].collider;
+                    if (c == null)
+                        continue;
+                    if (c.attachedRigidbody != null || c.GetComponent<CharacterController>() != null)
+                        continue; // oyuncular/araçlar ses engellemez
+                    blockers++;
+                }
+
+                return Mathf.Min(blockers, 3);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        private static float _nextCasingTime;
+
+        /// <summary>Yakındaki atıcının boş kovanı biraz sonra yere düşer (hız sınırlı, yüzeye göre ton).</summary>
+        private static void TryPlayCasing(Vector3 position, float listenerDistance, WeaponCategory category)
+        {
+            if (listenerDistance > 28f || category == WeaponCategory.Melee || category == WeaponCategory.Shotgun)
+                return;
+
+            var now = Time.unscaledTime;
+            if (now < _nextCasingTime)
+                return;
+
+            _nextCasingTime = now + 0.14f;
+            PlayShellCasing(position, AudioQuality.SampleSurface(position, 1f));
+        }
+
+        /// <summary>Boş kovan düşme sesi (yüzeye göre ton, 0.25-0.5 sn gecikmeli). Dışarıdan da çağrılabilir.</summary>
+        public static void PlayShellCasing(Vector3 position, Project.Infrastructure.Vfx.SurfaceKind surface)
+        {
+            if (!EnsureReady())
+                return;
+
+            AudioQuality.CasingTweak(surface, out var vol, out var pit);
+            PlaySpatial(AudioLayers.ShellDropFor(surface), position, 0.5f * vol, pit * UnityEngine.Random.Range(0.92f, 1.08f), 2f, 22f,
+                false, false, UnityEngine.Random.Range(0.25f, 0.5f));
+        }
+
+        /// <summary>
+        /// Şarjör değiştirme sesi. Adım adım foley dizisi (<see cref="WeaponFoley.BeginReload"/>) devraldı; bu çağrı geriye uyumluluk için
+        /// ona yönlenir. Eski tek-ses yolu (<see cref="AudioQuality.ReloadFor"/>) yalnızca foley kapalıyken yedek olarak çalar.
+        /// </summary>
+        public static void PlayReload(WeaponDefinitionData weapon, Vector3 position, bool isLocal)
+        {
+            if (weapon == null)
+                return;
+
+            if (WeaponFoley.Enabled)
+            {
+                WeaponFoley.BeginReload(weapon.WeaponId, weapon.ReloadDurationSeconds, false, null, isLocal, position);
+                return;
+            }
+
+            var id = AudioQuality.ReloadFor(weapon.Category);
+            if (id == SoundId.None)
+                return;
+
+            if (isLocal)
+                Play2D(id, 0.7f, UnityEngine.Random.Range(0.98f, 1.02f));
+            else
+                Play(id, position, 0.55f, UnityEngine.Random.Range(0.97f, 1.03f), 35f);
         }
 
         /// <summary>
@@ -377,6 +689,13 @@ namespace Project.Infrastructure.Audio
                 source.Stop();
         }
 
+        /// <summary>Yeni ortam yatakları açılınca eski rüzgâr/ortam döngüsünü kapatır (çift ortam sesi olmasın).</summary>
+        internal static void SuppressLegacyAmbience()
+        {
+            if (HostAlive && (_host.CurrentAmbience == SoundId.Ambience || _host.CurrentAmbience == SoundId.Wind))
+                _host.SetAmbience(SoundId.None, null, 0f);
+        }
+
         /// <summary>2B ortam döngüsünü çapraz geçişle değiştirir. SoundId.None ortam sesini kapatır.</summary>
         public static void SetAmbience(SoundId loop, float volume)
         {
@@ -389,6 +708,13 @@ namespace Project.Infrastructure.Audio
 
             if (!EnsureReady())
                 return;
+
+            // Yeni ortam yatakları çalışıyorsa eski rüzgâr/ortam döngüsü çift olmasın.
+            if (Ambience.AmbienceBeds.IsRunning && (loop == SoundId.Ambience || loop == SoundId.Wind))
+            {
+                _host.SetAmbience(SoundId.None, null, 0f);
+                return;
+            }
 
             _host.SetAmbience(loop, GetClip(loop), Sanitize01(volume, 1f));
         }
@@ -454,7 +780,7 @@ namespace Project.Infrastructure.Audio
         }
 
         private static void PlaySpatial(SoundId id, Vector3 position, float volume, float pitch, float minDistance,
-            float maxDistance, bool propagationDelay, bool dedupe)
+            float maxDistance, bool propagationDelay, bool dedupe, float extraDelay = 0f, AudioClip clipOverride = null)
         {
             if (!_host.TryGetListenerPosition(out var listener))
                 return;
@@ -469,17 +795,22 @@ namespace Project.Infrastructure.Audio
 
             // Logaritmik azalma maxDistance'ta sıfıra inmez: son %25'te yumuşak kısma ile kesintisiz bitir.
             var edge = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(maxDistance * 0.75f, maxDistance, distance));
-            volume = Mathf.Clamp01(volume) * edge;
+            volume = Mathf.Clamp01(volume) * edge * DialogueDirector.DuckGain;
             if (volume <= 0.0005f)
                 return;
 
-            var clip = GetClip(id);
+            var clip = clipOverride != null ? clipOverride : GetClip(id);
             if (clip == null)
                 return;
 
+            var occluders = CountOcclusion(listener, position, distance);
+            if (occluders > 0)
+                volume *= AudioLayers.OcclusionVolume(occluders);
+
             var attenuation = distance <= minDistance ? 1f : minDistance / distance;
-            var importance = volume * attenuation;
-            var voice = _host.Spatial.AcquireOneShot(now, importance);
+            var importance = AudioLayers.EffectiveImportance(id, volume * attenuation);
+            var steal = AudioLayers.NeedsSteal(ActiveVoiceCount);
+            var voice = _host.Spatial.AcquireOneShot(now, importance, steal);
             if (voice == null)
                 return;
 
@@ -496,10 +827,20 @@ namespace Project.Infrastructure.Audio
             src.maxDistance = maxDistance;
             src.priority = Mathf.Clamp(Mathf.RoundToInt(200f - importance * 150f), 32, 220);
             ApplyDistanceFilter(voice.LowPass, distance, maxDistance);
+            if (occluders > 0 && !ReferenceEquals(voice.LowPass, null))
+            {
+                var cutoff = AudioLayers.OcclusionCutoff(occluders);
+                if (!voice.LowPass.enabled || voice.LowPass.cutoffFrequency > cutoff)
+                {
+                    voice.LowPass.cutoffFrequency = cutoff;
+                    voice.LowPass.enabled = true;
+                }
+            }
 
             var delay = 0f;
             if (propagationDelay && distance > 30f)
                 delay = Mathf.Min(distance / SpeedOfSound, 3f);
+            delay += Mathf.Max(0f, extraDelay);
 
             if (delay > 0.005f)
                 src.PlayDelayed(delay);
@@ -910,6 +1251,10 @@ namespace Project.Infrastructure.Audio
             _quitting = false;
             _enabled = null; // ilk erişimde yeniden algılanır
             _recentCursor = 0;
+            _env = AudioEnvironment.Outdoor;
+            _reverb = null;
+            _reverbApplied = AudioReverbPreset.Off;
+            _nextEnvProbe = 0f;
             Array.Clear(Recent, 0, Recent.Length);
             // Klipler varlıktır; hâlâ geçerli olanlar korunur, yok edilenler GetClip/EnsureClips ile yeniden üretilir.
 

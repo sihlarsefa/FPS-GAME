@@ -1,0 +1,1053 @@
+Unity Editor version:    6000.6.4f1 (12bfff696524)
+Branch:                  6000.6/staging
+Build type:              Release
+Batch mode:              YES
+macOS version:           Version 26.6.2 (Build 25G83)
+Darwin version:          25.6.0
+Architecture:            arm64
+Running under Rosetta:   NO
+Available memory:        16384 MB
+Date:                    2026-10-06T00:38:29Z
+VBCSCompilerPreWarmer: watching VBCSCompiler (PID 95223)
+VBCSCompilerPreWarmer: pre-warm launched (dotnet PID 95225)
+VBCSCompiler prewarm took 2.74 ms
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/UnityLicensingClient.app/Contents/MacOS/Unity.Licensing.Client
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Channel LicenseClient-f2gomac doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 95226)
+Launching external process: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/PackageManager/Server/UnityPackageManager
+
+COMMAND LINE ARGUMENTS:
+/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/MacOS/Unity
+-batchmode
+-nographics
+-quit
+-projectPath
+/Users/f2gomac/Desktop/FPS-GAME
+-executeMethod
+Project.EditorTools.BatchEntry.BindThirdParty
+-logFile
+/Users/f2gomac/Desktop/FPS-GAME/Tools/UnityVerify/bind_thirdparty3.log
+Successfully changed project path to: /Users/f2gomac/Desktop/FPS-GAME
+/Users/f2gomac/Desktop/FPS-GAME
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-remapper-allocator-initial-capacity=32768"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-main-allocator-mimalloc-enabled=1"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+Logging is directed to a specific file, skipping project log.
+Player connection [8309662080]  Target information:
+
+Player connection [8309662080]  * "[IP] 192.168.1.4 [Port] 55504 [Flags] 2 [Guid] 4040577242 [EditorId] 4040577242 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080]  * "[IP] 10.211.55.2 [Port] 55504 [Flags] 2 [Guid] 4040577242 [EditorId] 4040577242 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080]  * "[IP] 10.37.129.2 [Port] 55504 [Flags] 2 [Guid] 4040577242 [EditorId] 4040577242 [Version] 1048832 [Id] OSXEditor(0,192.168.1.4) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8309662080] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [8309662080] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-f2gomac" at "2026-10-06T00:38:30.156743Z"
+[Package Manager] Connected to IPC stream "Upm-95222" after 0.3 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+Initialising UDS system complete:
+  - System type: Client
+  - Resource namespace: c3abdf221fc5d9fd33df3a582a8a25a4
+  - Shared memory size: 1073741824
+  - Command buffer id: 1052672
+  - Command buffer size: 8192
+  - Hashmap size: 4194304
+  - Service connected: false
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.3+d7ffd15
+  Session Id:              490a3dae54ab4cc18fafb1666ae81b16
+  Correlation Id:          5386f731b307fcff12c5a5d2dc2c7509
+  External correlation Id: 8126407181043524474
+  Machine Id:              N5wA6icxbnhbHWazitLENc7cwgY=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-f2gomac" (connect: 0.25s, validation: 0.03s, handshake: 0.24s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-f2gomac-notifications" at "2026-10-06T00:38:30.427365Z"
+[Licensing::Module] Connected to LicensingClient (PId: 95226, launch time: 0.00, total connection time: 0.52s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 18968492814813-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.00
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 0.53s
+[Licensing::Module] Licensing is initialized (took 0.10s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+Launching Unity Data Store - /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Helpers/Unity.DataStore 
+Unity Data Store artifact dir = Library/DataStore, working dir = /Users/f2gomac/Desktop/FPS-GAMEUnity Data Store running and initialised
+[Physics::Module] Selected backend (deferred post-plugins).
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Initialize engine version: 6000.6.4f1 (12bfff696524)
+[EntityIdStore] init: VM path (explicit commit), pageSize=16384, blockCount=262144, entitiesPerBlock=1024, slots reserved=4294967296 bytes
+[Subsystems] Discovering subsystems at path /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path /Users/f2gomac/Desktop/FPS-GAME/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Initialize mono
+Mono path[0] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/Managed'
+Mono path[1] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/BCLExtensions/runtime/netstandard2.1'
+Mono path[2] = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/MonoBleedingEdge/lib/mono/unityjit-macos'
+Mono config path = '/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56222
+CodeReloadManager initialized
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: /Applications/Unity/Hub/Editor/6000.6.4f1/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: /Applications/Unity/Hub/Editor/6000.6.4f1/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll
+Registered in 0.001138 seconds.
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Scripting: successfully reloaded assembly
+- Finished resetting the current domain, in  0.657 seconds
+Domain Reload Profiling: 947ms
+	BeginReloadAssembly (81ms)
+		CreateAndSetChildDomain (12ms)
+	RebuildCommonClasses (3ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (28ms)
+	LoadAllAssembliesAndSetupDomain (167ms)
+		LoadAssemblies (69ms)
+		TypeCache.Refresh (119ms)
+			TypeCache.ScanAssembly (111ms)
+		AnalyzeDomain (0ms)
+	FinalizeReload (658ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (71ms)
+			ProcessInitializeOnLoadAttributes (46ms)
+			ProcessInitializeOnLoadMethodAttributes (418ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 42 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.20.0-pre.1 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.assistant@ceb45b7b3ebd)
+    com.unity.ai.inference@2.6.1 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.inference@9a123aee5df7)
+    com.unity.ai.navigation@2.0.14 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ai.navigation@134dd6a3b97b)
+    com.unity.ide.rider@3.0.38 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ide.rider@1f60b3138684)
+    com.unity.ide.visualstudio@2.0.26 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.inputsystem@1.20.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.inputsystem@7a4e1a2a8194)
+    com.unity.dt.app-ui@2.1.13 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.dt.app-ui@9d0f103f520a)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.nuget.mono-cecil@1.11.6 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.searcher@4.9.5 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.searcher@a463122f2c00)
+    com.unity.profiling.core@1.0.3 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.profiling.core@8a49f7027d06)
+  Built-in packages:
+    com.unity.render-pipelines.universal@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.universal@b0678dfc9e21)
+    com.unity.test-framework@1.8.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.test-framework@80f691d4262b)
+    com.unity.ugui@2.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ugui@0727b404f3a0)
+    com.unity.modules.ai@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.ai)
+    com.unity.modules.animation@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.animation)
+    com.unity.modules.audio@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.audio)
+    com.unity.modules.imageconversion@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.imageconversion)
+    com.unity.modules.jsonserialize@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.terrainphysics)
+    com.unity.modules.ui@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.ui)
+    com.unity.modules.physicscore2d@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.physicscore2d)
+    com.unity.modules.imgui@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.imgui)
+    com.unity.ext.nunit@2.1.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.ext.nunit@0198eae3b53e)
+    com.unity.render-pipelines.core@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.core@285af6b8c83f)
+    com.unity.shadergraph@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.shadergraph@58bcb150677d)
+    com.unity.render-pipelines.universal-config@17.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.render-pipelines.universal-config@561422b74439)
+    com.unity.modules.uielements@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.uielements)
+    com.unity.burst@2.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.burst@626e66ab421b)
+    com.unity.collections@6.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.collections@10fff0607388)
+    com.unity.2d.sprite@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.2d.sprite@752945c75a6f)
+    com.unity.mathematics@1.4.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.mathematics@8306a64d0cd6)
+    com.unity.modules.unitywebrequest@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.unitywebrequest)
+    com.unity.graph-authoring@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.graph-authoring@cfd2588851ee)
+    com.unity.modules.hierarchycore@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.hierarchycore)
+    com.unity.test-framework.performance@6.6.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.test-framework.performance@b6023decb532)
+    com.unity.modules.androidjni@1.0.0 (location: /Users/f2gomac/Desktop/FPS-GAME/Library/PackageCache/com.unity.modules.androidjni)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+A meta data file (.meta) exists but its folder 'Assets/ThirdParty/Prefabs' can't be found, and has been created. Empty directories cannot be stored in version control, so it's assumed that the meta data file is for an empty directory in version control. When moving or deleting folders outside of Unity, please ensure that the corresponding .meta file is moved or deleted along with it.
+[ScriptCompilation] Requested script compilation because: AssetDatabase observed changes in script compilation related files
+Starting: /Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/BuildPipeline/bee_backend --ipc --defer-dag-verification --dagfile="Library/Bee/200b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: /Users/f2gomac/Desktop/FPS-GAME
+DisplayProgressbar: Compiling Scripts
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.runtime.interopservices.windowsruntime has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/Facades/System.Runtime.InteropServices.WindowsRuntime.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/Extensions/2.0.0/System.Runtime.InteropServices.WindowsRuntime.dll"
+warn: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      Assembly system.componentmodel.composition has duplicate hint path. Ignoring "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/UnityReferenceAssemblies/unity-4.8-api/System.ComponentModel.Composition.dll" in favor of "/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/Resources/Scripting/NetStandard/compat/2.1.0/shims/netfx/System.ComponentModel.Composition.dll"
+ExitCode: 0 Duration: 0s708ms
+[1007/1379  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1371/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Editor.dll (+2 others)
+Assets/_Project/Scripts/Editor/AaaBenchmarkSceneBuilder.cs(48,25): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/BuildTool.cs(55,27): warning CS0618: 'BuildOptions.EnableHeadlessMode' is obsolete: 'Use StandaloneBuildSubtarget.Server instead'
+Assets/_Project/Scripts/Editor/AssetGeneration.cs(361,17): warning CS0618: 'PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup, Texture2D[])' is obsolete: 'Use SetIcons(NamedBuildTarget, Texture2D[], IconKind) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(99,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(101,13): warning CS0618: 'PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup, ApiCompatibilityLevel)' is obsolete: 'Use SetApiCompatibilityLevel(NamedBuildTarget buildTarget, ApiCompatibilityLevel value) instead'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(395,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(411,23): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(433,24): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(508,95): warning CS0618: 'StaticEditorFlags.NavigationStatic' is obsolete: 'Enum member StaticEditorFlags.NavigationStatic has been deprecated. The precise selection of the objects is now done using NavMeshBuilder.CollectSources() and NavMeshBuildMarkup.'
+Assets/_Project/Scripts/Editor/BatchEntry.cs(24,33): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+[1372/1379  0s] Csc Library/Bee/artifacts/200b0aE.dag/Project.Editor.Tests.dll (+2 others)
+[1373/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Editor.dll, with 142 defines and 313 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1374/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Editor.dll
+[1375/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Editor.pdb
+[1376/1379  0s] ILPostProcess Library/Bee/artifacts/200b0aE.dag/post-processed/Project.Editor.Tests.dll (+pdb)
+Processing assembly Library/Bee/artifacts/200b0aE.dag/Project.Editor.Tests.dll, with 142 defines and 302 references
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+1 processor(s) skipped this assembly
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+[1377/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Editor.Tests.dll
+[1378/1379  0s] CopyFiles Library/ScriptAssemblies/Project.Editor.Tests.pdb
+*** Tundra build success (0.70 seconds), 9 items updated, 1379 evaluated
+Assets/_Project/Scripts/Editor/AaaBenchmarkSceneBuilder.cs(48,25): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/BuildTool.cs(55,27): warning CS0618: 'BuildOptions.EnableHeadlessMode' is obsolete: 'Use StandaloneBuildSubtarget.Server instead'
+Assets/_Project/Scripts/Editor/AssetGeneration.cs(361,17): warning CS0618: 'PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup, Texture2D[])' is obsolete: 'Use SetIcons(NamedBuildTarget, Texture2D[], IconKind) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(99,13): warning CS0618: 'PlayerSettings.SetScriptingBackend(BuildTargetGroup, ScriptingImplementation)' is obsolete: 'Use SetScriptingBackend(NamedBuildTarget buildTarget, ScriptingImplementation backend) instead'
+Assets/_Project/Scripts/Editor/ProjectSetup.cs(101,13): warning CS0618: 'PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup, ApiCompatibilityLevel)' is obsolete: 'Use SetApiCompatibilityLevel(NamedBuildTarget buildTarget, ApiCompatibilityLevel value) instead'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(395,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(411,23): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(433,24): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets/_Project/Scripts/Editor/SceneBuilder.cs(508,95): warning CS0618: 'StaticEditorFlags.NavigationStatic' is obsolete: 'Enum member StaticEditorFlags.NavigationStatic has been deprecated. The precise selection of the objects is now done using NavMeshBuilder.CollectSources() and NavMeshBuildMarkup.'
+Assets/_Project/Scripts/Editor/BatchEntry.cs(24,33): warning UAC0005: AppDomain.GetAssemblies() in Unity may return already unloaded assemblies and result in errors or leaks. Use Unity APIs instead, such as 'CurrentAssemblies.GetLoadedAssemblies()' or 'TypeCache.GetTypesDerivedFrom()'.
+AssetDatabase: script compilation time: 1.169362s
+Total cache size 203887988
+Total cache size after purge 203887988, took 00:00:00.1307170
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+Symbol file LoadedFromMemory is not a mono symbol file
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.render-pipelines.core/Editor/Deprecated.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Native extension for OSXStandalone target not found
+Native extension for WebGL target not found
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Scripting: successfully reloaded assembly
+- Finished resetting the current domain, in  0.923 seconds
+Domain Reload Profiling: 1476ms
+	BeginReloadAssembly (114ms)
+		DisableScriptedObjects (9ms)
+		CreateAndSetChildDomain (38ms)
+	RebuildCommonClasses (5ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (35ms)
+	LoadAllAssembliesAndSetupDomain (390ms)
+		LoadAssemblies (156ms)
+		TypeCache.Refresh (158ms)
+			TypeCache.ScanAssembly (147ms)
+		AnalyzeDomain (34ms)
+			BuildScriptInfoCaches (29ms)
+			ResolveRequiredComponents (3ms)
+	FinalizeReload (923ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (81ms)
+			ProcessInitializeOnLoadAttributes (530ms)
+			ProcessInitializeOnLoadMethodAttributes (98ms)
+		AwakeInstancesAfterBackupRestoration (10ms)
+Starting new worker id: 0 with log in /Users/f2gomac/Desktop/FPS-GAME/Logs/AssetImportWorkerHW0.log
+
+Asset Pipeline Refresh (id=bc82e8092ca9b4f348773f5a1109ea6f): Total: 3.977 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=1869 ms
+		Asset DB Callback time: managed=303 ms, native=16 ms
+		Scripting: domain reloads=1, domain reload time=575 ms, compile time=1171 ms, other=40 ms
+		Project Asset Count: scripts=1951, non-scripts=16645
+		Asset File Changes: new=0, changed=1, moved=0, deleted=45
+		Scan Filter Count: 1
+	InvokePackagesCallback: 13.089ms
+	ApplyChangesToAssetFolders: 0.154ms
+	Scan: 556.092ms
+	Collect global state as custom dependencies: 10.749ms
+	OnSourceAssetsModified: 0.506ms
+	CategorizeScriptCompilationAssets: 41.383ms
+	ProcessAssetsWithTransientArtifactChanges: 42.533ms
+	CategorizeAssets: 146.150ms
+	CompileScripts: 1170.595ms
+	ImportOutOfDateAssets: 934.986ms (927.402ms without children)
+		ReloadNativeAssets: 0.053ms
+		UnloadImportedAssets: 2.676ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.963ms
+		ImportSchedulerStart: 2.888ms
+	PostProcessAllAssets: 304.264ms
+		VCAutoAddAssetPostprocess 0.657ms
+		XRBuildSystem.XRAssetImported 0.107ms
+		LocalizationDatabase.AssetDatabasePostprocessCallback 0.072ms
+		MonoPostProcessAllAssets: 302.792ms
+			AssetPostprocessor.OnPostprocessAllAssets 148.893ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 15.983ms
+			AssetReferenceReimportMonitor.OnPostprocessAllAssets 12.752ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 9.533ms
+			SyncVS.PostprocessSyncProject 4.736ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 3.498ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 1.759ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 1.553ms
+			AssetChangedListener.OnPostprocessAllAssets 1.372ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 1.077ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 1.072ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 0.970ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 0.855ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 0.666ms
+			AssetChangeDetector.OnPostprocessAllAssets 0.500ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 0.488ms
+			InputActionAssetPostprocessor.OnPostprocessAllAssets 0.483ms
+			MaterialPostprocessor.OnPostprocessAllAssets 0.449ms
+			SpriteEditorTexturePostprocessor.OnPostprocessAllAssets 0.412ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 0.404ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.352ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.341ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.316ms
+			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.289ms
+			InputActionJsonNameModifierAssetProcessor.OnPostprocessAllAssets 0.265ms
+			ThemePostprocessor.OnPostprocessAllAssets 0.211ms
+			PostProcessor.OnPostprocessAllAssets 0.201ms
+			SkillsProjectAssetPostprocessor.OnPostprocessAllAssets 0.198ms
+			ProjectSettingsPostprocessor.OnPostprocessAllAssets 0.191ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.190ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.181ms
+			AssetEvents.OnPostprocessAllAssets 0.167ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.153ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.084ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.070ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.059ms
+	PostAssetChangesProfiler: 3.603ms
+	UnloadStreamsBegin: 3.447ms
+	PersistCurrentRevisions: 0.718ms
+	GenerateScriptTypeHashes: 1.423ms
+	GenerateScriptTypeSerializationHashes: 2.530ms
+	Untracked: 747.353ms
+
+Application.AssetDatabase Initial Refresh End
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Scanning for USB devices : 0.240ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-HAREKÂT
+Unloading 86 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 8201 unused Assets / (8.0 MB). Loaded Objects now: 9256.
+Memory consumption went from 319.1 MB to 311.1 MB.
+Total: 17.511125 ms (FindLiveObjects: 0.596042 ms CreateObjectMapping: 0.311125 ms MarkObjects: 13.989416 ms  DeleteObjects: 2.504875 ms)
+
+[HAREKÂT] BatchEntry.BindThirdParty başlıyor…
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Project.EditorTools.BatchEntry:BindThirdParty () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:20)
+
+(Filename: Assets/_Project/Scripts/Editor/BatchEntry.cs Line: 20)
+
+
+Asset Pipeline Refresh (id=277f32801984944de8ff41f39e2119ab): Total: 0.331 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=331 ms
+		Asset DB Callback time: managed=0 ms, native=0 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=1951, non-scripts=16645
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 1
+	ApplyChangesToAssetFolders: 0.087ms
+	Scan: 214.024ms
+	Collect global state as custom dependencies: 0.226ms
+	ProcessAssetsWithTransientArtifactChanges: 0.171ms
+	CategorizeAssets: 104.619ms
+	ImportOutOfDateAssets: 1.722ms (0.301ms without children)
+		UnloadImportedAssets: 0.057ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.138ms
+		ImportSchedulerStart: 0.184ms
+	GatherAllCurrentPrimaryImportResultRevisions: 0.375ms
+	PersistCurrentRevisions: 0.367ms
+	Untracked: 8.738ms
+
+Importing 'GUID: 0b4154a38860c49da963da4beae2e870 - Path: Assets/ThirdParty/Textures/Ground036/Ground036_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 0b4154a38860c49da963da4beae2e870' -> (Import Result ID: '58f97fc264cb5da6b0104e2a9226ac21') in 0.102 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=fc874d04e0433486f3a1b049abb12a39 DependenciesID=49f85bef7a4d8d1442a3c89cf3d58d7c StaticDependenciesID=1747fc4b3b9c46192491200680155528 
+Asset Pipeline Refresh (id=f93dc7e93b26a44629566d9876e7c814): Total: 0.137 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 39b5addb60d8d4341832e725a841e736 - Path: Assets/ThirdParty/Textures/Ground036/Ground036_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 39b5addb60d8d4341832e725a841e736' -> (Import Result ID: '1814d0c3b4193af41ecb98632fff49e9') in 0.092 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a7615d434567fa1ee5f3a319b08ba1e8 DependenciesID=b23d01d975d83f3c657e354d76665247 StaticDependenciesID=4674d4c78b1da3bc9ac27b7f71774782 
+Asset Pipeline Refresh (id=c1fe3455d5f0e49b0a4851c236ebb4ad): Total: 0.113 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 643cba84981de4ee795fe7c8c88e2f82 - Path: Assets/ThirdParty/Textures/Ground036/Ground036_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 643cba84981de4ee795fe7c8c88e2f82' -> (Import Result ID: '894eac2eb02d091f8acbf7a7cfb30cec') in 0.075 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a440014f2f280fcbccf67f3674e416bf DependenciesID=1e6d307199ce816683d5a777311f2db4 StaticDependenciesID=b379261a63014531d9741fa9dc637572 
+Asset Pipeline Refresh (id=162c76b7a00354620a2753776a4f329c): Total: 0.099 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: b58680122896e41e39d199af3745fadc - Path: Assets/ThirdParty/Textures/Ground106/Ground106_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: b58680122896e41e39d199af3745fadc' -> (Import Result ID: 'c364372ceb1dc1122f9167262946ad15') in 0.080 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=d5e8ec782ee8fa372de06377dfb0b678 DependenciesID=4566745a0517969546fb6d782d66711d StaticDependenciesID=6a917b1176876910549c0632dfc7294f 
+Asset Pipeline Refresh (id=ddcd108569615442e9b9b916264608fa): Total: 0.100 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 0e35113171e8742838fa43c2446d2b0d - Path: Assets/ThirdParty/Textures/Ground106/Ground106_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 0e35113171e8742838fa43c2446d2b0d' -> (Import Result ID: '7da076e6125770c0c191863ecd083143') in 0.094 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=bf744cd4ee7584b338d168d520b16996 DependenciesID=ca83d06d807a4b67f9b0448bfb7517b6 StaticDependenciesID=cb01e5b636d72e53a4464b19abbb9f41 
+Asset Pipeline Refresh (id=331010db8d74d4deaba5baf6e53c5b24): Total: 0.115 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 2812f576fb8e5488982b3f4a4837cd1c - Path: Assets/ThirdParty/Textures/Ground106/Ground106_Mask.png' with importer (TextureImporter)
+Worker ready: AssetImportWorkerHW0 0
+Imported 'GUID: 2812f576fb8e5488982b3f4a4837cd1c' -> (Import Result ID: '4daeb578898e3429e079c80d221dbe3a') in 0.073 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a0e79e6b6443b52351cd50661db7d6d7 DependenciesID=0b74ea56ac4613ee3d168d51a6a08c26 StaticDependenciesID=df953f3f7d196ea4ec36e048e330f65c 
+Asset Pipeline Refresh (id=6e902afce4ddf4a32909b4ce629a2b12): Total: 0.095 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: a8038129978d043f4b969349a783cd87 - Path: Assets/ThirdParty/Textures/Grass001/Grass001_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: a8038129978d043f4b969349a783cd87' -> (Import Result ID: 'def262d29e46ec8ae69a74074bc15092') in 0.081 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=905917867153ac0e2c72d8b8b733e611 DependenciesID=df1710f56beb6a1a1d1953ce54ae7ec4 StaticDependenciesID=4be49709a77c57bdceca8a575a635fdd 
+Preloading 1 native plugins for Editor in 2.56 ms.
+Asset Pipeline Refresh (id=4bf22d956bb6c4e0baee8d80df6c4da5): Total: 0.103 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: d8ad7edfa84df4b218accff79952ad24 - Path: Assets/ThirdParty/Textures/Grass001/Grass001_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: d8ad7edfa84df4b218accff79952ad24' -> (Import Result ID: 'a148b0aeebc30bee1e03575de023c220') in 0.084 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=5ee9df74a13a47948becd542c67522e4 DependenciesID=07a43d5e67bafd6168e8056003b7e87b StaticDependenciesID=af4b1880c052001f3998a2cb8b396020 
+Refreshing native plugins compatible for Editor in 3.48 ms, found 1 plugins.
+Asset Pipeline Refresh (id=213fd742066494e238f1879376149ab4): Total: 0.109 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 8fec50711750e4a47a97338d98e874b7 - Path: Assets/ThirdParty/Textures/Grass001/Grass001_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 8fec50711750e4a47a97338d98e874b7' -> (Import Result ID: '0537e0596854887fd07140720613c487') in 0.078 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a127d1a52b14f1485ed3f39ffbdeed2c DependenciesID=685ad704cd499578defd65e530394a90 StaticDependenciesID=8fcf1175c0c3a11d5aba4d9b9509bbe2 
+Asset Pipeline Refresh (id=4133a84c7d394469287ad13b071499c7): Total: 0.098 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: b4074c8324d2e479586f18082f18932c - Path: Assets/ThirdParty/Textures/Grass007/Grass007_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: b4074c8324d2e479586f18082f18932c' -> (Import Result ID: 'da7aa45de45910558d2f7ae627543624') in 0.082 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=8ccc89e17d772cef88417d2d5b1599e1 DependenciesID=875dce2136707aba2b3c91bc4fb02a1a StaticDependenciesID=3cede6fc741459a7d0c02d041a27f05f 
+Asset Pipeline Refresh (id=e96def69037cd45e68995ae10da02f5b): Total: 0.101 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 42f8f658135e54c4789574a482dede9d - Path: Assets/ThirdParty/Textures/Grass007/Grass007_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 42f8f658135e54c4789574a482dede9d' -> (Import Result ID: '9992c611caaf53282e7a82a45dea8559') in 0.090 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=8d16fc3b2c1fa996401ae7761f11f81c DependenciesID=9a8c0267ef4c8cf9310951782d8b9c46 StaticDependenciesID=12ca16f1c8cd507bef97f212edb56fea 
+Asset Pipeline Refresh (id=7c7e5c5b0bb2c40bfbd192baad3c8c61): Total: 0.111 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 7f733dd45202341b8b25bcf4b5fb26d1 - Path: Assets/ThirdParty/Textures/Grass007/Grass007_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 7f733dd45202341b8b25bcf4b5fb26d1' -> (Import Result ID: '8f6bc568676aeb461316fcc50ee9cb02') in 0.083 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=9e509d92a3eac1b1375ce60a8afe7071 DependenciesID=6363ecf095324d233388e0fecd1349d1 StaticDependenciesID=9a65498d39dd8ee02ee3ea7117754dca 
+Asset Pipeline Refresh (id=a6ff15ebf7b914df6b9178b2b567635f): Total: 0.104 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 44dd667a5dc6a46b3894ba60d65f0429 - Path: Assets/ThirdParty/Textures/ScatteredLeaves009/ScatteredLeaves009_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 44dd667a5dc6a46b3894ba60d65f0429' -> (Import Result ID: 'b241eb7a6a28b84c2d9ffd7cb0522d06') in 0.085 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=81eaf52dea48cfdc60352d3025718d77 DependenciesID=ad7600ea680d96a339028193d4f44d5e StaticDependenciesID=7b1aafc6468167714dcb5ef158565ec2 
+Asset Pipeline Refresh (id=6c9ac0cafe2e34c3d874a143e2c10149): Total: 0.104 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: c8e1dcf63f61c489fb95c2522b6de07f - Path: Assets/ThirdParty/Textures/ScatteredLeaves009/ScatteredLeaves009_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: c8e1dcf63f61c489fb95c2522b6de07f' -> (Import Result ID: 'ecdc1d1cea4a206d1a9f77efe46d4cf3') in 0.088 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=1238527454e31876e4a69a4d564f5875 DependenciesID=1f527dc74976173fefde22a220c0dc8e StaticDependenciesID=73a806c619a0aa489ef84c69696224a8 
+Asset Pipeline Refresh (id=929562287c9b74449aa7114b75d205a8): Total: 0.108 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: eec8806131e7842809f82c5a76bd8369 - Path: Assets/ThirdParty/Textures/ScatteredLeaves009/ScatteredLeaves009_Mask.png' with importer (TextureImporter)
+Imported 'GUID: eec8806131e7842809f82c5a76bd8369' -> (Import Result ID: '071e1d2e5f925ceabff9baa698f3cfd6') in 0.085 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=ba7ec72eb2308f069ffaaa416e0ec38a DependenciesID=4dc75462f8d41b2e1909ea0381d291a1 StaticDependenciesID=52b261d05661d51a3b333497f4cf8f58 
+Asset Pipeline Refresh (id=ba7a68ddf78524e52a93105769ba0816): Total: 0.105 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: d38a84762ffce44cba93ddf134a54050 - Path: Assets/ThirdParty/Textures/Rock058/Rock058_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: d38a84762ffce44cba93ddf134a54050' -> (Import Result ID: 'b8c6af43e8ee360cc8d21b65325d2b1a') in 0.077 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=e1155512bf4a9c7cc9e9c6fac9e70c24 DependenciesID=aa424760dd8cff2dd0131caa2153d1a8 StaticDependenciesID=e920641d1d6b4e22f59ee2381541adc8 
+Asset Pipeline Refresh (id=9f86f68f29d974f278fc082b2896fd24): Total: 0.099 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 3ab8c0ae443fd45d4996171387def4cc - Path: Assets/ThirdParty/Textures/Rock058/Rock058_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 3ab8c0ae443fd45d4996171387def4cc' -> (Import Result ID: '8e81e08d6cc98621f834c888286b3a76') in 0.102 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=cb57d6ebb9e975592a23fc9c5d0a1fe4 DependenciesID=da9c9c1a12d29ca429a33b4a0d6a4d58 StaticDependenciesID=43246f01c7c3f4d0cc0ee75a0bc877af 
+Asset Pipeline Refresh (id=c226dd8ca50254a2090666e49024e126): Total: 0.125 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 2d60154c91d694f11aebbcef6f58c8ec - Path: Assets/ThirdParty/Textures/Rock058/Rock058_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 2d60154c91d694f11aebbcef6f58c8ec' -> (Import Result ID: '95fc14a90a94e864120fd3ac2fe9faba') in 0.105 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=e47456468b6a73be8d42224196f16850 DependenciesID=1df568fc949611a6a2d452274036fdba StaticDependenciesID=c770aba4b1ebfb21ee9e04c0e0a8475b 
+Preloading 1 native plugins for Editor in 2.69 ms.
+Asset Pipeline Refresh (id=c50cd2bf797584a18be0ca8017f23aab): Total: 0.139 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 28cb536e52dff4e949da5b2cd725e88c - Path: Assets/ThirdParty/Textures/Rock035/Rock035_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 28cb536e52dff4e949da5b2cd725e88c' -> (Import Result ID: 'ea04c9ee7fefc2c9d8b6fd20514f7385') in 0.129 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=9ce5b4201ed58434483cba14be1ed6dc DependenciesID=f01d12e05b6d496d85ee74a46d01eb92 StaticDependenciesID=2e8b38cc1d989fbe1009c3d4e212e24a 
+Asset Pipeline Refresh (id=72910f23b2d964fc299e96bef6a596a4): Total: 0.163 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 3ee82ae7483fd413b9893c073aff6fc0 - Path: Assets/ThirdParty/Textures/Rock035/Rock035_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 3ee82ae7483fd413b9893c073aff6fc0' -> (Import Result ID: 'b0c1ba42fa87430153b0dbfb3b423164') in 0.089 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a8bceef52765e6c25ae8ca1c9d0cfc8f DependenciesID=721cf1b9cd20be525881c099051b4efa StaticDependenciesID=9633c090a81add184d53767c9c9fceae 
+Asset Pipeline Refresh (id=765d69d075dfa4e88a43550db68e4a14): Total: 0.111 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 0ad7c69ae19af469a9129708cae2895e - Path: Assets/ThirdParty/Textures/Rock035/Rock035_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 0ad7c69ae19af469a9129708cae2895e' -> (Import Result ID: '840f2e6e17a5bdcb85a8c4edf423eeed') in 0.073 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=d3d396493554afa7fed8db7e7609af53 DependenciesID=7acb502254b0506b3b4ab8a7051808ab StaticDependenciesID=c12d52168ede5e0b0a1ddf21ff30b543 
+Asset Pipeline Refresh (id=be46f9316ebec4f0fb7d2a25ae6bffd5): Total: 0.092 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: e99705214a68a4d519682a068133a1b0 - Path: Assets/ThirdParty/Textures/Gravel023/Gravel023_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: e99705214a68a4d519682a068133a1b0' -> (Import Result ID: 'daec023409d822b9a8597c9569315945') in 0.069 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=d1640a600535dc3513761eaffbf2378d DependenciesID=cbc26cbf8be5a9d983043409240bd167 StaticDependenciesID=b4e3329d49b644f7882d43d4f5307e06 
+Asset Pipeline Refresh (id=8f5736e3e2c514b99af5b77c1e2bb19a): Total: 0.089 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 3de9f3bfe55314b6aa9cc58b1d5f589d - Path: Assets/ThirdParty/Textures/Gravel023/Gravel023_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 3de9f3bfe55314b6aa9cc58b1d5f589d' -> (Import Result ID: 'f8a3c4374359edb521ef955c6fe6226c') in 0.087 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=b921567913c8c230a6b8488fe98e7084 DependenciesID=51cca399c9b9ca894972b22a91871245 StaticDependenciesID=dfbd4d744f2904f1b8f94cc9e79f3619 
+Asset Pipeline Refresh (id=4e459fd97240a44a6972de6adc88a5b1): Total: 0.106 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 98546eb89a1c446368689ed685a4cc66 - Path: Assets/ThirdParty/Textures/Gravel023/Gravel023_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 98546eb89a1c446368689ed685a4cc66' -> (Import Result ID: '36c18289da2019387696ab88f1f0137c') in 0.079 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=77a385a537884187aae752cb1b63a8be DependenciesID=8b0bec2452f3f3a114e3df4f10a8cc3d StaticDependenciesID=e511ce1f626097cb9ed6c8b6c75ef84f 
+Asset Pipeline Refresh (id=1be3038cdedd947ed901861b12b26566): Total: 0.097 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: ec3693120bf2d43ecafb4bedf7f56957 - Path: Assets/ThirdParty/Textures/Asphalt031/Asphalt031_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: ec3693120bf2d43ecafb4bedf7f56957' -> (Import Result ID: '9a3fe0fb4021697cdf4a2c21633184cf') in 0.049 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a3acc4cec0428fc4451491e82d0597d1 DependenciesID=98a3753354c1de5cce54f5195b3b4713 StaticDependenciesID=8f25890ce85169dc529ced5675c65b88 
+Asset Pipeline Refresh (id=d140251ce02ee46199cd8ce5c80eda79): Total: 0.067 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: e87699083fa674b929df6115ab427e9d - Path: Assets/ThirdParty/Textures/Asphalt031/Asphalt031_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: e87699083fa674b929df6115ab427e9d' -> (Import Result ID: '9257dc0094bf2ed4c0d5e8b7baa4a5b6') in 0.081 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a803aa95be5b23f0fc500e170a35db2d DependenciesID=ab0d308a2d45ed9f1fd6f71f6b5bdf7f StaticDependenciesID=6a44a6d5df71912ec3ab5057d190275b 
+Asset Pipeline Refresh (id=60d777c78d9c64a109cec266df7f01bf): Total: 0.101 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 95ee20fc6c6b3495dae4be98d94d5536 - Path: Assets/ThirdParty/Textures/Asphalt031/Asphalt031_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 95ee20fc6c6b3495dae4be98d94d5536' -> (Import Result ID: 'b2528e9fb53c850e94f32b3f15338c16') in 0.071 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=d68844e3968475c93ea2128828ad7be8 DependenciesID=9ec156b5ae1fa572e23432506bfa3826 StaticDependenciesID=65494f385dd93d6446ef43b2bbe958ff 
+Asset Pipeline Refresh (id=c7499d24a3d474eb18c39666dd0ee3c4): Total: 0.088 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 6fabd5b1b72354c118172fd2b3caaaaa - Path: Assets/ThirdParty/Textures/Concrete034/Concrete034_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 6fabd5b1b72354c118172fd2b3caaaaa' -> (Import Result ID: '78fd9672677fb3b176ffc77201b9d6f4') in 0.025 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=556cb359d54855452cf48b8df4f67997 DependenciesID=209d3255f423c8d6ad9a192f1e93624d StaticDependenciesID=7615d8f2d9be308c67c7aaf261a8e67a 
+Asset Pipeline Refresh (id=12a2b3146e829465c8793486c65e02e7): Total: 0.042 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 425832ddf30404c10b7410d446ef6b9e - Path: Assets/ThirdParty/Textures/Concrete034/Concrete034_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 425832ddf30404c10b7410d446ef6b9e' -> (Import Result ID: '6b6b603a9a97afcf8705e923c2c84b07') in 0.039 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=807005cc02b62fd15973733d4b709e19 DependenciesID=857e8963fe39dc124dcaa9ebcf6db043 StaticDependenciesID=35923c92b3c908fe5d30abfb693f3fd9 
+Asset Pipeline Refresh (id=cbafdfda901ae47f1aed6aa7aaf5e9ad): Total: 0.056 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: bde36601869b54eef9b33da1956c3ad3 - Path: Assets/ThirdParty/Textures/Concrete034/Concrete034_Mask.png' with importer (TextureImporter)
+Imported 'GUID: bde36601869b54eef9b33da1956c3ad3' -> (Import Result ID: 'eef371ad51967c1484cf10244845d651') in 0.033 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=b9133f6ac692052db4892dd6bbe3e2ff DependenciesID=4f4d2df97130256256bc7784fefa66c6 StaticDependenciesID=0ae2b366e6da141f334de2a1e6aa34a8 
+Asset Pipeline Refresh (id=3d4a0826c79a849fdbc8956edaeb73d1): Total: 0.050 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 79c28e63c38f54f7bbd47c3efb038ea4 - Path: Assets/ThirdParty/Textures/Concrete036/Concrete036_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 79c28e63c38f54f7bbd47c3efb038ea4' -> (Import Result ID: 'c8151a1b468e5f6362891699e53a01ea') in 0.069 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=80f3a7d140dd54510fe1de3a2287c898 DependenciesID=88cf02ba57463fc55e5a66c3926df7a2 StaticDependenciesID=5b02c1201f688181cde3897c7c7de080 
+Asset Pipeline Refresh (id=66f7da3b4578646a78eb24861e5fc2b3): Total: 0.086 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: fa7afd3bde39541d6b65aa967109c384 - Path: Assets/ThirdParty/Textures/Concrete036/Concrete036_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: fa7afd3bde39541d6b65aa967109c384' -> (Import Result ID: 'ab10b5e6a58007be09bfb6c089b623af') in 0.078 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=01f18f12ae180dfa5751e593b15806d0 DependenciesID=21a61faa85dfa3eb358ded03981ffa57 StaticDependenciesID=1d6298e6c9469a870d03b8602536d872 
+Asset Pipeline Refresh (id=d01ffa587d93e41f892875d31792ff31): Total: 0.097 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 305cd283ed80348719a1aeb9dc3730d5 - Path: Assets/ThirdParty/Textures/Concrete036/Concrete036_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 305cd283ed80348719a1aeb9dc3730d5' -> (Import Result ID: '694587fb060f878db6dfca4cf205e240') in 0.054 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=692506a5b62446610524c079896aa8f4 DependenciesID=01915215d35835b529b10381c8c7983b StaticDependenciesID=bcf450fd70fe16c10537e8c921f6044e 
+Asset Pipeline Refresh (id=5d79f23f3f01843e2b69396ca8126e47): Total: 0.074 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 32a3917e41dcd458598891fa0edc51ca - Path: Assets/ThirdParty/Textures/Plaster004/Plaster004_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 32a3917e41dcd458598891fa0edc51ca' -> (Import Result ID: '9cee1ccb1116621dc09478a62b1289ae') in 0.072 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=70079096bfee16c48bdfb775f0f087d9 DependenciesID=1d0ed85c97fb26f4dadc827b8c450255 StaticDependenciesID=ce2d55e512b4f81d4e34ad857090141a 
+Asset Pipeline Refresh (id=bde19051dcac14819b4fcf2ba13fe6c8): Total: 0.090 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: f1bcf6587495047c78360b38720dc08d - Path: Assets/ThirdParty/Textures/Plaster004/Plaster004_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: f1bcf6587495047c78360b38720dc08d' -> (Import Result ID: '13de6dd46e41a258eff984e6fedfe027') in 0.088 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=ef0b76cf195dd2eee14824c358c7bf88 DependenciesID=655c8ade5610537943753e2f6fa06219 StaticDependenciesID=c0aa8c74102cf5bc5bf370852b091c8e 
+Asset Pipeline Refresh (id=47b2218761b9047dc9426e37617169f0): Total: 0.108 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: a0d22ad137f1c4ce39980b0c2cd2c3fc - Path: Assets/ThirdParty/Textures/Plaster004/Plaster004_Mask.png' with importer (TextureImporter)
+Imported 'GUID: a0d22ad137f1c4ce39980b0c2cd2c3fc' -> (Import Result ID: 'e37937a0b843b6d832b6e830fd996dfe') in 0.057 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=62b6dd28965a6cdbb6198cc6f1299711 DependenciesID=853115fb03b1cbfe06392f57abf32581 StaticDependenciesID=84f710e0d3de3ef960ecd3b8518c04ef 
+Asset Pipeline Refresh (id=3b6520c03c34a4fd4a81fcf12f02f893): Total: 0.077 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 2b28459964d244cc0adb2b9b5d89b0c4 - Path: Assets/ThirdParty/Textures/Plaster007/Plaster007_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 2b28459964d244cc0adb2b9b5d89b0c4' -> (Import Result ID: '72ed9e477795346e06b3b54010a45bf0') in 0.074 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=998f528cd4e1baf8ed1e3c59146dc9a2 DependenciesID=3ffd67adbd7ac4738db5f04c83e95316 StaticDependenciesID=c93a9f766952d1607d533778a67da4de 
+Asset Pipeline Refresh (id=bcf70245eb86f477e9c441c49d95370a): Total: 0.095 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: b654bf57df4714d75a4b4a0cad5a5743 - Path: Assets/ThirdParty/Textures/Plaster007/Plaster007_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: b654bf57df4714d75a4b4a0cad5a5743' -> (Import Result ID: '4b6c37b772b583f694d3b13a60d3cc38') in 0.103 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=7ea6e95b87d39996de17d239a1e4c66c DependenciesID=dbe2bf5a5cd6a7654ab87e0b956bac68 StaticDependenciesID=990771a8c0112295839af82647d23445 
+Asset Pipeline Refresh (id=2b4200ca0d080473bad36ec6be692493): Total: 0.126 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 5f52083969d0a45899d0deac7873dc0a - Path: Assets/ThirdParty/Textures/Plaster007/Plaster007_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 5f52083969d0a45899d0deac7873dc0a' -> (Import Result ID: '432d7aba2d8723475acb80d89ffba023') in 0.067 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=d8be7fb57d71e1f925f4e04c5b7113d7 DependenciesID=38c6051a23e792e26748df32bfb7e8b7 StaticDependenciesID=353617bc8deed22f429e5d8524638ae3 
+Asset Pipeline Refresh (id=f7ccfdfe37aab4d158cb1b4dec7ea203): Total: 0.087 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 3c9b274a8fb6e4c2d8470498e6fedeba - Path: Assets/ThirdParty/Textures/Rock051/Rock051_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 3c9b274a8fb6e4c2d8470498e6fedeba' -> (Import Result ID: '4cf03d4e710e1532b6c08a83483e87da') in 0.076 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=1f764504f8485d6a7722dfe43b900d47 DependenciesID=76f6efc96d15656b2cb49d2033537b16 StaticDependenciesID=a08308f806c8866c68f9a32d31319772 
+Asset Pipeline Refresh (id=d17a6a544457a4bb7b0b4b84ec4c0059): Total: 0.094 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 441480218046c47059b226537b806c1f - Path: Assets/ThirdParty/Textures/Rock051/Rock051_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 441480218046c47059b226537b806c1f' -> (Import Result ID: 'afff2ed73a50821221bf081b9be1123b') in 0.085 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=4f954fd4fe6f5e77b4af5f9e24f2652a DependenciesID=838e045ab4c4d6b85a2ce504372fae15 StaticDependenciesID=f4c08d2145617e67ca0206b68eaeceff 
+Asset Pipeline Refresh (id=4a8f71dfcc0dc4750824336c9a0ff103): Total: 0.103 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 5ca72a230ec22406e88a3c509bf17892 - Path: Assets/ThirdParty/Textures/Rock051/Rock051_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 5ca72a230ec22406e88a3c509bf17892' -> (Import Result ID: '3c0986d76f9c4a2e98a1ac0fbb49a694') in 0.075 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=eda83bd335c83b9d4e5782da4acd6619 DependenciesID=d253735a8ff319745c5cdfa7b27f689f StaticDependenciesID=68d3f32d7fcb7c9a51b86474027ffa72 
+Asset Pipeline Refresh (id=39f449e1b2d8443358b6c8421cf16256): Total: 0.093 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 87e8b76bace41466aa9430abf88bd516 - Path: Assets/ThirdParty/Textures/Rocks011/Rocks011_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 87e8b76bace41466aa9430abf88bd516' -> (Import Result ID: '8d36eb794f6e61e8c803e3d9902c4150') in 0.075 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=7225739ed389cf9ee0b501891cbb3984 DependenciesID=56434b95e07bff739240cea03980c5e0 StaticDependenciesID=0c368e9e63a32bc7a7939188408bde81 
+Preloading 1 native plugins for Editor in 2.30 ms.
+Asset Pipeline Refresh (id=74039820e4a2f49f3a79d20e734556a0): Total: 0.094 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 15d88498238434a2096be55eddc93946 - Path: Assets/ThirdParty/Textures/Rocks011/Rocks011_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 15d88498238434a2096be55eddc93946' -> (Import Result ID: 'a3baccdac641eac1dd5f9f18b560dc4e') in 0.083 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=392970ee5e17608082b3ac33cc93a489 DependenciesID=814d0bcea705d4feabd6577480954b70 StaticDependenciesID=7a75d82df9ed725abab28d4314053eca 
+Asset Pipeline Refresh (id=8cc6f0532c7a840fb95897da2c0332d3): Total: 0.107 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: d447e8adf68864874b47116d0700d601 - Path: Assets/ThirdParty/Textures/Rocks011/Rocks011_Mask.png' with importer (TextureImporter)
+Imported 'GUID: d447e8adf68864874b47116d0700d601' -> (Import Result ID: 'bc6de74f9ab7a5bc1bc308a5e3d33f49') in 0.070 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=33548dc1384a59f1ced0c6b36d971a9e DependenciesID=619f3c132acfc2a692f469fc5d5ce80e StaticDependenciesID=aaa30fb531c9f2122d7890a4f01728c3 
+Asset Pipeline Refresh (id=4b50499b79251492c9c13b37af5b4026): Total: 0.088 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: af4513db40b9641079a342ace66734d3 - Path: Assets/ThirdParty/Textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: af4513db40b9641079a342ace66734d3' -> (Import Result ID: 'd9b259719c138f2003cdaa4b622b583a') in 0.046 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=49e1ebd72dee9479b6f1a63bbfd40cdf DependenciesID=7f5e0b71307e603d2ff1485963102b6f StaticDependenciesID=65c6ea2001b34a27338f06d0d3041d6c 
+Asset Pipeline Refresh (id=85426bfe979e147cb921ffb550ec5d43): Total: 0.063 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 8f33e35b3e0da487d8e63e2d0e607f2e - Path: Assets/ThirdParty/Textures/RoofingTiles013A/RoofingTiles013A_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 8f33e35b3e0da487d8e63e2d0e607f2e' -> (Import Result ID: '173255b43c8ca931527701d5667c99e5') in 0.057 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=afa86ac786d0b0c9b10a863a3a9e5af6 DependenciesID=72a5d7412780a9c0f1618bbd29d065f1 StaticDependenciesID=6c1d1b614c1472660cae43e98b7ed65e 
+Asset Pipeline Refresh (id=fd7460d9d88e14af48b337c81b2061f3): Total: 0.075 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: cc33e7af936ff43cb9d2b515eb3f9500 - Path: Assets/ThirdParty/Textures/RoofingTiles013A/RoofingTiles013A_Mask.png' with importer (TextureImporter)
+Imported 'GUID: cc33e7af936ff43cb9d2b515eb3f9500' -> (Import Result ID: '2991b2212aa5ca928dda25bb96d71b9a') in 0.072 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=89d05c3e5d08c19fbcb227ef4505fe7d DependenciesID=a717dcaddf35ddb7783966ce9217ae4a StaticDependenciesID=191c55528e37e107c6669b18388e6269 
+Asset Pipeline Refresh (id=b0df698868fdb40adafcf4580275e6ec): Total: 0.090 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: b62079169837243699ecddffb9e5a829 - Path: Assets/ThirdParty/Textures/CorrugatedSteel007A/CorrugatedSteel007A_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: b62079169837243699ecddffb9e5a829' -> (Import Result ID: '1d25b0b920b74944c2bbd2260c3c640b') in 0.042 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=58564802915e0ae97772ad4295c93c85 DependenciesID=721805996a8cf2d12efe920a135ce6cb StaticDependenciesID=6c5e783060e360bc490594324bb8628b 
+Asset Pipeline Refresh (id=fc3444c11f67440838cf723489c794ab): Total: 0.060 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 3997e9b2ec44a4fc58460a1be5949feb - Path: Assets/ThirdParty/Textures/CorrugatedSteel007A/CorrugatedSteel007A_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 3997e9b2ec44a4fc58460a1be5949feb' -> (Import Result ID: '983536d9f41b949e63ac70c77132e6e5') in 0.075 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=3c64a19f3ee0c8fdb658b6763dae5b39 DependenciesID=faf6453051b1a905c0e849c8be4ad8c1 StaticDependenciesID=f198323bdea123f201a8d6b2e7dcb656 
+Asset Pipeline Refresh (id=34f5f5d001115431187138412c143835): Total: 0.093 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 44ae6609c38c04ec6b40a1d6991e74d8 - Path: Assets/ThirdParty/Textures/CorrugatedSteel007A/CorrugatedSteel007A_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 44ae6609c38c04ec6b40a1d6991e74d8' -> (Import Result ID: '4c97a532148ae6636e6837f009c1a222') in 0.065 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=501d819061dde29fc8ed58965f8841c7 DependenciesID=2c645a5160aa0ba1fc01de42cfa12b74 StaticDependenciesID=51e9eaaa95079df34fded1ffb01c799d 
+Asset Pipeline Refresh (id=1a563fb06ec2c4db2be00be56ba11f9f): Total: 0.083 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: accf472476a5040c9b31b8c1bb8d579c - Path: Assets/ThirdParty/Textures/Planks037A/Planks037A_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: accf472476a5040c9b31b8c1bb8d579c' -> (Import Result ID: '08dec86969d627874a4c9a8d978aa189') in 0.078 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=23a306e48f482497a8c5365d33fb5c75 DependenciesID=9e807b3a68b69864e30def3fa25eb93b StaticDependenciesID=5ed47c7655e8a9555877e3c3487d7908 
+Asset Pipeline Refresh (id=ef0753dffc922469d8c0059553df5e8d): Total: 0.097 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 987ce8c61d9864d22bb6e26fba114e7d - Path: Assets/ThirdParty/Textures/Planks037A/Planks037A_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 987ce8c61d9864d22bb6e26fba114e7d' -> (Import Result ID: '11185e16b5d89555d5e9b551e47c0d17') in 0.075 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=34ae591db2aeca0df975274a04f6610e DependenciesID=fc565eeb529f0d7fb1142117ada7e040 StaticDependenciesID=c05cad8792301e32ddff7a65f2341803 
+Asset Pipeline Refresh (id=b608fd2f980db43ceb1371a93b0a7eb4): Total: 0.095 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 50145762baab444a8bca6095f9b69c67 - Path: Assets/ThirdParty/Textures/Planks037A/Planks037A_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 50145762baab444a8bca6095f9b69c67' -> (Import Result ID: 'a61df5cb3b3523694e35bfa81ba7e6b1') in 0.076 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=f8742d8b438fd06cc5ba4b1099471144 DependenciesID=a491499d5528b9c8860c17132187acd7 StaticDependenciesID=bef29f23f2521c30a856eba7d53be864 
+Asset Pipeline Refresh (id=8a52eb15933ad4efebf0f2aa6144b90e): Total: 0.096 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: b395db1b4d41944f089a97b8d44b8d90 - Path: Assets/ThirdParty/Textures/Planks023A/Planks023A_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: b395db1b4d41944f089a97b8d44b8d90' -> (Import Result ID: 'dd578c836d7ced5ba1ed782ceceecbc8') in 0.071 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=6510a6ef4ab3ef71d54e296a1d80e80b DependenciesID=ff27f9b84a1ddcdaa10159eee84ad56b StaticDependenciesID=2d3f5a5e9f55cae865429524519f892f 
+Asset Pipeline Refresh (id=b0f72e8267b9740faa929570bd7776ca): Total: 0.089 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: caeeb509dbc5f46f29f22aec6598471b - Path: Assets/ThirdParty/Textures/Planks023A/Planks023A_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: caeeb509dbc5f46f29f22aec6598471b' -> (Import Result ID: '9103c4a8a2912ed22e4de81ffee58926') in 0.081 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a6cbb023b4d8c7d9165cfd764181f7c3 DependenciesID=a5aae555b237a9fa709f51406c58f509 StaticDependenciesID=27c5cc288dd3eabaac44cc5ca5bafbeb 
+Asset Pipeline Refresh (id=fe6c477bd18b34b6eaae4482c1a0af1d): Total: 0.099 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: c3fe34743f84e4946b56945b155eb92f - Path: Assets/ThirdParty/Textures/Planks023A/Planks023A_Mask.png' with importer (TextureImporter)
+Imported 'GUID: c3fe34743f84e4946b56945b155eb92f' -> (Import Result ID: 'd9bceb813a90c7ff329d76e6bbc37b23') in 0.062 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=5583fbf818757bc0c2790ef64655f74c DependenciesID=c04c0b0138fdb46f4be2678bb096822a StaticDependenciesID=5c422ba1d966769f718d79b030a99bdf 
+Asset Pipeline Refresh (id=c5dded9efc2e741a085ebcff2fc5a2c3): Total: 0.081 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 52d092406beb04639a4caa6b6641e721 - Path: Assets/ThirdParty/Textures/Metal021/Metal021_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 52d092406beb04639a4caa6b6641e721' -> (Import Result ID: 'c05713f6e548c72ec4005237040cdf60') in 0.077 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=d3c6de16fc2eeddad25fe4392a3441ff DependenciesID=bd9c20f7bf8c74618e9f5d3fb6cad8fb StaticDependenciesID=0f5da57b419ba79abe0718ba8d872b95 
+Asset Pipeline Refresh (id=9fcb1e760299d417bb8a9d63c8a6d7a2): Total: 0.096 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 824411aea62194c53b4f7be1d96eb938 - Path: Assets/ThirdParty/Textures/Metal021/Metal021_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: 824411aea62194c53b4f7be1d96eb938' -> (Import Result ID: '1fdc93cf3332ce9c4f78c09d6a2b823f') in 0.065 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=2a8bd3fc617609b9dc0ff743297fe90f DependenciesID=52e9e76a14b8c21a7658289b4656ce59 StaticDependenciesID=ecc64b76da94136c052e221458953418 
+Asset Pipeline Refresh (id=a6f98b46beae142108249e12f842cfaf): Total: 0.085 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 07a4ea95b94e3468393dabb4170686b8 - Path: Assets/ThirdParty/Textures/Metal021/Metal021_Mask.png' with importer (TextureImporter)
+Imported 'GUID: 07a4ea95b94e3468393dabb4170686b8' -> (Import Result ID: 'fccf13710a702a4d6b8e42c4e8bdbe1f') in 0.077 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=032ae4e0fe6c1850337186669a6b7808 DependenciesID=9b40d224552e97e50bdbd863439313a4 StaticDependenciesID=b229a75f3225f68426301189671aa4b2 
+Asset Pipeline Refresh (id=4a1ab975cb06d4c3b8f5de00905da75e): Total: 0.095 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 4120d789c881045d9aadfb79d2457564 - Path: Assets/ThirdParty/Textures/Fabric062/Fabric062_2K-JPG_Color.jpg' with importer (TextureImporter)
+Imported 'GUID: 4120d789c881045d9aadfb79d2457564' -> (Import Result ID: '23d55a897fcbba3ce00daea01a4e14ef') in 0.068 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=38f5071ba7bb2ba459681d142e3d1659 DependenciesID=e6456d382fc82e13e632f08d871353ae StaticDependenciesID=8af534d18ea5d6c72956a1e1242adcc6 
+Asset Pipeline Refresh (id=b3de390b7b1e94b6d86a1da48431a4a3): Total: 0.086 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: e477f29bb153a480d886b9327b084422 - Path: Assets/ThirdParty/Textures/Fabric062/Fabric062_2K-JPG_NormalGL.jpg' with importer (TextureImporter)
+Imported 'GUID: e477f29bb153a480d886b9327b084422' -> (Import Result ID: '5719976fcefe9553c407fd9a5492f6c1') in 0.081 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=cf11c4a81e74b0ead1703d7772d56293 DependenciesID=60c1e816475daed560fd0ee79a44b4f4 StaticDependenciesID=b3c9cc1ad8d06e508d53dc906659e07a 
+Asset Pipeline Refresh (id=51d61a5dddb0b4a108ef4f085253797f): Total: 0.100 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: dd6ad8428ba7e4985881f07ddfbd9102 - Path: Assets/ThirdParty/Textures/Fabric062/Fabric062_Mask.png' with importer (TextureImporter)
+Imported 'GUID: dd6ad8428ba7e4985881f07ddfbd9102' -> (Import Result ID: '01d3b2edc727b5fd7e338ec7f31e2b7a') in 0.075 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=967b257b7d0de4a875d7b03dfca784ec DependenciesID=b19372357c1e33b0c9b5df3a87bd4921 StaticDependenciesID=5a445230ad3d186df247d30d07656822 
+Asset Pipeline Refresh (id=ef70e251729af43bfa2e05eef5379281): Total: 0.092 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 0439b855bfc924d45804dd66710b2cfb - Path: Assets/ThirdParty/HDRI/autumn_hilly_field_4k.hdr' with importer (TextureImporter)
+Imported 'GUID: 0439b855bfc924d45804dd66710b2cfb' -> (Import Result ID: '5e529984b577b4ca272d8545b63a307c') in 10.248 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=ced78c496104fc8888671e042cd384c6 DependenciesID=9b24ec5a6971526f4d77fbf2d64ec74b StaticDependenciesID=3f88b70c3e060b29b147340a10572a4e 
+
+Asset Pipeline Refresh (id=6fe5ef04e14de408199fe35808471c22): Total: 10.273 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=3 ms, native=10266 ms
+		Asset DB Callback time: managed=1 ms, native=2 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=1951, non-scripts=16645
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 4
+	Scan: 2.364ms
+	Collect global state as custom dependencies: 0.059ms
+	CategorizeAssets: 4.069ms
+	ImportOutOfDateAssets: 10259.742ms (0.407ms without children)
+		ImportManagerImport: 10257.867ms (1.058ms without children)
+		ReloadNativeAssets: 0.075ms
+		UnloadImportedAssets: 0.112ms
+		ReloadImportedAssets: 6.182ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.132ms
+		ImportSchedulerStart: 0.147ms
+	PostProcessAllAssets: 1.872ms
+		XRBuildSystem.XRAssetImported 0.140ms
+		MonoPostProcessAllAssets: 1.643ms
+			SyncVS.PostprocessSyncProject 0.521ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 0.319ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.130ms
+			AssetPostprocessor.OnPostprocessAllAssets 0.087ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 0.052ms
+	PostAssetChangesProfiler: 2.059ms
+	GatherAllCurrentPrimaryImportResultRevisions: 0.280ms
+	PersistCurrentRevisions: 0.376ms
+	Untracked: 2.337ms
+
+Importing 'GUID: 24b1887eef5474fc7b19a7b7853c786a - Path: Assets/ThirdParty/HDRI/cannon_4k.exr' with importer (TextureImporter)
+Imported 'GUID: 24b1887eef5474fc7b19a7b7853c786a' -> (Import Result ID: 'f3bc056168af2877b7d5d39fa0b81a36') in 11.325 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=49a74414e7a08ea30003820fb36688f2 DependenciesID=667bc6268d3295af5a0e481f35181f1e StaticDependenciesID=e964065ec4e18bf080558192dcfa6ba8 
+Refreshing native plugins compatible for Editor in 2.36 ms, found 1 plugins.
+
+Asset Pipeline Refresh (id=51b575cac0e6746b2a38a5aebc8ff353): Total: 11.358 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=11349 ms
+		Asset DB Callback time: managed=3 ms, native=4 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=1951, non-scripts=16645
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 4
+	Scan: 2.987ms
+	Collect global state as custom dependencies: 0.084ms
+	CategorizeAssets: 4.986ms
+	ImportOutOfDateAssets: 11337.326ms (0.301ms without children)
+		ImportManagerImport: 11335.363ms (1.150ms without children)
+		ReloadNativeAssets: 0.120ms
+		UnloadImportedAssets: 0.131ms
+		ReloadImportedAssets: 8.426ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.227ms
+		ImportSchedulerStart: 0.181ms
+	PostProcessAllAssets: 3.357ms
+		XRBuildSystem.XRAssetImported 0.177ms
+		MonoPostProcessAllAssets: 3.077ms
+			SyncVS.PostprocessSyncProject 1.228ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 0.814ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.133ms
+			AssetPostprocessor.OnPostprocessAllAssets 0.093ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 0.058ms
+	PostAssetChangesProfiler: 4.528ms
+	GatherAllCurrentPrimaryImportResultRevisions: 0.291ms
+	PersistCurrentRevisions: 0.445ms
+	Untracked: 3.524ms
+
+Importing 'GUID: 054535c746751439bb035263a235848e - Path: Assets/ThirdParty/HDRI/belfast_sunset_4k.hdr' with importer (TextureImporter)
+Imported 'GUID: 054535c746751439bb035263a235848e' -> (Import Result ID: 'cf262e1ead7408e8cdda721a14b3d47b') in 10.354 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=eb8c70bdee62fcd620360d968f2a11e7 DependenciesID=04b56c44faf0246e770a6d34b72b0897 StaticDependenciesID=a4f36fbc5c21e94ae204445033c1e47f 
+Refreshing native plugins compatible for Editor in 3.52 ms, found 1 plugins.
+
+Asset Pipeline Refresh (id=049b8bf94eecb48c6a72ad529f102ad8): Total: 10.419 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=10410 ms
+		Asset DB Callback time: managed=3 ms, native=5 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=1951, non-scripts=16645
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 4
+	ApplyChangesToAssetFolders: 0.068ms
+	Scan: 8.989ms
+	Collect global state as custom dependencies: 0.129ms
+	ProcessAssetsWithTransientArtifactChanges: 0.719ms
+	CategorizeAssets: 8.453ms
+	ImportOutOfDateAssets: 10385.829ms (2.313ms without children)
+		ImportManagerImport: 10381.315ms (2.993ms without children)
+			UpdateCategorizedAssets: 0.116ms
+		ReloadNativeAssets: 0.099ms
+		UnloadImportedAssets: 0.221ms
+		ReloadImportedAssets: 22.888ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.510ms
+		ImportSchedulerStart: 0.368ms
+	PostProcessAllAssets: 3.721ms
+		XRBuildSystem.XRAssetImported 0.178ms
+		MonoPostProcessAllAssets: 3.418ms
+			SyncVS.PostprocessSyncProject 0.975ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.396ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 0.362ms
+			AssetPostprocessor.OnPostprocessAllAssets 0.208ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 0.091ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 0.088ms
+			AssetChangedListener.OnPostprocessAllAssets 0.075ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 0.070ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.064ms
+	PostAssetChangesProfiler: 5.078ms
+	GatherAllCurrentPrimaryImportResultRevisions: 0.645ms
+	PersistCurrentRevisions: 0.371ms
+	Untracked: 5.218ms
+
+Importing 'GUID: f2a7bb270c9134414a70ab3aaeb7e6e1 - Path: Assets/ThirdParty/HDRI/bloem_field_sunrise_4k.hdr' with importer (TextureImporter)
+Imported 'GUID: f2a7bb270c9134414a70ab3aaeb7e6e1' -> (Import Result ID: '23194fc8e7259abb226adfee35e434bc') in 10.207 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=2bf18f30fa9a3ef8c5f4f5d37a9ead3d DependenciesID=0bd7ff878df6de247bd33e69d3ace860 StaticDependenciesID=51344482404f8798f4177d3554de99ad 
+
+Asset Pipeline Refresh (id=63a04042903b74382b004279356ae6ac): Total: 10.254 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=10247 ms
+		Asset DB Callback time: managed=1 ms, native=4 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=1951, non-scripts=16645
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 4
+	ApplyChangesToAssetFolders: 0.054ms
+	Scan: 5.952ms
+	Collect global state as custom dependencies: 0.093ms
+	CategorizeAssets: 8.854ms
+	ImportOutOfDateAssets: 10227.400ms (0.294ms without children)
+		ImportManagerImport: 10225.391ms (1.134ms without children)
+		ReloadNativeAssets: 0.084ms
+		UnloadImportedAssets: 0.136ms
+		ReloadImportedAssets: 16.551ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.226ms
+		ImportSchedulerStart: 0.266ms
+	PostProcessAllAssets: 2.424ms
+		XRBuildSystem.XRAssetImported 0.327ms
+		MonoPostProcessAllAssets: 1.928ms
+			SyncVS.PostprocessSyncProject 0.645ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 0.371ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.114ms
+			AssetPostprocessor.OnPostprocessAllAssets 0.096ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 0.060ms
+	PostAssetChangesProfiler: 3.694ms
+	GatherAllCurrentPrimaryImportResultRevisions: 0.295ms
+	PersistCurrentRevisions: 0.367ms
+	Untracked: 4.661ms
+
+Importing 'GUID: 0000000000000000b000000000000000 - Path: ProjectSettings/EditorBuildSettings.asset' with importer (LibraryAssetImporter)
+Imported 'GUID: 0000000000000000b000000000000000' -> (Import Result ID: '1523e802e7b4c470df2d0910989610fc') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=0a89a5c5f492143e0fa186859e17ba6f DependenciesID=8517ee37590e059b27ee5273f76095ae StaticDependenciesID=255b4d1a8d09276057104aaff85ed67c 
+Importing 'GUID: b00768e8773df4a6b910f89c6ae31922 - Path: Assets/ThirdParty/Materials/HK_Metal021.mat' with importer (NativeFormatImporter)
+Imported 'GUID: b00768e8773df4a6b910f89c6ae31922' -> (Import Result ID: '39f8c41900517ad7a984bd05038091fa') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=4674c165f0e420b0c56a85e757f0a6e2 DependenciesID=6c7dd0a8eda81b33faa1039d435a7afe StaticDependenciesID=8296e2f215891686a6132f50a27d6345 
+Importing 'GUID: 915dc86d00e4d42ce823a18243a938ea - Path: Assets/ThirdParty/Materials/HK_Rocks011.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 915dc86d00e4d42ce823a18243a938ea' -> (Import Result ID: '6f1727b18d4a766cb934e28c340321e3') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=356fd6ff4c9d01c81de352d7ad683e25 DependenciesID=b61cb57a6e018b2fab999327b5630708 StaticDependenciesID=1ef586d6205c514815d4380399c5702f 
+Importing 'GUID: 02113b9de1a5646b3b0eeb7de1354f33 - Path: Assets/ThirdParty/Materials/HK_RoofingTiles013A.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 02113b9de1a5646b3b0eeb7de1354f33' -> (Import Result ID: 'c11406716f3e3dcf715bbd6260b2c8b4') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=36a55159869621c7844877950ee36dbb DependenciesID=00cf1304ebeebfc4b9d425944c4edf3d StaticDependenciesID=6e9a7c747272ba621bc07b937be2a9a0 
+Importing 'GUID: 52a174401f2a64017ad0291cd3dad3ae - Path: Assets/ThirdParty/Materials/HK_TL_Grass007.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: 52a174401f2a64017ad0291cd3dad3ae' -> (Import Result ID: 'c0ace88473626718810a566a16b086d4') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=0e9d6a84ab39656b25e6e4e604622be1 DependenciesID=9631882f355d8b1c0adcceb1ff3c28c1 StaticDependenciesID=1fb4a8669a4b44b2d12da87d9887cdce 
+Importing 'GUID: b2afe8630d4d249c18ecd80fdd6b3fb7 - Path: Assets/ThirdParty/Materials/HK_TL_Ground106.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: b2afe8630d4d249c18ecd80fdd6b3fb7' -> (Import Result ID: 'e38c6363d152240e338edc15119ef92f') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=5ac7ffb5b1b9dbfa0ea0ca2dad324bd5 DependenciesID=49200f2eb4e455cd256bad8c49c0e3c1 StaticDependenciesID=243e354827f195ed0274ed8bcf91b828 
+Importing 'GUID: 2351e2d87d75f4f82a6aa3d6a66a3c6f - Path: Assets/ThirdParty/Materials/HK_TL_Gravel023.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: 2351e2d87d75f4f82a6aa3d6a66a3c6f' -> (Import Result ID: '3bffa7035c54dacf03a1efb3e0d356de') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=2152191daa15d6e1fb6fa1fd30e675cf DependenciesID=afada2ea8e19a43d442a06312fdb370b StaticDependenciesID=a95fd0a69dcb5f0e0b3a2f19bc1367ff 
+Importing 'GUID: d31c84912d9404a02b1e79ea5bfaf94f - Path: Assets/ThirdParty/Materials/HK_Concrete036.mat' with importer (NativeFormatImporter)
+Imported 'GUID: d31c84912d9404a02b1e79ea5bfaf94f' -> (Import Result ID: '5093edc74f76b8eca180401e9ebb4303') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=8dfa71f0cef025bab2353441725efdb2 DependenciesID=6cd66ef54340be684abd1d542f7d4ac7 StaticDependenciesID=aa50fa206aec96d634f6183c29081267 
+Importing 'GUID: c4b8b6ad3dfe444349c40edebe479dd6 - Path: Assets/ThirdParty/Materials/HK_Asphalt031.mat' with importer (NativeFormatImporter)
+Imported 'GUID: c4b8b6ad3dfe444349c40edebe479dd6' -> (Import Result ID: '9ad207f1c4434e46766c0e939647cb9d') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=b352cc8a10ba31241bf566977ce89224 DependenciesID=d01b885a5d7be6214519fec9fbc73b4c StaticDependenciesID=ed7ef24f99396a18a7c759a9571e33d5 
+Importing 'GUID: 66e273c8bc48f49538f6fd85124bdd3f - Path: Assets/ThirdParty/Materials/HK_TL_Rock058.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: 66e273c8bc48f49538f6fd85124bdd3f' -> (Import Result ID: 'f7400fccb7f31fb45924162ab9c74613') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=e4f01d0593d058466d6142d0ea68ab2f DependenciesID=232ee95b2795bd316a74a383b260f253 StaticDependenciesID=9ac164129a48611c33900c451f338c13 
+Importing 'GUID: 66fd93137ab2a4fa8a0b7281a8a730d7 - Path: Assets/ThirdParty/Materials/HK_Fabric062.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 66fd93137ab2a4fa8a0b7281a8a730d7' -> (Import Result ID: '3ca1c264f96ce52d4573485d765a6783') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=1a6f43ae2a1d9468d5c9714fbe2bec27 DependenciesID=fe984bc17aa39033c84718df1fe63d88 StaticDependenciesID=6d2e6d08493c276e350589a1c10c369b 
+Importing 'GUID: a8f1bba0ee6364d9bb1f58e1d3c1e9bc - Path: Assets/ThirdParty/Materials/HK_TL_Ground036.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: a8f1bba0ee6364d9bb1f58e1d3c1e9bc' -> (Import Result ID: '1c917efc26ddcf6cca1bfe82345fb428') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=c14741275ee09022d44c378df02c7eee DependenciesID=d24f2ba6c6197d5c83854a5e4c7708dd StaticDependenciesID=d9184830ef8e6167719665eace76bb48 
+Importing 'GUID: f99d8111db0174e1d8273e1e8c162549 - Path: Assets/ThirdParty/Materials/HK_TL_Rock035.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: f99d8111db0174e1d8273e1e8c162549' -> (Import Result ID: '21bc29ea82efec75f364181e8380ea8e') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=e88c4ddd2469d99c4c8c00726b449b21 DependenciesID=5702d208ee1cba20f36a4c2490d808f0 StaticDependenciesID=194bee31be9843664b3b1a7e98e551cc 
+Importing 'GUID: 4a4c47e2653b04ed08c2dc861a4cbb03 - Path: Assets/ThirdParty/Materials/HK_Concrete034.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 4a4c47e2653b04ed08c2dc861a4cbb03' -> (Import Result ID: '058bcc9f9f83fae34724e2004f042c24') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=f9dd50864551f88d606de3199e526e67 DependenciesID=572b739f5c451dac75d237f303219eb2 StaticDependenciesID=913fa2766b8fe7bdec0f9c23f2bdf1f7 
+Importing 'GUID: 8a3253a2008624dfe900dcc1dbbf48c3 - Path: Assets/ThirdParty/Materials/HK_Grass007.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 8a3253a2008624dfe900dcc1dbbf48c3' -> (Import Result ID: '8a983a12001269594ca587a3fcb10130') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=5db00e74c5e8be7effc0c560ba8805a0 DependenciesID=095534bdb340082aec3283c76108476c StaticDependenciesID=210329abaa107e8ad541073367e4ef9a 
+Importing 'GUID: fa0c6ec9a23674d5fac92535f03476c0 - Path: Assets/ThirdParty/Materials/HK_TL_ScatteredLeaves009.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: fa0c6ec9a23674d5fac92535f03476c0' -> (Import Result ID: 'c111fe5e513d5b6af0044dc5d0d78b9f') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=28eb73f23ba7c5ea5d4174ca6ee31969 DependenciesID=8a1d245c6c7202d7bf1a6e1bc8671bdc StaticDependenciesID=81ee1fbee1cf80f826962768ad8205a2 
+Importing 'GUID: bbd49c9f526874c01bac9c8140be6758 - Path: Assets/ThirdParty/Materials/HK_Rock051.mat' with importer (NativeFormatImporter)
+Imported 'GUID: bbd49c9f526874c01bac9c8140be6758' -> (Import Result ID: '552a681aec9d08f14f3912d9571ddb72') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=8c649ac200c163356bf1a5deeb120f14 DependenciesID=556925be298f2077e5d3b3f57974fc46 StaticDependenciesID=da961203b5433e3161ae4c781292c52d 
+Importing 'GUID: 5c960c023f5d34d34821b73bf230d7c3 - Path: Assets/ThirdParty/Materials/HK_Rock058.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 5c960c023f5d34d34821b73bf230d7c3' -> (Import Result ID: '94537bd3399d5573e477df7845c19578') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=b0741bccb1ff48d1e7defd46defe4a9d DependenciesID=5d282db213710877434b3d9d1ea9cca3 StaticDependenciesID=92e503ca0243da0cf4a7bd7951e6148b 
+Importing 'GUID: 8c9a646fa2d4d4bd99d25f27fe4466a5 - Path: Assets/ThirdParty/Materials/HK_Planks037A.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 8c9a646fa2d4d4bd99d25f27fe4466a5' -> (Import Result ID: 'c430fb8ec3af91730e98f581eafadac3') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=3f61e473acbfc756b629dd1ec7739088 DependenciesID=ca14030ee3ced84c632e8474d707eba9 StaticDependenciesID=5ce4e6895956b28f051f118417ce8685 
+Importing 'GUID: ac838c6c278af43a8b37eccb21aaffcf - Path: Assets/ThirdParty/Materials/HK_ScatteredLeaves009.mat' with importer (NativeFormatImporter)
+Imported 'GUID: ac838c6c278af43a8b37eccb21aaffcf' -> (Import Result ID: 'df8ad9fef38518b39830d69d2505a9f2') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=7500f15137b1272ed59d4f51251076f2 DependenciesID=5bc8172fe957eaa5c22f436559ca0bc2 StaticDependenciesID=9ff323411ad02e1ee4273e117616778b 
+Importing 'GUID: bc700cf647d6a4d198e47fc692ba6698 - Path: Assets/ThirdParty/Materials/HK_Plaster004.mat' with importer (NativeFormatImporter)
+Imported 'GUID: bc700cf647d6a4d198e47fc692ba6698' -> (Import Result ID: '309968cd1711c2979af3321e21df5cf0') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=07d1374a1673e7692fbf8b42e83bd640 DependenciesID=9721b9a02b2321b5a89487514642d90e StaticDependenciesID=7070334af9f6c8947ba5e5b70ba26122 
+Importing 'GUID: bce4b458a257342d6a56d11c9f27ed13 - Path: Assets/ThirdParty/Materials/HK_Grass001.mat' with importer (NativeFormatImporter)
+Imported 'GUID: bce4b458a257342d6a56d11c9f27ed13' -> (Import Result ID: '9f3ea72180005f17c94e8c3c16f52a1c') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=37dcf3d7f5be0c83aa2b330ba093409b DependenciesID=17a25fdfa08f98cfdb567127eda22615 StaticDependenciesID=d7b3b347a3661e23b3518d7a2d7f5ae1 
+Importing 'GUID: cc9607d649ce047f494cc7ce2196b178 - Path: Assets/ThirdParty/Materials/HK_Ground036.mat' with importer (NativeFormatImporter)
+Imported 'GUID: cc9607d649ce047f494cc7ce2196b178' -> (Import Result ID: '03965417358754bcc436a8dc877fd658') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=f20f15b05f94a6ec01ce829151e88e5f DependenciesID=588abc8049535ccbdacc309be62b0a7f StaticDependenciesID=33385394f2c0d9f3c49a5c2508c0b8d5 
+Importing 'GUID: 0d33275fca65e4e7eabb0d5db36f9649 - Path: Assets/ThirdParty/Materials/HK_Ground106.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 0d33275fca65e4e7eabb0d5db36f9649' -> (Import Result ID: '067a45aad79d29f021788062fcfb48f8') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=6f84ce42567550ac83b1415cf5552516 DependenciesID=f35dac1957da9c9064f4c8be7d7f44be StaticDependenciesID=548169b5fa025cc8b46dc4c335a5ded3 
+Importing 'GUID: 9d3ebd3b29b2c47dd91f22701a88852e - Path: Assets/ThirdParty/Materials/HK_TL_Grass001.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: 9d3ebd3b29b2c47dd91f22701a88852e' -> (Import Result ID: 'deb892f83bb1ed8ea4acbf5d4d6b3356') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=befbaa84ab716b2c7d13368181677abd DependenciesID=baaf18b2cd992010f4c90bb68274a4f5 StaticDependenciesID=709e93c35aa393d4f59a485d52ac0734 
+Importing 'GUID: dd8765481263641d787fdc96deb72107 - Path: Assets/ThirdParty/Materials/HK_Plaster007.mat' with importer (NativeFormatImporter)
+Imported 'GUID: dd8765481263641d787fdc96deb72107' -> (Import Result ID: 'c2a645660ff64f4b87b3b2feb51abbb2') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=8f5d98f0fa1eca464db2e7704c971c3a DependenciesID=0f9d4553f30772a85931d289814bab52 StaticDependenciesID=53453922e4e3fa5ba79c18849bfef582 
+Importing 'GUID: fdef4c0d4ab144aa9b251ebef84f692c - Path: Assets/ThirdParty/Materials/HK_Planks023A.mat' with importer (NativeFormatImporter)
+Imported 'GUID: fdef4c0d4ab144aa9b251ebef84f692c' -> (Import Result ID: '298626043f48f87902f8204127cb9d19') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=1ed2d76e3b28d7d33e8fc4d93d6860f9 DependenciesID=a128eea6792e5bfdf5c383eda2144660 StaticDependenciesID=2b1df9a31ff7eff978021bdbc7a5c83f 
+Importing 'GUID: 9e077ee512b844d19804cde9abfa630c - Path: Assets/ThirdParty/Materials/HK_Gravel023.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 9e077ee512b844d19804cde9abfa630c' -> (Import Result ID: '7233122d5775b8745e7c7c62092d1f0c') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=4a4b303123a787cfc7bdb004ad47c952 DependenciesID=528c8e57f06bc8a5c137d4159ed611d6 StaticDependenciesID=8aa49c6b73db7526c9ca7cc7e550fe17 
+Importing 'GUID: aedbf8dc275b241d6b5ccb624651626a - Path: Assets/ThirdParty/Materials/HK_Rock035.mat' with importer (NativeFormatImporter)
+Imported 'GUID: aedbf8dc275b241d6b5ccb624651626a' -> (Import Result ID: '26fad228676d8c651f6e865867fb526e') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=34e45b3d8c3229b1ce5af096a907c5e2 DependenciesID=22672e4fb3129acbf31c267d7d17a0a2 StaticDependenciesID=15120166ba139f40248db78eb4c02044 
+Importing 'GUID: ee28be3db829241539c1f1c9c9c70c89 - Path: Assets/ThirdParty/Materials/HK_CorrugatedSteel007A.mat' with importer (NativeFormatImporter)
+Imported 'GUID: ee28be3db829241539c1f1c9c9c70c89' -> (Import Result ID: '3174ae356668f1818334f0529515798c') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=026bcfd8e46c40e5ee01571937e0709a DependenciesID=527ad319e86a37ce4300bd02798ebfcf StaticDependenciesID=715ceb6cd33959f264b70ba8b1ac54cc 
+Importing 'GUID: bf54384ee036d4803a818c0f5b21264c - Path: Assets/ThirdParty/Materials/HK_TL_Asphalt031.terrainlayer' with importer (NativeFormatImporter)
+Imported 'GUID: bf54384ee036d4803a818c0f5b21264c' -> (Import Result ID: 'a61dfba190c134f87312ff02870c60f3') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=964f3374d593e23dfdbf9452f25ac5bb DependenciesID=5bb574c69bca8d70eee3952a005fd6aa StaticDependenciesID=623c58a4f0cfbe7d39394e18c8be489a 
+Importing 'GUID: a8c3e2f1b9044d6a9e7c5d4b3a2f1e0d - Path: Assets/_Project/Resources/ContentOverrides.asset' with importer (NativeFormatImporter)
+Imported 'GUID: a8c3e2f1b9044d6a9e7c5d4b3a2f1e0d' -> (Import Result ID: '1e2aca053b1d060ce745465b044e38a9') in 0.000 seconds [static dependencies only]. Details - ImportResultOutputID=8890e36a75904940797a1cb5c437930f DependenciesID=befbbdcbfb27735b09b766051a25b1d5 StaticDependenciesID=d1f6d2a57f7d0a9630743e469b84be65 
+Asset Pipeline Refresh (id=267b5aedef3a64c48917fd6874a6ffc7): Total: 0.056 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[ThirdPartyBinder] başlıyor
+  Materyal Mud <- Ground036
+  Materyal Dirt <- Ground106
+  Materyal Grass <- Grass001
+  Materyal DryGrass <- Grass007
+  Materyal PineNeedles <- ScatteredLeaves009
+  Materyal Rock <- Rock058
+  Materyal RockDark <- Rock035
+  Materyal Gravel <- Gravel023
+  Materyal Asphalt <- Asphalt031
+  Materyal Concrete <- Concrete034
+  Materyal ConcreteDark <- Concrete036
+  Materyal Plaster <- Plaster004
+  Materyal PlasterWarm <- Plaster007
+  Materyal Stone <- Rock051
+  Materyal StoneDark <- Rocks011
+  Materyal RoofTile <- RoofingTiles013A
+  Materyal RoofMetal <- CorrugatedSteel007A
+  Materyal Wood <- Planks037A
+  Materyal WoodDark <- Planks023A
+  Materyal Rust <- Metal021
+  Materyal TentCanvas <- Fabric062
+  ArazıKatmanı Grass <- Grass001
+  ArazıKatmanı DryGrass <- Grass007
+  ArazıKatmanı Dirt <- Ground106
+  ArazıKatmanı Mud <- Ground036
+  ArazıKatmanı Rock <- Rock058
+  ArazıKatmanı RockDark <- Rock035
+  ArazıKatmanı Gravel <- Gravel023
+  ArazıKatmanı Asphalt <- Asphalt031
+  ArazıKatmanı PineNeedles <- ScatteredLeaves009
+  Gökyüzü day_clear <- autumn_hilly_field_4k.hdr
+  Gökyüzü cloudy <- cannon_4k.exr
+  Gökyüzü sunset <- belfast_sunset_4k.hdr
+  Gökyüzü sunrise <- bloem_field_sunrise_4k.hdr
+[ThirdPartyBinder] bitti: 25 başarılı, 0 sorun
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Project.EditorTools.BatchEntry:BindThirdParty () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:21)
+
+(Filename: Assets/_Project/Scripts/Editor/BatchEntry.cs Line: 21)
+
+Asset Pipeline Refresh (id=e3547ce910e64447282e0af16e1f80a4): Total: 0.137 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Importing 'GUID: a8c3e2f1b9044d6a9e7c5d4b3a2f1e0d - Path: Assets/_Project/Resources/ContentOverrides.asset' with importer (NativeFormatImporter)
+Imported 'GUID: a8c3e2f1b9044d6a9e7c5d4b3a2f1e0d' -> (Import Result ID: '133c99ac9c93e48ce224f694e054da8d') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=8890e36a75904940797a1cb5c437930f DependenciesID=a9f4595fa893b8bbfab74b0336e054d5 StaticDependenciesID=1436bc1c586714564b986cee82a6a026 
+Asset Pipeline Refresh (id=a80a22fcb94a54703b1317d9efa51059): Total: 0.052 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[HAREKÂT] ThirdPartyModelBinder: [ThirdPartyModelBinder] başlıyor
+  Bitki pine <- fir_sapling
+  Bitki pine <- pine_sapling_small
+  Bitki bush <- shrub_01
+  Bitki bush <- shrub_02
+  Bitki bush <- shrub_03
+  Bitki bush <- shrub_04
+  Bitki bush <- fern_02
+  Bitki bush <- grass_medium_01
+  Bitki bush <- grass_medium_02
+  Bitki dead <- dead_tree_trunk
+  Bitki dead <- dead_tree_trunk_02
+  Bitki dead <- tree_stump_01
+  Bitki dead <- tree_stump_02
+  Bitki dead <- dry_branches_medium_01
+  Kaya small <- stone_01
+  Kaya small <- rock_07
+  Kaya small <- rock_moss_set_01
+  Kaya medium <- boulder_01
+  Kaya medium <- namaqualand_boulder_02
+  Kaya medium <- namaqualand_boulder_03
+  Kaya medium <- namaqualand_boulder_05
+  Kaya large <- namaqualand_cliff_01
+  Kaya large <- rock_face_01
+  Kaya large <- namaqualand_boulders_01
+  Prop crate <- wooden_crate_01
+  Prop barrel <- barrel_03
+  Prop barrier <- concrete_road_barrier
+  Prop fence <- modular_chainlink_fence
+  Prop jerrycan <- metal_jerrycan_green
+  Prop bucket <- wooden_bucket_01
+  Prop ladder <- wooden_ladder
+  Prop spade <- rusted_spade_01
+  Prop basket <- wicker_basket_01
+  Prop bags <- compost_bags
+  Prop handtruck <- hand_truck
+[ThirdPartyModelBinder] bitti: 35 başarılı, 0 sorun
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Project.EditorTools.BatchEntry:BindThirdParty () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:34)
+
+(Filename: Assets/_Project/Scripts/Editor/BatchEntry.cs Line: 34)
+
+HAREKÂT İçerik Doğrulama Raporu — 2026-10-06 03:39
+[HATA] Bitki/pine — UYARI: pivot taban/merkezden uzak; HATA: üçgen 433021 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/pine — UYARI: pivot taban/merkezden uzak; HATA: üçgen 398144 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/bush — UYARI: pivot taban/merkezden uzak; HATA: üçgen 156012 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/bush — UYARI: pivot taban/merkezden uzak; UYARI: üçgen 27254 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/bush — UYARI: pivot taban/merkezden uzak; HATA: LODGroup yok
+[HATA] Bitki/bush — UYARI: pivot taban/merkezden uzak; UYARI: üçgen 27327 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/bush — UYARI: pivot taban/merkezden uzak; HATA: LODGroup yok
+[HATA] Bitki/bush — UYARI: üçgen 24730 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/bush — UYARI: pivot taban/merkezden uzak; HATA: LODGroup yok
+[HATA] Bitki/dead — HATA: üçgen 101802 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/dead — HATA: üçgen 83128 > bütçe 15000
+[HATA] Bitki/dead — HATA: üçgen 41046 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/dead — HATA: üçgen 62345 > bütçe 15000; HATA: LODGroup yok
+[HATA] Bitki/dead — UYARI: üçgen 16803 > bütçe 15000; HATA: LODGroup yok
+[HATA] Kaya/small — UYARI: ölçek 0.15 m (beklenen 0.2-15 m, 1 birim = 1 m); HATA: üçgen 53520 > bütçe 8000
+[UYARI] Kaya/small — UYARI: üçgen 14844 > bütçe 8000
+[HATA] Kaya/small — HATA: üçgen 63127 > bütçe 8000
+[HATA] Kaya/medium — HATA: üçgen 66122 > bütçe 8000
+[HATA] Kaya/medium — HATA: üçgen 97964 > bütçe 8000
+[HATA] Kaya/medium — HATA: üçgen 64826 > bütçe 8000
+[HATA] Kaya/medium — HATA: üçgen 89618 > bütçe 8000
+[HATA] Kaya/large — HATA: üçgen 94369 > bütçe 8000
+[HATA] Kaya/large — HATA: üçgen 20174 > bütçe 8000
+[HATA] Kaya/large — UYARI: pivot taban/merkezden uzak; HATA: üçgen 40850 > bütçe 8000
+[UYARI] Prop/crate — UYARI: üçgen 6576 > bütçe 5000
+[OK] Prop/barrel
+[HATA] Prop/barrier — HATA: üçgen 60928 > bütçe 5000
+[HATA] Prop/fence — UYARI: pivot taban/merkezden uzak; HATA: üçgen 89232 > bütçe 5000
+[UYARI] Prop/jerrycan — UYARI: üçgen 9636 > bütçe 5000
+[UYARI] Prop/bucket — UYARI: üçgen 5116 > bütçe 5000
+[UYARI] Prop/ladder — UYARI: üçgen 8492 > bütçe 5000
+[HATA] Prop/spade — HATA: üçgen 11436 > bütçe 5000
+[HATA] Prop/basket — HATA: üçgen 22276 > bütçe 5000
+[HATA] Prop/bags — HATA: üçgen 18708 > bütçe 5000
+[HATA] Prop/handtruck — HATA: üçgen 13220 > bütçe 5000
+[OK] ArazıKatmanı/Grass
+[OK] ArazıKatmanı/DryGrass
+[OK] ArazıKatmanı/Dirt
+[OK] ArazıKatmanı/Mud
+[OK] ArazıKatmanı/Rock
+[OK] ArazıKatmanı/RockDark
+[OK] ArazıKatmanı/Gravel
+[OK] ArazıKatmanı/Asphalt
+[OK] ArazıKatmanı/PineNeedles
+[OK] Gökyüzü/day_clear
+[OK] Gökyüzü/cloudy
+[OK] Gökyüzü/sunset
+[OK] Gökyüzü/sunrise
+
+--- Lisans denetimi ---
+HAREKÂT Lisans Denetimi - 2026-10-06 03:39 (3 kayıt)
+[HATA] Assets/ThirdParty/Animations - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Animators - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Audio - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Buildings - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Characters - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Environment - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Materials - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Mixamo - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Models - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Vehicles - ThirdParty klasörü Credits.json'da kayıtsız
+[HATA] Assets/ThirdParty/Weapons - ThirdParty klasörü Credits.json'da kayıtsız
+Özet: OK=14 UYARI=5 HATA=40
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Project.EditorTools.BatchEntry:BindThirdParty () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:40)
+
+(Filename: Assets/_Project/Scripts/Editor/BatchEntry.cs Line: 40)
+
+[HAREKÂT] BatchEntry.BindThirdParty bitti.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:23)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Project.EditorTools.BatchEntry:BindThirdParty () (at Assets/_Project/Scripts/Editor/BatchEntry.cs:42)
+
+(Filename: Assets/_Project/Scripts/Editor/BatchEntry.cs Line: 42)
+
+Thread 0x16ff7b000 may have been prematurely finalized
+Batchmode quit successfully invoked - shutting down!
+Curl error 42: Callback aborted
+Thread 0x171047000 may have been prematurely finalized
+Input System module state changed to: ShutdownInProgress.
+Input Polling Thread exited.
+Input System module state changed to: Shutdown.
+Thread 0x17011f000 may have been prematurely finalized
+Thread 0x170093000 may have been prematurely finalized
+Thread 0x1701ab000 may have been prematurely finalized
+Thread 0x1703db000 may have been prematurely finalized
+Thread 0x1704f3000 may have been prematurely finalized
+Thread 0x170237000 may have been prematurely finalized
+Thread 0x1702c3000 may have been prematurely finalized
+Thread 0x170467000 may have been prematurely finalized
+Thread 0x17034f000 may have been prematurely finalized
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+[Licensing::IpcConnector] LicenseClient-f2gomac-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-f2gomac channel disconnected successfully.
+Lingering sessions upon destruction of worker manager
+Unity Data Store service was successfully shut down
+UDS shutting down local client system
+Shut down UDS service system complete
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+CodeReloadManager destroyed
+debugger-agent: Unable to listen on 49
+Exiting batchmode successfully now!
+[ExitDontLaunchBugReporter] Exiting without the bug reporter. Application will exit with return code 0
+[Package Manager] Server process was shutdown

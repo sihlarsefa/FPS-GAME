@@ -37,9 +37,24 @@ namespace Project.Infrastructure.Rendering
         private static readonly int ReceiveShadowsId = Shader.PropertyToID("_ReceiveShadows");
         private static readonly int ColorModeId = Shader.PropertyToID("_ColorMode");
         private static readonly int ModeId = Shader.PropertyToID("_Mode");
+        private static readonly int BumpMapId = Shader.PropertyToID("_BumpMap");
+        private static readonly int BumpScaleId = Shader.PropertyToID("_BumpScale");
+        private static readonly int MetallicGlossMapId = Shader.PropertyToID("_MetallicGlossMap");
+        private static readonly int OcclusionMapId = Shader.PropertyToID("_OcclusionMap");
+        private static readonly int OcclusionStrengthId = Shader.PropertyToID("_OcclusionStrength");
+        private static readonly int MaskMapId = Shader.PropertyToID("_MaskMap");
+        private static readonly int DetailAlbedoMapId = Shader.PropertyToID("_DetailAlbedoMap");
+        private static readonly int DetailNormalMapId = Shader.PropertyToID("_DetailNormalMap");
+        private static readonly int DetailAlbedoScaleId = Shader.PropertyToID("_DetailAlbedoMapScale");
+        private static readonly int DetailNormalScaleId = Shader.PropertyToID("_DetailNormalMapScale");
+        private static readonly int TriplanarId = Shader.PropertyToID("_Triplanar");
 
         private const string KeywordTransparent = "_SURFACE_TYPE_TRANSPARENT";
         private const string KeywordEmission = "_EMISSION";
+        private const string KeywordNormalMap = "_NORMALMAP";
+        private const string KeywordMetallicGloss = "_METALLICSPECGLOSSMAP";
+        private const string KeywordOcclusion = "_OCCLUSIONMAP";
+        private const string KeywordMaskMap = "_MASKMAP";
         private const string KeywordPremultiply = "_ALPHAPREMULTIPLY_ON";
         private const string KeywordModulate = "_ALPHAMODULATE_ON";
         private const string KeywordAlphaTest = "_ALPHATEST_ON";
@@ -99,6 +114,19 @@ namespace Project.Infrastructure.Rendering
             if (material != null)
                 return material;
 
+            try
+            {
+                if (Project.Infrastructure.Content.ContentOverrides.TryGetMaterial((MaterialId)index, out var overridden) && overridden != null)
+                {
+                    ById[index] = overridden;
+                    return overridden;
+                }
+            }
+            catch (Exception)
+            {
+                // Hazır varlık erişilemedi — prosedürel yol.
+            }
+
             var library = Library;
             if (library != null && library.materials != null && index < library.materials.Length)
                 material = library.materials[index];
@@ -109,9 +137,46 @@ namespace Project.Infrastructure.Rendering
 
             if (material == null)
                 material = CreateFromSpec(Specs[index]);
+            else if (Specs[index].Pbr != PbrSurface.None && material.HasProperty(BumpMapId) && material.GetTexture(BumpMapId) == null)
+            {
+                // Kütüphane varlığına normal/maske yok: varlığı kirletmeden örnek kopyada ekle.
+                material = new Material(material) { name = material.name };
+                ApplyPbr(material, Specs[index].Pbr, Specs[index].TextureSeed, Specs[index].Tiling, Specs[index].NormalStrength);
+            }
 
+            material = TryWetVariant((MaterialId)index, material);
             ById[index] = material;
             return material;
+        }
+
+        /// <summary>Çamur/zemin/kaya için POM + ıslaklık varyantı; gölgelendirici yoksa aynı malzeme döner.</summary>
+        private static Material TryWetVariant(MaterialId id, Material lit)
+        {
+            if (lit == null || !UnityEngine.Application.isPlaying)
+                return lit;
+            try
+            {
+                Material variant = null;
+                switch (id)
+                {
+                    case MaterialId.Mud:
+                        variant = Project.Infrastructure.World.TerrainShaderBinder.CreateWetMud(lit);
+                        break;
+                    case MaterialId.Dirt:
+                    case MaterialId.Gravel:
+                        variant = Project.Infrastructure.World.TerrainShaderBinder.CreateParallaxMaterial(lit, Project.Core.Domain.TerrainShadingMath.GroundPreset());
+                        break;
+                    case MaterialId.Rock:
+                    case MaterialId.RockDark:
+                        variant = Project.Infrastructure.World.TerrainShaderBinder.CreateParallaxMaterial(lit, Project.Core.Domain.TerrainShadingMath.RockPreset());
+                        break;
+                }
+                return variant ?? lit;
+            }
+            catch (Exception)
+            {
+                return lit;
+            }
         }
 
         /// <summary>Düz renkli opak Lit malzeme (renk/pürüzsüzlük/metaliklik başına önbellekli). Alfa yok sayılır.</summary>
@@ -213,6 +278,9 @@ namespace Project.Infrastructure.Rendering
             material.name = "HK_" + (string.IsNullOrEmpty(spec.Name) ? spec.Id.ToString() : spec.Name);
             return material;
         }
+
+        /// <summary>C4: ContentOverrides değişince kimlik önbelleğini temizler; override her zaman kütüphane/tariften önce çözülür.</summary>
+        public static void InvalidateOverrides() => Array.Clear(ById, 0, ById.Length);
 
         /// <summary>Editörde üretilmiş kütüphaneyi kullan (null → çalışma zamanı üretimi). Kimlik önbelleği temizlenir.</summary>
         public static void Use(GameArtLibrary library)
@@ -364,6 +432,8 @@ namespace Project.Infrastructure.Rendering
             SetupUrpSurface(m, spec.Transparent, spec.Additive, spec.DoubleSided, true);
             SetupEmission(m, spec);
             ApplyTexture(m, ProceduralTextures.ForKey(spec.Texture, spec), spec.Tiling);
+            ApplyPbr(m, spec.Pbr, spec.TextureSeed, spec.Tiling, spec.NormalStrength);
+            ApplyDetail(m, spec);
             m.enableInstancing = !spec.Transparent;
             return m;
         }
@@ -527,6 +597,117 @@ namespace Project.Infrastructure.Rendering
                 m.SetFloat(id, value);
         }
 
+        /// <summary>
+        /// Prosedürel normal + maske haritalarını Lit malzemeye bağlar ve anahtar kelimeleri açar:
+        /// _NORMALMAP (_BumpMap), _METALLICSPECGLOSSMAP (R metalik, A pürüzsüzlük × _Smoothness), _OCCLUSIONMAP (G),
+        /// ve _MaskMap/_MASKMAP özelliği olan gölgelendiriciler için maske. Özellik yoksa sessizce geçer.
+        /// </summary>
+        private static bool _triplanarWarned;
+
+        /// <summary>
+        /// C4: detay albedo/normal, makro varyasyon, texel density, triplanar. Hepsi spec'te varsayılan kapalıysa hiçbir şey yapmaz.
+        /// URP/Lit özellik adları: _DetailAlbedoMap, _DetailNormalMap, _DetailAlbedoMapScale, _DetailNormalMapScale, _DETAIL_MULX2.
+        /// </summary>
+        public static void ApplyDetail(Material m, MaterialSpec spec)
+        {
+            if (m == null || spec == null)
+                return;
+
+            try
+            {
+                if (spec.TexelDensity > 0f && m.HasProperty(BaseMapId))
+                {
+                    var tex = m.GetTexture(BaseMapId);
+                    var size = tex != null ? tex.width : ProceduralPbr.Resolution;
+                    var t = MaterialMath.TilingForTexelDensity(spec.TexelDensity, spec.TileWorldMeters, size);
+                    m.SetTextureScale(BaseMapId, new Vector2(t, t));
+                    if (m.HasProperty(BumpMapId)) m.SetTextureScale(BumpMapId, new Vector2(t, t));
+                    if (m.HasProperty(MaskMapId)) m.SetTextureScale(MaskMapId, new Vector2(t, t));
+                }
+
+                var detailAlbedo = spec.DetailAlbedo;
+                var detailTiling = spec.DetailTiling;
+                var albedoScale = spec.DetailAlbedoScale;
+                if (detailAlbedo == null && spec.MacroVariation > 0.0001f)
+                {
+                    detailAlbedo = ProceduralTextures.ForKey(MaterialTextureKey.Noise, spec);
+                    detailTiling = MaterialMath.MacroTiling(spec.MacroScaleMeters, spec.TileWorldMeters);
+                    albedoScale = MaterialMath.MacroAlbedoScale(spec.MacroVariation);
+                }
+
+                if ((detailAlbedo != null || spec.DetailNormal != null) && m.HasProperty(DetailAlbedoMapId))
+                {
+                    if (detailAlbedo != null)
+                    {
+                        m.SetTexture(DetailAlbedoMapId, detailAlbedo);
+                        m.SetTextureScale(DetailAlbedoMapId, new Vector2(detailTiling, detailTiling));
+                        SetFloat(m, DetailAlbedoScaleId, albedoScale);
+                    }
+                    if (spec.DetailNormal != null && m.HasProperty(DetailNormalMapId))
+                    {
+                        m.SetTexture(DetailNormalMapId, spec.DetailNormal);
+                        SetFloat(m, DetailNormalScaleId, spec.DetailNormalScale);
+                    }
+                    m.EnableKeyword("_DETAIL_MULX2");
+                }
+
+                if (spec.Triplanar)
+                {
+                    if (m.HasProperty(TriplanarId))
+                        SetFloat(m, TriplanarId, 1f);
+                    else if (!_triplanarWarned)
+                    {
+                        _triplanarWarned = true;
+                        Debug.LogWarning("[MaterialLibrary] Triplanar isteniyor ama shader '_Triplanar' özelliğini desteklemiyor; UV kullanılacak.");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[MaterialLibrary] ApplyDetail atlandı: " + e.Message);
+            }
+        }
+
+        public static void ApplyPbr(Material m, PbrSurface surface, int seed, Vector2 tiling, float normalStrength = 1f)
+        {
+            if (m == null || surface == PbrSurface.None)
+                return;
+
+            var set = ProceduralPbr.Get(surface, seed);
+            if (set == null || !set.IsValid)
+                return;
+
+            if (m.HasProperty(BumpMapId))
+            {
+                m.SetTexture(BumpMapId, set.Normal);
+                m.SetTextureScale(BumpMapId, tiling);
+                SetFloat(m, BumpScaleId, normalStrength);
+                m.EnableKeyword(KeywordNormalMap);
+            }
+
+            if (m.HasProperty(MetallicGlossMapId))
+            {
+                m.SetTexture(MetallicGlossMapId, set.Mask);
+                m.SetTextureScale(MetallicGlossMapId, tiling);
+                m.EnableKeyword(KeywordMetallicGloss);
+            }
+
+            if (m.HasProperty(OcclusionMapId))
+            {
+                m.SetTexture(OcclusionMapId, set.Mask);
+                m.SetTextureScale(OcclusionMapId, tiling);
+                SetFloat(m, OcclusionStrengthId, 1f);
+                m.EnableKeyword(KeywordOcclusion);
+            }
+
+            if (m.HasProperty(MaskMapId))
+            {
+                m.SetTexture(MaskMapId, set.Mask);
+                m.SetTextureScale(MaskMapId, tiling);
+                m.EnableKeyword(KeywordMaskMap);
+            }
+        }
+
         private static void ApplyTexture(Material m, Texture texture, Vector2 tiling)
         {
             if (texture == null)
@@ -666,16 +847,16 @@ namespace Project.Infrastructure.Rendering
             Add(L(MaterialId.Gray, Rgb(0.5f, 0.5f, 0.5f)));
 
             // Arazi / doğa
-            Add(L(MaterialId.Grass, Rgb(0.34f, 0.42f, 0.2f), 0.12f, 0f, Detail, 2f));
+            Add(L(MaterialId.Grass, Rgb(0.29f, 0.36f, 0.17f), 0.12f, 0f, Detail, 2f));
             Add(L(MaterialId.DryGrass, Rgb(0.6f, 0.55f, 0.32f), 0.1f, 0f, Detail, 2f));
             Add(L(MaterialId.Dirt, Rgb(0.42f, 0.33f, 0.24f), 0.1f, 0f, Detail, 2f));
-            Add(L(MaterialId.Mud, Rgb(0.27f, 0.21f, 0.15f), 0.45f, 0f, Detail, 2f));
+            Add(L(MaterialId.Mud, Rgb(0.27f, 0.21f, 0.15f), 0.25f, 0f, Detail, 2f));
             Add(L(MaterialId.Rock, Rgb(0.5f, 0.48f, 0.45f), 0.18f, 0f, Detail));
             Add(L(MaterialId.RockDark, Rgb(0.3f, 0.29f, 0.28f), 0.2f, 0f, Detail));
             Add(L(MaterialId.Sand, Rgb(0.76f, 0.68f, 0.5f), 0.08f, 0f, Detail, 2f));
-            Add(L(MaterialId.Snow, Rgb(0.92f, 0.94f, 0.97f), 0.5f, 0f, Detail));
+            Add(L(MaterialId.Snow, Rgb(0.87f, 0.9f, 0.94f), 0.28f, 0f, Detail));
             Add(L(MaterialId.Gravel, Rgb(0.53f, 0.51f, 0.47f), 0.12f, 0f, MaterialTextureKey.Noise, 4f));
-            Add(L(MaterialId.Asphalt, Rgb(0.19f, 0.19f, 0.2f), 0.22f, 0f, Detail, 4f));
+            Add(L(MaterialId.Asphalt, Rgb(0.19f, 0.19f, 0.2f), 0.14f, 0f, Detail, 4f));
             Add(L(MaterialId.Water, Rgb(0.13f, 0.3f, 0.36f, 0.78f), 0.92f).WithTransparent());
             Add(L(MaterialId.Foliage, Rgb(0.25f, 0.38f, 0.16f), 0.15f, 0f, Detail).WithDoubleSided());
             Add(L(MaterialId.FoliageDark, Rgb(0.15f, 0.26f, 0.12f), 0.15f, 0f, Detail).WithDoubleSided());
@@ -684,20 +865,20 @@ namespace Project.Infrastructure.Rendering
             Add(L(MaterialId.DeadWood, Rgb(0.45f, 0.4f, 0.33f), 0.1f, 0f, Detail));
 
             // Yapı
-            Add(L(MaterialId.Concrete, Rgb(0.62f, 0.61f, 0.58f), 0.15f, 0f, Detail));
+            Add(L(MaterialId.Concrete, Rgb(0.55f, 0.54f, 0.51f), 0.15f, 0f, Detail));
             Add(L(MaterialId.ConcreteDark, Rgb(0.38f, 0.38f, 0.37f), 0.15f, 0f, Detail));
-            Add(L(MaterialId.Plaster, Rgb(0.85f, 0.82f, 0.75f), 0.12f, 0f, Detail));
-            Add(L(MaterialId.PlasterWarm, Rgb(0.86f, 0.74f, 0.58f), 0.12f, 0f, Detail));
+            Add(L(MaterialId.Plaster, Rgb(0.74f, 0.71f, 0.64f), 0.12f, 0f, Detail));
+            Add(L(MaterialId.PlasterWarm, Rgb(0.76f, 0.64f, 0.5f), 0.12f, 0f, Detail));
             Add(L(MaterialId.Stone, Rgb(0.6f, 0.56f, 0.5f), 0.15f, 0f, Detail));
             Add(L(MaterialId.StoneDark, Rgb(0.38f, 0.35f, 0.32f), 0.15f, 0f, Detail));
             Add(L(MaterialId.Brick, Rgb(0.6f, 0.3f, 0.22f), 0.12f, 0f, Detail));
             Add(L(MaterialId.RoofTile, Rgb(0.62f, 0.27f, 0.18f), 0.25f, 0f, Detail));
-            Add(L(MaterialId.RoofMetal, Rgb(0.46f, 0.49f, 0.5f), 0.4f, 0.55f, Detail));
+            Add(L(MaterialId.RoofMetal, Rgb(0.46f, 0.49f, 0.5f), 0.4f, 1.0f, Detail));
             Add(L(MaterialId.Wood, Rgb(0.55f, 0.4f, 0.25f), 0.2f, 0f, Detail));
             Add(L(MaterialId.WoodDark, Rgb(0.32f, 0.22f, 0.14f), 0.2f, 0f, Detail));
             Add(L(MaterialId.Glass, Rgb(0.62f, 0.76f, 0.82f, 0.32f), 0.95f).WithTransparent());
-            Add(L(MaterialId.MetalPanel, Rgb(0.5f, 0.52f, 0.5f), 0.4f, 0.5f, Detail));
-            Add(L(MaterialId.MetalDark, Rgb(0.22f, 0.23f, 0.24f), 0.45f, 0.6f, Detail));
+            Add(L(MaterialId.MetalPanel, Rgb(0.5f, 0.52f, 0.5f), 0.4f, 1.0f, Detail));
+            Add(L(MaterialId.MetalDark, Rgb(0.5f, 0.5f, 0.52f), 0.35f, 1.0f, Detail));
             Add(L(MaterialId.Rust, Rgb(0.45f, 0.24f, 0.12f), 0.15f, 0.2f, MaterialTextureKey.Noise, 2f));
             Add(L(MaterialId.Hesco, Rgb(0.62f, 0.57f, 0.44f), 0.08f, 0f, Detail, 2f));
             Add(L(MaterialId.Sandbag, Rgb(0.66f, 0.6f, 0.45f), 0.08f, 0f, Detail, 2f));
@@ -720,7 +901,7 @@ namespace Project.Infrastructure.Rendering
             Add(L(MaterialId.RotorBlade, Rgb(0.1f, 0.1f, 0.1f), 0.3f).WithDoubleSided());
 
             // Silah
-            Add(L(MaterialId.GunMetal, Rgb(0.13f, 0.13f, 0.14f), 0.45f, 0.7f));
+            Add(L(MaterialId.GunMetal, Rgb(0.5f, 0.5f, 0.52f), 0.62f, 0.9f));
             Add(L(MaterialId.GunPolymer, Rgb(0.08f, 0.08f, 0.08f), 0.25f));
             Add(L(MaterialId.GunWood, Rgb(0.4f, 0.25f, 0.14f), 0.35f, 0f, Detail));
             Add(L(MaterialId.GunTan, Rgb(0.6f, 0.52f, 0.38f), 0.25f));
@@ -734,8 +915,8 @@ namespace Project.Infrastructure.Rendering
                 Rgb(0.74f, 0.66f, 0.5f), Rgb(0.62f, 0.52f, 0.36f), Rgb(0.5f, 0.42f, 0.3f), Rgb(0.82f, 0.76f, 0.62f), 303));
             Add(MaterialSpec.CamoSpec(MaterialId.CamoUrban,
                 Rgb(0.55f, 0.56f, 0.56f), Rgb(0.35f, 0.36f, 0.37f), Rgb(0.18f, 0.19f, 0.2f), Rgb(0.72f, 0.73f, 0.74f), 404));
-            Add(L(MaterialId.Skin, Rgb(0.85f, 0.66f, 0.52f), 0.3f));
-            Add(L(MaterialId.SkinDark, Rgb(0.55f, 0.4f, 0.3f), 0.3f));
+            Add(L(MaterialId.Skin, Rgb(0.74f, 0.56f, 0.44f), 0.4f));
+            Add(L(MaterialId.SkinDark, Rgb(0.55f, 0.4f, 0.3f), 0.4f));
             Add(L(MaterialId.Gear, Rgb(0.25f, 0.27f, 0.18f), 0.15f, 0f, Detail));
             Add(L(MaterialId.Boots, Rgb(0.12f, 0.1f, 0.08f), 0.3f));
             Add(L(MaterialId.Beret, Rgb(0.42f, 0.07f, 0.1f), 0.08f, 0f, Detail)); // bordo bere
@@ -758,6 +939,22 @@ namespace Project.Infrastructure.Rendering
             Add(MaterialSpec.UnlitSpec(MaterialId.EnemyMarker, Rgb(1f, 0.25f, 0.2f, 0.9f), true));
             Add(MaterialSpec.UnlitSpec(MaterialId.LandingZone, Rgb(0.25f, 1f, 0.4f, 0.35f), true, true));
             Add(L(MaterialId.Parachute, Rgb(0.36f, 0.4f, 0.26f), 0.12f, 0f, Detail).WithDoubleSided());
+
+            // PBR yüzeyleri: klasik Detail dokusu olanlar prosedürel PBR albedo'ya yükselir (kamuflaj kendi dokusunu korur).
+            for (var i = 0; i < specs.Length; i++)
+            {
+                var spec = specs[i];
+                if (spec == null || spec.Shading != MaterialShading.Lit || spec.Transparent || spec.Particle)
+                    continue;
+
+                var surface = ProceduralPbr.SurfaceFor(spec.Id);
+                if (surface == PbrSurface.None)
+                    continue;
+
+                spec.Pbr = surface;
+                if (spec.Texture != MaterialTextureKey.DigitalCamo)
+                    spec.Texture = MaterialTextureKey.PbrAlbedo;
+            }
 
             // Enum sona eklenip tablo güncellenmezse: gri yedek.
             for (var i = 0; i < specs.Length; i++)

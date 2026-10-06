@@ -10,6 +10,9 @@ namespace Project.Core.Domain
 
         public bool Reload { get; }
         public bool Aim { get; }
+
+        /// <summary>Nişan tuşu bu karede basıldı (kenar; kareler arası tıklar kaçmaz).</summary>
+        public bool AimPressed { get; }
         public bool Interact { get; }
 
         /// <summary>0..3 seçilen yuva, -1 seçim yok.</summary>
@@ -33,7 +36,16 @@ namespace Project.Core.Domain
         public CombatInputState(bool fire, bool firePressed, bool reload, bool aim, bool interact,
             int selectSlot, int cycleWeapon, bool toggleFireMode, bool heal, bool boost,
             bool throwGrenade, bool throwSmoke, bool holster)
+            : this(fire, firePressed, reload, aim, interact, selectSlot, cycleWeapon, toggleFireMode, heal, boost,
+                throwGrenade, throwSmoke, holster, false)
         {
+        }
+
+        public CombatInputState(bool fire, bool firePressed, bool reload, bool aim, bool interact,
+            int selectSlot, int cycleWeapon, bool toggleFireMode, bool heal, bool boost,
+            bool throwGrenade, bool throwSmoke, bool holster, bool aimPressed)
+        {
+            AimPressed = aimPressed;
             Fire = fire;
             FirePressed = firePressed;
             Reload = reload;

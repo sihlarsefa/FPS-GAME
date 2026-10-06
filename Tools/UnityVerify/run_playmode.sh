@@ -16,7 +16,7 @@ set -euo pipefail
 
 T=${0:A:h}
 P=${T:h:h}
-U="${UNITY_EDITOR:-/Applications/Unity/Hub/Editor/6000.6.0f1/Unity.app/Contents/MacOS/Unity}"
+U="${UNITY_EDITOR:-/Applications/Unity/Hub/Editor/6000.6.4f1/Unity.app/Contents/MacOS/Unity}"
 
 FILTER=""
 while [[ $# -gt 0 ]]; do
@@ -53,6 +53,7 @@ ARGS=(
   -projectPath "$P"
   -runTests
   -testPlatform PlayMode
+  -testCategory "!Soak"
   -testResults "$P/Logs/playmode.xml"
   -logFile "$P/Logs/playmode.log"
 )

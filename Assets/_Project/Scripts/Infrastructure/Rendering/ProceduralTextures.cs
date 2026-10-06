@@ -81,6 +81,59 @@ namespace Project.Infrastructure.Rendering
             return tex;
         }
 
+        private static readonly Dictionary<CamoKey, Texture2D> FabricCamoCache = new Dictionary<CamoKey, Texture2D>();
+
+        /// <summary>
+        /// Asker üniforması kamuflajı: 512x512 = 1 m (metre ölçekli UV), 10-25 cm iri lekeler, ~2,5 cm'lik iri piksel basamakları
+        /// (piksel başı gürültü yok), bilinear/trilinear filtre ve çok düşük güçte kumaş dokuma bindirmesi.
+        /// </summary>
+        public static Texture2D DigitalCamoFabric(Color a, Color b, Color c, Color d, int seed)
+        {
+            var key = new CamoKey(a, b, c, d, seed);
+            if (FabricCamoCache.TryGetValue(key, out var cached) && Valid(cached))
+                return cached;
+
+            const int size = 512;
+            const int cells = 40;
+            var palette = new[] { key.A, key.B, key.C, key.D };
+            var cellColor = new Color32[cells * cells];
+            for (var cy = 0; cy < cells; cy++)
+            {
+                for (var cx = 0; cx < cells; cx++)
+                {
+                    var fx = cx / (float)cells * 5f;
+                    var fy = cy / (float)cells * 5f;
+                    var n1 = Fbm(fx, fy, 5, 2, seed);
+                    var n2 = Fbm(fx * 1.6f, fy * 1.6f, 8, 1, seed * 31 + 7);
+                    var v = n1 + (Hash01(cx, cy, seed ^ 0x5bd1e995) - 0.5f) * 0.05f;
+                    int index;
+                    if (n2 > 0.66f) index = 3;
+                    else if (v < 0.42f) index = 1;
+                    else if (v > 0.58f) index = 2;
+                    else index = 0;
+                    cellColor[cy * cells + cx] = palette[index];
+                }
+            }
+
+            var pixels = new Color32[size * size];
+            for (var y = 0; y < size; y++)
+            {
+                var row = (y * cells / size) * cells;
+                for (var x = 0; x < size; x++)
+                {
+                    var col = cellColor[row + x * cells / size];
+                    // Çok hafif dokuma: 2x2 piksellik çapraz damalı ±3% parlaklık.
+                    var w = (((x >> 1) + (y >> 1)) & 1) == 0 ? 1.03f : 0.97f;
+                    pixels[y * size + x] = new Color32(ToByte(col.r / 255f * w), ToByte(col.g / 255f * w), ToByte(col.b / 255f * w), 255);
+                }
+            }
+
+            var tex = Create("HK_FabricCamo_" + seed, size, size, pixels, true, TextureWrapMode.Repeat);
+            tex.anisoLevel = 4;
+            FabricCamoCache[key] = tex;
+            return tex;
+        }
+
         /// <summary>Döşenebilir gri tonlu fBm gürültüsü (0..1). size 8..1024 arasına sıkıştırılır (2'nin kuvveti önerilir).</summary>
         public static Texture2D Noise(int size, int seed)
         {
@@ -142,6 +195,11 @@ namespace Project.Infrastructure.Rendering
                 case MaterialTextureKey.BulletHole: return BulletHole;
                 case MaterialTextureKey.Starburst: return Starburst;
                 case MaterialTextureKey.WhitePixel: return WhitePixel;
+                case MaterialTextureKey.PbrAlbedo:
+                {
+                    var set = spec != null ? ProceduralPbr.Get(spec.Pbr, spec.TextureSeed) : null;
+                    return set != null ? set.Albedo : null;
+                }
                 default: return null;
             }
         }

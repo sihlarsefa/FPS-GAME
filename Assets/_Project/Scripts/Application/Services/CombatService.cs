@@ -56,14 +56,15 @@ namespace Project.Application.Services
         /// <summary>Saldırgan bu kurbana hasar verebilir mi? (dost ateşi kuralı)</summary>
         public bool CanDamage(PlayerId attackerId, PlayerId victimId) => !IsFriendlyFireBlocked(attackerId, victimId);
 
+        /// <param name="armorCoverage">Zırh bölgesi çarpanı (ArmorZones; 1 = tam kapsama, 0 = zırhı atlar). Bkz. DamageCalculator.</param>
         public HitOutcome ApplyBulletHit(PlayerId attackerId, WeaponDefinitionData weapon, PlayerId victimId,
-            BodyPart part, float distance, Float3 sourcePosition)
+            BodyPart part, float distance, Float3 sourcePosition, float damageScale = 1f, float armorCoverage = 1f)
         {
             if (weapon == null || IsFriendlyFireBlocked(attackerId, victimId) || !TryGetLiveTarget(victimId, out var target))
                 return HitOutcome.None;
 
             var armor = GetArmor(target, part);
-            var result = DamageCalculator.ComputeBulletDamage(weapon, part, distance, armor);
+            var result = DamageCalculator.ComputeBulletDamage(weapon, part, distance, armor, damageScale, armorCoverage);
             return ApplyAndReport(attackerId, victimId, target, result.Damage, weapon.WeaponId, part, sourcePosition, true,
                 result.ArmorAbsorbed > 0f);
         }

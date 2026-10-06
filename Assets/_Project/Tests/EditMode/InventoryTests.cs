@@ -786,10 +786,10 @@ namespace Project.Tests.EditMode
         public void LootSpawn_SpawnChances()
         {
             var service = new LootSpawnService();
-            Assert.AreEqual(0.45f, service.SpawnChance(LootTier.Low), 1e-5f);
-            Assert.AreEqual(0.6f, service.SpawnChance(LootTier.Medium), 1e-5f);
-            Assert.AreEqual(0.75f, service.SpawnChance(LootTier.High), 1e-5f);
-            Assert.AreEqual(0.85f, service.SpawnChance(LootTier.Military), 1e-5f);
+            Assert.AreEqual(0.38f, service.SpawnChance(LootTier.Low), 1e-5f);
+            Assert.AreEqual(0.58f, service.SpawnChance(LootTier.Medium), 1e-5f);
+            Assert.AreEqual(0.74f, service.SpawnChance(LootTier.High), 1e-5f);
+            Assert.AreEqual(0.9f, service.SpawnChance(LootTier.Military), 1e-5f);
         }
 
         [TestCase(LootTier.Low)]

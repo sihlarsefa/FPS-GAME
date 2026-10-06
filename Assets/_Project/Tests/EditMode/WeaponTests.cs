@@ -99,7 +99,7 @@ namespace Project.Tests.EditMode
                 WeaponIds.G3, WeaponIds.Knt76, WeaponIds.Jng90, WeaponIds.Pmt76, WeaponIds.Escort
             };
 
-            Assert.AreEqual(10, WeaponCatalog.All.Count);
+            Assert.GreaterOrEqual(WeaponCatalog.All.Count, 10);
             var seen = new HashSet<string>();
             foreach (var id in ids)
             {

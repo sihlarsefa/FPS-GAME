@@ -1,7 +1,11 @@
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Project.Core.Domain;
+using Project.Infrastructure.AI;
+using Project.Online.Backend;
+using Project.Presentation.Bootstrap;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -10,7 +14,7 @@ namespace Project.Online.Netcode
 {
     /// <summary>
     /// Dedicated server girişi.
-    /// Komut satırı: <c>-server -port -region -backend -serverKey -maxPlayers</c>.
+    /// Komut satırı: <c>-server -port -region -backend -serverKey -maxPlayers -map -matchId -serverId</c>.
     /// Grafik/ses kapalı, hedef 30 Hz; backend kayıt + heartbeat + maç sonucu.
     /// </summary>
     public sealed class ServerBootstrap : MonoBehaviour
@@ -75,7 +79,10 @@ namespace Project.Online.Netcode
                 ServerKey = GetString(raw, "-serverKey", string.Empty),
                 MaxPlayers = GetInt(raw, "-maxPlayers", DefaultMaxPlayers),
                 BindAddress = GetString(raw, "-bind", "0.0.0.0"),
-                TickRate = GetInt(raw, "-tickrate", DefaultTickRate)
+                TickRate = GetInt(raw, "-tickrate", DefaultTickRate),
+                Map = GetString(raw, "-map", string.Empty),
+                MatchId = ParseGuid(GetString(raw, "-matchId", string.Empty)),
+                ServerId = ParseGuid(GetString(raw, "-serverId", string.Empty))
             };
 
             if (args.Port == 0)
@@ -96,9 +103,23 @@ namespace Project.Online.Netcode
             Instance = this;
             _args = args;
             _started = true;
+            if (args.MatchId != Guid.Empty)
+            {
+                _activeMatchId = args.MatchId;
+                Debug.Log("[ServerBootstrap] Backend maç kimliği (-matchId): " + args.MatchId);
+            }
 
+            if (!string.IsNullOrEmpty(args.Map))
+            {
+                GameSession.SetMapOverride(args.Map);
+                Debug.Log($"[ServerBootstrap] Harita={GameSession.SelectedMap}, sahne={GameSession.ResolveSceneForMap(args.Map)}.");
+            }
             ConfigureHeadlessProcess(args.TickRate);
             ServerBotGate.SetServerAuthoritative(true);
+            BotRuntimeGate.ShouldRunBots = () => ServerBotGate.ShouldRunBots;
+            GameSession.MatchStarting += OnGameMatchStarting;
+            GameSession.MatchFinished += OnGameMatchFinished;
+            GameSession.MatchSummaryReady += OnMatchSummaryReady;
 
             _session = new NetcodeNetworkSession(PlayerId.Invalid);
             _session.ConfigureEndpoint(args.BindAddress, args.Port, args.MaxPlayers);
@@ -107,6 +128,10 @@ namespace Project.Online.Netcode
             if (!string.IsNullOrEmpty(args.BackendUrl) && !string.IsNullOrEmpty(args.ServerKey))
             {
                 _backend = new DedicatedServerBackend(args.BackendUrl, args.ServerKey);
+                _validator = new ServerIdentityValidator(args.BackendUrl);
+                _session.IdentityApprover = ApproveIdentityAsync;
+                if (NetworkManager.Singleton != null)
+                    NetworkManager.Singleton.OnClientDisconnectCallback += OnClientGone;
                 _ = RegisterAndHeartbeatLoop();
             }
             else
@@ -219,12 +244,140 @@ namespace Project.Online.Netcode
             }
         }
 
+        private void OnGameMatchStarting(MatchConfig config)
+        {
+            _summarySubmitted = false;
+            // Backend maç kimliği tahsis edilmediyse heartbeat yine de in_match durumuna geçer.
+            NotifyMatchStarted(_activeMatchId);
+        }
+
+        private readonly IdentityRegistry _identities = new IdentityRegistry();
+        private readonly Dictionary<int, string> _squadIds = new Dictionary<int, string>();
+        private readonly Dictionary<ulong, int> _playerByClient = new Dictionary<ulong, int>();
+        private ServerIdentityValidator _validator;
+        private bool _summarySubmitted;
+
+        public IdentityRegistry Identities => _identities;
+
+        /// <summary>Oyuncunun (PlayerId.Value) backend profil kimliğini eşler; sonuçta playerId olarak gönderilir.</summary>
+        public void RegisterPlayerProfile(int playerId, Guid profileId) => _identities.TryBind(playerId, profileId, null, out _);
+
+        /// <summary>Timin (tim dizini) backend takım (squad) kimliğini eşler.</summary>
+        public void RegisterTeamSquad(int team, Guid squadId)
+        {
+            if (squadId != Guid.Empty)
+                _squadIds[team] = squadId.ToString("D");
+        }
+
+        /// <summary>ConnectionApproval: JWT/bilet backend ile doğrulanır; geçerliyse profil + squad eşlenir.</summary>
+        private async Task<(bool ok, string reason)> ApproveIdentityAsync(ulong clientId, ConnectionIdentity.Payload payload)
+        {
+            var r = await _validator.ValidateAsync(payload);
+            if (!r.Ok)
+                return (false, r.Reason);
+
+            if (!_identities.TryBind(payload.PlayerId, r.Profile.Id, r.Profile.SquadId, out var reason))
+                return (false, reason);
+
+            _playerByClient[clientId] = payload.PlayerId;
+            Debug.Log($"[ServerBootstrap] Kimlik doğrulandı: {r.Profile.Username} ({r.Profile.Id}) -> oyuncu {payload.PlayerId}.");
+            return (true, null);
+        }
+
+        private void OnClientGone(ulong clientId)
+        {
+            if (_playerByClient.TryGetValue(clientId, out var pid))
+            {
+                _playerByClient.Remove(clientId);
+                _identities.Release(pid);
+            }
+        }
+
+        private void OnMatchSummaryReady(MatchSummary summary)
+        {
+            if (summary == null || _summarySubmitted)
+                return;
+
+            _summarySubmitted = true;
+            var json = BuildMatchResultJson(summary, _identities, _squadIds, _validator != null);
+            _ = SubmitMatchResultAndIdleAsync(_activeMatchId, json);
+        }
+
+        /// <summary>
+        /// Tüm timlerin/oyuncuların gerçek sonuçlarını backend JSON'una çevirir. Profil eşlemesi olan oyuncular profil
+        /// kimliğiyle yazılır. <paramref name="humansOnly"/> true ise (kimlik doğrulamalı sunucu) eşlenmemiş savaşanlar
+        /// (botlar) sonuçtan çıkarılır; boş kalan timler atlanır. Squad: tim eşlemesi, yoksa üyenin squad'ı, yoksa tim dizini.
+        /// </summary>
+        public static string BuildMatchResultJson(MatchSummary summary, IdentityRegistry identities,
+            IReadOnlyDictionary<int, string> squadIds, bool humansOnly)
+        {
+            var teams = new List<MatchResultJson.TeamResult>();
+            var groups = summary.GroupByTeam();
+            for (var i = 0; i < groups.Count; i++)
+            {
+                var g = groups[i];
+                var players = new List<MatchResultJson.PlayerResult>(g.Members.Count);
+                string memberSquad = null;
+                for (var m = 0; m < g.Members.Count; m++)
+                {
+                    var c = g.Members[m];
+                    string pid;
+                    if (identities != null && identities.TryGetProfile(c.Id.Value, out var mapped))
+                    {
+                        pid = mapped;
+                        if (memberSquad == null && identities.TryGetSquad(c.Id.Value, out var msq))
+                            memberSquad = msq;
+                    }
+                    else if (humansOnly)
+                        continue; // bot / kimliksiz: backend'e gönderilmez
+                    else
+                        pid = "p" + c.Id.Value;
+
+                    players.Add(new MatchResultJson.PlayerResult(pid, c.Kills, c.Headshots, c.DamageDealt, c.SurvivalSeconds));
+                }
+
+                if (players.Count == 0)
+                    continue;
+
+                var squad = squadIds != null && squadIds.TryGetValue(g.Team, out var sq) ? sq
+                    : memberSquad ?? (g.Team >= 0 ? g.Team.ToString(CultureInfo.InvariantCulture) : (g.TeamName ?? string.Empty));
+                teams.Add(new MatchResultJson.TeamResult(squad, g.Placement, players));
+            }
+
+            return MatchResultJson.Build(teams);
+        }
+
+        private void OnGameMatchFinished(MatchResult result)
+        {
+            // Dedicated sunucuda gerçek sonuç MatchSummaryReady ile gelir; bu yol yalnızca yerel host içindir.
+            if (_summarySubmitted || (_session != null && _session.Role == NetworkRole.DedicatedServer))
+                return;
+
+            var player = new MatchResultJson.PlayerResult("local", result.Kills, result.Headshots,
+                result.DamageDealt, result.SurvivalSeconds);
+            var team = new MatchResultJson.TeamResult(result.TeamName ?? string.Empty, result.TeamPlacement,
+                new List<MatchResultJson.PlayerResult> { player });
+            var json = MatchResultJson.Build(new List<MatchResultJson.TeamResult> { team });
+            _ = SubmitMatchResultAndIdleAsync(_activeMatchId, json);
+        }
+
         private void OnDestroy()
         {
+            GameSession.MatchStarting -= OnGameMatchStarting;
+            GameSession.MatchFinished -= OnGameMatchFinished;
+            GameSession.MatchSummaryReady -= OnMatchSummaryReady;
+            if (NetworkManager.Singleton != null)
+                NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientGone;
+            if (BotRuntimeGate.ShouldRunBots != null && _started)
+                BotRuntimeGate.ShouldRunBots = null;
             if (Instance == this)
                 Instance = null;
             _session?.Disconnect();
         }
+
+        /// <summary>Geçerli Guid ise döndürür, değilse (boş/bozuk) Guid.Empty.</summary>
+        public static Guid ParseGuid(string text)
+            => !string.IsNullOrWhiteSpace(text) && Guid.TryParse(text.Trim().Trim('"'), out var g) ? g : Guid.Empty;
 
         private static bool HasFlag(string[] args, string name)
         {
@@ -268,6 +421,10 @@ namespace Project.Online.Netcode
             public int MaxPlayers;
             public string BindAddress;
             public int TickRate;
+            public string Map;
+            /// <summary>Backend'in tahsis ettiği maç kimliği (<c>-matchId</c>); yoksa Guid.Empty.</summary>
+            public Guid MatchId;
+            public Guid ServerId;
         }
     }
 }

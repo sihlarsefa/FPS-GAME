@@ -15,6 +15,36 @@ namespace Project.Infrastructure.Diagnostics
     {
         private static string _endpointOverride;
         private static int _submitting;
+        private static int _failures;
+        private static double _nextAttemptAt;
+        private const int MaxFailures = 5;
+
+        /// <summary>Backend yapılandırılmış mı (-telemetry/-backend ya da SetEndpointOverride). Varsayılan localhost yalnızca deneme içindir.</summary>
+        public static bool BackendConfigured =>
+            !string.IsNullOrEmpty(_endpointOverride)
+            || (DiagnosticsCommandLine.TryGetArg("-telemetry", out var t) && !string.IsNullOrWhiteSpace(t))
+            || (DiagnosticsCommandLine.TryGetArg("-backend", out var b) && !string.IsNullOrWhiteSpace(b));
+
+        private static double Now => System.Diagnostics.Stopwatch.GetTimestamp() / (double)System.Diagnostics.Stopwatch.Frequency;
+
+        /// <summary>Üstel geri çekilme (5 sn, 10, 20...; en çok 5 dk).</summary>
+        public static double BackoffSeconds(int failures) => failures <= 0 ? 0 : Math.Min(300.0, 5.0 * Math.Pow(2, failures - 1));
+
+        private static bool ShouldSend(bool sync)
+        {
+            if (!BackendConfigured || _failures >= MaxFailures)
+                return false;
+            return sync || Now >= _nextAttemptAt;
+        }
+
+        private static void RecordResult(bool ok)
+        {
+            if (ok) { _failures = 0; _nextAttemptAt = 0; return; }
+            _failures++;
+            _nextAttemptAt = Now + BackoffSeconds(_failures);
+            if (_failures == MaxFailures)
+                Debug.LogWarning("[Diagnostics] Telemetri art arda başarısız; gönderim kapatıldı (yerel dosya yazımı sürer).");
+        }
 
         public static string DefaultEndpoint
         {
@@ -46,6 +76,8 @@ namespace Project.Infrastructure.Diagnostics
 
             try
             {
+                if (!ShouldSend(sync))
+                    return path;
                 var json = JsonUtility.ToJson(report);
                 if (sync)
                     PostSync(DefaultEndpoint, json);
@@ -81,8 +113,10 @@ namespace Project.Infrastructure.Diagnostics
             var op = request.SendWebRequest();
             op.completed += _ =>
             {
-                if (request.result != UnityWebRequest.Result.Success)
+                var ok = request.result == UnityWebRequest.Result.Success;
+                if (!ok && _failures == 0)
                     Debug.LogWarning("[Diagnostics] client-errors HTTP: " + request.responseCode + " " + request.error);
+                RecordResult(ok);
                 request.Dispose();
                 Interlocked.Exchange(ref _submitting, 0);
             };
@@ -99,8 +133,10 @@ namespace Project.Infrastructure.Diagnostics
             var op = request.SendWebRequest();
             while (!op.isDone)
                 Thread.Sleep(10);
-            if (request.result != UnityWebRequest.Result.Success)
+            var ok = request.result == UnityWebRequest.Result.Success;
+            if (!ok && _failures == 0)
                 Debug.LogWarning("[Diagnostics] client-errors sync HTTP: " + request.responseCode + " " + request.error);
+            RecordResult(ok);
         }
     }
 }

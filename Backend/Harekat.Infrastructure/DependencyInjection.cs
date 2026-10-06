@@ -65,6 +65,8 @@ public static class DependencyInjection
             services.AddScoped<IFriendshipRepository, EfFriendshipRepository>();
             services.AddScoped<ISeasonRepository, EfSeasonRepository>();
             services.AddScoped<IModerationRepository, EfModerationRepository>();
+            services.AddScoped<INewsRepository, EfNewsRepository>();
+            services.AddScoped<IClientVersionRepository, EfClientVersionRepository>();
         }
         else
         {
@@ -81,6 +83,8 @@ public static class DependencyInjection
             services.AddSingleton<IFriendshipRepository, MemoryFriendshipRepository>();
             services.AddSingleton<ISeasonRepository, MemorySeasonRepository>();
             services.AddSingleton<IModerationRepository, MemoryModerationRepository>();
+            services.AddSingleton<INewsRepository, MemoryNewsRepository>();
+            services.AddSingleton<IClientVersionRepository, MemoryClientVersionRepository>();
         }
 
         var secret = config["Jwt:Secret"] ?? "HarekatDevSecretKey_ChangeInProduction_Min32Chars!";
@@ -162,9 +166,9 @@ public static class DependencyInjection
             db.Seasons.Add(new Season
             {
                 Number = 1,
-                Name = "Sezon 1 — Kuzgun Vadisi",
-                StartsAt = DateTimeOffset.UtcNow.AddDays(-7),
-                EndsAt = DateTimeOffset.UtcNow.AddDays(83)
+                Name = "Sezon 1 — Kuzgun İnişi",
+                StartsAt = DateTimeOffset.Parse("2026-11-02T00:00:00+00:00"),
+                EndsAt = DateTimeOffset.Parse("2027-01-11T00:00:00+00:00")
             });
             await db.SaveChangesAsync();
         }

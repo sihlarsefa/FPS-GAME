@@ -10,7 +10,7 @@ namespace Project.Infrastructure.Characters
     /// UV'ler metre ölçeklidir (1 UV = 1 m) — dijital kamuflaj tüm parçalarda aynı piksel boyutunda görünür.
     /// Parça Transform'ları ölçeklenmez; boyut ağın içine gömülüdür (vuruş kutuları ve UV'ler bozulmaz).
     /// </summary>
-    internal static class CharacterMeshes
+    internal static partial class CharacterMeshes
     {
         private static readonly Dictionary<string, Mesh> Cache = new Dictionary<string, Mesh>(128);
 
@@ -29,7 +29,7 @@ namespace Project.Infrastructure.Characters
         /// <summary>Önbellekte varsa döndürür.</summary>
         private static bool TryGet(string key, out Mesh mesh)
         {
-            if (Cache.TryGetValue(key, out mesh) && mesh != null)
+            if (!_audit && Cache.TryGetValue(key, out mesh) && mesh != null)
                 return true;
 
             mesh = null;
@@ -104,7 +104,18 @@ namespace Project.Infrastructure.Characters
                 var p1 = new Vector3(c1 * radiusBottom, y0, s1 * radiusBottom * scaleZ);
                 var p2 = new Vector3(c1 * radiusTop, y1, s1 * radiusTop * scaleZ);
                 var p3 = new Vector3(c0 * radiusTop, y1, s0 * radiusTop * scaleZ);
-                AddQuad(p1, p0, p3, p2);
+                if (sides >= 8)
+                {
+                    // Yumuşak gölge: yanal normaller radyal + eğim bileşeni.
+                    var slope = (radiusBottom - radiusTop) / Mathf.Max(1e-4f, y1 - y0);
+                    var n0 = SafeNormalize(new Vector3(c0, slope, s0 / Mathf.Max(0.05f, scaleZ)), Vector3.up);
+                    var n1 = SafeNormalize(new Vector3(c1, slope, s1 / Mathf.Max(0.05f, scaleZ)), Vector3.up);
+                    AddQuadN(p1, p0, p3, p2, n1, n0, n0, n1);
+                }
+                else
+                {
+                    AddQuad(p1, p0, p3, p2);
+                }
 
                 if (!caps)
                     continue;
@@ -142,16 +153,20 @@ namespace Project.Infrastructure.Characters
                     var p01 = Point(center, radii, lat0, lon1, f0);
                     var p10 = Point(center, radii, lat1, lon0, 1f);
                     var p11 = Point(center, radii, lat1, lon1, 1f);
+                    var n00 = EllipsoidNormal(radii, lat0, lon0);
+                    var n01 = EllipsoidNormal(radii, lat0, lon1);
+                    var n10 = EllipsoidNormal(radii, lat1, lon0);
+                    var n11 = EllipsoidNormal(radii, lat1, lon1);
 
                     var topPole = Mathf.Abs(lat1 - Mathf.PI * 0.5f) < 1e-4f;
                     var bottomPole = Mathf.Abs(lat0 + Mathf.PI * 0.5f) < 1e-4f;
                     // Dışarıdan bakınca saat yönü: p00 (sağ-alt) → p01 (sol-alt) → p11 (sol-üst) → p10 (sağ-üst).
                     if (topPole)
-                        AddTri(p00, p01, p10);
+                        AddTriN(p00, p01, p10, n00, n01, n10);
                     else if (bottomPole)
-                        AddTri(p00, p11, p10);
+                        AddTriN(p00, p11, p10, n00, n11, n10);
                     else
-                        AddQuad(p00, p01, p11, p10);
+                        AddQuadN(p00, p01, p11, p10, n00, n01, n11, n10);
                 }
             }
 
@@ -188,6 +203,52 @@ namespace Project.Infrastructure.Characters
             return center + new Vector3(Mathf.Sin(lon) * cl * radii.x * flare, Mathf.Sin(lat) * radii.y, Mathf.Cos(lon) * cl * radii.z * flare);
         }
 
+        private static Vector3 EllipsoidNormal(Vector3 radii, float lat, float lon)
+        {
+            var cl = Mathf.Cos(lat);
+            var n = new Vector3(Mathf.Sin(lon) * cl / radii.x, Mathf.Sin(lat) / radii.y, Mathf.Cos(lon) * cl / radii.z);
+            return SafeNormalize(n, Vector3.up);
+        }
+
+        /// <summary>Yumuşak gölgeli dörtgen: köşe normalleri verilir; UV izdüşümü yüz normaline göre seçilir (sürekli doku).</summary>
+        private static void AddQuadN(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector3 na, Vector3 nb, Vector3 nc, Vector3 nd)
+        {
+            var face = Vector3.Cross(b - a, c - a);
+            if (face.sqrMagnitude < 1e-12f)
+                face = Vector3.Cross(c - a, d - a);
+            face = SafeNormalize(face, Vector3.up);
+            var start = Verts.Count;
+            AddVertexN(a, na, face);
+            AddVertexN(b, nb, face);
+            AddVertexN(c, nc, face);
+            AddVertexN(d, nd, face);
+            Tris.Add(start);
+            Tris.Add(start + 1);
+            Tris.Add(start + 2);
+            Tris.Add(start);
+            Tris.Add(start + 2);
+            Tris.Add(start + 3);
+        }
+
+        private static void AddTriN(Vector3 a, Vector3 b, Vector3 c, Vector3 na, Vector3 nb, Vector3 nc)
+        {
+            var face = Vector3.Cross(b - a, c - a);
+            face = SafeNormalize(face, Vector3.up);
+            var start = Verts.Count;
+            AddVertexN(a, na, face);
+            AddVertexN(b, nb, face);
+            AddVertexN(c, nc, face);
+            Tris.Add(start);
+            Tris.Add(start + 1);
+            Tris.Add(start + 2);
+        }
+
+        private static void AddVertexN(Vector3 p, Vector3 shadeNormal, Vector3 uvNormal)
+        {
+            AddVertex(p, uvNormal);
+            Normals[Normals.Count - 1] = shadeNormal;
+        }
+
         private static void Begin()
         {
             Verts.Clear();
@@ -205,7 +266,7 @@ namespace Project.Infrastructure.Characters
             var n = Vector3.Cross(b - a, c - a);
             if (n.sqrMagnitude < 1e-12f)
                 n = Vector3.Cross(c - a, d - a);
-            n = n.sqrMagnitude > 1e-12f ? n.normalized : Vector3.up;
+            n = SafeNormalize(n, Vector3.up);
 
             var start = Verts.Count;
             AddVertex(a, n);
@@ -222,7 +283,7 @@ namespace Project.Infrastructure.Characters
 
         private static void AddQuadUv(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Vector2 uvA, Vector2 uvB, Vector2 uvC, Vector2 uvD)
         {
-            var n = Vector3.Cross(b - a, c - a).normalized;
+            var n = SafeNormalize(Vector3.Cross(b - a, c - a), Vector3.up);
             var start = Verts.Count;
             Verts.Add(a);
             Verts.Add(b);
@@ -248,7 +309,7 @@ namespace Project.Infrastructure.Characters
         private static void AddTri(Vector3 a, Vector3 b, Vector3 c)
         {
             var n = Vector3.Cross(b - a, c - a);
-            n = n.sqrMagnitude > 1e-12f ? n.normalized : Vector3.up;
+            n = SafeNormalize(n, Vector3.up);
             var start = Verts.Count;
             AddVertex(a, n);
             AddVertex(b, n);
@@ -277,8 +338,91 @@ namespace Project.Infrastructure.Characters
             Uvs.Add(uv);
         }
 
+        // Denetim kipi (EditMode testi): Mesh nesnesi (yerel köprü) oluşturmadan ham liste anlık görüntüsü alınır.
+        private static bool _audit;
+        private static AuditSnapshot _auditResult;
+
+        internal sealed class AuditSnapshot
+        {
+            public string Key;
+            public Vector3[] Verts;
+            public Vector3[] Normals;
+            public Vector2[] Uvs;
+            public int Sanitized;
+        }
+
+        /// <summary>Yalnızca test: build() içindeki ağ üretimini önbelleksiz çalıştırır, ham köşe verisini döndürür (sterilizasyondan ÖNCE).</summary>
+        internal static AuditSnapshot AuditBuild(System.Action build)
+        {
+            _audit = true;
+            _auditResult = null;
+            try { build(); }
+            finally { _audit = false; }
+            return _auditResult;
+        }
+
+        /// <summary>
+        /// Vector3.normalized büyüklüğü 1e-5'in altındaki vektörleri SIFIR döndürür; ince/küçük yüzlerin (kenar ~mm) çaprazı
+        /// bunun altına düşüp sıfır normal üretiyor, gölgelendiricide normalize(0) = NaN olup parça beyaza patlıyordu.
+        /// Burada ölçek-bağımsız (kare büyüklük 1e-24'e kadar) normalizasyon yapılır; çok küçükse fallback.
+        /// </summary>
+        private static Vector3 SafeNormalize(Vector3 v, Vector3 fallback)
+        {
+            var m2 = v.x * v.x + v.y * v.y + v.z * v.z;
+            if (!(m2 > 1e-24f) || float.IsInfinity(m2))
+                return fallback;
+            return v / Mathf.Sqrt(m2);
+        }
+
+        private static bool Bad(Vector3 v)
+        {
+            return float.IsNaN(v.x) || float.IsNaN(v.y) || float.IsNaN(v.z) ||
+                   float.IsInfinity(v.x) || float.IsInfinity(v.y) || float.IsInfinity(v.z);
+        }
+
         private static Mesh Finish(string key)
         {
+            if (_audit)
+            {
+                var snap = new AuditSnapshot { Key = key, Verts = Verts.ToArray(), Normals = Normals.ToArray(), Uvs = Uvs.ToArray() };
+                _auditResult = snap;
+                return null;
+            }
+
+            // Son çare koruma: NaN/sonsuz köşe, ÖNCEKİ geçerli köşeye çekilir (orijine sıçramaz); normal/uv de süpürülür.
+            // Kaynak düzeltmeleri esastır — bu dal tetiklenirse player.log'da uyarı görünür.
+            var sanitized = 0;
+            for (var i = 0; i < Verts.Count; i++)
+            {
+                var v = Verts[i];
+                if (Bad(v))
+                {
+                    Verts[i] = i > 0 ? Verts[i - 1] : Vector3.zero;
+                    sanitized++;
+                }
+
+                var n = Normals[i];
+                if (Bad(n) || n.sqrMagnitude < 1e-8f)
+                {
+                    Normals[i] = i > 0 ? Normals[i - 1] : Vector3.up;
+                    if (Bad(Normals[i]) || Normals[i].sqrMagnitude < 1e-8f)
+                        Normals[i] = Vector3.up;
+                    sanitized++;
+                }
+                else
+                    Normals[i] = SafeNormalize(n, Vector3.up);
+
+                var u = Uvs[i];
+                if (float.IsNaN(u.x) || float.IsNaN(u.y) || float.IsInfinity(u.x) || float.IsInfinity(u.y))
+                {
+                    Uvs[i] = i > 0 ? Uvs[i - 1] : Vector2.zero;
+                    sanitized++;
+                }
+            }
+
+            if (sanitized > 0)
+                Debug.LogWarning("[CharacterMeshes] NaN/Inf guard triggered for mesh '" + key + "' (" + sanitized + " values repaired) - fix the generator.");
+
             var mesh = new Mesh { name = "HK_" + key };
             if (Verts.Count > 65000)
                 mesh.indexFormat = IndexFormat.UInt32;

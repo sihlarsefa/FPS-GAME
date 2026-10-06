@@ -223,7 +223,7 @@ namespace Project.Infrastructure.AI
             Profile = BotDifficultyProfile.For(args.Difficulty);
             // Bireysel farklılık: aynı zorluktaki botlar birebir aynı davranmasın.
             Profile.AimErrorDegrees *= Range(0.85f, 1.15f);
-            Profile.ReactionSeconds *= Range(0.85f, 1.2f);
+            ConfigureSkill(rank); // tepki 180-450 ms (rütbe/zorluk/bireysel)
             Profile.TurnSpeedDegreesPerSecond *= Range(0.9f, 1.1f);
             if (_role == TeamRole.Marksman)
                 Profile.ViewDistance *= 1.2f;
@@ -315,6 +315,7 @@ namespace Project.Infrastructure.AI
 
             _perception = new BotPerception(seed ^ 0x5bd1e995);
             _perception.Bind(Combatant);
+            _perception.HasNightVision = Combatant.Inventory != null && Combatant.Inventory.GetCount(ItemIds.NightVision) > 0;
 
             if (args.RegisterWithMatch)
                 RegisterWithServices(args.Id, name, rank);
@@ -354,6 +355,8 @@ namespace Project.Infrastructure.AI
             if (!AllBots.Contains(this))
                 AllBots.Add(this);
 
+            Audio.Foley.GearFoleyEmitter.Attach(gameObject, false, () => Combatant != null && Combatant.Inventory != null && Combatant.Inventory.ActiveWeapon != null ? Combatant.Inventory.ActiveWeapon.WeaponId : null); // ENTEGRASYON: teçhizat + silah foley (şarjör/çek/seçici/boş tetik)
+
             _director?.Register(this);
 
             var now = Time.time;
@@ -370,7 +373,10 @@ namespace Project.Infrastructure.AI
             try
             {
                 var loadout = LoadoutCatalog.For(_role, _slot < 0 ? 0 : _slot);
+                Project.Application.Services.NightVisionRules.IssueFor(loadout, Project.Infrastructure.Rendering.Atmosphere.CurrentTime);
                 inventory.ApplyLoadout(loadout, true);
+                if (_perception != null)
+                    _perception.HasNightVision = inventory.GetCount(ItemIds.NightVision) > 0;
             }
             catch (Exception e)
             {
@@ -627,6 +633,9 @@ namespace Project.Infrastructure.AI
             if (!_initialized || _dead)
                 return;
 
+            if (!BotRuntimeGate.Allowed)
+                return;
+
             var combatant = Combatant;
             if (combatant == null)
                 return;
@@ -659,7 +668,11 @@ namespace Project.Infrastructure.AI
                     return;
                 }
 
-                Think(dt, now);
+                var lodDt = dt;
+                if (!LodShouldTick(now, dt, out lodDt))
+                    return;
+
+                Think(lodDt, now);
             }
             catch (Exception e)
             {
@@ -671,15 +684,65 @@ namespace Project.Infrastructure.AI
             }
         }
 
+        // ------------------------------------------------------------------ LOD
+
+        private int _lodTier;
+        private float _lodNextEval;
+        private float _lodAccum;
+        private float _lodNextTick;
+        private float _lastDamagedTime = -100f;
+
+        /// <summary>Perception/karar aralığı çarpanı (1, 2 veya 4).</summary>
+        private float LodRateScale => InCombat(Time.time) ? 1f : BotLod.RateScale[_lodTier];
+
+        private bool InCombat(float now)
+        {
+            return IsFiring || (_perception != null && _perception.Target != null) || now - _lastDamagedTime < 5f;
+        }
+
+        /// <summary>Bu karede Think çalışmalı mı; çalışacaksa biriken dt'yi verir.</summary>
+        private bool LodShouldTick(float now, float dt, out float tickDt)
+        {
+            tickDt = dt;
+            var combat = InCombat(now);
+            if (now >= _lodNextEval)
+            {
+                _lodNextEval = now + 0.4f + Range(0f, 0.2f);
+                if (BotLod.TryGetReference(out var reference))
+                    _lodTier = BotLod.ComputeTier(Vector3.Distance(reference, transform.position), _lodTier);
+                else
+                    _lodTier = 0;
+            }
+
+            var tier = combat ? 0 : _lodTier;
+            BotLod.Report(tier, combat);
+            if (tier == 0)
+            {
+                _lodAccum = 0f;
+                return true;
+            }
+
+            _lodAccum += dt;
+            if (now < _lodNextTick)
+                return false;
+
+            _lodNextTick = now + BotLod.TickInterval[tier];
+            tickDt = Mathf.Min(_lodAccum, 0.3f);
+            _lodAccum = 0f;
+            return true;
+        }
+
         private void Think(float dt, float now)
         {
             TickWeapon(dt);
 
             if (now >= _nextPerception)
             {
-                _nextPerception = now + Range(0.2f, 0.3f);
+                _nextPerception = now + Range(0.2f, 0.3f) * LodRateScale;
                 Perceive(now);
             }
+
+            TickSuppression(dt, now);
 
             if (now >= _nextDecision || (_forceDecision && now >= _lastDecisionTime + 0.15f))
                 Decide(now);
@@ -748,6 +811,9 @@ namespace Project.Infrastructure.AI
                 return;
 
             var now = Time.time;
+            _lastDamagedTime = now;
+            _lodTier = 0;
+            AddDamageSuppression();
             _perception.OnDamaged(damage, transform.position, _director != null ? _director.Relations : null, _director, now);
             if (now >= _nextDamageDecision)
             {
@@ -858,6 +924,7 @@ namespace Project.Infrastructure.AI
         private static void ResetStatics()
         {
             AllBots.Clear();
+            ResetTacticsStatics();
         }
 
         // ------------------------------------------------------------------ yardımcılar

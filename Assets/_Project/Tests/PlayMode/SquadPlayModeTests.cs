@@ -137,7 +137,10 @@ namespace Project.Tests.PlayMode
 
             using var probe = new EventProbe<CommandTransferredEvent>(bus);
 
+            // DBNO: ilk ölümcül hasar yaralı bırakır; ikinci vuruş bitirir (CommandTransferred ölümde).
             commanderCombatant.ApplyDamage(new DamageInfo(10_000f, PlayerId.Invalid, "playmode_test"));
+            if (commanderCombatant.IsAlive)
+                commanderCombatant.ApplyDamage(new DamageInfo(10_000f, PlayerId.Invalid, "playmode_test"));
 
             yield return PlayModeHelpers.WaitUntil(
                 () => probe.Received || !commanderCombatant.IsAlive,

@@ -292,7 +292,7 @@ namespace Project.Presentation.UI
 
                         if (pc.CanDisembark)
                         {
-                            status = "[F] İn — araçtan in";
+                            status = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Interact) + " İn — araçtan in";
                             var auto = pc.AutoDisembarkRemaining;
                             if (auto >= 0f)
                             {
@@ -335,7 +335,7 @@ namespace Project.Presentation.UI
                     if (pc.IsDriving)
                     {
                         title = _drivingTitle ??= "ARAÇ: KİRPİ";
-                        status = "[F] Araçtan in";
+                        status = Project.Infrastructure.Input.InputBindings.Bracket(BindAction.Interact) + " Araçtan in";
                         detail = "[W/S] Gaz / Fren   [A/D] Direksiyon";
                         return;
                     }

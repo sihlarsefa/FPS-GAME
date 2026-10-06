@@ -73,7 +73,11 @@ namespace Project.Infrastructure.Transport
 
         public static Material[] DiscMaterials()
         {
-            return new[] { MaterialLibrary.Transparent(new Color(0.05f, 0.05f, 0.05f, 0.13f), true) };
+            return new[]
+            {
+                MaterialLibrary.Transparent(new Color(0.05f, 0.05f, 0.05f, 0.13f), true),
+                MaterialLibrary.Transparent(new Color(0.06f, 0.06f, 0.06f, 0.2f), true)
+            };
         }
 
         /// <summary>Koltuk düzeni: 0-4 sağ sıra (önden arkaya, +X'e bakar), 5-9 sol sıra (-X'e bakar).</summary>
@@ -277,6 +281,7 @@ namespace Project.Infrastructure.Transport
             }
 
             b.Box(Metal, new Vector3(0f, 1.6f, 0f), new Vector3(0.36f, 0.8f, 3.34f));
+            TransportDetailKit.HeliBody(b);
 
             return Finish(b, "T70_Govde");
         }
@@ -318,6 +323,7 @@ namespace Project.Infrastructure.Transport
                 b.Box(Tip, rotation * new Vector3(0f, 0.02f, 6.85f), new Vector3(0.52f, 0.056f, 0.3f), rotation);
             }
 
+            TransportDetailKit.HeliMainRotorHub(b);
             return Finish(b, "T70_AnaRotor");
         }
 
@@ -336,8 +342,10 @@ namespace Project.Infrastructure.Transport
 
         private static CachedVehicleMesh BuildDisc()
         {
-            var b = new TransportMeshBuilder(1);
+            var b = new TransportMeshBuilder(2);
             b.Disc(0, new Vector3(0f, 0.02f, 0f), MainRotorRadius, 40, true);
+            // Yoğun iç disk (kanat köküne yakın hareket bulanıklığı daha koyu)
+            b.Disc(1, new Vector3(0f, 0.025f, 0f), MainRotorRadius * 0.55f, 32, true);
             return Finish(b, "T70_RotorDiski");
         }
     }

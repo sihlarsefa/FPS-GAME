@@ -346,6 +346,38 @@ namespace Project.Infrastructure.World
 
         // ================================================================== Doğa
 
+        /// <summary>Yüksek ayrıntılı çam (alfa kesmeli sarkık dal kartları). lod 0/1; alt mesh 0 gövde, 1 kartlar (kesmeli malzeme gerekir).</summary>
+        public static Mesh PineTreeLod(float height, int seed, int lod)
+        {
+            height = Mathf.Clamp(height, 1f, 60f);
+            lod = Mathf.Clamp(lod, 0, TreeMeshes.MaxLod);
+            return Cached(new Key(Shape.Pine, height, 0f, 0f, seed, lod + 1), () => TreeMeshes.Pine(height, seed, lod));
+        }
+
+        /// <summary>Yüksek ayrıntılı meşe (çok loblu taç, yaprak kartı kümeleri). Bkz. <see cref="PineTreeLod"/>.</summary>
+        public static Mesh OakTreeLod(float height, int seed, int lod)
+        {
+            height = Mathf.Clamp(height, 1f, 60f);
+            lod = Mathf.Clamp(lod, 0, TreeMeshes.MaxLod);
+            return Cached(new Key(Shape.Oak, height, 0f, 0f, seed, lod + 1), () => TreeMeshes.Oak(height, seed, lod));
+        }
+
+        /// <summary>Yüksek ayrıntılı kuru ağaç (dallanan dallar; tümü katı). Bkz. <see cref="PineTreeLod"/>.</summary>
+        public static Mesh DeadTreeLod(float height, int seed, int lod)
+        {
+            height = Mathf.Clamp(height, 1f, 60f);
+            lod = Mathf.Clamp(lod, 0, TreeMeshes.MaxLod);
+            return Cached(new Key(Shape.Dead, height, 0f, 0f, seed, lod + 1), () => TreeMeshes.Dead(height, seed, lod));
+        }
+
+        /// <summary>Yüksek ayrıntılı çalı (yaprak kartları). Bkz. <see cref="PineTreeLod"/>.</summary>
+        public static Mesh BushLod(float radius, int seed, int lod)
+        {
+            radius = Mathf.Clamp(radius, 0.2f, 10f);
+            lod = Mathf.Clamp(lod, 0, TreeMeshes.MaxLod);
+            return Cached(new Key(Shape.Bush, radius, 0f, 0f, seed, lod + 1), () => TreeMeshes.Bush(radius, seed, lod));
+        }
+
         /// <summary>Çam: 6 kenarlı gövde + üst üste 4 düz gölgeli koni. Alt mesh 0 gövde, 1 iğne. Taban y = 0.</summary>
         public static Mesh PineTree(float height = 10f, int seed = 0)
         {

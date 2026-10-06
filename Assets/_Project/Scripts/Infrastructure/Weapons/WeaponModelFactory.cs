@@ -17,6 +17,7 @@ namespace Project.Infrastructure.Weapons
     public static class WeaponModelFactory
     {
         private static readonly Dictionary<WeaponStyle, WeaponBlueprint> Cache = new Dictionary<WeaponStyle, WeaponBlueprint>();
+        private static readonly Dictionary<WeaponStyle, WeaponBlueprint> CacheLod1 = new Dictionary<WeaponStyle, WeaponBlueprint>();
         private static readonly List<Collider> TmpColliders = new List<Collider>(4);
         private static WeaponBlueprint _fallback;
 
@@ -59,7 +60,18 @@ namespace Project.Infrastructure.Weapons
             model.Style = style;
             model.ForViewmodel = forViewmodel;
 
-            var blueprint = style == WeaponStyle.None ? null : GetBlueprint(style);
+            if (TryInstantiateOverride(definition, model, layer))
+            {
+                EnsureAnchors(model, layer);
+                RemoveColliders(root);
+                if (!forViewmodel)
+                    ApplyThirdPersonLook(root);
+                model.CaptureHomePoses();
+                return model;
+            }
+
+            // Uzak/üçüncü-şahıs silahlar LOD1 (yarı detay) blueprint kullanır; viewmodel tam detay.
+            var blueprint = style == WeaponStyle.None ? null : (forViewmodel ? GetBlueprint(style) : GetBlueprint(style, 1));
             if (blueprint != null)
                 Instantiate(blueprint, model, layer, forViewmodel);
             else if (style != WeaponStyle.None)
@@ -67,8 +79,143 @@ namespace Project.Infrastructure.Weapons
 
             EnsureAnchors(model, layer);
             RemoveColliders(root);
+            if (forViewmodel)
+            {
+                // Lobi VİTRİN'inde seçilen kaplama (varsa) kozmetik tonun yerine geçer.
+                if (!ApplySelectedSkin(root, definition))
+                    ApplySkinTint(root, definition);
+            }
+            else
+                ApplyThirdPersonLook(root);
+            root.AddComponent<WeaponMaterialDriver>().Initialize(model);
             model.CaptureHomePoses();
             return model;
+        }
+
+        /// <summary>Lobi VİTRİN'inde silah için seçilmiş kaplamayı uygular (kaplamasızsa/hata olursa false).</summary>
+        private static bool ApplySelectedSkin(GameObject root, WeaponDefinitionData definition)
+        {
+            try
+            {
+                if (definition == null) return false;
+                var skinId = Skins.WeaponSkinSelection.Get(definition.WeaponId);
+                if (skinId == Skins.WeaponSkinCatalog.DefaultId) return false;
+                return Skins.WeaponSkinApplier.Apply(root.GetComponentsInChildren<MeshRenderer>(true), skinId);
+            }
+            catch (Exception) { return false; /* görsel; sessiz */ }
+        }
+
+        /// <summary>Kozmetik silah kaplaması (yalnızca görsel): malzemeleri kopyalayıp ton uygular. Hata olursa sessizce atlar.</summary>
+        private static void ApplySkinTint(GameObject root, WeaponDefinitionData definition)
+        {
+            try
+            {
+                if (definition == null || !Project.Infrastructure.Characters.CosmeticsRuntime.TryGetWeaponTint(definition.WeaponId, out var tint))
+                    return;
+                foreach (var r in root.GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    var mats = r.materials; // örnek kopya: paylaşılan blueprint malzemeleri bozulmaz
+                    for (var i = 0; i < mats.Length; i++)
+                    {
+                        if (mats[i] == null) continue;
+                        if (mats[i].HasProperty("_BaseColor")) mats[i].SetColor("_BaseColor", Color.Lerp(mats[i].GetColor("_BaseColor"), tint, 0.7f));
+                        else if (mats[i].HasProperty("_Color")) mats[i].SetColor("_Color", Color.Lerp(mats[i].GetColor("_Color"), tint, 0.7f));
+                    }
+
+                    r.materials = mats;
+                }
+            }
+            catch (Exception) { /* görsel; sessiz */ }
+        }
+
+        // ------------------------------------------------------------------ Üçüncü şahıs görünümü
+
+        private static readonly Dictionary<Material, Material> TpCache = new Dictionary<Material, Material>();
+
+        /// <summary>
+        /// Dünya/elde taşınan modelde (forViewmodel=false) koyu-metalik malzemeler uzaktan siyah çubuk gibi görünür.
+        /// Paylaşılan malzemeler değişmez; açık gri gövde + renkli mobilya (ahşap/tan/zeytin/polimer) kopyaları atanır.
+        /// Optik cam, reticle ve emissive/unlit malzemeler olduğu gibi kalır. Hata olursa sessizce atlar.
+        /// </summary>
+        private static void ApplyThirdPersonLook(GameObject root)
+        {
+            try
+            {
+                foreach (var r in root.GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    var mats = r.sharedMaterials;
+                    var changed = false;
+                    for (var i = 0; i < mats.Length; i++)
+                    {
+                        var remapped = ThirdPersonMaterial(mats[i]);
+                        if (remapped != null && remapped != mats[i])
+                        {
+                            mats[i] = remapped;
+                            changed = true;
+                        }
+                    }
+
+                    if (changed)
+                        r.sharedMaterials = mats;
+                }
+            }
+            catch (Exception) { /* görsel; sessiz */ }
+        }
+
+        private static Material ThirdPersonMaterial(Material src)
+        {
+            if (src == null)
+                return null;
+            if (TpCache.TryGetValue(src, out var cached) && cached != null)
+                return cached;
+
+            Material result = src;
+            var n = (src.name ?? string.Empty).ToLowerInvariant();
+            var shaderName = src.shader != null ? src.shader.name : string.Empty;
+            // Authored PBR surfaces must retain their texture, roughness and wear in world models.
+            if (shaderName.StartsWith("HAREKAT/Weapon/", StringComparison.Ordinal))
+            {
+                TpCache[src] = src;
+                return src;
+            }
+
+            var skip = n.Contains("glass") || n.Contains("reticle") || n.Contains("dot") || n.Contains("tritium")
+                       || shaderName.Contains("Unlit") || shaderName.Contains("OpticGlass");
+            if (!skip)
+            {
+                Color c;
+                var hasColor = true;
+                if (n.StartsWith("gun_steel")) c = new Color(0.40f, 0.41f, 0.42f);
+                else if (n.StartsWith("gun_anod")) c = new Color(0.30f, 0.31f, 0.33f);
+                else if (n.StartsWith("gun_poly")) c = new Color(0.23f, 0.23f, 0.24f);
+                else if (n.StartsWith("gun_rubber")) c = new Color(0.17f, 0.17f, 0.17f);
+                else if (n.StartsWith("gun_tan")) c = new Color(0.62f, 0.52f, 0.35f);
+                else if (n.StartsWith("gun_olive")) c = new Color(0.34f, 0.38f, 0.24f);
+                else if (n.StartsWith("gun_woodd")) c = new Color(0.36f, 0.22f, 0.12f);
+                else if (n.StartsWith("gun_wood")) c = new Color(0.5f, 0.32f, 0.17f);
+                else
+                {
+                    // Bilinmeyen (hazır varlık / yedek) malzeme: yalnızca çok koyuysa açık griye çek.
+                    c = Color.white;
+                    if (src.HasProperty("_BaseColor")) c = src.GetColor("_BaseColor");
+                    else if (src.HasProperty("_Color")) c = src.GetColor("_Color");
+                    else hasColor = false;
+                    if (hasColor && c.grayscale < 0.3f)
+                        c = Color.Lerp(c, new Color(0.42f, 0.43f, 0.45f), 0.65f);
+                    else
+                        hasColor = false;
+                }
+
+                if (hasColor)
+                {
+                    var m = MaterialLibrary.Lit(c, 0.35f, 0.15f);
+                    if (m != null)
+                        result = m;
+                }
+            }
+
+            TpCache[src] = result;
+            return result;
         }
 
         /// <summary>Tüm silah tiplerinin mesh'lerini önceden üretir (ilk kuşanmada takılmayı önler).</summary>
@@ -85,20 +232,25 @@ namespace Project.Infrastructure.Weapons
         public static void ClearCache()
         {
             Cache.Clear();
+            CacheLod1.Clear();
+            TpCache.Clear();
             _fallback = null;
         }
 
         // ------------------------------------------------------------------ Blueprint cache
 
-        internal static WeaponBlueprint GetBlueprint(WeaponStyle style)
+        internal static WeaponBlueprint GetBlueprint(WeaponStyle style) => GetBlueprint(style, 0);
+
+        internal static WeaponBlueprint GetBlueprint(WeaponStyle style, int lod)
         {
-            if (Cache.TryGetValue(style, out var cached) && IsAlive(cached))
+            var cache = lod > 0 ? CacheLod1 : Cache;
+            if (cache.TryGetValue(style, out var cached) && IsAlive(cached))
                 return cached;
 
             WeaponBlueprint blueprint = null;
             try
             {
-                blueprint = WeaponBlueprints.Build(style);
+                blueprint = WeaponBlueprints.Build(style, lod > 0 ? 1 : 0);
             }
             catch (Exception e)
             {
@@ -108,7 +260,7 @@ namespace Project.Infrastructure.Weapons
             if (!IsAlive(blueprint))
                 blueprint = GetFallbackBlueprint();
 
-            Cache[style] = blueprint;
+            cache[style] = blueprint;
             return blueprint;
         }
 
@@ -252,8 +404,9 @@ namespace Project.Infrastructure.Weapons
                 renderer.shadowCastingMode = ShadowCastingMode.Off;
                 renderer.receiveShadows = false;
                 renderer.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
-                renderer.lightProbeUsage = LightProbeUsage.Off;
-                renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+                // Ortam yansıması + SH: kamera yanındaki reflection/ışık probları silahı aydınlatır (iç mekânda düz görünmesin).
+                renderer.lightProbeUsage = LightProbeUsage.BlendProbes;
+                renderer.reflectionProbeUsage = ReflectionProbeUsage.BlendProbesAndSkybox;
                 renderer.allowOcclusionWhenDynamic = false;
             }
             else
@@ -294,6 +447,7 @@ namespace Project.Infrastructure.Weapons
             {
                 case WeaponModel.MuzzleAnchor: model.Muzzle = anchor; break;
                 case WeaponModel.SightAnchor: model.SightPoint = anchor; break;
+                case WeaponModel.FrontSightAnchor: model.FrontSightPoint = anchor; break;
                 case WeaponModel.RightHandAnchor: model.RightHandGrip = anchor; break;
                 case WeaponModel.LeftHandAnchor: model.LeftHandGrip = anchor; break;
                 case WeaponModel.MagazineHandAnchor: model.MagazineHandGrip = anchor; break;
@@ -326,6 +480,122 @@ namespace Project.Infrastructure.Weapons
                 var palm = pistol ? new Vector3(-0.03f, -0.06f, 0f) : new Vector3(-0.008f, -0.01f, 0.3f);
                 model.LeftHandGrip = CreateAnchor(WeaponModel.LeftHandAnchor, root, palm - rot * new Vector3(0f, 0f, WeaponBlueprints.PalmCenter), rot, layer);
             }
+        }
+
+        /// <summary>Hazır varlık (ContentOverrides) silah prefab'ı; yoksa/hata olursa false (prosedürel yol devam eder).</summary>
+        private static bool TryInstantiateOverride(WeaponDefinitionData definition, WeaponModel model, int layer)
+        {
+            try
+            {
+                if (definition == null || string.IsNullOrEmpty(definition.WeaponId))
+                    return false;
+                if (!Project.Infrastructure.Content.ContentOverrides.TryGetWeapon(definition.WeaponId, out GameObject prefab) || prefab == null)
+                    return false;
+
+                var instance = UnityEngine.Object.Instantiate(prefab, model.transform, false);
+                instance.name = prefab.name;
+                SetLayerRecursive(instance.transform, layer);
+                var muzzle = FindDeep(instance.transform, WeaponModel.MuzzleAnchor);
+                if (muzzle != null)
+                    model.Muzzle = muzzle;
+
+                RepairMaterials(instance);
+                if (!ValidateOverride(instance.transform, model.transform, out var why))
+                {
+                    Debug.LogWarning("[WeaponModelFactory] Hazır silah varlığı geçersiz (" + definition.WeaponId + "): " + why + " — prosedürel modele dönülüyor.");
+                    model.Muzzle = null;
+                    if (UnityEngine.Application.isPlaying)
+                        UnityEngine.Object.Destroy(instance);
+                    else
+                        UnityEngine.Object.DestroyImmediate(instance);
+                    return false;
+                }
+
+                foreach (var r in instance.GetComponentsInChildren<Renderer>(true))
+                    model.AddRenderer(r);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[WeaponModelFactory] Hazır silah varlığı kurulamadı, prosedürel modele dönülüyor: " + e.Message);
+                return false;
+            }
+        }
+
+        /// <summary>Eksik/pembe (shader'sız) malzemeleri koyu metal malzemeyle değiştirir.</summary>
+        private static void RepairMaterials(GameObject instance)
+        {
+            Material fallback = null;
+            foreach (var r in instance.GetComponentsInChildren<Renderer>(true))
+            {
+                var mats = r.sharedMaterials;
+                var changed = false;
+                for (var i = 0; i < mats.Length; i++)
+                {
+                    var m = mats[i];
+                    if (m != null && m.shader != null && m.shader.isSupported && m.shader.name != "Hidden/InternalErrorShader")
+                        continue;
+                    if (fallback == null)
+                        fallback = SafeMaterial();
+                    if (fallback == null)
+                        continue;
+                    mats[i] = fallback;
+                    changed = true;
+                }
+
+                if (changed)
+                    r.sharedMaterials = mats;
+            }
+        }
+
+        /// <summary>Etkin en az bir Renderer; birleşik sınır boyutu 0.1–2.0 m, merkezi kökün 1 m yakınında olmalı.</summary>
+        private static bool ValidateOverride(Transform instance, Transform root, out string why)
+        {
+            why = null;
+            var any = false;
+            Bounds total = default;
+            foreach (var r in instance.GetComponentsInChildren<Renderer>(false))
+            {
+                if (r == null || !r.enabled || !r.gameObject.activeInHierarchy)
+                    continue;
+                var lb = r.localBounds;
+                var c = lb.center;
+                var e = lb.extents;
+                for (var k = 0; k < 8; k++)
+                {
+                    var corner = new Vector3(c.x + ((k & 1) == 0 ? -e.x : e.x), c.y + ((k & 2) == 0 ? -e.y : e.y), c.z + ((k & 4) == 0 ? -e.z : e.z));
+                    var p = root.InverseTransformPoint(r.transform.TransformPoint(corner));
+                    if (!any) { total = new Bounds(p, Vector3.zero); any = true; }
+                    else total.Encapsulate(p);
+                }
+            }
+
+            if (!any) { why = "etkin Renderer yok"; return false; }
+            var size = Mathf.Max(total.size.x, Mathf.Max(total.size.y, total.size.z));
+            if (float.IsNaN(size) || size < 0.1f || size > 2.0f) { why = "sınır boyutu " + size.ToString("0.###") + " m"; return false; }
+            if (total.center.magnitude > 1f) { why = "merkez kökten " + total.center.magnitude.ToString("0.##") + " m uzakta"; return false; }
+            return true;
+        }
+
+        private static void SetLayerRecursive(Transform t, int layer)
+        {
+            t.gameObject.layer = layer;
+            for (var i = 0; i < t.childCount; i++)
+                SetLayerRecursive(t.GetChild(i), layer);
+        }
+
+        private static Transform FindDeep(Transform t, string name)
+        {
+            for (var i = 0; i < t.childCount; i++)
+            {
+                var c = t.GetChild(i);
+                if (c.name == name)
+                    return c;
+                var r = FindDeep(c, name);
+                if (r != null)
+                    return r;
+            }
+            return null;
         }
 
         private static void RemoveColliders(GameObject root)

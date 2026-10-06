@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 namespace Project.Presentation.UI
 {
     /// <summary>
-    /// Menü dekorundaki kamp ateşi: taş halka, çatılmış odunlar, kor yatağı, alev / kıvılcım / duman parçacıkları ve
+    /// Menü dekorundaki kamp ateşi: taş halka, çatılmış odunlar, kor yatağı, şekilli alev kartları (UV kare kaydırma) / kıvılcım / duman parçacıkları ve
     /// titreşen turuncu nokta ışığı. Işık titreşimi Perlin gürültüsüyle hesaplanır (kare başına bellek ayırmaz).
     /// </summary>
     [DisallowMultipleComponent]
@@ -20,9 +20,23 @@ namespace Project.Presentation.UI
         private bool _visible = true;
         private Renderer _probe;
         private Mesh _logsMesh;
+        private Mesh _cardMesh;
+        private Texture2D _flameTexture;
+        private Material _flameMaterial;
+        private const int CardCount = 5;
+        private float[] _cardScale;
+        private Transform[] _cards;
+        private Renderer[] _cardRenderers;
+        private MaterialPropertyBlock _block;
+
+        private const int FlameFrames = 4;
+        private const int FrameWidth = 64;
+        private const int FrameHeight = 128;
+        private static readonly int BaseMapSt = Shader.PropertyToID("_BaseMap_ST");
+        private static readonly int MainTexSt = Shader.PropertyToID("_MainTex_ST");
 
         /// <summary>Temel ışık şiddeti.</summary>
-        public float BaseIntensity { get; set; } = 2.6f;
+        public float BaseIntensity { get; set; } = 12f;
 
         /// <summary>Ateşin nokta ışığı (yoksa null).</summary>
         public Light FireLight => _light;
@@ -47,7 +61,7 @@ namespace Project.Presentation.UI
             var rng = new System.Random(seed);
 
             // Taş halka.
-            var stoneMaterial = MenuBackdropBuilder.Mat(MaterialId.RockDark);
+            var stoneMaterial = MaterialLibrary.Lit(new Color(0.34f, 0.32f, 0.30f), 0.2f, 0f);   // Ateş ışığında okunur açık taş.
             for (var i = 0; i < 9; i++)
             {
                 var angle = i / 9f * Mathf.PI * 2f + (float)rng.NextDouble() * 0.2f;
@@ -66,7 +80,7 @@ namespace Project.Presentation.UI
                 _probe = bed.GetComponent<Renderer>();
 
             // Çatılmış odunlar (teepee).
-            var bark = MenuBackdropBuilder.Mat(MaterialId.Bark);
+            var bark = MaterialLibrary.Lit(new Color(0.30f, 0.19f, 0.10f), 0.15f, 0f);   // Okunur kütük kahvesi.
             var builder = new MeshBuilder();
             for (var i = 0; i < 5; i++)
             {
@@ -82,20 +96,146 @@ namespace Project.Presentation.UI
             _logsMesh = builder.ToMesh("HK_MenuLogs");
             MenuBackdropBuilder.MeshObject("Odunlar", root, _logsMesh, new[] { bark }, Vector3.zero, Quaternion.identity, Vector3.one, ShadowCastingMode.On);
 
-            BuildParticles(root);
+            BuildSparksAndSmoke(root);
+            BuildDriftEmbers(root);
+            BuildFlameCards(root);
 
             // Titreşen ateş ışığı.
             var lightGo = new GameObject("AteşIşığı");
             lightGo.transform.SetParent(root, false);
-            _lightBase = new Vector3(0f, 0.75f, 0f);
+            _lightBase = new Vector3(0f, 0.5f, 0f);
             lightGo.transform.localPosition = _lightBase;
             _light = lightGo.AddComponent<Light>();
             _light.type = LightType.Point;
             _light.color = FireLightColor;
-            _light.range = 9f;
+            _light.range = 8.5f;
             _light.intensity = BaseIntensity;
             _light.shadows = LightShadows.None;
             _light.renderMode = LightRenderMode.ForcePixel;
+        }
+
+        /// <summary>Çapraz 4 alev kartı: 4 kareli atlas dokusu, UV kaydırma ile kare değişimi, titreyen boy. Blob yok, dil biçimli alev.</summary>
+        private void BuildFlameCards(Transform root)
+        {
+            _flameTexture = BuildFlameTexture();
+            _flameMaterial = new Material(MaterialLibrary.ParticleAdditive) { name = "HK_MenuFlame" };
+            if (_flameMaterial.HasProperty("_BaseMap"))
+                _flameMaterial.SetTexture("_BaseMap", _flameTexture);
+            if (_flameMaterial.HasProperty("_MainTex"))
+                _flameMaterial.SetTexture("_MainTex", _flameTexture);
+            if (_flameMaterial.HasProperty("_BaseColor"))
+                _flameMaterial.SetColor("_BaseColor", Color.white);
+
+            const float halfWidth = 0.26f, height = 0.42f;   // En çok 0.45 m; taban en/boy ~0.8:1.
+            var b = new MeshBuilder();
+            var uv0 = new Vector2(0f, 0f);
+            var uv1 = new Vector2(0f, 1f);
+            var uv2 = new Vector2(1f, 1f);
+            var uv3 = new Vector2(1f, 0f);
+            b.AddQuad(0, new Vector3(-halfWidth, 0f, 0f), new Vector3(-halfWidth, height, 0f), new Vector3(halfWidth, height, 0f), new Vector3(halfWidth, 0f, 0f), uv0, uv1, uv2, uv3);
+            b.AddQuad(0, new Vector3(halfWidth, 0f, 0f), new Vector3(halfWidth, height, 0f), new Vector3(-halfWidth, height, 0f), new Vector3(-halfWidth, 0f, 0f), uv3, uv2, uv1, uv0);
+            b.SanitizeNonFinite("HK_MenuFlameCard");
+            _cardMesh = b.ToMesh("HK_MenuFlameCard");
+
+            _cards = new Transform[CardCount];
+            _cardRenderers = new Renderer[CardCount];
+            _cardScale = new float[CardCount];
+            _block = new MaterialPropertyBlock();
+            for (var i = 0; i < CardCount; i++)
+            {
+                _cardScale[i] = i < 3 ? 1f : 0.7f;
+                var go = MenuBackdropBuilder.MeshObject("AlevKartı" + i, root, _cardMesh, new[] { _flameMaterial },
+                    new Vector3(i < 3 ? 0f : Mathf.Sin(i * 2.1f) * 0.1f, 0.06f, i < 3 ? 0f : Mathf.Cos(i * 2.1f) * 0.1f),
+                    Quaternion.Euler(0f, i < 3 ? i * 60f + 10f : i * 90f + 40f, 0f), Vector3.one, ShadowCastingMode.Off, false);
+                if (go == null)
+                    continue;
+                _cards[i] = go.transform;
+                _cardRenderers[i] = go.GetComponent<Renderer>();
+            }
+        }
+
+        /// <summary>Yumuşak, dil biçimli alev maskesi: geniş yuvarlak taban, yumuşakça incelen uç (iğne yok), tabanda parlak çekirdek.</summary>
+        private static float TeardropMask(int frame, float u, float v)
+        {
+            var best = 0f;
+            for (var k = 0; k < 2; k++)
+            {
+                var height = k == 0 ? 0.92f - 0.05f * Mathf.Sin(frame * 2.3f) : 0.6f + 0.06f * Mathf.Sin(frame * 1.7f);
+                if (v >= height)
+                    continue;
+                var t = v / height;
+                var profile = Mathf.Sin(Mathf.PI * Mathf.Pow(t, 0.45f)) * (1f - 0.35f * t);
+                var halfW = (k == 0 ? 0.34f : 0.2f) * Mathf.Max(0f, profile);
+                if (halfW < 1e-3f)
+                    continue;
+                var cx = 0.5f + (k == 0 ? 0f : (frame % 2 == 0 ? 0.15f : -0.15f)) * (1f - t)
+                         + Mathf.Sin(frame * 1.9f + k * 2.3f + t * 3.2f) * 0.05f * t;
+                var d = Mathf.Abs(u - cx) / halfW;
+                var m = Mathf.Clamp01(1f - d * d);   // Gauss benzeri yumuşak kenar.
+                m *= 1f - t * t * t * 0.6f;
+                best = Mathf.Max(best, m);
+            }
+
+            return best;
+        }
+
+        private static Texture2D BuildFlameTexture()
+        {
+            var tex = new Texture2D(FrameWidth * FlameFrames, FrameHeight, TextureFormat.RGBA32, false)
+            {
+                name = "HK_MenuFlameAtlas",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear
+            };
+            var pixels = new Color32[tex.width * tex.height];
+            for (var f = 0; f < FlameFrames; f++)
+            {
+                for (var y = 0; y < FrameHeight; y++)
+                {
+                    var v = (y + 0.5f) / FrameHeight;
+                    for (var x = 0; x < FrameWidth; x++)
+                    {
+                        var u = (x + 0.5f) / FrameWidth;
+                        var m = TeardropMask(f, u, v);
+                        // Renk: tabanda sarı-beyaz çekirdek, ortada turuncu, uçta kızıl.
+                        var heat = Mathf.Clamp01(m * (1.15f - v));
+                        var c = Color.Lerp(new Color(0.85f, 0.14f, 0.03f), new Color(1f, 0.58f, 0.12f), Mathf.Clamp01(heat * 1.6f));
+                        c = Color.Lerp(c, new Color(1f, 0.95f, 0.7f), Mathf.Clamp01((heat - 0.55f) * 2.2f));
+                        var a = Mathf.Clamp01(m * 0.95f);
+                        pixels[y * tex.width + f * FrameWidth + x] = new Color32((byte)(c.r * 255f), (byte)(c.g * 255f), (byte)(c.b * 255f), (byte)(a * 255f));
+                    }
+                }
+            }
+
+            tex.SetPixels32(pixels);
+            tex.Apply(false, true);
+            return tex;
+        }
+
+        private void AnimateFlames(float t)
+        {
+            if (_cards == null || _block == null)
+                return;
+
+            for (var i = 0; i < _cards.Length; i++)
+            {
+                if (_cards[i] == null || _cardRenderers[i] == null)
+                    continue;
+
+                // UV kaydırma: atlasta kare seç (her kart farklı fazda).
+                var frame = ((int)(t * 9f + i * 1.7f + _seed)) & (FlameFrames - 1);
+                var st = new Vector4(1f / FlameFrames, 1f, frame / (float)FlameFrames, 0f);
+                _cardRenderers[i].GetPropertyBlock(_block);
+                _block.SetVector(BaseMapSt, st);
+                _block.SetVector(MainTexSt, st);
+                _cardRenderers[i].SetPropertyBlock(_block);
+
+                // Titreme ±%15 (boy) ve ±%10 (en); tam boy gerilmesi yok.
+                var flick = 0.85f + 0.3f * Mathf.PerlinNoise(t * 6f + i * 3.7f, _seed);
+                var wide = 0.9f + 0.2f * Mathf.PerlinNoise(t * 4f, i * 2.1f + _seed);
+                var s = _cardScale != null && i < _cardScale.Length ? _cardScale[i] : 1f;
+                _cards[i].localScale = new Vector3(wide * s, flick * s, 1f);
+            }
         }
 
         private static Material SafeUnlit(Color color)
@@ -111,48 +251,59 @@ namespace Project.Presentation.UI
             }
         }
 
-        private static void BuildParticles(Transform root)
+        /// <summary>Kadrajın sağ-alt ön planında sola süzülen 6-10 parlak kor: dünya uzayı, eklemeli, titreşen alfa.</summary>
+        private static void BuildDriftEmbers(Transform root)
         {
-            // Alev.
-            var flame = MenuBackdropBuilder.CreateParticles("Alev", root, new Vector3(0f, 0.08f, 0f), MenuBackdropBuilder.Mat(MaterialId.Fire), 70);
-            if (flame != null)
-            {
-                var main = flame.main;
-                main.startLifetime = new ParticleSystem.MinMaxCurve(0.45f, 0.85f);
-                main.startSpeed = new ParticleSystem.MinMaxCurve(0.45f, 1.05f);
-                main.startSize = new ParticleSystem.MinMaxCurve(0.3f, 0.55f);
-                main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
-                main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.8f, 0.45f, 1f), new Color(1f, 0.55f, 0.2f, 1f));
-                main.gravityModifier = -0.08f;
+            var ps = MenuBackdropBuilder.CreateParticles("SüzülenKorlar", root, new Vector3(0f, 0.3f, 0f), MaterialLibrary.ParticleAdditive, 10);
+            if (ps == null)
+                return;
 
-                var emission = flame.emission;
-                emission.rateOverTime = 34f;
+            var main = ps.main;
+            main.prewarm = true;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(3.2f, 4.4f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.25f, 0.6f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.03f, 0.06f);
+            main.startColor = new ParticleSystem.MinMaxGradient(new Color(1.4f, 0.8f, 0.35f, 1f), new Color(1.3f, 0.4f, 0.12f, 1f));
+            main.gravityModifier = 0f;
 
-                var shape = flame.shape;
-                shape.enabled = true;
-                shape.shapeType = ParticleSystemShapeType.Cone;
-                shape.angle = 9f;
-                shape.radius = 0.16f;
-                shape.rotation = new Vector3(-90f, 0f, 0f);
+            var emission = ps.emission;
+            emission.rateOverTime = 2.2f;   // ~2,2 /sn x ~3,8 sn ≈ 8 canlı kor.
 
-                var color = flame.colorOverLifetime;
-                color.enabled = true;
-                color.color = new ParticleSystem.MinMaxGradient(MenuBackdropBuilder.Gradient(
-                    new[] { new Color(1f, 0.9f, 0.55f), new Color(1f, 0.55f, 0.18f), new Color(0.75f, 0.18f, 0.04f) },
-                    new[] { 0f, 0.35f, 1f },
-                    new[] { 0f, 0.95f, 0.55f, 0f },
-                    new[] { 0f, 0.12f, 0.6f, 1f }));
+            var shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 25f;
+            shape.radius = 0.2f;
+            shape.rotation = new Vector3(-90f, 0f, 0f);
 
-                var size = flame.sizeOverLifetime;
-                size.enabled = true;
-                size.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 1f, 1f, 0.15f));
+            // Dünya uzayında sola (-x) ve kameraya doğru (-z) süzülür, yükselir.
+            var force = ps.forceOverLifetime;
+            force.enabled = true;
+            force.space = ParticleSystemSimulationSpace.World;
+            force.x = new ParticleSystem.MinMaxCurve(-0.55f, -0.3f);
+            force.y = new ParticleSystem.MinMaxCurve(0.1f, 0.22f);
+            force.z = new ParticleSystem.MinMaxCurve(-0.45f, -0.2f);
 
-                var rotation = flame.rotationOverLifetime;
-                rotation.enabled = true;
-                rotation.z = new ParticleSystem.MinMaxCurve(-1.2f, 1.2f);
-                flame.Play();
-            }
+            var noise = ps.noise;
+            noise.enabled = true;
+            noise.strength = new ParticleSystem.MinMaxCurve(0.3f);
+            noise.frequency = 0.5f;
+            noise.scrollSpeed = new ParticleSystem.MinMaxCurve(0.4f);
+            noise.quality = ParticleSystemNoiseQuality.Low;
 
+            // Titreyen alfa (parlayıp sönme) + ömür sonunda kararma.
+            var color = ps.colorOverLifetime;
+            color.enabled = true;
+            color.color = new ParticleSystem.MinMaxGradient(MenuBackdropBuilder.Gradient(
+                new[] { new Color(1f, 0.85f, 0.5f), new Color(1f, 0.3f, 0.08f) },
+                new[] { 0f, 1f },
+                new[] { 0f, 1f, 0.45f, 1f, 0.5f, 0.9f, 0f },
+                new[] { 0f, 0.1f, 0.25f, 0.4f, 0.55f, 0.75f, 1f }));
+            ps.Play();
+        }
+
+        private static void BuildSparksAndSmoke(Transform root)
+        {
             // Kıvılcımlar.
             var embers = MenuBackdropBuilder.CreateParticles("Kıvılcımlar", root, new Vector3(0f, 0.25f, 0f), MaterialLibrary.ParticleAdditive, 60);
             if (embers != null)
@@ -257,6 +408,7 @@ namespace Project.Presentation.UI
             }
 
             var t = Time.time;
+            AnimateFlames(t);
             var flicker = 0.78f + 0.34f * Mathf.PerlinNoise(t * 5.5f, _seed) + 0.14f * Mathf.PerlinNoise(t * 17f, _seed + 4.1f);
             _light.intensity = BaseIntensity * flicker;
 
@@ -269,6 +421,13 @@ namespace Project.Presentation.UI
 
         private void OnDestroy()
         {
+            if (_cardMesh != null)
+                Destroy(_cardMesh);
+            if (_flameTexture != null)
+                Destroy(_flameTexture);
+            if (_flameMaterial != null)
+                Destroy(_flameMaterial);
+
             if (_logsMesh != null)
             {
                 Destroy(_logsMesh);

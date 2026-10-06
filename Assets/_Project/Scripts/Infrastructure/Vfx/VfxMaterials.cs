@@ -70,12 +70,35 @@ namespace Project.Infrastructure.Vfx
         /// <summary>Duvara/zemine sıçrayan kan lekesi.</summary>
         public static Material DecalBlood => _decalBlood != null ? _decalBlood : _decalBlood = Create("VFX_BloodSplat", false, VfxTextures.Splat, new Color(0.3f, 0.015f, 0.015f, 0.85f), DecalQueue);
 
+        /// <summary>Mermi izi HDR parlaklığı (bloom dostu): malzeme rengi 1'in üzerine çıkar, gece daha parlak.</summary>
+        public static void SetTracerBrightness(float hdr)
+        {
+            var material = Tracer;
+            if (material == null || Mathf.Abs(hdr - _tracerHdr) < 0.02f)
+                return;
+
+            _tracerHdr = hdr;
+            var color = new Color(hdr, hdr, hdr, 1f);
+            if (material.HasProperty(BaseColorId))
+                material.SetColor(BaseColorId, color);
+            if (material.HasProperty(ColorId))
+                material.SetColor(ColorId, color);
+        }
+
+        private static float _tracerHdr = 1f;
+
         private static Material CreateTracer()
         {
             var material = Create("VFX_Tracer", true, VfxTextures.Beam, Color.white, 0);
             if (material != null)
                 DisableFading(material);
             return material;
+        }
+
+        /// <summary>Çıkartma kuyruğunda, verilen dokulu malzeme (mermi deliği çeşitleri için).</summary>
+        public static Material CreateDecal(string name, Texture texture)
+        {
+            return Create(name, false, texture, Color.white, DecalQueue);
         }
 
         public static Material DecalFor(SurfaceKind surface)
@@ -102,6 +125,7 @@ namespace Project.Infrastructure.Vfx
             _alphaChunk = null;
             _alphaRing = null;
             _tracer = null;
+            _tracerHdr = 1f;
             _decalConcrete = null;
             _decalWood = null;
             _decalDirt = null;

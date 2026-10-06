@@ -768,7 +768,7 @@ namespace Project.Tests.EditMode.Sim
         {
             var service = new SettingsService(null);
             Assert.IsNotNull(service.Current);
-            Assert.AreEqual(80f, service.Current.FieldOfView, 0.001f);
+            Assert.AreEqual(64f, service.Current.FieldOfView, 0.001f);
             Assert.AreEqual(4, service.Current.TeamCount);
             Assert.AreEqual(39, service.Current.BotCount);
         }
@@ -897,7 +897,7 @@ namespace Project.Tests.EditMode.Sim
                 s.TeamCount = 3;
             });
 
-            Assert.AreEqual(80f, before.FieldOfView, 0.001f, "önceki örnek değişmemeli");
+            Assert.AreEqual(64f, before.FieldOfView, 0.001f, "önceki örnek değişmemeli");
             Assert.AreEqual(SettingsService.MaxFieldOfView, service.Current.FieldOfView, 0.001f);
             Assert.AreEqual(3, service.Current.TeamCount);
             Assert.AreEqual(29, service.Current.BotCount);

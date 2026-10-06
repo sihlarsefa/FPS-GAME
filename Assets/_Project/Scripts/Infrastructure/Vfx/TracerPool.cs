@@ -20,6 +20,7 @@ namespace Project.Infrastructure.Vfx
         private readonly float[] _duration;
         private readonly float[] _width;
         private readonly bool[] _active;
+        private readonly Color[] _tint;
         private int _count;
         private int _activeCount;
 
@@ -34,6 +35,7 @@ namespace Project.Infrastructure.Vfx
             _duration = new float[Capacity];
             _width = new float[Capacity];
             _active = new bool[Capacity];
+            _tint = new Color[Capacity];
         }
 
         public int Capacity { get; }
@@ -41,6 +43,12 @@ namespace Project.Infrastructure.Vfx
         public int ActiveCount => _activeCount;
 
         public void Spawn(Vector3 from, Vector3 to, float duration, float width, bool hasCamera, Vector3 cameraPosition)
+        {
+            Spawn(from, to, duration, width, hasCamera, cameraPosition, HeadColor);
+        }
+
+        /// <summary>Renkli iz (kalibre rengi). Parlaklık (HDR) paylaşılan malzemede ayarlanır.</summary>
+        public void Spawn(Vector3 from, Vector3 to, float duration, float width, bool hasCamera, Vector3 cameraPosition, Color tint)
         {
             var index = Acquire();
             if (index < 0)
@@ -51,6 +59,7 @@ namespace Project.Infrastructure.Vfx
             _age[index] = 0f;
             _duration[index] = duration;
             _width[index] = width;
+            _tint[index] = tint;
             if (!_active[index])
             {
                 _active[index] = true;
@@ -119,10 +128,10 @@ namespace Project.Infrastructure.Vfx
             line.SetPosition(1, to);
 
             var fade = 1f - t;
-            var head = HeadColor;
+            var head = _tint[index];
+            var tailBase = head;
             head.a *= fade;
-            var tailColor = TailColor;
-            tailColor.a *= fade;
+            var tailColor = new Color(tailBase.r, tailBase.g * 0.75f, tailBase.b * 0.6f, TailColor.a * fade);
             line.startColor = tailColor;
             line.endColor = head;
 

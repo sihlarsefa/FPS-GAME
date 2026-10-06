@@ -108,6 +108,8 @@ Mimari:
 
 ## GÖREV F3-4 — Hazır Varlık (Asset) Entegrasyon Altyapısı · `Infrastructure/Content/*`, `Editor/*`
 Strateji: önce **hazır paketler** (Asset Store, Mixamo, Sonniss, Poly Haven), sonra gerçekçi özel modeller. Kodla üretilen görünüm yedek olarak kalır.
+**Render:** yakın vadede **URP** sabit kalır. HDRP yalnızca kalite tavanı yetmezse ileride değerlendirilir (zorunlu değil).
+**Arazi:** mevcut Terrain splat (Grass/DryGrass/Dirt/Rock…) korunur. Diz boyu gerçekçi bitki örtüsü için **kalite aşamasında** mesh foliage katmanı eklenir — ayrıntı `Design/Art/ENVIRONMENT.md` (GPU instancing, LOD, culling, wind, random scale). Prosedürel yedek → `ContentOverrides` yolu silah/asker/binada olduğu gibi çevre prop’larına da uygulanır.
 1. **`ContentOverrides` ScriptableObject** (`Resources/ContentOverrides.asset`):
    - `WeaponId` → model prefab'ı (namlu ve el tutma noktası Transform adlarıyla).
    - `SoundId` → AudioClip listesi (rastgele seçim, ses ve pitch aralığı).
@@ -121,7 +123,7 @@ Strateji: önce **hazır paketler** (Asset Store, Mixamo, Sonniss, Poly Haven), 
    - Projedeki prefab, clip ve material'leri listeler; sürükle-bırak ile kimliklere eşler.
    - Eşlemede doğrulama yapar: muzzle Transform var mı, ölçek, humanoid rig.
 4. **Mixamo içe aktarma yardımcısı:** FBX'leri Humanoid olarak ayarlar; lokomosyon blend tree'si içeren bir **Animator Controller'ı otomatik üretir**: idle, walk, run, crouch, prone, aim offset, reload, death.
-5. `Assets/ThirdParty/README.md`: paketlerin nereye koyulacağı, lisans kayıt tablosu.
+5. `Assets/ThirdParty/README.md`: paketlerin nereye koyulacağı (`Environment/` dahil), lisans kayıt tablosu.
 6. Bu görevi Codex'in C3-1 "Hazır Varlık Listesi" çıktısıyla (`Design/Assets/*.csv`) uyumlu yap. CSV'den eşleme ön doldurması yapılabilsin.
 
 ## GÖREV F3-5 — Geliştirici Konsolu ve Hile Komutları (test için) · `Presentation/DevTools/*`

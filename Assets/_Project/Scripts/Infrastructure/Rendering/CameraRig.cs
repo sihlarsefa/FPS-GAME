@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Project.Core.Domain;
+using Project.Infrastructure.Rendering.Features;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -17,7 +19,7 @@ namespace Project.Infrastructure.Rendering
         public const float WorldFarClip = 1500f;
         public const float ViewmodelNearClip = 0.01f;
         public const float ViewmodelFarClip = 20f;
-        public const float ViewmodelFieldOfView = 60f;
+        public const float ViewmodelFieldOfView = 54f;
 
         private static readonly List<CameraRig> ActiveRigs = new List<CameraRig>();
         private static int _antialiasingLevel = 2;
@@ -88,6 +90,65 @@ namespace Project.Infrastructure.Rendering
                 WorldCamera.fieldOfView = fov;
         }
 
+        private float _viewmodelFov = ViewmodelFieldOfView;
+
+        /// <summary>Silah kamerasının (viewmodel) görüş açısı; 40..90 arası kısılır. Dünya FOV'undan bağımsızdır.</summary>
+        public float ViewmodelFov => _viewmodelFov;
+
+        public void SetViewmodelFieldOfView(float fov)
+        {
+            _viewmodelFov = Project.Application.Services.ViewmodelDynamics.ClampViewmodelFov(fov);
+            if (ViewmodelCamera != null && !Mathf.Approximately(ViewmodelCamera.fieldOfView, _viewmodelFov))
+                ViewmodelCamera.fieldOfView = _viewmodelFov;
+        }
+
+        // ---------------------------------------------------------------- Camera recoil (ayrı yay)
+
+        private readonly Project.Application.Services.CameraRecoilSpring _cameraRecoil = new Project.Application.Services.CameraRecoilSpring();
+        private Quaternion _appliedKick = Quaternion.identity;
+        private Quaternion _writtenRotation = Quaternion.identity;
+
+        /// <summary>
+        /// Kamera tepmesi uygulansın mı? Varsayılan kapalı: oyuncu denetleyicisi kamera dönüşünü her kare mutlak yazıyorsa
+        /// açılabilir (LateUpdate'te ofset eklenir, sonraki karede geri alınır). Kapalıyken davranış değişmez.
+        /// </summary>
+        public bool CameraKickEnabled { get; set; }
+
+        /// <summary>Kamera tepmesi darbesi (derece): pitch yukarı, yaw yana. Model tepmesinden bağımsız yaydır.</summary>
+        public void AddCameraKick(float pitchDegrees, float yawDegrees)
+        {
+            if (CameraKickEnabled)
+                _cameraRecoil.Kick(pitchDegrees, yawDegrees);
+        }
+
+        private void LateUpdate()
+        {
+            if (!CameraKickEnabled)
+            {
+                UndoKick();
+                _appliedKick = Quaternion.identity;
+
+                return;
+            }
+
+            var dt = Mathf.Min(Time.deltaTime, 0.1f);
+            // Önceki karenin ofsetini geri al (denetleyici üstüne yazmadıysa), yeni ofseti ekle.
+            UndoKick();
+            _cameraRecoil.Step(dt);
+            _appliedKick = Quaternion.Euler(-_cameraRecoil.PitchOffset, _cameraRecoil.YawOffset, 0f);
+            transform.localRotation = transform.localRotation * _appliedKick;
+            _writtenRotation = transform.localRotation;
+        }
+
+        // Denetleyici dönüşü üstüne yazdıysa (değer bizim yazdığımızdan farklı) geri alma yapılmaz.
+        private void UndoKick()
+        {
+            if (_appliedKick == Quaternion.identity)
+                return;
+            if (Quaternion.Angle(transform.localRotation, _writtenRotation) < 0.001f)
+                transform.localRotation = transform.localRotation * Quaternion.Inverse(_appliedKick);
+        }
+
         /// <summary>Silah kamerasını açar/kapatır (dürbün, araç, ölüm). Post-processing yönlendirmesi güncellenir.</summary>
         public void SetViewmodelVisible(bool visible)
         {
@@ -95,9 +156,10 @@ namespace Project.Infrastructure.Rendering
             if (ViewmodelCamera != null && ViewmodelCamera.enabled != visible)
                 ViewmodelCamera.enabled = visible;
             RoutePostProcessing();
+            ApplyAntialiasing(); // silah gizliyse zamansal AA (TAA/STP) açılabilir, görünürse SMAA'ya döner
         }
 
-        /// <summary>Kenar yumuşatma seviyesi: 0 kapalı, 1 FXAA, 2-3 SMAA. Tüm etkin düzeneklere uygulanır.</summary>
+        /// <summary>Kenar yumuşatma ana anahtarı: 0 kapalı, &gt;0 açık (yöntem kademeden: PipelineTiers.AaFor). Tüm etkin düzeneklere uygulanır.</summary>
         public static void SetAntialiasingLevel(int qualityLevel)
         {
             _antialiasingLevel = Mathf.Clamp(qualityLevel, 0, 3);
@@ -264,6 +326,7 @@ namespace Project.Infrastructure.Rendering
             camera.allowHDR = true;
             camera.allowMSAA = false;
             camera.useOcclusionCulling = true;
+            PerformanceProfile.ApplyToCamera(camera, PostProcessing.QualityLevel);
         }
 
         private static void ApplySkyClear(Camera camera)
@@ -361,27 +424,80 @@ namespace Project.Infrastructure.Rendering
             }
         }
 
+        private static bool _taaQualityWarned;
+
+        /// <summary>
+        /// Kademeye göre kenar yumuşatma: Düşük FXAA, Orta SMAA High, Yüksek TAA (STP yükselticiyse STP), Ultra TAA/STP.
+        /// URP TAA/STP overlay (silah) kamerası yığınıyla birlikte hayalet bırakır: silah görünürken taban kamera SMAA High'a düşer
+        /// (silah keskin kalır, overlay tabanın AA'sını devralır), silah gizliyken (dürbün/araç) TAA/STP açılır.
+        /// </summary>
         private void ApplyAntialiasing()
         {
             if (!RenderPipelineInfo.IsUrpActive || WorldCamera == null)
                 return;
 
-            var mode = _antialiasingLevel <= 0
-                ? AntialiasingMode.None
-                : _antialiasingLevel == 1
-                    ? AntialiasingMode.FastApproximateAntialiasing
-                    : AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+            var tier = Mathf.Clamp(PostProcessing.QualityLevel, 0, PipelineTiers.Count - 1);
+            var aa = PipelineTiers.AaFor(tier);
+            var overlayActive = _usingUrpStack && _viewmodelVisible && ViewmodelCamera != null && ViewmodelCamera.enabled
+                && ViewmodelCamera.gameObject.activeSelf;
+            var effective = _antialiasingLevel <= 0 ? AaMode.None : AntiAliasingMath.Effective(aa.Mode, overlayActive);
 
-            // Overlay kameralar tabanın AA ayarını devralır; yine de tutarlı olsun diye ikisine de yazılır.
+            var mode = ToUrp(effective);
             var worldData = WorldCamera.GetUniversalAdditionalCameraData();
             if (worldData != null)
+            {
                 worldData.antialiasing = mode;
+                if (effective == AaMode.Taa || effective == AaMode.Stp)
+                    TrySetTaaQualityHigh(worldData);
+            }
 
+            // Overlay kameralar tabanın AA ayarını devralır; yine de tutarlı olsun diye aynı değer yazılır.
             if (ViewmodelCamera != null)
             {
                 var vmData = ViewmodelCamera.GetUniversalAdditionalCameraData();
                 if (vmData != null)
+                {
                     vmData.antialiasing = mode;
+                }
+            }
+
+            AaMipBias.Apply(PipelineTiers.Get(tier).RenderScale, effective == AaMode.None ? aa.Mode : effective);
+        }
+
+        private static AntialiasingMode ToUrp(AaMode mode)
+        {
+            switch (mode)
+            {
+                case AaMode.None: return AntialiasingMode.None;
+                case AaMode.Fxaa: return AntialiasingMode.FastApproximateAntialiasing;
+                case AaMode.SmaaHigh: return AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+                default: return AntialiasingMode.TemporalAntiAliasing;
+            }
+        }
+
+        // taaSettings ref-döndüren struct özellik; serileştirilmiş alana yansımayla quality=High yazılır (hata = varsayılan kalite, tek uyarı).
+        private static void TrySetTaaQualityHigh(UniversalAdditionalCameraData data)
+        {
+            try
+            {
+                var field = data.GetType().GetField("m_TaaSettings", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (field == null)
+                    return;
+                var boxed = field.GetValue(data);
+                var q = boxed.GetType().GetField("quality", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                if (q == null || !q.FieldType.IsEnum)
+                    return;
+                var high = System.Enum.Parse(q.FieldType, "High");
+                q.SetValue(boxed, high);
+                field.SetValue(data, boxed);
+            }
+            catch (System.Exception e)
+            {
+                if (!_taaQualityWarned)
+                {
+                    _taaQualityWarned = true;
+                    Debug.LogWarning("[CameraRig] TAA kalitesi High yazılamadı: " + e.Message);
+                }
             }
         }
 

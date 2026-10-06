@@ -1,108 +1,47 @@
-using System;
+using Project.Online.Sim;
 using UnityEngine;
 
 namespace Project.Online.Netcode
 {
     /// <summary>
     /// Son 1 saniyelik hitbox geçmişi (lag compensation). 30 Hz × 1 sn ≈ 30 örnek.
+    /// Saf halka tampon <see cref="PositionHistory"/> üzerinde ince sarmalayıcı; örnekler interpolasyonludur.
     /// </summary>
     public sealed class LagCompensationBuffer
     {
-        private readonly HitboxSample[] _samples;
-        private int _count;
-        private int _head;
+        private readonly PositionHistory _history;
 
         public LagCompensationBuffer(float seconds = 1f, float tickRate = 30f)
         {
-            var capacity = Mathf.Clamp(Mathf.CeilToInt(seconds * tickRate) + 2, 8, 128);
-            _samples = new HitboxSample[capacity];
+            _history = new PositionHistory(seconds, tickRate);
         }
 
-        public int Capacity => _samples.Length;
-        public int Count => _count;
+        public PositionHistory History => _history;
+        public int Capacity => _history.Capacity;
+        public int Count => _history.Count;
 
         public void Record(uint tick, Vector3 position, Quaternion rotation, float height, float radius)
         {
-            _samples[_head] = new HitboxSample(tick, Time.time, position, rotation, height, radius);
-            _head = (_head + 1) % _samples.Length;
-            if (_count < _samples.Length)
-                _count++;
+            _history.Record(tick, Time.time, position, rotation, height, radius);
         }
 
-        public bool TrySample(uint tick, out CapsuleHitbox hitbox)
+        /// <summary>serverTick verilirse atış tick'i 1 sn geri sarma sınırına çekilir.</summary>
+        public bool TrySample(uint tick, out CapsuleHitbox hitbox, uint serverTick = 0)
         {
-            hitbox = default;
-            if (_count == 0)
-                return false;
-
-            HitboxSample? best = null;
-            var bestDelta = uint.MaxValue;
-            for (var i = 0; i < _count; i++)
-            {
-                var idx = (_head - 1 - i + _samples.Length * 2) % _samples.Length;
-                var sample = _samples[idx];
-                var delta = tick >= sample.Tick ? tick - sample.Tick : sample.Tick - tick;
-                if (delta < bestDelta)
-                {
-                    bestDelta = delta;
-                    best = sample;
-                }
-            }
-
-            if (best == null)
-                return false;
-
-            var s = best.Value;
-            hitbox = new CapsuleHitbox(s.Position, s.Rotation, s.Height, s.Radius);
-            return true;
+            if (serverTick != 0)
+                tick = _history.ClampTick(tick, serverTick);
+            return ToHitbox(_history.TrySampleTick(tick, out var s), s, out hitbox);
         }
 
         public bool TrySampleAtTime(float worldTime, out CapsuleHitbox hitbox)
         {
-            hitbox = default;
-            if (_count == 0)
-                return false;
-
-            HitboxSample? best = null;
-            var bestAbs = float.MaxValue;
-            for (var i = 0; i < _count; i++)
-            {
-                var idx = (_head - 1 - i + _samples.Length * 2) % _samples.Length;
-                var sample = _samples[idx];
-                var abs = Mathf.Abs(sample.Time - worldTime);
-                if (abs < bestAbs)
-                {
-                    bestAbs = abs;
-                    best = sample;
-                }
-            }
-
-            if (best == null)
-                return false;
-
-            var s = best.Value;
-            hitbox = new CapsuleHitbox(s.Position, s.Rotation, s.Height, s.Radius);
-            return true;
+            return ToHitbox(_history.TrySampleTime(worldTime, out var s), s, out hitbox);
         }
 
-        private readonly struct HitboxSample
+        private static bool ToHitbox(bool ok, PositionHistory.Sample s, out CapsuleHitbox hitbox)
         {
-            public readonly uint Tick;
-            public readonly float Time;
-            public readonly Vector3 Position;
-            public readonly Quaternion Rotation;
-            public readonly float Height;
-            public readonly float Radius;
-
-            public HitboxSample(uint tick, float time, Vector3 position, Quaternion rotation, float height, float radius)
-            {
-                Tick = tick;
-                Time = time;
-                Position = position;
-                Rotation = rotation;
-                Height = height;
-                Radius = radius;
-            }
+            hitbox = ok ? new CapsuleHitbox(s.Position, s.Rotation, s.Height, s.Radius) : default;
+            return ok;
         }
     }
 }

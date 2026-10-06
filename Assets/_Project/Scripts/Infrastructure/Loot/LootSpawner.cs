@@ -38,7 +38,13 @@ namespace Project.Infrastructure.Loot
         /// </summary>
         public static int SpawnWorldLoot(IReadOnlyList<LootSpawnPointData> points, ILootSpawnService service, IRandom random)
         {
-            if (points == null || points.Count == 0 || !GameContext.HasAuthority)
+            if (!GameContext.HasAuthority)
+            {
+                InteriorAnchors.Clear();
+                return 0;
+            }
+
+            if ((points == null || points.Count == 0) && InteriorAnchors.Count == 0)
                 return 0;
 
             service ??= ResolveService();
@@ -48,7 +54,8 @@ namespace Project.Infrastructure.Loot
             Physics.SyncTransforms();
 
             var spawned = 0;
-            for (var p = 0; p < points.Count; p++)
+            var total = points != null ? points.Count : 0;
+            for (var p = 0; p < total; p++)
             {
                 var point = points[p];
                 var chance = Mathf.Clamp01(SafeChance(service, point.Tier));
@@ -75,7 +82,33 @@ namespace Project.Infrastructure.Loot
                 spawned += SpawnCluster(point.Position, GroupBuffer, random);
             }
 
+            spawned += SpawnInteriorAnchors(service, random);
             GroupBuffer.Clear();
+            return spawned;
+        }
+
+        private static readonly List<InteriorAnchor> AnchorBuffer = new(256);
+
+        /// <summary>Bina içi mobilya çapalarına (InteriorFurnisher) ek yağma: normal şansın yarısı; tüketilince kayıt temizlenir (maç başına bir kez).</summary>
+        private static int SpawnInteriorAnchors(ILootSpawnService service, IRandom random)
+        {
+            AnchorBuffer.Clear();
+            InteriorAnchors.Snapshot(AnchorBuffer);
+            InteriorAnchors.Clear();
+            var spawned = 0;
+            for (var i = 0; i < AnchorBuffer.Count; i++)
+            {
+                var a = AnchorBuffer[i];
+                var tier = (LootTier)Mathf.Clamp(a.TierHint, 0, 2);
+                if (random.NextFloat() >= Mathf.Clamp01(SafeChance(service, tier)) * 0.5f)
+                    continue;
+                GroupBuffer.Clear();
+                try { service.RollSpawnGroup(tier, random, GroupBuffer); }
+                catch (Exception) { GroupBuffer.Clear(); continue; }
+                spawned += SpawnCluster(a.Position, GroupBuffer, random);
+            }
+
+            AnchorBuffer.Clear();
             return spawned;
         }
 

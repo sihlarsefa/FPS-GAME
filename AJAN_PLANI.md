@@ -98,8 +98,13 @@ Anlık sahiplik ve durum: [Docs/DURUM.md](Docs/DURUM.md) · Tüm modül tanımla
   - C3-7 Web indirme sayfası ve yama notları
   - C3-8 QA ve wiki güncellemesi
 
+## Faz 4–5 (Cursor) — [CURSOR_FAZ4.md](Docs/CURSOR_FAZ4.md) · [CURSOR_FAZ5.md](Docs/CURSOR_FAZ5.md)
+- **F4:** gerçek Unity doğrulaması, Netcode, Windows Server provası, CI, hazır varlıklar, 0.1 kapalı test paketi.
+- **F5:** soak testleri, oynanış kontrol listesi, tam yerelleştirme, backend canlı özellikler, web v3, varlık bağlama, Windows'ta uçtan uca online maç, geliştirici dokümanları.
+
 ## Sonraki aşamalar (iki hat bitince)
 1. **Entegrasyon:** Tüm Unity projesi hatasız derlenene kadar modüller arası uyumsuzluklar düzeltilir.
 2. **İnceleme:** Ayrı inceleme ajanları oyun akışını, çatışmayı, yapay zekâyı, dünya ve editör kurulumunu, arayüzü inceleyip hataları düzeltir.
 3. **Son doğrulama:** Son derleme ve testler.
 4. **Online:** Unity istemcisi Netcode/Transport adaptörüyle backend'e bağlanır, ardından dedicated server build'i alınır.
+5. **Görsel kalite (oyun oynanabilir olduktan sonra):** Terrain splat korunur; mesh foliage + ThirdParty Environment assetleri; URP’de kal. Plan: [Design/Art/ENVIRONMENT.md](Design/Art/ENVIRONMENT.md). HDRP yok (ileride değerlendir).

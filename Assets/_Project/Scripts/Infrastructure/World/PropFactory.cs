@@ -1,4 +1,6 @@
 using System;
+using Project.Application.Services;
+using Project.Infrastructure.Combat;
 using Project.Infrastructure.Rendering;
 using UnityEngine;
 
@@ -62,17 +64,24 @@ namespace Project.Infrastructure.World
 
         public static GameObject AmmoCrate(Transform parent, Vector3 pos, float yaw, System.Random rng)
         {
+            var ov = TryOverride(parent, "MühimmatSandığı", "ammo_crate", pos, yaw);
+            if (ov != null)
+                return ov;
             var root = Root(parent, "MühimmatSandığı", pos, yaw);
-            StructureKit.CreateBox(root.transform, "Kasa", new Vector3(0f, 0.35f, 0f),
+            var kasa = StructureKit.CreateBox(root.transform, "Kasa", new Vector3(0f, 0.35f, 0f),
                 new Vector3(1.1f, 0.65f, 0.7f), Quaternion.identity, MaterialId.Wood);
             StructureKit.CreateBox(root.transform, "Serit", new Vector3(0f, 0.5f, 0f),
                 new Vector3(1.12f, 0.08f, 0.72f), Quaternion.identity, MaterialId.VehicleOlive, false);
             StructureKit.MarkStatic(root);
+            MarkWood(kasa, 90f);
             return root;
         }
 
         public static GameObject Barrel(Transform parent, Vector3 pos, float yaw, System.Random rng)
         {
+            var ov = TryOverride(parent, "Varil", "barrel", pos, yaw);
+            if (ov != null)
+                return ov;
             var root = Root(parent, "Varil", pos, yaw);
             StructureKit.CreateCylinder(root.transform, "Govde", new Vector3(0f, 0.55f, 0f), 0.32f, 1.05f, MaterialId.Rust);
             StructureKit.MarkStatic(root);
@@ -124,18 +133,53 @@ namespace Project.Infrastructure.World
         {
             var root = Root(parent, "Çit", pos, yaw);
             var len = 4 + (rng?.Next(0, 4) ?? 0);
+            var posts = new System.Collections.Generic.List<GameObject>(len * 2);
             for (var i = 0; i < len; i++)
             {
-                StructureKit.CreateBox(root.transform, "Direk" + i, new Vector3(i * 1.2f, 0.7f, 0f),
+                var direk = StructureKit.CreateBox(root.transform, "Direk" + i, new Vector3(i * 1.2f, 0.7f, 0f),
                     new Vector3(0.1f, 1.4f, 0.1f), Quaternion.identity, MaterialId.WoodDark);
+                posts.Add(direk);
                 if (i < len - 1)
                 {
-                    StructureKit.CreateBox(root.transform, "Ray" + i, new Vector3(i * 1.2f + 0.6f, 0.9f, 0f),
-                        new Vector3(1.15f, 0.08f, 0.06f), Quaternion.identity, MaterialId.Wood);
+                    posts.Add(StructureKit.CreateBox(root.transform, "Ray" + i, new Vector3(i * 1.2f + 0.6f, 0.9f, 0f),
+                        new Vector3(1.15f, 0.08f, 0.06f), Quaternion.identity, MaterialId.Wood));
                 }
             }
             StructureKit.MarkStatic(root);
+            for (var i = 0; i < posts.Count; i++)
+                MarkWood(posts[i], 30f);
             return root;
+        }
+
+        /// <summary>Ahşap kapı (çerçeve + kırılabilir kanat).</summary>
+        public static GameObject WoodenDoor(Transform parent, Vector3 pos, float yaw, System.Random rng)
+        {
+            var root = Root(parent, "AhsapKapi", pos, yaw);
+            StructureKit.CreateBox(root.transform, "KapiCerceve", new Vector3(0f, 1.05f, 0f),
+                new Vector3(1.2f, 2.1f, 0.14f), Quaternion.identity, MaterialId.WoodDark, false);
+            StructureKit.MarkStatic(root);
+            try
+            {
+                // Çerçeve sabit; kanat menteşeli kapı (F: aç/kapat, basılı tut: aralık). Başarısızsa statik kanat yedeği.
+                Project.Infrastructure.World.WoodenDoor.Build(root.transform, Vector3.zero, 0f, 1.0f, 2.0f,
+                    rng != null && rng.NextDouble() < 0.5);
+            }
+            catch (System.Exception)
+            {
+                var kanat = StructureKit.CreateBox(root.transform, "KapiKanat", new Vector3(0f, 1f, 0f),
+                    new Vector3(1f, 2f, 0.08f), Quaternion.identity, MaterialId.Wood);
+                MarkWood(kanat, 60f);
+            }
+            return root;
+        }
+
+        /// <summary>Parçayı kırılabilir ahşap yapar (statik işaretini kaldırır; kırılınca nesne yok edilir).</summary>
+        private static void MarkWood(GameObject go, float hp)
+        {
+            if (go == null)
+                return;
+            go.isStatic = false;
+            Destructible.Mark(go, DestructibleKind.Wood, MaterialId.Wood, hp);
         }
 
         public static GameObject HayBale(Transform parent, Vector3 pos, float yaw, System.Random rng)
@@ -231,8 +275,23 @@ namespace Project.Infrastructure.World
 
         public static GameObject TreeStump(Transform parent, Vector3 pos, float yaw, System.Random rng)
         {
+            var ov = TryOverride(parent, "Kütük", "stump", pos, yaw);
+            if (ov != null)
+                return ov;
             var root = Root(parent, "Kütük", pos, yaw);
             StructureKit.CreateCylinder(root.transform, "Kütük", new Vector3(0f, 0.3f, 0f), 0.4f, 0.55f, MaterialId.Bark);
+            StructureKit.MarkStatic(root);
+            return root;
+        }
+
+        /// <summary>Orman içi düşmüş kütük (TreeScatter.ScatterLogSpots tüketicisi); gövde yatay, kök yaw'a göre döner.</summary>
+        public static GameObject FallenLog(Transform parent, Vector3 pos, float yaw, float length)
+        {
+            var root = Root(parent, "DüşmüşKütük", pos, yaw);
+            var r = Mathf.Clamp(length * 0.07f, 0.16f, 0.4f);
+            var log = StructureKit.CreateCylinder(root.transform, "Gövde", new Vector3(0f, r * 0.85f, 0f), r, length, MaterialId.Bark);
+            if (log != null)
+                log.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
             StructureKit.MarkStatic(root);
             return root;
         }
@@ -240,18 +299,25 @@ namespace Project.Infrastructure.World
         public static GameObject Woodpile(Transform parent, Vector3 pos, float yaw, System.Random rng)
         {
             var root = Root(parent, "OdunYığını", pos, yaw);
+            var logs = new System.Collections.Generic.List<GameObject>(5);
             for (var i = 0; i < 5; i++)
             {
-                StructureKit.CreateCylinder(root.transform, "Odun" + i, new Vector3(0f, 0.12f + i * 0.14f, (i % 2) * 0.1f),
+                var odun = StructureKit.CreateCylinder(root.transform, "Odun" + i, new Vector3(0f, 0.12f + i * 0.14f, (i % 2) * 0.1f),
                     0.1f, 1.4f, MaterialId.WoodDark);
                 root.transform.GetChild(i).localRotation = Quaternion.Euler(0f, 0f, 90f);
+                logs.Add(odun);
             }
             StructureKit.MarkStatic(root);
+            for (var i = 0; i < logs.Count; i++)
+                MarkWood(logs[i], 25f);
             return root;
         }
 
         public static GameObject ConcreteBarrier(Transform parent, Vector3 pos, float yaw, System.Random rng)
         {
+            var ov = TryOverride(parent, "BetonBariyer", "barrier", pos, yaw);
+            if (ov != null)
+                return ov;
             var root = Root(parent, "BetonBariyer", pos, yaw);
             StructureKit.CreateBox(root.transform, "Bariyer", new Vector3(0f, 0.55f, 0f),
                 new Vector3(2.2f, 1.05f, 0.55f), Quaternion.identity, MaterialId.Concrete);
@@ -272,6 +338,89 @@ namespace Project.Infrastructure.World
             return root;
         }
 
+        /// <summary>
+        /// Rüzgâr türbini: koni benzeri kule (iki kademe silindir), nasel, göbek ve dönen 3 kanat (<see cref="TurbineRotor"/>).
+        /// Kanat/göbek çarpıştırıcısızdır; kule çarpışır. Rotor ön yüzü (yaw yönü) +Z'dir.
+        /// </summary>
+        public static GameObject WindTurbine(Transform parent, Vector3 pos, float yaw, System.Random rng)
+        {
+            const float towerH = 42f;
+            const float bladeLen = 17f;
+            var root = Root(parent, "RüzgârTürbini", pos, yaw);
+            StructureKit.CreateCylinder(root.transform, "KuleAlt", new Vector3(0f, towerH * 0.25f, 0f), 1.5f, towerH * 0.5f, MaterialId.White);
+            StructureKit.CreateCylinder(root.transform, "KuleÜst", new Vector3(0f, towerH * 0.75f, 0f), 1.0f, towerH * 0.5f, MaterialId.White);
+            StructureKit.CreateBox(root.transform, "Taban", new Vector3(0f, 0.3f, 0f), new Vector3(4.5f, 0.6f, 4.5f), Quaternion.identity, MaterialId.Concrete);
+            StructureKit.CreateBox(root.transform, "Nasel", new Vector3(0f, towerH + 1f, 0.4f), new Vector3(2.4f, 2.4f, 6.5f), Quaternion.identity, MaterialId.White, false);
+            var hubPos = new Vector3(0f, towerH + 1f, 4f);
+            var rotor = StructureKit.CreateGroup(root.transform, "Rotor", hubPos, Quaternion.identity);
+            StructureKit.CreateCylinder(rotor.transform, "Göbek", Vector3.zero, 0.9f, 0.9f, MaterialId.Gray, false)
+                .transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            for (var i = 0; i < 3; i++)
+            {
+                var arm = StructureKit.CreateGroup(rotor.transform, "Kanat" + i, Vector3.zero, Quaternion.Euler(0f, 0f, i * 120f));
+                StructureKit.CreateBox(arm.transform, "Pala", new Vector3(0f, bladeLen * 0.5f + 0.6f, 0f),
+                    new Vector3(1.1f, bladeLen, 0.18f), Quaternion.identity, MaterialId.White, false);
+            }
+
+            // Kule/taban/nasel statik; rotor dönecek.
+            for (var i = 0; i < root.transform.childCount; i++)
+            {
+                var c = root.transform.GetChild(i).gameObject;
+                if (c != rotor)
+                    StructureKit.MarkStatic(c);
+            }
+
+            var spin = rotor.AddComponent<TurbineRotor>();
+            spin.Initialize(rotor.transform, 22f + (float)(rng?.NextDouble() ?? 0.5) * 16f, (float)(rng?.NextDouble() ?? 0.0) * 360f);
+            return root;
+        }
+
+        /// <summary>
+        /// PropOverride (ContentOverrides.props) varsa prosedürel yerine prefab örneğini yerleştirir; yoksa null (prosedürel kalır).
+        /// Prefab collider içermiyorsa renderer sınırlarından BoxCollider eklenir.
+        /// </summary>
+        private static GameObject TryOverride(Transform parent, string name, string propId, Vector3 pos, float yaw)
+        {
+            GameObject prefab;
+            try
+            {
+                if (!Project.Infrastructure.Content.ContentOverrides.TryGetProp(propId, out prefab) || prefab == null)
+                    return null;
+            }
+            catch (System.Exception)
+            {
+                return null;
+            }
+
+            var root = Root(parent, name, pos, yaw);
+            var inst = UnityEngine.Object.Instantiate(prefab, root.transform);
+            inst.name = prefab.name;
+            inst.transform.localPosition = Vector3.zero;
+            inst.transform.localRotation = Quaternion.identity;
+            SetLayerRecursive(inst, GameLayers.Default);
+            if (inst.GetComponentInChildren<Collider>(true) == null)
+            {
+                var r = inst.GetComponentInChildren<Renderer>(true);
+                if (r != null)
+                {
+                    var box = inst.AddComponent<BoxCollider>();
+                    var b = r.bounds;
+                    box.center = inst.transform.InverseTransformPoint(b.center);
+                    box.size = b.size;
+                }
+            }
+            StructureKit.MarkStatic(root);
+            return root;
+        }
+
+        private static void SetLayerRecursive(GameObject go, int layer)
+        {
+            go.layer = layer;
+            var t = go.transform;
+            for (var i = 0; i < t.childCount; i++)
+                SetLayerRecursive(t.GetChild(i).gameObject, layer);
+        }
+
         private static GameObject Root(Transform parent, string name, Vector3 pos, float yaw)
         {
             var go = new GameObject(name);
@@ -280,6 +429,27 @@ namespace Project.Infrastructure.World
             go.transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, yaw, 0f));
             go.layer = GameLayers.Default;
             return go;
+        }
+    }
+
+    /// <summary>Rüzgâr türbini rotoru: yerel Z ekseninde sabit hızla döner (derece/sn).</summary>
+    public sealed class TurbineRotor : MonoBehaviour
+    {
+        private Transform _t;
+        private float _degPerSec;
+
+        public void Initialize(Transform t, float degreesPerSecond, float startAngle)
+        {
+            _t = t;
+            _degPerSec = degreesPerSecond;
+            if (_t != null)
+                _t.localRotation = Quaternion.Euler(0f, 0f, startAngle);
+        }
+
+        private void Update()
+        {
+            if (_t != null)
+                _t.Rotate(0f, 0f, _degPerSec * Time.deltaTime, Space.Self);
         }
     }
 
