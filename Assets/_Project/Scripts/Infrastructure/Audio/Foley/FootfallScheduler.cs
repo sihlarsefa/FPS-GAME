@@ -110,6 +110,11 @@ namespace Project.Infrastructure.Audio.Foley
                 return i;
             }
             var j = (_last1 + 1) % count;
+            for (var k = 0; k < count; k++)
+            {
+                var cand = (_last1 + 1 + k) % count;
+                if (cand != _last1 && (count <= 2 || cand != _last2)) { j = cand; break; }
+            }
             _last2 = _last1;
             _last1 = j;
             return j;
