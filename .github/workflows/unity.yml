@@ -91,7 +91,7 @@ jobs:
             Library-${{ env.UNITY_VERSION }}-
 
       - name: Build macOS player
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@v6
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -134,7 +134,7 @@ jobs:
             Library-${{ env.UNITY_VERSION }}-
 
       - name: Build Linux dedicated server
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@v6
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
